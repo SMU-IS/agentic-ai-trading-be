@@ -51,7 +51,7 @@ langgraph-sdk==0.2.9
 langsmith==0.4.42
 markdown-it-py==4.0.0
 MarkupSafe==3.0.3
-marshmallow==3.26.1
+marshmallow==3.26.2
 mdurl==0.1.2
 multidict==6.7.0
 mypy_extensions==1.1.0
