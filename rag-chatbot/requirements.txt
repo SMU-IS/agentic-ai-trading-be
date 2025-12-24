@@ -7,6 +7,7 @@ anyio==4.11.0
 attrs==25.4.0
 beautifulsoup4==4.14.3
 bs4==0.0.2
+cachetools==6.2.4
 certifi==2025.10.5
 charset-normalizer==3.4.4
 click==8.3.0
@@ -18,9 +19,15 @@ fastapi==0.121.1
 fastapi-cli==0.0.16
 fastapi-cloud-cli==0.3.1
 filelock==3.20.1
+filetype==1.2.0
 frozenlist==1.8.0
 fsspec==2025.12.0
+google-ai-generativelanguage==0.9.0
+google-api-core==2.28.1
+google-auth==2.45.0
+googleapis-common-protos==1.72.0
 grpcio==1.76.0
+grpcio-status==1.76.0
 h11==0.16.0
 h2==4.3.0
 hf-xet==1.2.0
@@ -41,6 +48,7 @@ langchain-classic==1.0.0
 langchain-community==0.4.1
 langchain-core==1.2.5
 langchain-google-genai==3.0.2
+langchain-openai==1.1.6
 langchain-qdrant==1.1.0
 langchain-text-splitters==1.1.0
 langgraph==1.0.5
@@ -61,7 +69,10 @@ ormsgpack==1.12.1
 packaging==25.0
 portalocker==3.2.0
 propcache==0.4.1
+proto-plus==1.27.0
 protobuf==6.33.2
+pyasn1==0.6.1
+pyasn1_modules==0.4.2
 pydantic==2.12.4
 pydantic-settings==2.12.0
 pydantic_core==2.41.5
@@ -76,6 +87,7 @@ requests-toolbelt==1.0.0
 rich==14.2.0
 rich-toolkit==0.15.1
 rignore==0.7.6
+rsa==4.9.1
 safetensors==0.7.0
 sentry-sdk==2.44.0
 shellingham==1.5.4
