@@ -20,7 +20,7 @@ class RetrievalService:
             base_url=env_config.ollama_base_url,
             api_key=env_config.open_ai_api_key,  # type: ignore
             temperature=0,
-            max_completion_tokens=150,
+            max_completion_tokens=env_config.max_completion_tokens,
             streaming=True,
         )
 

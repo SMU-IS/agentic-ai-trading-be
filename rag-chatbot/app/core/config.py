@@ -20,6 +20,7 @@ class EnvConfig(BaseSettings):
     open_ai_api_key: str = Field(..., validation_alias="OPEN_AI_API_KEY")
     text_embedding_model: str = Field(..., validation_alias="TEXT_EMBEDDING_MODEL")
     large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
+    max_completion_tokens: int = Field(..., validation_alias="MAX_COMPLETION_TOKEN")
 
     # Vector Store
     qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
