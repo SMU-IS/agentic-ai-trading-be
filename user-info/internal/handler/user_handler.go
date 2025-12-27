@@ -108,7 +108,7 @@ func UserProfile(r *gin.Engine, uc domain.UserUseCase) {
 			uid, _ := c.Get("userID")
 			user, err := uc.GetProfile(c.Request.Context(), uid.(uint))
 			if err != nil {
-				c.JSON(404, gin.H{"error": "User not found"})
+				c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 				return
 			}
 			c.JSON(http.StatusOK, user)

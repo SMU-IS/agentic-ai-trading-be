@@ -4,6 +4,8 @@ import (
 	"agentic-ai-users/internal/domain"
 	"context"
 	"errors"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -23,10 +25,18 @@ func NewUserUseCase(ur domain.UserRepository, secret string) domain.UserUseCase 
 }
 
 func (s *userUseCase) generateToken(userID uint) (string, error) {
+	jwtExpiration := os.Getenv("JWT_EXPIRATION_HOURS")
+	jwtExpirationInt, err := strconv.Atoi(jwtExpiration)
+	if err != nil {
+		jwtExpirationInt = 24
+	}
+	expirationDuration := time.Duration(jwtExpirationInt) * time.Hour
+
 	claims := jwt.MapClaims{
 		"sub": userID,
-		"exp": time.Now().Add(24 * time.Hour).Unix(),
+		"exp": time.Now().Add(expirationDuration).Unix(),
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(s.jwtSecret)
 }
