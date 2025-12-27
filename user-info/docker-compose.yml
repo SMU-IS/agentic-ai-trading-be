@@ -1,0 +1,39 @@
+services:
+  user_postgres_db:
+    image: postgres:15-alpine
+    container_name: user_module_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build: .
+    container_name: user_module
+    ports:
+      - "8080:8080"
+    environment:
+      - HOST=user_postgres_db
+      - DB_PORT=5432
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=8080
+    depends_on:
+      user_postgres_db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
