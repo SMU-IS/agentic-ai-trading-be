@@ -1,0 +1,162 @@
+basePath: /api/v1
+definitions:
+  agentic-ai-users_internal_domain.User:
+    properties:
+      avatar_url:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: integer
+      provider:
+        description: e.g., "email", "google", "twitter"
+        type: string
+      updated_at:
+        type: string
+    type: object
+  internal_handler.LoginReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  internal_handler.RegisterReq:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: joshuadavidang@outlook.sg
+    name: Joshua
+    url: https://joshydavid.com
+  description: API documentation for Agentic AI Trading Portfolio - User Module
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Agentic AI Trading Portfolio User Module API
+  version: "1.0"
+paths:
+  /auth/{provider}:
+    get:
+      description: Redirects user to Social Provider (Google/Twitter)
+      parameters:
+      - description: Provider name (google, x)
+        in: path
+        name: provider
+        required: true
+        type: string
+      responses:
+        "302":
+          description: Redirect to Provider
+      summary: Start OAuth
+      tags:
+      - auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'returns {token: string}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User Login
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new retail investor account
+      parameters:
+      - description: Registration Details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handler.RegisterReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/agentic-ai-users_internal_domain.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
+  /user/profile:
+    get:
+      description: Get details of the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/agentic-ai-users_internal_domain.User'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get User Profile
+      tags:
+      - user
+swagger: "2.0"

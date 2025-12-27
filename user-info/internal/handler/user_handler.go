@@ -1,0 +1,169 @@
+package handler
+
+import (
+	"agentic-ai-users/constant"
+	"agentic-ai-users/internal/domain"
+	"agentic-ai-users/internal/middleware"
+	"net/http"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/markbates/goth/gothic"
+)
+
+type RegisterReq struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=8"`
+	FullName string `json:"full_name" binding:"required"`
+}
+
+type LoginReq struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
+
+type UserHandler struct {
+	UseCase domain.UserUseCase
+}
+
+func NewUserHandler(r *gin.Engine, uc domain.UserUseCase) {
+	h := &UserHandler{UseCase: uc}
+
+	api := r.Group(constant.Auth)
+	{
+		api.POST(constant.Register, h.Register)
+		api.POST(constant.Login, h.Login)
+
+		// OAuth Routes
+		api.GET(constant.Provider, h.StartAuth)
+		api.GET(constant.ProviderCallBack, h.CompleteAuth)
+	}
+}
+
+// Register godoc
+// @Summary      Register a new user
+// @Description  Create a new retail investor account
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      RegisterReq  true  "Registration Details"
+// @Success      201      {object}  domain.User
+// @Failure      400      {object}  map[string]string
+// @Failure      409      {object}  map[string]string
+// @Router       /auth/register [post]
+func (h *UserHandler) Register(c *gin.Context) {
+	var req RegisterReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	user, err := h.UseCase.Register(c.Request.Context(), req.Email, req.Password, req.FullName)
+	if err != nil {
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, user)
+}
+
+// Login godoc
+// @Summary      User Login
+// @Description  Authenticate user and return JWT token
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request  body      LoginReq  true  "Login Credentials"
+// @Success      200      {object}  map[string]string "returns {token: string}"
+// @Failure      401      {object}  map[string]string
+// @Router       /auth/login [post]
+func (h *UserHandler) Login(c *gin.Context) {
+	var req LoginReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	token, err := h.UseCase.Login(c.Request.Context(), req.Email, req.Password)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+// UserProfile godoc
+// @Summary      Get User Profile
+// @Description  Get details of the currently authenticated user
+// @Tags         user
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200      {object}  domain.User
+// @Failure      401      {object}  map[string]string
+// @Router       /user/profile [get]
+func UserProfile(r *gin.Engine, uc domain.UserUseCase) {
+	protected := r.Group(constant.User)
+	jwtSecret := os.Getenv("JWT_SECRET")
+
+	protected.Use(middleware.AuthMiddleware(jwtSecret))
+	{
+		protected.GET(constant.Profile, func(c *gin.Context) {
+			uid, _ := c.Get("userID")
+			user, err := uc.GetProfile(c.Request.Context(), uid.(uint))
+			if err != nil {
+				c.JSON(404, gin.H{"error": "User not found"})
+				return
+			}
+			c.JSON(http.StatusOK, user)
+		})
+	}
+}
+
+// StartAuth godoc
+// @Summary      Start OAuth
+// @Description  Redirects user to Social Provider (Google/Twitter)
+// @Tags         auth
+// @Param        provider  path  string  true  "Provider name (google, x)"
+// @Success      302       "Redirect to Provider"
+// @Router       /auth/{provider} [get]
+func (h *UserHandler) StartAuth(c *gin.Context) {
+	provider := c.Param("provider")
+	if provider == "x" {
+		provider = "twitter"
+	}
+
+	q := c.Request.URL.Query()
+	q.Add("provider", provider)
+	c.Request.URL.RawQuery = q.Encode()
+	gothic.BeginAuthHandler(c.Writer, c.Request)
+}
+
+func (h *UserHandler) CompleteAuth(c *gin.Context) {
+	provider := c.Param("provider")
+	if provider == "x" {
+		provider = "twitter"
+	}
+
+	q := c.Request.URL.Query()
+	q.Add("provider", provider)
+	c.Request.URL.RawQuery = q.Encode()
+
+	gothUser, err := gothic.CompleteUserAuth(c.Writer, c.Request)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Auth failed"})
+		return
+	}
+
+	profile := domain.OAuthProfile{
+		Email:      gothUser.Email,
+		Name:       gothUser.Name,
+		ProviderID: gothUser.UserID,
+		AvatarURL:  gothUser.AvatarURL,
+	}
+
+	token, err := h.UseCase.LoginOrRegisterOAuth(c.Request.Context(), provider, profile)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Login failed"})
+		return
+	}
+
+	xRedirectFrontend := os.Getenv("X_REDIRECT_FRONTEND")
+	c.Redirect(http.StatusFound, xRedirectFrontend+token)
+}
