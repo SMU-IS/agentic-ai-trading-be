@@ -28,9 +28,13 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
-
       - JWT_SECRET=${JWT_SECRET}
       - PORT=8080
+      - JWT_EXPIRATION_HOURS=${JWT_EXPIRATION_HOURS}
+      - X_KEY=${X_KEY}
+      - X_SECRET=${X_SECRET}
+      - X_CALL_BACK=${X_CALL_BACK}
+      - X_REDIRECT_FRONTEND=${X_REDIRECT_FRONTEND}
     depends_on:
       user_postgres_db:
         condition: service_healthy
