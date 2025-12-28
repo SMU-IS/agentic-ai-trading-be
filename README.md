@@ -2,9 +2,34 @@
 ![Pull Request](https://img.shields.io/github/issues-pr/SMU-IS/agentic-ai-trading-be)
 ![Release Badge](https://img.shields.io/github/v/release/SMU-IS/agentic-ai-trading-be)
 
-## 🤖 Agentic AI Trading Backend
+## 🤖 Agentic AI Trading Portfolio Backend
 
-Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+A dynamic, fully autonomous trading portfolio companion designed to navigate the complex digital financial landscape. Leveraging a multi-agent AI architecture, the platform transforms real-time market data, traditional news, and internet sentiment into personalised, actionable investment decisions.
+
+The system operates on behalf of users to mitigate information overload and circumvent human emotional bias, executing optimised buy or sell orders via external brokerage APIs within user-defined risk guardrails
+
+## 🚀 Key Features
+- **Multi-Agent AI Architecture**: Utilises a sophisticated multi-agent system to transform market data and sentiment into autonomous investment decisions.
+- **Real-Time Data Ingestion**: Automatically scrapes and aggregates daily financial news and high-volume internet sentiment from sources like Yahoo Finance, Reddit, and X.
+- **NLP-Powered News Analysis**: Uses advanced Natural Language Processing (via spaCy, NLTK, and FinBERT) to extract investment-relevant events and perform sentiment analysis.
+- **Credibility & Fact-Checking**: Evaluates source reliability and uses AI to validate the accuracy of claims, assigning a credibility score to weighted sentiment.
+- **RAG Chatbot**: A natural language interface that allows users to query a news database and their portfolio context using Retrieval-Augmented Generation (RAG).
+- **Autonomous Trading Agent**: Synthesises market data with user-specific portfolio context to execute buy/sell orders via external brokerage APIs (e.g., Alpaca/IBKR).
+- **Interactive Visualisation Dashboard**: Provides real-time sentiment indicators per ticker, profit and loss (P&L) trends, and current portfolio holdings.
+- **Notification System**: Delivers critical alerts when breaking news directly impacts a user’s specific holdings and confirms autonomous trade executions.
+
+## 👨‍💻 Tech Stack
+
+- [FastAPI, Python](https://fastapi.tiangolo.com)
+- [Gin, Golang](https://gin-gonic.com/en/)
+- [Redis](https://redis.io)
+- [Kong Gateway](https://konghq.com/products/kong-gateway)
+- [FinBERT](https://huggingface.co/yiyanghkust/finbert-tone)
+- [LangChain](https://langchain.com)
+- [LangGraph](https://langchain.com/langgraph)
+- [Google Gemini](https://ai.google.dev)
+- [Qdrant](https://qdrant.tech)
+- [Amazon Web Services](https://aws.amazon.com)
 
 ## ⚙️ System Architecture
 
@@ -12,25 +37,6 @@ Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
 - Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
 - It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
 - It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-
-## 🚀 Features
-
-- Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-- Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-- It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-- It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-
-## 👨‍💻 Tech Stack
-
-- [FastAPI, Python](https://fastapi.tiangolo.com)
-- [Gin, Golang](https://gin-gonic.com/en/)
-- [Redis](https://redis.io)
-- [FinBERT](https://huggingface.co/yiyanghkust/finbert-tone)
-- [LangChain](https://langchain.com)
-- [LangGraph](https://langchain.com/langgraph)
-- [Google Gemini](https://ai.google.dev)
-- [Qdrant](https://qdrant.tech)
-- [Amazon Web Services](https://aws.amazon.com)
 
 ## 💨 Getting Started
 
@@ -48,7 +54,21 @@ Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem
 
 ## 💳 Acknowledgement
 
-- Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-- Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-- It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-- It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+Developed by Mvidia (Team 2), IS484 Project Experience <br />
+In Collaboration With UBS.
+
+<a href="https://www.linkedin.com/in/joshydavid/">
+  <img src="https://github.com/user-attachments/assets/4dfe0c89-8ced-4e08-bcf3-6261bdbb956d" width="80">
+</a> &nbsp;
+
+<a href="https://www.linkedin.com/in/bryancjh/">
+  <img src="https://github.com/user-attachments/assets/cc1782b1-e71f-410a-97a4-cfec08bccead" width="80">
+</a> &nbsp;
+
+<a href="https://www.linkedin.com/in/derricklkh/">
+  <img src="https://github.com/user-attachments/assets/2db4b711-b7d0-4368-8d12-6449c3fa2aa2" width="80">
+</a> &nbsp;
+
+<a href="https://www.linkedin.com/in/shawn-ng-yh/">
+  <img src="https://github.com/user-attachments/assets/6bd4f3a7-6784-402a-b891-03d91e15d705" width="80">
+</a> &nbsp;

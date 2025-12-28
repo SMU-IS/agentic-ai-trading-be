@@ -9,15 +9,15 @@ services:
       - ./qdrant_storage:/qdrant/storage:z
     restart: unless-stopped
 
-  backend:
+  rag-chatbot-service:
     build: .
-    container_name: ai_agentic_app
+    container_name: rag-agentic-app
     ports:
-      - "8000:8000"
+      - "5001:5001"
     volumes:
       - .:/code
     environment:
       - QDRANT_HOST=qdrant
     depends_on:
       - qdrant
-    command: fastapi dev app/main.py --host 0.0.0.0 --port 8000
+    command: fastapi dev app/main.py --host 0.0.0.0 --port 5001

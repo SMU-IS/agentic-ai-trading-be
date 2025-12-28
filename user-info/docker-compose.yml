@@ -1,7 +1,7 @@
 services:
-  user_postgres_db:
+  user-postgres-db:
     image: postgres:15-alpine
-    container_name: user_module_db
+    container_name: user-module-db
     restart: always
     environment:
       POSTGRES_USER: ${DB_USERNAME}
@@ -19,11 +19,11 @@ services:
 
   user-service:
     build: .
-    container_name: user_module
+    container_name: user-module
     ports:
       - "8080:8080"
     environment:
-      - HOST=user_postgres_db
+      - HOST=user-postgres-db
       - DB_PORT=5432
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -36,7 +36,7 @@ services:
       - X_CALL_BACK=${X_CALL_BACK}
       - X_REDIRECT_FRONTEND=${X_REDIRECT_FRONTEND}
     depends_on:
-      user_postgres_db:
+      user-postgres-db:
         condition: service_healthy
 
 volumes:

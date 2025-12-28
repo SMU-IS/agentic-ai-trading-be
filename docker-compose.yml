@@ -1,0 +1,31 @@
+services:
+  # === Kong Gateway ===
+  kong:
+    image: kong:3.4
+    container_name: kong-gateway
+    environment:
+      - KONG_DATABASE=off
+      - KONG_DECLARATIVE_CONFIG=/usr/local/kong/declarative/kong.yml
+      - KONG_PROXY_ACCESS_LOG=/dev/stdout
+      - KONG_ADMIN_ACCESS_LOG=/dev/stdout
+      - KONG_PROXY_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_ERROR_LOG=/dev/stderr
+      - KONG_ADMIN_LISTEN=0.0.0.0:8001
+      - KONG_PROXY_LISTEN=0.0.0.0:8000
+    volumes:
+      - ./kong.yml:/usr/local/kong/declarative/kong.yml
+    ports:
+      - "8000:8000" # Frontend port /8000
+      - "8001:8001" # Admin port
+    restart: always
+
+include:
+  # === User Info Microservice ===
+  - path: ./user-info/docker-compose.yml
+    env_file: ./user-info/.env
+    project_directory: ./user-info
+
+  # === RAG Chatbot Microservice ===
+  - path: ./rag-chatbot/docker-compose.yml
+    env_file: ./rag-chatbot/.env
+    project_directory: ./rag-chatbot
