@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /
 definitions:
   agentic-ai-users_internal_domain.User:
     properties:
@@ -138,7 +138,7 @@ paths:
       summary: Register a new user
       tags:
       - auth
-  /user/profile:
+  /profile:
     get:
       description: Get details of the currently authenticated user
       produces:

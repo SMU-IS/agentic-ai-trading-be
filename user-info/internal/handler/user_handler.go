@@ -97,9 +97,9 @@ func (h *UserHandler) Login(c *gin.Context) {
 // @Security     BearerAuth
 // @Success      200      {object}  domain.User
 // @Failure      401      {object}  map[string]string
-// @Router       /user/profile [get]
+// @Router       /profile [get]
 func UserProfile(r *gin.Engine, uc domain.UserUseCase) {
-	protected := r.Group(constant.User)
+	protected := r.Group("")
 	jwtSecret := os.Getenv("JWT_SECRET")
 
 	protected.Use(middleware.AuthMiddleware(jwtSecret))

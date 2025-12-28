@@ -5,7 +5,6 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 
-from app.core.config import env_config
 from app.core.constant import APIPath
 from app.routers import chat, ingestion
 
@@ -33,7 +32,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-api_v1_router = APIRouter(prefix=env_config.api_version)
+api_router = APIRouter()
 
 
 @app.get(APIPath.HEALTH_CHECK, tags=["Healthcheck"])
@@ -42,7 +41,7 @@ def root():
 
 
 # ====== API Endpoints ======
-api_v1_router.include_router(ingestion.router)
-api_v1_router.include_router(chat.router)
+api_router.include_router(ingestion.router)
+api_router.include_router(chat.router)
 
-app.include_router(api_v1_router)
+app.include_router(api_router)

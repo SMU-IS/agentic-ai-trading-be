@@ -10,6 +10,6 @@ import (
 )
 
 func SetUpAPIDocs(router *gin.Engine) {
-	docs.SwaggerInfo.BasePath = constant.BasePath
+	docs.SwaggerInfo.BasePath = "/"
 	router.GET(constant.Doc, ginSwagger.WrapHandler(swaggerfiles.Handler))
 }

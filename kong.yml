@@ -1,0 +1,21 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  # === User Info Microservice ===
+  - name: user-service-entry
+    url: http://user-service:8080
+    routes:
+      - name: user-routes
+        paths:
+          - /api/v1/user
+        strip_path: true
+
+  # === RAG Chatbot Microservice ===
+  - name: rag-chatbot-service-entry
+    url: http://rag-chatbot-service:5001
+    routes:
+      - name: rag-chatbot-routes
+        paths:
+          - /api/v1/rag
+        strip_path: true
