@@ -36,16 +36,9 @@ To get the Agentic AI Trading backend up and running locally, follow these steps
   ```
   docker compose up -d
   ```
-- Access the API: Once the containers are healthy, the server is available at `http://localhost:8080`
+- Access the Server: Once the containers are healthy, the server is available at `http://localhost:8000`
 - Verify Development Mode: The backend is configured with fastapi dev, so any changes you save to your local code will automatically trigger a hot-reload inside the container.
 
 ## 📁 API Documentation
 
-- http://localhost:8080/docs/index.html
-
-## 💳 Acknowledgement
-
-- Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-- Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-- It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-- It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+- http://localhost:8000/api/v1/user/docs/index.html

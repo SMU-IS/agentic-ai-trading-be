@@ -18,6 +18,7 @@ app = FastAPI(
         "name": "SMU IS484 - Mvidia",
         "url": "https://github.com/SMU-IS/agentic-ai-trading-be",
     },
+    root_path="/api/v1/rag",
 )
 
 
