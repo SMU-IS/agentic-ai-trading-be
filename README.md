@@ -1,6 +1,12 @@
-![Issue](https://img.shields.io/github/issues/SMU-IS/agentic-ai-trading-be)
-![Pull Request](https://img.shields.io/github/issues-pr/SMU-IS/agentic-ai-trading-be)
-![Release Badge](https://img.shields.io/github/v/release/SMU-IS/agentic-ai-trading-be)
+<p align="center">
+  <img src="https://img.shields.io/github/issues/SMU-IS/agentic-ai-trading-be" alt="Issue">
+  <img src="https://img.shields.io/github/issues-pr/SMU-IS/agentic-ai-trading-be" alt="Pull Request">
+  <img src="https://img.shields.io/github/v/release/SMU-IS/agentic-ai-trading-be" alt="Release Badge">
+</p>
+
+<p align="center">
+  <img width="220" height="204" alt="agent" src="https://github.com/user-attachments/assets/82d27a27-f71c-42ac-bf51-5b1a83893e6a" />
+</p>
 
 ## 🤖 Agentic AI Trading Portfolio Backend
 
@@ -33,7 +39,7 @@ The system operates on behalf of users to mitigate information overload and circ
 - **📊 Interactive Visualisation Dashboard**: Provides real-time sentiment indicators per ticker, profit and loss (P&L) trends, and current portfolio holdings.
 - **🔔 Notification System**: Delivers critical alerts when breaking news directly impacts a user’s specific holdings and confirms autonomous trade executions.
 
-## ⚙️ System Architecture
+## 🏗️ System Architecture
 
 - Lorem Ipsum is simply dummy text of the printing and typesetting industry.
 - Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
