@@ -12,9 +12,6 @@ class EnvConfig(BaseSettings):
         env_file=ENV_PATH, env_file_encoding="utf-8", extra="ignore"
     )
 
-    # API Versioning
-    api_version: str = Field(..., validation_alias="API_VERSION")
-
     # LLM
     ollama_base_url: str = Field(..., validation_alias="OLLAMA_BASE_URL")
     open_ai_api_key: str = Field(..., validation_alias="OPEN_AI_API_KEY")
