@@ -9,7 +9,7 @@ LLM_STRATEGIES = {
 
 def get_strategy(provider_name: LLMProviders):
     """
-    Retrieves the strategy strategy based on config name.
+    Retrieves the strategy based on config name.
     """
 
     strategy = LLM_STRATEGIES.get(provider_name)

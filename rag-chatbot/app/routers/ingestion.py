@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from app.core.config import env_config
 from app.core.constant import APIPath
 from app.core.security import get_current_user
@@ -16,6 +18,7 @@ Only for testing purposes.
 router = APIRouter(tags=["Ingest Documents"], dependencies=[Depends(get_current_user)])
 
 
+@lru_cache()
 def get_ingestion_service() -> IngestionService:
     """
     Factory function to provide a fully configured IngestionService.
@@ -24,9 +27,9 @@ def get_ingestion_service() -> IngestionService:
 
     vector_strat = get_vector_strategy(env_config.storage_provider)
     vector_store_instance = vector_strat.get_vector_store()
-    ingestion_sevice = IngestionService(vector_store_instance)
+    ingestion_service = IngestionService(vector_store_instance)
 
-    return ingestion_sevice
+    return ingestion_service
 
 
 @router.post(APIPath.INGEST_DOCUMENTS)

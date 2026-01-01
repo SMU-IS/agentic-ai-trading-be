@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from app.core.config import env_config
 from app.core.constant import APIPath
 from app.core.security import get_current_user
@@ -11,7 +13,8 @@ from fastapi.responses import StreamingResponse
 router = APIRouter(tags=["RAG Chatbot"], dependencies=[Depends(get_current_user)])
 
 
-def get_retrieval_service():
+@lru_cache()
+def get_retrieval_service() -> RetrievalService:
     strategy = get_strategy(env_config.llm_provider)
     llm_model = strategy.create_model()
 
