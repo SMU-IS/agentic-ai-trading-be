@@ -20,13 +20,15 @@ import (
 type userUseCase struct {
 	userRepo    domain.UserRepository
 	redisClient *redis.Client
+	cacheTTL    time.Duration
 	jwtSecret   []byte
 }
 
-func NewUserUseCase(ur domain.UserRepository, rc *redis.Client, secret string) domain.UserUseCase {
+func NewUserUseCase(ur domain.UserRepository, rc *redis.Client, ttl time.Duration, secret string) domain.UserUseCase {
 	return &userUseCase{
 		userRepo:    ur,
 		redisClient: rc,
+		cacheTTL:    ttl,
 		jwtSecret:   []byte(secret),
 	}
 }
@@ -134,14 +136,9 @@ func (s *userUseCase) GetProfile(ctx context.Context, userID uint) (*domain.User
 	}
 
 	data, err := json.Marshal(user)
-
-	expirationStr := os.Getenv("CACHE_EXPIRATION_HOURS")
-	expirationInt, err := strconv.Atoi(expirationStr)
-	if err != nil {
-		expirationInt = 1
+	if err == nil {
+		s.redisClient.Set(ctx, cacheKey, data, s.cacheTTL)
 	}
-	expiration := time.Duration(expirationInt) * time.Hour
-	s.redisClient.Set(ctx, cacheKey, data, expiration)
 
 	return user, nil
 }

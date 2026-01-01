@@ -10,14 +10,9 @@ import (
 )
 
 func InitRedis() *redis.Client {
-	addr := os.Getenv("REDIS_ADDR")
-	if addr == "" {
-		addr = "localhost:6379"
-	}
-
 	redisDb := redis.NewClient(&redis.Options{
-		Addr:     addr,
-		Password: "",
+		Addr:     os.Getenv("REDIS_ADDR"),
+		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       0,
 	})
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -27,6 +22,6 @@ func InitRedis() *redis.Client {
 		log.Fatalf("❌ Redis connection failed: %v", err)
 	}
 
-	log.Println("✅ Redis connected successfully at", addr)
+	log.Println("✅ Redis connected successfully")
 	return redisDb
 }

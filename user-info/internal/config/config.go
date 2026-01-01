@@ -56,7 +56,7 @@ func InitDB(cfg *DBConfig) *gorm.DB {
 		log.Fatalf("DB Migration failed: %v", err)
 	}
 
-	log.Println("Database connection established and migrated successfully")
+	log.Println("✅ Database connection established and migrated successfully")
 	return db
 }
 
