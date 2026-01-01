@@ -13,3 +13,11 @@ class LangChainEvent(str, Enum):
     TOOL_END = "on_tool_end"
     CHAIN_START = "on_chain_start"
     CHAIN_END = "on_chain_end"
+
+
+class LLMProviders(str, Enum):
+    OLLAMA = "ollama"
+
+
+class StorageProviders(str, Enum):
+    QDRANT_OLLAMA = "qdrant_ollama"

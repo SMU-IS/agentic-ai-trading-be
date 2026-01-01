@@ -3,26 +3,19 @@ import logging
 from typing import AsyncGenerator
 
 from langchain.agents import create_agent
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
-from langchain_openai import ChatOpenAI
+from langchain_core.vectorstores import VectorStore
 
-from app.core.config import env_config
 from app.core.constant import LangChainEvent
-from app.core.vector_store import vector_store
 
 
 class RetrievalService:
-    def __init__(self):
+    def __init__(self, llm: BaseChatModel, vector_store: VectorStore):
         # 1. Initialize LLM
-        self.model = ChatOpenAI(
-            model=env_config.large_language_model,
-            base_url=env_config.ollama_base_url,
-            api_key=env_config.open_ai_api_key,  # type: ignore
-            temperature=0,
-            max_completion_tokens=env_config.max_completion_tokens,
-            streaming=True,
-        )
+        self.model = llm
+        self.vector_store = vector_store
 
         # 2. Define the Tool
         @tool(response_format="content_and_artifact")
@@ -31,8 +24,7 @@ class RetrievalService:
             Retrieve additional context to help answer a query.
             """
 
-            store = vector_store.get_store()
-            retrieved_docs = store.similarity_search(query, k=2)
+            retrieved_docs = self.vector_store.similarity_search(query, k=2)
 
             serialized = "\n\n".join(
                 (f"Source: {doc.metadata}\nContent: {doc.page_content}")

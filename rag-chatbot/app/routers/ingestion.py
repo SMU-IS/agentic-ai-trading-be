@@ -1,5 +1,9 @@
+from functools import lru_cache
+
+from app.core.config import env_config
 from app.core.constant import APIPath
 from app.core.security import get_current_user
+from app.providers.vector.registry import get_vector_strategy
 from app.schemas.ingestion import Ingestion
 from app.services.ingestion_service import IngestionService
 from fastapi import APIRouter, BackgroundTasks, Depends
@@ -14,11 +18,18 @@ Only for testing purposes.
 router = APIRouter(tags=["Ingest Documents"], dependencies=[Depends(get_current_user)])
 
 
-_ingestion_instance = IngestionService()
+@lru_cache()
+def get_ingestion_service() -> IngestionService:
+    """
+    Factory function to provide a fully configured IngestionService.
+    It resolves the storage strategy dynamically.
+    """
 
+    vector_strat = get_vector_strategy(env_config.storage_provider)
+    vector_store_instance = vector_strat.get_vector_store()
+    ingestion_service = IngestionService(vector_store_instance)
 
-def get_ingestion_service():
-    return _ingestion_instance
+    return ingestion_service
 
 
 @router.post(APIPath.INGEST_DOCUMENTS)
