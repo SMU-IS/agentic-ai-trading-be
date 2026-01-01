@@ -17,6 +17,13 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   user-service:
     build: .
     container_name: user-module
@@ -28,6 +35,7 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
+      - REDIS_ADDR=${REDIS_ADDR}
       - JWT_SECRET=${JWT_SECRET}
       - PORT=8080
       - JWT_EXPIRATION_HOURS=${JWT_EXPIRATION_HOURS}
@@ -38,6 +46,9 @@ services:
     depends_on:
       user-postgres-db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
 volumes:
   postgres_data:
+  redis_data:

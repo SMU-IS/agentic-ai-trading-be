@@ -2,6 +2,7 @@ package main
 
 import (
 	"agentic-ai-users/internal/config"
+	"agentic-ai-users/internal/domain"
 	"agentic-ai-users/internal/handler"
 	"agentic-ai-users/internal/repository"
 	"agentic-ai-users/internal/service"
@@ -33,23 +34,25 @@ func main() {
 	util.LoadEnv()
 	config.SetupOAuth()
 
-	// 1. Set Up Database
 	db := config.InitDB(config.LoadDBConfig())
+	redisDb := config.InitRedis()
+	defer redisDb.Close()
 
-	// 2. Dependency Injection
 	userRepo := repository.NewUserRepository(db)
-	userSvc := service.NewUserUseCase(userRepo, os.Getenv("JWT_SECRET"))
+	userSvc := service.NewUserUseCase(userRepo, redisDb, os.Getenv("JWT_SECRET"))
 
-	// 3. Routers & Middleware
+	router := setupRouter(userSvc)
+	server.RunServer(router)
+}
+
+func setupRouter(userSvc domain.UserUseCase) *gin.Engine {
 	router := gin.Default()
 	router.SetTrustedProxies(nil)
 
-	// 4. API Routes Handlers
 	handler.SetupHealthRoutes(router)
 	handler.SetUpAPIDocs(router)
 	handler.NewUserHandler(router, userSvc)
 	handler.UserProfile(router, userSvc)
 
-	// 5. Start Server
-	server.RunServer(router)
+	return router
 }
