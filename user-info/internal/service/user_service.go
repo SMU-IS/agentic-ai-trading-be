@@ -1,26 +1,35 @@
 package service
 
 import (
+	"agentic-ai-users/constant"
 	"agentic-ai-users/internal/domain"
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/redis/go-redis/v9"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type userUseCase struct {
-	userRepo  domain.UserRepository
-	jwtSecret []byte
+	userRepo    domain.UserRepository
+	redisClient *redis.Client
+	cacheTTL    time.Duration
+	jwtSecret   []byte
 }
 
-func NewUserUseCase(ur domain.UserRepository, secret string) domain.UserUseCase {
+func NewUserUseCase(ur domain.UserRepository, rc *redis.Client, ttl time.Duration, secret string) domain.UserUseCase {
 	return &userUseCase{
-		userRepo:  ur,
-		jwtSecret: []byte(secret),
+		userRepo:    ur,
+		redisClient: rc,
+		cacheTTL:    ttl,
+		jwtSecret:   []byte(secret),
 	}
 }
 
@@ -108,5 +117,28 @@ func (s *userUseCase) LoginOrRegisterOAuth(ctx context.Context, provider string,
 }
 
 func (s *userUseCase) GetProfile(ctx context.Context, userID uint) (*domain.User, error) {
-	return s.userRepo.GetByID(ctx, userID)
+	cacheKey := fmt.Sprintf(constant.UserProfileCacheKey, userID)
+	val, err := s.redisClient.Get(ctx, cacheKey).Result()
+	if err == nil {
+		// Cache Hit
+		var user domain.User
+		if err := json.Unmarshal([]byte(val), &user); err == nil {
+			return &user, nil
+		}
+	} else if err != redis.Nil {
+		log.Printf("Redis error: %v\n", err)
+	}
+
+	// Cache Miss
+	user, err := s.userRepo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := json.Marshal(user)
+	if err == nil {
+		s.redisClient.Set(ctx, cacheKey, data, s.cacheTTL)
+	}
+
+	return user, nil
 }

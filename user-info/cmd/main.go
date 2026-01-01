@@ -2,14 +2,20 @@ package main
 
 import (
 	"agentic-ai-users/internal/config"
+	"agentic-ai-users/internal/domain"
 	"agentic-ai-users/internal/handler"
 	"agentic-ai-users/internal/repository"
 	"agentic-ai-users/internal/service"
 	"agentic-ai-users/pkg/util"
 	"agentic-ai-users/server"
+	"log"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
 // @title           Agentic AI Trading Portfolio User Module API
@@ -33,23 +39,39 @@ func main() {
 	util.LoadEnv()
 	config.SetupOAuth()
 
-	// 1. Set Up Database
 	db := config.InitDB(config.LoadDBConfig())
+	redisDb := config.InitRedis()
+	defer redisDb.Close()
 
-	// 2. Dependency Injection
+	userSvc := initUserUseCase(db, redisDb)
+
+	router := setupRouter(userSvc)
+	server.RunServer(router)
+}
+
+func initUserUseCase(db *gorm.DB, redisDb *redis.Client) domain.UserUseCase {
+	cacheHoursStr := os.Getenv("CACHE_EXPIRATION_HOURS")
+	cacheHours, err := strconv.Atoi(cacheHoursStr)
+	log.Println("LOGGGGG", cacheHours)
+	if err != nil {
+		cacheHours = 1
+	}
+
+	redisTtl := time.Duration(cacheHours) * time.Hour
+	jwtSecret := os.Getenv("JWT_SECRET")
+
 	userRepo := repository.NewUserRepository(db)
-	userSvc := service.NewUserUseCase(userRepo, os.Getenv("JWT_SECRET"))
+	return service.NewUserUseCase(userRepo, redisDb, redisTtl, jwtSecret)
+}
 
-	// 3. Routers & Middleware
+func setupRouter(userSvc domain.UserUseCase) *gin.Engine {
 	router := gin.Default()
 	router.SetTrustedProxies(nil)
 
-	// 4. API Routes Handlers
 	handler.SetupHealthRoutes(router)
 	handler.SetUpAPIDocs(router)
 	handler.NewUserHandler(router, userSvc)
 	handler.UserProfile(router, userSvc)
 
-	// 5. Start Server
-	server.RunServer(router)
+	return router
 }
