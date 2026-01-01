@@ -8,7 +8,6 @@ import (
 	"agentic-ai-users/internal/service"
 	"agentic-ai-users/pkg/util"
 	"agentic-ai-users/server"
-	"log"
 	"os"
 	"strconv"
 	"time"
@@ -52,7 +51,6 @@ func main() {
 func initUserUseCase(db *gorm.DB, redisDb *redis.Client) domain.UserUseCase {
 	cacheHoursStr := os.Getenv("CACHE_EXPIRATION_HOURS")
 	cacheHours, err := strconv.Atoi(cacheHoursStr)
-	log.Println("LOGGGGG", cacheHours)
 	if err != nil {
 		cacheHours = 1
 	}

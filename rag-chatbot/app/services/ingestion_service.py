@@ -3,19 +3,23 @@ from typing import List
 from bs4.filter import SoupStrainer
 from langchain_community.document_loaders import WebBaseLoader
 from langchain_core.documents import Document
+from langchain_core.vectorstores import VectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-from app.core.vector_store import vector_store
 
 
 class IngestionService:
-    def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
+    def __init__(
+        self,
+        vector_store: VectorStore,
+        chunk_size: int = 1000,
+        chunk_overlap: int = 200,
+    ):
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
             separators=["\n\n", "\n", " ", ""],
         )
-        self.vector_store = vector_store.get_store()
+        self.vector_store = vector_store
 
     def _load_web_content(self, urls: List[str]) -> List[Document]:
         """
@@ -40,6 +44,7 @@ class IngestionService:
 
         raw_docs = self._load_web_content(urls)
         split_docs = self.text_splitter.split_documents(raw_docs)
-        self.vector_store.add_documents(split_docs)
+
+        await self.vector_store.aadd_documents(split_docs)
 
         return {"status": "success", "chunks_ingested": len(split_docs)}
