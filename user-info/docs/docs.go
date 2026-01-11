@@ -24,7 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/login": {
+        "/api/v1/auth/login": {
             "post": {
                 "description": "Authenticate user and return JWT token",
                 "consumes": [
@@ -70,7 +70,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/register": {
+        "/api/v1/auth/register": {
             "post": {
                 "description": "Create a new retail investor account",
                 "consumes": [
@@ -122,7 +122,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/{provider}": {
+        "/api/v1/auth/{provider}": {
             "get": {
                 "description": "Redirects user to Social Provider (Google/Twitter)",
                 "tags": [
@@ -145,7 +145,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/profile": {
+        "/api/v1/profile": {
             "get": {
                 "security": [
                     {

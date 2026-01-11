@@ -50,7 +50,7 @@ func NewUserHandler(r *gin.Engine, uc domain.UserUseCase) {
 // @Success      201      {object}  domain.User
 // @Failure      400      {object}  map[string]string
 // @Failure      409      {object}  map[string]string
-// @Router       /auth/register [post]
+// @Router       /api/v1/auth/register [post]
 func (h *UserHandler) Register(c *gin.Context) {
 	var req RegisterReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -74,7 +74,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 // @Param        request  body      LoginReq  true  "Login Credentials"
 // @Success      200      {object}  map[string]string "returns {token: string}"
 // @Failure      401      {object}  map[string]string
-// @Router       /auth/login [post]
+// @Router       /api/v1/auth/login [post]
 func (h *UserHandler) Login(c *gin.Context) {
 	var req LoginReq
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -97,7 +97,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 // @Security     BearerAuth
 // @Success      200      {object}  domain.User
 // @Failure      401      {object}  map[string]string
-// @Router       /profile [get]
+// @Router       /api/v1/profile [get]
 func UserProfile(r *gin.Engine, uc domain.UserUseCase) {
 	protected := r.Group("")
 	jwtSecret := os.Getenv("JWT_SECRET")
@@ -122,7 +122,7 @@ func UserProfile(r *gin.Engine, uc domain.UserUseCase) {
 // @Tags         auth
 // @Param        provider  path  string  true  "Provider name (google, x)"
 // @Success      302       "Redirect to Provider"
-// @Router       /auth/{provider} [get]
+// @Router       /api/v1/auth/{provider} [get]
 func (h *UserHandler) StartAuth(c *gin.Context) {
 	provider := c.Param("provider")
 	if provider == "x" {
