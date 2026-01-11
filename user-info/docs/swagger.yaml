@@ -59,7 +59,7 @@ info:
   title: Agentic AI Trading Portfolio User Module API
   version: "1.0"
 paths:
-  /auth/{provider}:
+  /api/v1/auth/{provider}:
     get:
       description: Redirects user to Social Provider (Google/Twitter)
       parameters:
@@ -74,7 +74,7 @@ paths:
       summary: Start OAuth
       tags:
       - auth
-  /auth/login:
+  /api/v1/auth/login:
     post:
       consumes:
       - application/json
@@ -104,7 +104,7 @@ paths:
       summary: User Login
       tags:
       - auth
-  /auth/register:
+  /api/v1/auth/register:
     post:
       consumes:
       - application/json
@@ -138,7 +138,7 @@ paths:
       summary: Register a new user
       tags:
       - auth
-  /profile:
+  /api/v1/profile:
     get:
       description: Get details of the currently authenticated user
       produces:
