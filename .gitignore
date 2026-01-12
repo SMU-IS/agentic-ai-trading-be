@@ -1,1 +1,102 @@
+# =========================
+# OS files
+# =========================
 .DS_Store
+.DS_Store?
+Thumbs.db
+
+# =========================
+# Editor / IDE
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*.bak
+*.tmp
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.env
+.venv/
+venv/
+ENV/
+env/
+pip-wheel-metadata/
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+log/
+
+# =========================
+# Build / dist
+# =========================
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# =========================
+# Dependency directories
+# =========================
+node_modules/
+vendor/
+
+# =========================
+# Secrets & config (IMPORTANT)
+# =========================
+*.env
+.env.*
+secrets/
+credentials/
+*.key
+*.pem
+*.crt
+
+# =========================
+# Network / system configs (DO NOT COMMIT)
+# =========================
+dhcpd.conf
+*.conf.local
+/etc/
+backup/
+backups/
+
+# =========================
+# Archives
+# =========================
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# =========================
+# Database files
+# =========================
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# Coverage / testing
+# =========================
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# =========================
+# Misc
+# =========================
+*.pid
+*.seed
