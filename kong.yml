@@ -1,6 +1,32 @@
 _format_version: "3.0"
 _transform: true
 
+plugins:
+  - name: cors
+    config:
+      origins:
+        - http://localhost:3000 # TODO: Add in production url
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - Authorization
+      exposed_headers:
+        - X-Auth-Token
+      credentials: true
+      max_age: 3600
+      preflight_continue: false
+
 services:
   # === User Info Microservice ===
   - name: user-service-entry
