@@ -1,11 +1,12 @@
-import re
 import html
+import re
 import unicodedata
-import strip_markdown
+from datetime import datetime
+from typing import Dict, List, Union
+
 import emoji
 import ftfy
-from typing import Dict, List, Union
-from datetime import datetime
+import strip_markdown
 
 
 class PreprocessingService:
@@ -13,15 +14,21 @@ class PreprocessingService:
     Preprocesses scraped posts and removes multispace, control characters, markdown and emojis (converted into :emoji:)
     Preserves casing, symbols, numbers, punctuation and emoji description for downstream analysis
     """
+
     def __init__(self):
         self.URL_PATTERN = re.compile(r"(https?://\S+|www\.\S+)", flags=re.IGNORECASE)
-        self.MARKDOWN_URL_PATTERN = re.compile(r"!?\[([^\]]+)\]\((https?://\S+|www\.\S+)\)", flags=re.IGNORECASE)
+        self.MARKDOWN_URL_PATTERN = re.compile(
+            r"!?\[([^\]]+)\]\((https?://\S+|www\.\S+)\)", flags=re.IGNORECASE
+        )
         self.MULTI_WHITESPACE = re.compile(r"\s+")
         self.CONTROL_CHARS = re.compile(r"[\r\n\t]+")
         self.IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "webp"]
         exts = "|".join(self.IMAGE_EXTENSIONS)
-        self.IMAGE_PATTERN = re.compile(r"(https?://\S+\.(?:%s)|www\.\S+\.(?:%s))" % (exts, exts), flags=re.IGNORECASE)
-    
+        self.IMAGE_PATTERN = re.compile(
+            r"(https?://\S+\.(?:%s)|www\.\S+\.(?:%s))" % (exts, exts),
+            flags=re.IGNORECASE,
+        )
+
     # Cleaning text
     def clean_text(self, text: str) -> str:
         if not text:
@@ -33,7 +40,7 @@ class PreprocessingService:
         text = self.MARKDOWN_URL_PATTERN.sub(r"\1: \2", text)
         text = strip_markdown.strip_markdown(text)
         # converts emoji to text e.g. 😍 -> :heart_eyes:
-        text = emoji.demojize(text)  
+        text = emoji.demojize(text)
         text = self.CONTROL_CHARS.sub(" ", text)
         text = self.MULTI_WHITESPACE.sub(" ", text).strip()
 
@@ -58,7 +65,9 @@ class PreprocessingService:
         raw_title = post.get("Title", "")
         raw_body = post.get("Body", "")
         urls = self.URL_PATTERN.findall(raw_title) + self.URL_PATTERN.findall(raw_body)
-        images = self.IMAGE_PATTERN.findall(raw_title) + self.IMAGE_PATTERN.findall(raw_body)
+        images = self.IMAGE_PATTERN.findall(raw_title) + self.IMAGE_PATTERN.findall(
+            raw_body
+        )
         urls = [url.rstrip(".,)]+") for url in urls]
         images = [url.rstrip(".,)]+") for url in images]
         # Remove URLs that are also in images

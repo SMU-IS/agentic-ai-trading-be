@@ -10,9 +10,7 @@
     "Upvote_Ratio": 0.93,
     "Subreddit": "stocks",
     "Domain": "reddit.com",
-    "urls": [
-      "https://www.cnbc.com/2024/01/10/apple-earnings"
-    ],
+    "urls": ["https://www.cnbc.com/2024/01/10/apple-earnings"],
     "images": [],
     "raw_title": "Apple reports strong Q4 earnings &amp; beats expectations 🚀",
     "raw_body": "Apple Inc. ($AAPL) just reported earnings.\n\nFull article here: https://www.cnbc.com/2024/01/10/apple-earnings\nThoughts?",
@@ -31,9 +29,7 @@
     "Upvote_Ratio": 0.91,
     "Subreddit": "investing",
     "Domain": "reuters.com",
-    "urls": [
-      "https://www.reuters.com/technology/"
-    ],
+    "urls": ["https://www.reuters.com/technology/"],
     "images": [],
     "raw_title": "Microsoft cloud growth slows &lt; analysts expected",
     "raw_body": "Reuters: Microsoft Azure growth slowed in Q4 as enterprise clients cut costs.\n\nRead more: https://www.reuters.com/technology/",
@@ -52,9 +48,7 @@
     "Upvote_Ratio": 0.88,
     "Subreddit": "wallstreetbets",
     "Domain": "reddit.com",
-    "urls": [
-      "https://imgur.com/abc123"
-    ],
+    "urls": ["https://imgur.com/abc123"],
     "images": [],
     "raw_title": "TSLA sinks after margin concerns resurface 😬",
     "raw_body": "TSLA down nearly 7% today... margins looking ugly imo.\n\nChart: https://imgur.com/abc123",
@@ -73,10 +67,7 @@
     "Upvote_Ratio": 0.94,
     "Subreddit": "technology",
     "Domain": "bloomberg.com",
-    "urls": [
-      "https://bloomberg.com/layoffs",
-      "http://www.bloomberg.com"
-    ],
+    "urls": ["https://bloomberg.com/layoffs", "http://www.bloomberg.com"],
     "images": [],
     "raw_title": "Amazon announces new layoffs in retail division. Look at report here: https://bloomberg.com/layoffs.",
     "raw_body": "[Bloomberg](http://www.bloomberg.com) reports Amazon will cut hundreds of jobs as part of cost optimization &amp; restructuring.",
@@ -133,9 +124,7 @@
     "Upvote_Ratio": 0.92,
     "Subreddit": "stocks",
     "Domain": "reddit.com",
-    "urls": [
-      "www.somebenchmarksite.com"
-    ],
+    "urls": ["www.somebenchmarksite.com"],
     "images": [],
     "raw_title": "AMD vs Intel — who wins the data center war?",
     "raw_body": "AMD processors gaining traction vs Intel chips.\n\nBenchmarks here: www.somebenchmarksite.com",
@@ -173,9 +162,7 @@
     "Upvote_Ratio": 0.95,
     "Subreddit": "investing",
     "Domain": "reddit.com",
-    "urls": [
-      "https://cointelegraph.com"
-    ],
+    "urls": ["https://cointelegraph.com"],
     "images": [],
     "raw_title": "\t\tBitcoin ETFs drive renewed interest in crypto markets",
     "raw_body": "Spot BTC ETFs approved!! 🚀🚀\n\nDetails: \r\rhttps://cointelegraph.com",
@@ -213,9 +200,7 @@
     "Upvote_Ratio": 0.87,
     "Subreddit": "stocks",
     "Domain": "reddit.com",
-    "urls": [
-      "https://faa.gov"
-    ],
+    "urls": ["https://faa.gov"],
     "images": [],
     "raw_title": "Boeing faces scrutiny after manufacturing issues resurface",
     "raw_body": "More issues for BA planes? FAA reportedly investigating.\n\nLink: https://faa.gov",
@@ -595,14 +580,8 @@
     "Upvote_Ratio": 0.96,
     "Subreddit": "stocks",
     "Domain": "reddit.com",
-    "urls": [
-      "https://www.tesla.com/news",
-      "https://www.tesla.com/earnings",
-      "www.financenews.com/tesla-updates"
-    ],
-    "images": [
-      "http://charts.com/tesla_q4.jpg"
-    ],
+    "urls": ["https://www.tesla.com/news", "https://www.tesla.com/earnings", "www.financenews.com/tesla-updates"],
+    "images": ["http://charts.com/tesla_q4.jpg"],
     "raw_title": "Tesla shares jump after Q4 earnings report 🚀 [Full details](https://www.tesla.com/news)",
     "raw_body": "Tesla just reported Q4 earnings beating analyst expectations.\n\nOfficial report: https://www.tesla.com/earnings \nIndustry coverage: www.financenews.com/tesla-updates\nChart of quarterly growth: ![Tesla chart](http://charts.com/tesla_q4.jpg)\nHighlights: & revenue up 15%, Model 3 deliveries record high.",
     "clean_title": "Tesla shares jump after Q4 earnings report :rocket: Full details: https://www.tesla.com/news",
@@ -620,13 +599,8 @@
     "Upvote_Ratio": 0.95,
     "Subreddit": "technology",
     "Domain": "reddit.com",
-    "urls": [
-      "https://www.apple.com/apple-events",
-      "www.techcrunch.com/apple-iphone-15"
-    ],
-    "images": [
-      "https://images.apple.com/iphone15.jpg"
-    ],
+    "urls": ["https://www.apple.com/apple-events", "www.techcrunch.com/apple-iphone-15"],
+    "images": ["https://images.apple.com/iphone15.jpg"],
     "raw_title": "Apple announces new iPhone 15 release & pre-order starts soon 🍏",
     "raw_body": "Apple's event showcased the iPhone 15 lineup.\n\nEvent stream: https://www.apple.com/apple-events\nTech review images: ![iPhone15](https://images.apple.com/iphone15.jpg)\nBlog coverage: www.techcrunch.com/apple-iphone-15\nSummary: <b>Improved battery life</b>, new camera features, iOS 18 included.\nEmoji reaction: 😍👍",
     "clean_title": "Apple announces new iPhone 15 release & pre-order starts soon :green_apple:",
@@ -644,13 +618,8 @@
     "Upvote_Ratio": 0.92,
     "Subreddit": "investing",
     "Domain": "cnbc.com",
-    "urls": [
-      "https://www.cnbc.com/2024/01/22/meta-earnings-preview.html",
-      "www.marketwatch.com/meta-q4"
-    ],
-    "images": [
-      "www.graphics.cnbc.com/meta_q4.png"
-    ],
+    "urls": ["https://www.cnbc.com/2024/01/22/meta-earnings-preview.html", "www.marketwatch.com/meta-q4"],
+    "images": ["www.graphics.cnbc.com/meta_q4.png"],
     "raw_title": "Meta Platforms Q4 revenue grows despite ad slowdown",
     "raw_body": "Meta ($META) reported revenue growth of 4% YoY.\n\nEarnings article: https://www.cnbc.com/2024/01/22/meta-earnings-preview.html\nInfographic: ![Meta revenue](www.graphics.cnbc.com/meta_q4.png)\nAlternative link: www.marketwatch.com/meta-q4\nHighlights: Users growth stable, ad revenue recovering.\n",
     "clean_title": "Meta Platforms Q4 revenue grows despite ad slowdown",
