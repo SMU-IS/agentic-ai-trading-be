@@ -20,6 +20,11 @@ services:
     restart: always
 
 include:
+  # === News Analysis Microservice ===
+  - path: ./news-analysis/docker-compose.yml
+    env_file: ./news-analysis/.env
+    project_directory: ./news-analysis
+
   # === User Info Microservice ===
   - path: ./user-info/docker-compose.yml
     env_file: ./user-info/.env
