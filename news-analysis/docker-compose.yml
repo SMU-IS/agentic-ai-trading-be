@@ -1,14 +1,14 @@
 services:
-  redis:
+  redis-queue:
     image: redis:7-alpine
     container_name: redis-queue
     ports:
-      - "6379:6379"
+      - "6380:6379"
     restart: unless-stopped
 
-  qdrant:
+  qdrant-db:
     image: qdrant/qdrant:latest
-    container_name: qdrant
+    container_name: qdrant-container
     ports:
       - "6333:6333"
       - "6334:6334"
@@ -28,6 +28,6 @@ services:
       - REDIS_URL=redis://redis:6379
       - REDIS_QUEUE_NAME=raw_news_queue
     depends_on:
-      - qdrant
-      - redis
+      - qdrant-db
+      - redis-queue
     command: fastapi dev app/main.py --host 0.0.0.0 --port 5002

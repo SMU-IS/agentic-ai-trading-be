@@ -3,8 +3,8 @@ services:
     image: qdrant/qdrant:latest
     container_name: qdrant
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - "7333:6333"
+      - "7334:6334"
     volumes:
       - ./qdrant_storage:/qdrant/storage:z
     restart: unless-stopped

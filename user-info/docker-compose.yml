@@ -19,6 +19,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    container_name: redis-cache-user-info
     ports:
       - "6379:6379"
     volumes:
