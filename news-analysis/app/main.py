@@ -1,10 +1,9 @@
 import logging
+
 from fastapi import FastAPI
-from fastapi.applications import FastAPI
+from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
-from fastapi.requests import Request
-from app.routers import preprocess
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -18,6 +17,7 @@ app = FastAPI(
     root_path="/api/v1/analysis",
 )
 
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Internal Server Error at {request.url}: {exc}", exc_info=True)
@@ -28,11 +28,10 @@ async def global_exception_handler(request: Request, exc: Exception):
         },
     )
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
+
 api_router = APIRouter()
-
-api_router.include_router(preprocess.router)
-
