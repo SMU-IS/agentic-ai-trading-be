@@ -1,8 +1,9 @@
 import os
 
-from app.core.constant import StorageProviders
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from core.constant import StorageProviders
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ENV_PATH = os.path.join(BASE_DIR, ".env")
@@ -12,6 +13,10 @@ class EnvConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=ENV_PATH, env_file_encoding="utf-8", extra="ignore"
     )
+
+    # Redis
+    redis_url: str = Field(..., validation_alias="REDIS_URL")
+    redis_news_queue: str = Field(..., validation_alias="REDIS_QUEUE_NAME")
 
     # LLM
     # llm_provider: LLMProviders = Field(..., validation_alias="LLM_PROVIDER")
