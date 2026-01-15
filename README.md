@@ -14,6 +14,11 @@ Agent M - A dynamic, fully autonomous trading portfolio companion designed to na
 
 The system operates on behalf of users to mitigate information overload and circumvent human emotional bias, executing optimised buy or sell orders via external brokerage APIs within user-defined risk guardrails
 
+## ⚙️ System Architecture
+
+<img width="1442" height="691" alt="Agent M" src="https://github.com/user-attachments/assets/b3e892eb-8d90-4acf-a1cd-13b767843ad1" />
+
+
 ## 👨‍💻 Tech Stack
 
 - [🐍 FastAPI (Python)](https://fastapi.tiangolo.com)
@@ -38,13 +43,6 @@ The system operates on behalf of users to mitigate information overload and circ
 - **🎩 Autonomous Trading Agent**: Synthesises market data with user-specific portfolio context to execute buy/sell orders via external brokerage APIs (e.g., Alpaca/IBKR).
 - **📊 Interactive Visualisation Dashboard**: Provides real-time sentiment indicators per ticker, profit and loss (P&L) trends, and current portfolio holdings.
 - **🔔 Notification System**: Delivers critical alerts when breaking news directly impacts a user’s specific holdings and confirms autonomous trade executions.
-
-## 🏗️ System Architecture
-
-- Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-- Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-- It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
-- It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
 
 ## 🚀 Getting Started
 
@@ -76,8 +74,8 @@ In Collaboration With UBS.
   <img src="https://github.com/user-attachments/assets/6bd4f3a7-6784-402a-b891-03d91e15d705" width="80">
 </a> &nbsp;
 
-<a href="https://www.linkedin.com/in/shawn-ng-yh/">
-  <img src="https://github.com/user-attachments/assets/6bd4f3a7-6784-402a-b891-03d91e15d705" width="80">
+<a href="https://www.linkedin.com/in/jiayenbeh/">
+  <img src="[https://github.com/user-attachments/assets/6bd4f3a7-6784-402a-b891-03d91e15d705](https://media.licdn.com/dms/image/v2/D5603AQEqWsXbDOKWyw/profile-displayphoto-scale_400_400/B56ZmbOb1OHAAg-/0/1759245877416?e=1770249600&v=beta&t=w4zr9NdTnsOEKuO3Woe02NOv6NVU2hH8FadXhy51Y0s)" width="80">
 </a> &nbsp;
 
 <a href="https://www.linkedin.com/in/shawn-ng-yh/">
