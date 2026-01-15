@@ -20,7 +20,7 @@ services:
     build: .
     container_name: news-analysis-container
     ports:
-      - "5001:5001"
+      - "5002:5002"
     volumes:
       - .:/code
     environment:
@@ -29,4 +29,5 @@ services:
       - REDIS_QUEUE_NAME=raw_news_queue
     depends_on:
       - qdrant
+      - redis
     command: fastapi dev app/main.py --host 0.0.0.0 --port 5002
