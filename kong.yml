@@ -45,3 +45,12 @@ services:
         paths:
           - /api/v1/rag
         strip_path: true
+
+  # === Trading Service Microservice ===
+  - name: trading-service-entry
+    url: http://broker-service:9000
+    routes:
+      - name: trading-service-routes
+        paths:
+          - /api/v1/trading
+        strip_path: true

@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  broker-service:
+    build: .
+    container_name: alpaca-broker-service
+    ports:
+      - "9000:9000"
+    environment:
+      # Inject your Alpaca credentials here or via .env
+      ALPACA_API_KEY: ${ALPACA_API_KEY}
+      ALPACA_API_SECRET: ${ALPACA_API_SECRET}
+      ALPACA_PAPER: ${ALPACA_PAPER:-true}
+      FLASK_ENV: production
+    restart: unless-stopped
