@@ -1,9 +1,8 @@
 import os
 
+from app.core.constant import StorageProviders
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-from core.constant import StorageProviders
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ENV_PATH = os.path.join(BASE_DIR, ".env")
