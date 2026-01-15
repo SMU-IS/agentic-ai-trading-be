@@ -1,6 +1,6 @@
 services:
   redis:
-    image: redis:7-alphine
+    image: redis:7-alpine
     container_name: redis-queue
     ports:
       - "6379:6379"
