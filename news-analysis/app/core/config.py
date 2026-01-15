@@ -1,6 +1,6 @@
 import os
 
-# from app.core.constant import LLMProviders, StorageProviders
+from app.core.constant import StorageProviders
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -22,7 +22,7 @@ class EnvConfig(BaseSettings):
     max_completion_tokens: int = Field(..., validation_alias="MAX_COMPLETION_TOKEN")
 
     # Vector Store
-    # storage_provider: StorageProviders = Field(..., validation_alias="STORAGE_PROVIDER")
+    storage_provider: StorageProviders = Field(..., validation_alias="STORAGE_PROVIDER")
     qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
 
 
