@@ -125,7 +125,7 @@ class TradingWorkflow:
     async def node_execute_trade(self, state: AgentState):
         """
         Hands.
-        To executes via Broker API.
+        To execute via Broker API.
         """
 
         print(

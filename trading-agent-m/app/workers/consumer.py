@@ -28,7 +28,7 @@ async def start_consumer():
         base_url=env_config.ollama_base_url,
     )
 
-    # Initialize the Brain
+    # Initialize the trading workflow agent
     agent = TradingWorkflow(llm_client=ollama, broker_client=None)
 
     # 2. Ensure Group Exists
@@ -92,7 +92,7 @@ async def process_message(agent, redis_client, message_id, data):
         logger.info(f"Reasoning: {result.get('reasoning')}")
         logger.info("----------------------------------")
 
-        # Ack
+        # Acknowledge successful processing of the message in the Redis stream
         await redis_client.xack(
             env_config.redis_stream_key, env_config.redis_group_name, message_id
         )
