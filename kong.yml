@@ -46,6 +46,15 @@ services:
           - /api/v1/rag
         strip_path: true
 
+  # === Trading Agent M Microservice ===
+  - name: trading-agent-m-service-entry
+    url: http://trading-agent-m-service:5003
+    routes:
+      - name: trading-agent-m
+        paths:
+          - /api/v1/rag
+        strip_path: true
+
   # === Trading Service Microservice ===
   - name: trading-service-entry
     url: http://broker-service:9000

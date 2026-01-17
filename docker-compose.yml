@@ -35,6 +35,11 @@ include:
     env_file: ./rag-chatbot/.env
     project_directory: ./rag-chatbot
 
+  # === Trading Agent M Microservice ===
+  - path: ./trading-agent-m/docker-compose.yml
+    env_file: ./trading-agent-m/.env
+    project_directory: ./trading-agent-m
+
   # === Trading Service Microservice ===
   - path: ./trading-service/docker-compose.yml
     env_file: ./trading-service/.env

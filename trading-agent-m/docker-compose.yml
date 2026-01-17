@@ -1,0 +1,41 @@
+services:
+  qdrant-agent-m:
+    image: qdrant/qdrant:latest
+    container_name: qdrant-agent-m
+    ports:
+      - "8333:6333"
+      - "8334:6334"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage:z
+    restart: unless-stopped
+
+  redis-stream:
+    image: redis:7-alpine
+    container_name: redis-stream-consumer-enriched_market_signals
+    ports:
+      - "7380:6379"
+    restart: unless-stopped
+
+  trading-agent-m--service:
+    build: .
+    container_name: trading-agent-m-container
+    ports:
+      - "5003:5003"
+    volumes:
+      - .:/code
+    environment:
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - LARGE_LANGUAGE_MODEL=${LARGE_LANGUAGE_MODEL}
+      - TEXT_EMBEDDING_MODEL=${TEXT_EMBEDDING_MODEL}
+      - OPEN_AI_API_KEY=${OPEN_AI_API_KEY}
+      - TEMPERATURE=${TEMPERATURE}
+      - REDIS_URL=${REDIS_URL}
+      - REDIS_STREAM_KEY=${REDIS_STREAM_KEY}
+      - REDIS_GROUP_NAME=${REDIS_GROUP_NAME}
+      - REDIS_WORKER_NAME=${REDIS_WORKER_NAME}
+      - STORAGE_PROVIDER=${STORAGE_PROVIDER}
+      - QDRANT_URL=${QDRANT_URL}
+    depends_on:
+      - redis-stream
+      - qdrant-agent-m
+    command: fastapi dev app/main.py --host 0.0.0.0 --port 5003
