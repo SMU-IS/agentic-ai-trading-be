@@ -11,3 +11,4 @@ preprocessor = PreprocessingService()
 @router.post(APIPath.PREPROCESS)
 async def preprocess_endpoint(data: Union[Dict, List[Dict]]):
     return preprocessor.process_input(data)
+
