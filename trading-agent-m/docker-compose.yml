@@ -16,7 +16,7 @@ services:
       - "7380:6379"
     restart: unless-stopped
 
-  trading-agent-m--service:
+  trading-agent-m-service:
     build: .
     container_name: trading-agent-m-container
     ports:
