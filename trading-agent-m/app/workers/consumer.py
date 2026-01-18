@@ -28,7 +28,7 @@ async def start_consumer():
         base_url=env_config.ollama_base_url,
     )
 
-    # Initialize the trading workflow agent
+    # Initialise the trading workflow agent
     agent = TradingWorkflow(llm_client=ollama, broker_client=None)
 
     # 2. Ensure Group Exists
@@ -43,6 +43,7 @@ async def start_consumer():
     # 3. The Infinite Loop
     try:
         while True:
+            logger.info("📖 Reading messages from Redis Stream")
             try:
                 streams = await redis_client.xreadgroup(
                     env_config.redis_group_name,

@@ -41,5 +41,5 @@ def health():
 """
 TODO: to be removed, for testing purpose only
 
-redis-cli XADD enriched_market_signals "*" payload '{"user_id": "joshua_123", "ticker": "AAPL", "signal": {"sentiment": "bullish", "score": 0.95}, "portfolio": {"qty": 10, "avg_price": 150.0}, "risk_profile": "aggressive"}'
+docker exec -it redis-stream-consumer-enriched_market_signals redis-cli XADD enriched_market_signals "*" payload '{"user_id": "joshua_123", "ticker": "AAPL", "signal": {"sentiment": "bullish", "score": 0.95}, "portfolio": {"qty": 10, "avg_price": 150.0}, "risk_profile": "aggressive"}'
 """
