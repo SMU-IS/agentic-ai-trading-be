@@ -67,32 +67,21 @@ class OllamaLLMClient(LLMClient):
 from typing import Optional, List, Literal
 
 class TradeIntent(BaseModel):
-    symbol: str = Field(..., description="Ticker symbol, e.g. AAPL")
+    symbol: str
     side: Literal["long", "short"]
     entry_type: Literal["market", "limit"]
-    # If entry_type == 'market', entry_price can be None.
-    entry_price: Optional[float] = Field(
-        None, description="Limit entry price; null for market orders"
+    entry_price: Optional[float] = None
+
+    take_profit: Optional[float] = Field(
+        None, description="Target exit price for profit"
+    )
+    stop_loss: Optional[float] = Field(
+        None, description="Protective stop price"
     )
 
-    take_profit: float = Field(..., description="Target exit price for profit")
-    stop_loss: float = Field(..., description="Protective stop price")
-
-    max_risk_pct: float = Field(
-        1.0,
-        description="Maximum percentage of account equity to risk on this idea (0.1-1.0%)",
-        ge=0.1,
-        le=1.0,
-    )
-    time_in_force: Literal["day", "gtc"] = Field(
-        "day",
-        description="Time in force, e.g. day, gtc",
-    )
-    rationale: str = Field(
-        ...,
-        description="Short explanation of why this trade makes sense",
-        min_length=10,
-    )
+    max_risk_pct: float = Field(1.0, ge=0.1, le=1.0)
+    time_in_force: Literal["day", "gtc"] = "day"
+    rationale: str = Field(..., min_length=10)
 
 
 class PolicyOutput(BaseModel):
@@ -165,7 +154,7 @@ Output format:
       "stop_loss": 188.0,
       "max_risk_pct": 0.5,
       "time_in_force": "day" or "gtc",
-      "rationale": "Short explanation..."
+      "rationale": "detailed explanation explaining the trade"
     }}
   ]
 }}
