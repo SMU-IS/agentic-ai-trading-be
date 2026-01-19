@@ -1,7 +1,6 @@
-from typing import Dict, Optional, TypedDict
-
 from pydantic import BaseModel
-
+from typing import Dict, List, Optional, TypedDict, Any
+from typing_extensions import NotRequired
 
 # Redis Stream
 class Signal(BaseModel):
@@ -13,13 +12,19 @@ class Signal(BaseModel):
 
 
 class AgentState(TypedDict):
+    # Required input fields
     user_id: str
     ticker: str
     signal: dict
     portfolio: dict
     risk_profile: str
-
-    action: str  # "BUY", "SELL", "IGNORE"
-    order_details: Optional[dict]
-    should_execute: bool
-    reasoning: str
+    
+    # Optional for lookup_context
+    query_vector: NotRequired[Optional[List[float]]]
+    historical_context: NotRequired[List[Dict[str, Any]]]
+    
+    # Output from reasoning
+    action: NotRequired[str]  # "BUY", "SELL", "HOLD", "IGNORE"
+    order_details: NotRequired[Optional[Dict[str, Any]]]
+    should_execute: NotRequired[bool]
+    reasoning: NotRequired[str]

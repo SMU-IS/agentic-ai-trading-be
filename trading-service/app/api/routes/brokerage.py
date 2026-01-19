@@ -16,6 +16,15 @@ from app.api.schemas import (
 
 router = APIRouter()
 
+# Configure logging
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
 
 # Dependency to get a broker instance (can be singleton or factory)
 def get_broker() -> AlpacaBrokerClient:
@@ -179,25 +188,53 @@ def create_stop_limit_order(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.post("/orders/bracket", status_code=201)
+@router.post("/orders/bracket", status_code=201, response_model=Dict[str, Any])
 def create_bracket_order(
     body: BracketOrderRequestBody,
     broker: AlpacaBrokerClient = Depends(get_broker),
+    # current_user: User = Depends(get_current_user),  # Add auth if needed
 ) -> Dict[str, Any]:
+    """
+    Submit bracket order (market/limit entry + take profit + stop loss).
+    
+    - Validates parameters via Pydantic schema
+    - Uses Broker API format (take_profit_price/stop_loss_price)
+    - Returns full order response from Alpaca
+    """
     try:
-        data = broker.submit_bracket_order(
+        # Convert enums to strings for broker method (if needed)
+        order_data = broker.submit_bracket_order(
             symbol=body.symbol,
-            side=body.side,
-            qty=body.qty,
-            entry_type=body.entry_type,
+            side=body.side.value,  # Enum -> str
+            qty=float(body.qty),   # Ensure float
+            entry_type=body.entry_type.value,  # Enum -> str
             entry_price=body.entry_price,
-            take_profit_price=body.take_profit_price,
-            stop_loss_price=body.stop_loss_price,
-            time_in_force=body.time_in_force,
+            take_profit_price=float(body.take_profit_price),
+            stop_loss_price=float(body.stop_loss_price),
+            time_in_force=body.time_in_force.value,  # Enum -> str
         )
-        return data
+        
+        # Log order ID for tracking
+        logger.info(f"Bracket order submitted: {order_data.get('id')} for {body.symbol}")
+        
+        return {
+            "success": True,
+            "order_id": order_data["id"],
+            "status": order_data["status"],
+            "symbol": body.symbol,
+            "order": order_data
+        }
+        
+    except ValueError as e:
+        # Validation/business logic errors
+        raise HTTPException(status_code=400, detail=f"Invalid order parameters: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        # Alpaca API errors
+        logger.error(f"Bracket order failed: {str(e)}")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Order submission failed: {str(e)}"
+        )
 
 
 # ---------- Positions closing / emergency ----------

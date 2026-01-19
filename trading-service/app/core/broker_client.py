@@ -9,6 +9,7 @@ from alpaca.trading.enums import (
     TimeInForce,
     OrderType,
     QueryOrderStatus,
+    OrderClass,
 )
 from alpaca.trading.requests import (
     MarketOrderRequest,
@@ -17,6 +18,8 @@ from alpaca.trading.requests import (
     StopLimitOrderRequest,
     ClosePositionRequest,
     GetOrdersRequest,
+    TakeProfitRequest,
+    StopLossRequest,
 )
 from alpaca.trading.models import Order, Position  # type hints only
 
@@ -250,17 +253,38 @@ class AlpacaBrokerClient:
         stop_loss_price: float,
         time_in_force: str = "day",
     ) -> Dict[str, Any]:
-        order = self.client.submit_order(
-            symbol=symbol,
-            qty=qty,
-            side=self._side_from_str(side),
-            type=OrderType.MARKET if entry_type == "market" else OrderType.LIMIT,
-            time_in_force=self._tif_from_str(time_in_force),
-            limit_price=entry_price if entry_type == "limit" else None,
-            order_class="bracket",
-            take_profit={"limit_price": take_profit_price},
-            stop_loss={"stop_price": stop_loss_price},
-        )
+        if entry_type not in ("market", "limit"):
+            raise ValueError("entry_type must be 'market' or 'limit'")
+        if entry_type == "limit" and entry_price is None:
+            raise ValueError("entry_price required for limit entry")
+
+        side_enum = self._side_from_str(side)
+        tif_enum = self._tif_from_str(time_in_force)
+
+        # Trading API requires NESTED objects
+        take_profit = TakeProfitRequest(limit_price=take_profit_price)
+        stop_loss = StopLossRequest(stop_price=stop_loss_price)
+
+        kwargs = {
+            "symbol": symbol,
+            "qty": qty,
+            "side": side_enum,
+            "time_in_force": tif_enum,
+            "order_class": OrderClass.BRACKET,
+            "take_profit": take_profit,
+            "stop_loss": stop_loss,
+        }
+
+        if entry_type == "market":
+            order_req = MarketOrderRequest(**kwargs)
+        else:
+            kwargs["limit_price"] = entry_price
+            order_req = LimitOrderRequest(**kwargs)
+
+        # Debug: Print JSON to verify
+        print("Submitted JSON:", order_req.model_dump_json(indent=2))
+
+        order = self.client.submit_order(order_data=order_req)
         return order.__dict__
 
     # --------- Position closing / emergency controls ---------
