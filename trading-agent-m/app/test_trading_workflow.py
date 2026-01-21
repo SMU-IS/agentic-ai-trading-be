@@ -5,14 +5,19 @@ import json
 from typing import Any, Dict
 
 from langchain_ollama import ChatOllama
-from app.schemas.state import AgentState
+
+from app.agents.state import AgentState
 from app.services.trading_workflow import TradingWorkflow
 
 
 class MockBroker:
     """Simple mock broker that just logs orders."""
+
     def place_order(self, *args, **kwargs):
-        print("[MockBroker] place_order called:", json.dumps({"args": args, "kwargs": kwargs}, indent=2))
+        print(
+            "[MockBroker] place_order called:",
+            json.dumps({"args": args, "kwargs": kwargs}, indent=2),
+        )
 
 
 async def main():
@@ -22,7 +27,7 @@ async def main():
         temperature=0.1,
         base_url="http://localhost:11434",  # default Ollama
     )
-    
+
     # Mock broker (logs, doesn't actually trade)
     broker_client = MockBroker()
 
@@ -59,11 +64,11 @@ async def main():
             "user_id": "joshua_123",
             "ticker": "AAPL",
             "signal": {
-                "sentiment": "bearish", 
+                "sentiment": "bearish",
                 "score": -0.75,
                 "event_type": "earnings_miss",
                 "current_price": 145.0,
-                "atr": 4.2  # 14-period ATR
+                "atr": 4.2,  # 14-period ATR
             },
             "portfolio": {"qty": 10, "avg_price": 150.0},
             "risk_profile": "aggressive",
@@ -74,17 +79,19 @@ async def main():
     print("=== Testing TradingWorkflow with Ollama ===\n")
 
     for i, input_data in enumerate(test_cases, 1):
-        print(f"🧪 Test Case {i}: {input_data['ticker']} ({input_data['signal']['sentiment']})")
+        print(
+            f"🧪 Test Case {i}: {input_data['ticker']} ({input_data['signal']['sentiment']})"
+        )
         print("-" * 60)
-        
+
         result = await workflow.run(input_data)
-        
+
         print("📊 Final Result:")
         print(f"  Action: {result.get('action', 'N/A')}")
         print(f"  Should Execute: {result.get('should_execute', 'N/A')}")
         print(f"  Order Details: {result.get('order_details', 'N/A')}")
         print(f"  Reasoning: {result.get('reasoning', 'N/A')}")
-        print("\n" + "="*60 + "\n")
+        print("\n" + "=" * 60 + "\n")
 
     print("🎉 All tests complete!")
 
