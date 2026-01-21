@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 # populate_qdrant_fixed.py
 import uuid
+
 import numpy as np
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import (
     Distance,
-    VectorParams,
-    PointStruct,
-    Filter,
     FieldCondition,
+    Filter,
     MatchValue,
+    PointStruct,
+    VectorParams,
 )
 
 DUMMY_EMBEDDING_SIZE = 10
@@ -20,7 +21,7 @@ def generate_dummy_embedding(size: int = DUMMY_EMBEDDING_SIZE) -> list[float]:
 
 
 def main():
-    client = QdrantClient(url="http://localhost:6333")
+    client = QdrantClient(url="http://localhost:8333")
     collection_name = "historical_data"
 
     # 1. Create collection if it doesn't exist
@@ -31,7 +32,9 @@ def main():
         print(f"📦 Creating collection '{collection_name}'...")
         client.create_collection(
             collection_name=collection_name,
-            vectors_config=VectorParams(size=DUMMY_EMBEDDING_SIZE, distance=Distance.COSINE),
+            vectors_config=VectorParams(
+                size=DUMMY_EMBEDDING_SIZE, distance=Distance.COSINE
+            ),
         )
         print("✅ Collection created.")
 
@@ -43,7 +46,7 @@ def main():
             vector=generate_dummy_embedding(),
             payload={
                 "ticker": "AAPL",
-                "timestamp": f"2026-01-{10+i:02d}T12:00:00Z",
+                "timestamp": f"2026-01-{10 + i:02d}T12:00:00Z",
                 "price": 150.0 + np.random.normal(0, 5),
                 "sentiment": np.random.choice(["bullish", "bearish", "neutral"]),
                 "news_headline": f"Dummy AAPL news #{i}: {'Strong earnings' if i % 3 == 0 else 'Market volatility'}",
@@ -61,7 +64,9 @@ def main():
     search_results = client.query_points(
         collection_name=collection_name,
         query=generate_dummy_embedding(),  # vector query
-        query_filter=Filter(must=[FieldCondition(key="ticker", match=MatchValue(value="AAPL"))]),
+        query_filter=Filter(
+            must=[FieldCondition(key="ticker", match=MatchValue(value="AAPL"))]
+        ),
         limit=3,
     )
 

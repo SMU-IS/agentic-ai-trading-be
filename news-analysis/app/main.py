@@ -5,8 +5,8 @@ from contextlib import asynccontextmanager
 
 # from app.services.pipeline import run_pipeline # TODO: Add this once done
 import redis.asyncio as redis  # type: ignore
-from core.config import env_config
-from core.constant import APIPath
+from app.core.config import env_config
+from app.core.constant import APIPath
 from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
