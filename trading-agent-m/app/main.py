@@ -2,8 +2,9 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 
+from app.agents.graph import app_workflow
 from app.workers.consumer import start_consumer
 
 logging.basicConfig(
@@ -31,11 +32,18 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+router = APIRouter()
 
 
 @app.get("/healthcheck")
 def health():
     return {"status": "Trading Agent M service is healthy"}
+
+
+@router.post("/trading-agent")
+async def run_agent(signal_data: dict):
+    result = await app_workflow.run(signal_data)
+    return result
 
 
 """
