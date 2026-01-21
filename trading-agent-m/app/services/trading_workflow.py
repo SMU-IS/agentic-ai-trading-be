@@ -2,7 +2,11 @@ import json
 
 from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import END, START, StateGraph
+from qdrant_client import AsyncQdrantClient
+from qdrant_client.http.exceptions import UnexpectedResponse
+from qdrant_client.http.models import FieldCondition, Filter, MatchValue
 
+from app.core.qdrant import QdrantManager
 from app.schemas.state import AgentState
 
 
@@ -22,7 +26,9 @@ class TradingWorkflow:
 
         # 2. Edges
         graph.add_edge(START, "lookup_context")
-        graph.add_edge("lookup_context", "reasoning") # TODO: use this once its completed
+        graph.add_edge(
+            "lookup_context", "reasoning"
+        )  # TODO: use this once its completed
         # graph.add_edge(START, "reasoning")
 
         # Conditional: Only trade if the brain says so
@@ -45,44 +51,55 @@ class TradingWorkflow:
         """
         Memory: Fetches historical context or news related to the ticker.
         """
+
         print(
             f"   [🔍 Qdrant] Searching for historical context on {state['ticker']}..."
         )
 
-        # Initialize Qdrant client
-        from qdrant_client import QdrantClient
-        from qdrant_client.http.models import Filter, FieldCondition, MatchValue
+        qdrant_client = QdrantManager.get_client()
+        try:
+            query_filter = Filter(
+                must=[
+                    FieldCondition(
+                        key="ticker", match=MatchValue(value=state["ticker"])
+                    )
+                ]
+            )
 
-        client = QdrantClient(url="http://localhost:6333")  # Adjust URL if needed
+            if "query_vector" not in state:
+                import numpy as np
 
-        # Define the query filter for the ticker
-        query_filter = Filter(
-            must=[FieldCondition(key="ticker", match=MatchValue(value=state["ticker"]))]
-        )
+                state["query_vector"] = np.random.rand(10).tolist()
+                print("   [🔍 Qdrant] Generated dummy query vector.")
 
-        if "query_vector" not in state:
-            import numpy as np
-            state["query_vector"] = np.random.rand(10).tolist()
-            print("   [🔍 Qdrant] Generated dummy query vector.")
-        
-        # Perform the search
-        search_results = client.query_points(
-            collection_name="historical_data",
-            query=state["query_vector"],
-            query_filter=query_filter,
-            limit=5,
-        ).points  # note: .points
+            search_results = await qdrant_client.query_points(
+                collection_name="historical_data",
+                query=state["query_vector"],
+                query_filter=query_filter,
+                limit=5,
+            )
 
-        state["historical_context"] = [
-            {
-                "id": result.id,
-                "score": result.score,
-                "payload": result.payload,
-            }
-            for result in search_results
-        ]
+            results = search_results.points
 
-        print(f"   [✅ Qdrant] Retrieved {len(search_results)} results for {state['ticker']}.")
+            state["historical_context"] = [
+                {
+                    "id": result.id,
+                    "score": result.score,
+                    "payload": result.payload,
+                }
+                for result in results
+            ]
+            print(
+                f"   [✅ Qdrant] Retrieved {len(results)} results for {state['ticker']}."
+            )
+
+        except (UnexpectedResponse, Exception) as e:
+            print(f"   [❌ Qdrant Error] Could not connect or query failed: {e}")
+
+            state["historical_context"] = []
+
+        finally:
+            await qdrant_client.close()
 
         return state
 
@@ -156,22 +173,25 @@ class TradingWorkflow:
     #         "should_execute": decision.get("action") in ["BUY", "SELL"],
     #         "reasoning": decision.get("reason", "No reason provided"),
     #     }
-    
+
     async def node_decide_trade(self, state: AgentState):
         """
         Brain: Uses LLM for short-term swing trades driven by news volatility.
         Goal: Capture 2-5 day swings against short-term news-driven volatility.
         """
-        print(f"   [🧠 Swing Trading Brain] Analyzing {state['ticker']} for {state['user_id']}...")
+        print(
+            f"   [🧠 Swing Trading Brain] Analyzing {state['ticker']} for {state['user_id']}..."
+        )
 
         # Enhanced prompt for news-driven swing trading
-        prompt = ChatPromptTemplate.from_messages([
-            (
-                "system",
-                """You are an expert short-term swing trader (2-5 day horizon) specializing in news-driven volatility.
-                
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    """You are an expert short-term swing trader (2-5 day horizon) specializing in news-driven volatility.
+
                 STRATEGY: Capture short-term swings from news sentiment shocks. Trade against overreactions.
-                
+
                 CRITERIA FOR SWING TRADES:
                 1. NEWS IMPACT: Strong sentiment shift (>0.4 absolute score) OR high-impact event (earnings, downgrade, etc.)
                 2. TECHNICAL CONFIRMATION:
@@ -179,42 +199,43 @@ class TradingWorkflow:
                 - SELL: Price near resistance, RSI > 70 (overbought), bearish divergence
                 3. VOLATILITY: ATR > 20-day average (swing opportunity exists)
                 4. REGIME: Avoid if VIX > 25 (too chaotic for swings)
-                
+
                 POSITION SIZING & RISK:
                 - Entry: Market or pullback to key level
                 - SL: 1.5x ATR from entry (volatility-adjusted)
                 - TP: 2.5x ATR from entry (2:1 R:R minimum)
                 - Max risk: 1% account per trade
-                
+
                 EXISTING POSITIONS:
                 - If you own it and news turns against: Scale out 50-100%
                 - Never add to losers
-                
+
                 IGNORE if:
                 - Weak news (<0.3 sentiment score)
                 - No technical confirmation
                 - Poor R:R (< 1.5:1)
-                
+
                 Return ONLY valid JSON. Never return invalid trades.
                 """,
-            ),
-            (
-                "human", """
+                ),
+                (
+                    "human",
+                    """
                 CURRENT MARKET SNAPSHOT:
                 Ticker: {ticker}
                 Current Price: {current_price}
                 ATR (14): {atr}
-                
+
                 NEWS SIGNAL:
                 Sentiment: {sentiment} (score: {score})
                 Event Type: {event_type}
                 Historical Context: {historical_context}
-                
+
                 PORTFOLIO:
                 {portfolio}
-                
+
                 RISK PROFILE: {risk_profile}
-                
+
                 ANALYSIS REQUIRED:
                 1. News impact assessment
                 2. Technical setup (support/resistance, RSI, momentum)
@@ -222,7 +243,7 @@ class TradingWorkflow:
                 4. Entry/SL/TP calculation (ATR-based)
                 5. Position sizing
                 6. Clear thesis (why this swing works)
-                
+
                 Return JSON:
                 {{
                 "action": "BUY" | "SELL" | "HOLD",
@@ -235,8 +256,9 @@ class TradingWorkflow:
                 "thesis": "Detailed reasoning with news + technical justification"
                 }}
                 """,
-            ),
-        ])
+                ),
+            ]
+        )
 
         # 2. Prepare enriched input for LLM
         input_vars = {
@@ -279,7 +301,7 @@ class TradingWorkflow:
                 "take_profit": 0.0,
                 "qty": 0.0,
                 "risk_reward": "0:1",
-                "thesis": "JSON parsing error - no trade"
+                "thesis": "JSON parsing error - no trade",
             }
 
         # 5. Return structured state update
@@ -293,7 +315,8 @@ class TradingWorkflow:
                 "stop_loss": float(decision.get("stop_loss", 0)),
                 "take_profit": float(decision.get("take_profit", 0)),
             },
-            "should_execute": decision.get("action") in ["BUY", "SELL"] and decision.get("confidence", 0) > 0.6,
+            "should_execute": decision.get("action") in ["BUY", "SELL"]
+            and decision.get("confidence", 0) > 0.6,
             "reasoning": decision.get("thesis", "No reasoning provided"),
             "confidence": decision.get("confidence", 0.0),
             "risk_reward": decision.get("risk_reward", "0:1"),
