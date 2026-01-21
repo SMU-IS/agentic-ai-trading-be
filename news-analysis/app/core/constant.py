@@ -12,3 +12,23 @@ class LLMProviders(str, Enum):
 
 class StorageProviders(str, Enum):
     QDRANT_OLLAMA = "qdrant_ollama"
+
+
+DEFAULT_RULES = {
+    "earnings": [
+        r"earnings release",
+        r"quarterly results",
+        r"EPS",
+        r"revenue report",
+    ],
+    "merger_acquisition": [
+        r"merger",
+        r"acquisition",
+        r"acquire",
+        r"buyout",
+        r"takeover",
+    ],
+    "regulatory": [r"FDA approval", r"antitrust", r"lawsuit", r"sanction", r"fine"],
+    "macro": [r"interest rate", r"inflation", r"CPI", r"fed hike", r"cut rates"],
+    "product": [r"product launch", r"unveil", r"announced new"],
+}
