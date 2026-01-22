@@ -4,7 +4,7 @@ import pytest
 from app.schemas.event_models import NewsPayload
 
 # Adjust this import to match your actual folder structure
-from app.services._02_event_identification import EventIdentifierService
+from app.services._03_event_identification import EventIdentifierService
 
 
 @pytest.fixture
