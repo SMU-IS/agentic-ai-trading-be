@@ -1,7 +1,7 @@
 # scripts/test_ticker_identification.py
 import json
 import os
-from app.services._06_ticker_identification import TickerIdentificationService
+from app.services._02_ticker_identification import TickerIdentificationService
 
 if __name__ == "__main__":
     # Initialize your ticker identification service
