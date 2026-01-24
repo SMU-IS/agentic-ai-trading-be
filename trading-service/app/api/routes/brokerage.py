@@ -66,6 +66,16 @@ def get_broker() -> AlpacaBrokerClient:
 def health() -> Dict[str, str]:
     return {"status": "ok"}
 
+# ---------- Debugging / info ----------
+@router.get("/debug_feed")
+def debug_feed(broker: AlpacaBrokerClient = Depends(get_broker)):
+    quote = broker.get_latest_quote("AAPL")
+    return {
+        "feed_used": "SIP" if quote.get("exchange") in ["Q","V","N"] else "IEX",
+        "exchange": quote.get("exchange"),
+        "sample_quote": quote
+    }
+
 
 # ---------- Account / positions ----------
 
