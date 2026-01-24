@@ -24,9 +24,8 @@ from alpaca.trading.requests import (
 from alpaca.trading.models import Order, Position  # type hints only
 
 from alpaca.data.historical import StockHistoricalDataClient
-from alpaca.data.requests import StockBarsRequest
+from alpaca.data.requests import StockBarsRequest, StockLatestTradeRequest, StockLatestQuoteRequest
 from alpaca.data.timeframe import TimeFrame  # TimeFrame.from_string for "1Day" etc. [web:19][web:166]
-
 
 @dataclass
 class BrokerConfig:
@@ -356,3 +355,53 @@ class AlpacaBrokerClient:
             "timeframe": timeframe,
             "bars": bar_list,
         }
+    
+    def get_latest_trade(self, symbol: str) -> Dict[str, Any]:
+        """
+        Get the most recent trade for a single symbol.
+        """
+        try:
+            request = StockLatestTradeRequest(symbol_or_symbols=symbol)
+            trades = self.data_client.get_stock_latest_trade(request)
+            
+            if symbol not in trades:
+                return {"error": f"No trade data for {symbol}"}
+            
+            trade = trades[symbol]
+            return {
+                "symbol": symbol,
+                "price": float(trade.price),
+                "size": int(trade.size),
+                "exchange": str(trade.exchange),
+                "conditions": trade.conditions,
+                "timestamp": trade.timestamp.isoformat() if trade.timestamp else None,
+                "id": str(trade.id),
+                "tape": str(trade.tape) if trade.tape else None
+            }
+        except Exception as e:
+            return {"error": str(e)}
+        
+    def get_latest_quote(self, symbol: str) -> Dict[str, Any]:
+        """
+        Get the most recent quote for a single symbol.
+        """
+        try:
+            request = StockLatestQuoteRequest(symbol_or_symbols=symbol)
+            quotes = self.data_client.get_stock_latest_quote(request)
+            
+            if symbol not in quotes:
+                return {"error": f"No quote data for {symbol}"}
+            
+            quote = quotes[symbol]
+            return {
+                "symbol": symbol,
+                "bid_price": float(quote.bid_price),
+                "bid_size": int(quote.bid_size),
+                "ask_price": float(quote.ask_price),
+                "ask_size": int(quote.ask_size),
+                "timestamp": quote.timestamp.isoformat() if quote.timestamp else None,
+                "conditions": quote.conditions,
+                "tape": quote.tape
+            }
+        except Exception as e:
+            return {"error": str(e)}
