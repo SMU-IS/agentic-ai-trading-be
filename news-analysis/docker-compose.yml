@@ -1,14 +1,14 @@
 services:
   redis-queue:
     image: redis:7-alpine
-    container_name: redis-queue
+    container_name: redis-queue-news-analysis
     ports:
       - "6380:6379"
     restart: unless-stopped
 
   qdrant-db:
     image: qdrant/qdrant:latest
-    container_name: qdrant-container
+    container_name: qdrant-news-analysis
     ports:
       - "6333:6333"
       - "6334:6334"
