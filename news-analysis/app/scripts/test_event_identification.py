@@ -27,7 +27,7 @@ async def main():
         "clean_combined": "Apple reports strong Q4 earnings & beats expectations 🚀. Apple Inc. ($AAPL) just reported earnings.",
     }
 
-    print("--- ✏️  1. Test Case A: Rule-Based ---")
+    print("--- ✏️  1. Test Case A: spaCy-based ---")
     payload = NewsPayload(**raw_json)
     print(f"✅ Mapped Headline: {payload.headline}")
     print(f"✅ Mapped Content:  {payload.content[:50]}...")
