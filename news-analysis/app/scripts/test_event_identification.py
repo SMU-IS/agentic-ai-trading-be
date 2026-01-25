@@ -3,7 +3,7 @@ import asyncio
 from app.schemas.event_models import (
     NewsPayload,
 )
-from app.services._02_event_identification import EventIdentifierService
+from app.services._03_event_identification import EventIdentifierService
 
 
 async def main():
