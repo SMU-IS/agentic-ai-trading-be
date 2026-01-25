@@ -94,7 +94,11 @@ async def main():
         print("\n" + "=" * 60 + "\n")
 
     print("🎉 All tests complete!")
+    await asyncio.sleep(0.1)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except Exception as e:
+        print(f"Error: {e}")

@@ -23,6 +23,9 @@ class AgentState(TypedDict):
     query_vector: NotRequired[Optional[List[float]]]
     historical_context: NotRequired[List[Dict[str, Any]]]
     
+    # Market data from node_fetch_market_data
+    market_data: NotRequired[Optional[Dict[str, Any]]]
+
     # Output from reasoning
     action: NotRequired[str]  # "BUY", "SELL", "HOLD", "IGNORE"
     order_details: NotRequired[Optional[Dict[str, Any]]]
