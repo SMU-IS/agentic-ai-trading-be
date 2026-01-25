@@ -32,3 +32,4 @@ class EnvConfig(BaseSettings):
 
 
 env_config = EnvConfig()  # type: ignore
+config = env_config  # Alias for backward compatibility

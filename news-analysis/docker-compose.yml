@@ -27,6 +27,8 @@ services:
       - QDRANT_HOST=qdrant
       - REDIS_URL=redis://redis:6379
       - REDIS_QUEUE_NAME=raw_news_queue
+      - SENTIMENT_MODEL=ProsusAI/finbert
+      - SENTIMENT_DEVICE=cpu  
     depends_on:
       - qdrant-db
       - redis-queue
