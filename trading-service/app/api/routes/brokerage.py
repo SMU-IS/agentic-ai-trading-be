@@ -12,6 +12,7 @@ from app.api.schemas import (
     BracketOrderRequestBody,
     ClosePositionRequestBody,
     CloseAllPositionsRequestBody,
+    PortfolioHistoryResponse
 )
 
 router = APIRouter()
@@ -289,3 +290,18 @@ def trading_blocked(
         return {"trading_blocked": blocked}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/portfolio_history", response_model=PortfolioHistoryResponse)
+async def get_portfolio_history(
+    broker: AlpacaBrokerClient = Depends(get_broker)
+) -> PortfolioHistoryResponse:
+    """
+    Portfolio equity history (simple array format).
+    """
+    result = broker.get_portfolio_history()
+    
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    
+    return PortfolioHistoryResponse(**result)
