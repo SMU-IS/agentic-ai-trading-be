@@ -19,8 +19,10 @@ from alpaca.trading.requests import (
     ClosePositionRequest,
     GetOrdersRequest,
     TakeProfitRequest,
-    StopLossRequest,
+    StopLossRequest
 )
+
+
 from alpaca.trading.models import Order, Position  # type hints only
 
 from alpaca.data.historical import StockHistoricalDataClient
@@ -356,3 +358,27 @@ class AlpacaBrokerClient:
             "timeframe": timeframe,
             "bars": bar_list,
         }
+        
+    # --------- Portfolio history ---------
+    def get_portfolio_history(
+        self,
+    ) -> Dict[str, Any]:
+        """
+        Get portfolio performance history using Alpaca TradingClient.
+        """
+        try:
+            history = self.client.get_portfolio_history()
+            
+            historical = []
+            for i, ts in enumerate(history.timestamp):
+                historical.append({
+                    "date": datetime.fromtimestamp(ts).isoformat() + "Z" if isinstance(ts, (int, float)) else f"{ts}Z",
+                    "value": float(history.equity[i])  # Use equity as main value
+                })
+            
+            return {
+                "historical": historical
+            }
+
+        except Exception as e:
+            return {"error": f"Portfolio history failed: {str(e)}"}
