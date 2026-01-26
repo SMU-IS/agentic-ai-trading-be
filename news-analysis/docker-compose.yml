@@ -1,5 +1,5 @@
 services:
-  redis-queue:
+  redis-queue-news-analysis:
     image: redis:7-alpine
     container_name: redis-queue-news-analysis
     ports:
@@ -24,12 +24,12 @@ services:
     volumes:
       - .:/code
     environment:
-      - QDRANT_HOST=qdrant
-      - REDIS_URL=redis://redis:6379
+      - QDRANT_URL=http://qdrant-db:6333
+      - REDIS_URL=redis://redis-queue-news-analysis:6379
       - REDIS_QUEUE_NAME=raw_news_queue
       - SENTIMENT_MODEL=ProsusAI/finbert
-      - SENTIMENT_DEVICE=cpu  
+      - SENTIMENT_DEVICE=cpu
     depends_on:
       - qdrant-db
-      - redis-queue
+      - redis-queue-news-analysis
     command: fastapi dev app/main.py --host 0.0.0.0 --port 5002
