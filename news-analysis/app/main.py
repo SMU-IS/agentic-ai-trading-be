@@ -5,11 +5,14 @@ from contextlib import asynccontextmanager
 
 # from app.services.pipeline import run_pipeline # TODO: Add this once done
 import redis.asyncio as redis  # type: ignore
-from app.core.config import env_config
-from app.core.constant import APIPath
 from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
+from fastapi.routing import APIRouter
+
+from app.core.config import env_config
+from app.core.constant import APIPath
+from app.routers import query_docs
 
 
 async def news_worker():
@@ -53,11 +56,12 @@ app = FastAPI(
         "name": "SMU IS484 - Mvidia",
         "url": "https://github.com/SMU-IS/agentic-ai-trading-be",
     },
-    root_path="/api/v1/analysis",
+    root_path="/api/v1/news-analysis",
 )
 
 
 logger = logging.getLogger("uvicorn.error")
+api_router = APIRouter()
 
 
 @app.exception_handler(Exception)
@@ -73,4 +77,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 @app.get(APIPath.HEALTH_CHECK)
 def health_check():
-    return {"status": "News analysis service is healthy"}
+    return {"status": "News Analysis Service is healthy"}
+
+
+# ====== API Endpoints ======
+api_router.include_router(query_docs.router)
+app.include_router(api_router)

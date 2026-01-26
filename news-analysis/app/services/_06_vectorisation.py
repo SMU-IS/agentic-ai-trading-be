@@ -1,3 +1,5 @@
+from typing import Any, Dict, List
+
 from fastapi import APIRouter, Depends
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -45,3 +47,34 @@ class VectorisationService:
             print(f"❌ Error ingesting document: {str(e)}")
 
             raise RuntimeError(f"Failed to ingest document: {e}") from e
+
+    async def query_docs(
+        self, query: str, limit: int = 3, score_threshold: float = 0.5
+    ) -> List[Dict[str, Any]]:
+        """
+        Retrieves documents from Qdrant similar to the query.
+        """
+
+        try:
+            results = await self.vector_store.asimilarity_search_with_score(
+                query=query, k=limit, score_threshold=score_threshold
+            )
+
+            formatted_results = []
+            for doc, score in results:
+                formatted_results.append(
+                    {
+                        "id": doc.metadata.get("id"),
+                        "headline": doc.metadata.get("headline"),
+                        "similarity_score": score,
+                        "content_preview": doc.page_content[:200],
+                        "metadata": doc.metadata,
+                    }
+                )
+
+            print(f"✅ Found {len(formatted_results)} documents for query: '{query}'")
+            return formatted_results
+
+        except Exception as e:
+            print(f"❌ Error during retrieval: {str(e)}")
+            raise RuntimeError(f"Failed to retrieve documents: {e}") from e
