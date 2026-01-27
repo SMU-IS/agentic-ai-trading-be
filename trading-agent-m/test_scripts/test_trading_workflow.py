@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # test_trading_workflow_ollama.py
+#
 import asyncio
 import json
-from typing import Any, Dict
 
 from langchain_ollama import ChatOllama
 
-from app.agents.state import AgentState
 from app.services.trading_workflow import TradingWorkflow
 
 
@@ -21,17 +20,13 @@ class MockBroker:
 
 
 async def main():
-    # Real Ollama client (same as your consumer)
     ollama = ChatOllama(
-        model="llama3.1",  # or whatever your env_config.large_language_model is
+        model="llama3.1",
         temperature=0.1,
-        base_url="http://localhost:11434",  # default Ollama
+        base_url="http://localhost:11434",
     )
 
-    # Mock broker (logs, doesn't actually trade)
     broker_client = MockBroker()
-
-    # Init workflow
     workflow = TradingWorkflow(llm_client=ollama, broker_client=broker_client)
 
     # Test cases
@@ -94,6 +89,8 @@ async def main():
         print("\n" + "=" * 60 + "\n")
 
     print("🎉 All tests complete!")
+
+    workflow.export_graph()
 
 
 if __name__ == "__main__":
