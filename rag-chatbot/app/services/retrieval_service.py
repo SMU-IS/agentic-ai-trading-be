@@ -14,7 +14,7 @@ from app.core.config import env_config
 class RetrievalService:
     def __init__(self, llm: BaseChatModel):
         self.llm = llm
-        self.qdrant_db_url = env_config.qdrant_db_news_analysis_url
+        self.qdrant_db_url = env_config.news_analysis_query_url
 
         self.prompt = ChatPromptTemplate.from_messages(
             [
