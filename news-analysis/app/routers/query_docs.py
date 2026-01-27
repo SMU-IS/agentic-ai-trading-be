@@ -1,5 +1,3 @@
-import logging
-
 from app.schemas.query_docs_payload import QueryDocsRequest
 from app.services._06_vectorisation import VectorisationService
 from fastapi import APIRouter, Depends, HTTPException
@@ -16,12 +14,8 @@ async def search_news(
     Search for articles in Qdrant based on semantic similarity.
     """
 
-    logging.info("printed")
-
     try:
-        results = await service.query_docs(
-            query=payload.q, limit=payload.limit, score_threshold=payload.threshold
-        )
+        results = await service.query_docs(payload)
         if not results:
             return {"message": "No relevant documents found.", "results": []}
 

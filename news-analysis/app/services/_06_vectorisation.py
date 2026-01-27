@@ -3,10 +3,12 @@ from typing import Any, Dict, List
 from fastapi import APIRouter, Depends
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from qdrant_client.http import models
 
 from app.core.security import get_current_user
 from app.providers.vector.strategy import QdrantOllamaStrategy
 from app.schemas.compiled_news_payload import NewsAnalysisPayload
+from app.schemas.query_docs_payload import QueryDocsRequest
 
 router = APIRouter(tags=["Ingest Documents"], dependencies=[Depends(get_current_user)])
 
@@ -48,16 +50,25 @@ class VectorisationService:
 
             raise RuntimeError(f"Failed to ingest document: {e}") from e
 
-    async def query_docs(
-        self, query: str, limit: int = 3, score_threshold: float = 0.5
-    ) -> List[Dict[str, Any]]:
+    async def query_docs(self, payload: QueryDocsRequest) -> List[Dict[str, Any]]:
         """
         Retrieves documents from Qdrant similar to the query.
         """
 
+        search_filter = None
+        if payload.ticker_filter:
+            search_filter = models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key="metadata.tickers",
+                        match=models.MatchAny(any=payload.ticker_filter),
+                    )
+                ]
+            )
+
         try:
             results = await self.vector_store.asimilarity_search_with_score(
-                query=query, k=limit, score_threshold=score_threshold
+                query=payload.query, k=payload.limit, filter=search_filter
             )
 
             formatted_results = []
@@ -72,7 +83,9 @@ class VectorisationService:
                     }
                 )
 
-            print(f"✅ Found {len(formatted_results)} documents for query: '{query}'")
+            print(
+                f"✅ Found {len(formatted_results)} documents for query: '{payload.query}'"
+            )
             return formatted_results
 
         except Exception as e:
