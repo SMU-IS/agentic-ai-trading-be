@@ -3,7 +3,7 @@ from functools import partial
 
 from langgraph.graph import END, START, StateGraph
 
-from app.agents.nodes import node_decide_trade, node_execute_trade, node_lookup_qdrant
+from app.agents.nodes import node_decide_trade, node_execute_trade, node_lookup_qdrant, node_fetch_market_data
 from app.agents.state import AgentState
 
 
@@ -21,15 +21,18 @@ class TradingWorkflow:
 
         # 1. Nodes
         graph.add_node("lookup_context", node_lookup_qdrant)
+        graph.add_node("fetch_market_data", node_fetch_market_data)
         graph.add_node("reasoning", reasoning_with_llm)
         graph.add_node("execute", execute_with_broker)
 
         # 2. Edges
         graph.add_edge(START, "lookup_context")
-        graph.add_edge(
-            "lookup_context", "reasoning"
-        )  # TODO: use this once its completed
-        # graph.add_edge(START, "reasoning")
+        graph.add_edge("lookup_context", "fetch_market_data")
+        graph.add_edge("fetch_market_data", "reasoning")
+        # graph.add_edge(
+        #     "lookup_context", "reasoning"
+        # )  # TODO: use this once its completed
+        # # graph.add_edge(START, "reasoning")
 
         # Conditional: Only trade if the brain says so
         graph.add_conditional_edges(

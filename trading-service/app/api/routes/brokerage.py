@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List, Dict, Any, Optional
+from pydantic import BaseModel
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
@@ -14,6 +15,34 @@ from app.api.schemas import (
     CloseAllPositionsRequestBody,
     PortfolioHistoryResponse
 )
+
+# Data models for latest trades
+class LatestTradeResponse(BaseModel):
+    symbol: str
+    price: float
+    size: int
+    exchange: str
+    conditions: List[str]
+    timestamp: Optional[str]
+    id: str
+    tape: Optional[str]
+
+class LatestTradesResponse(BaseModel):
+    data: Dict[str, Dict[str, Any]]
+
+# Data model for latest quote
+class LatestQuoteResponse(BaseModel):
+    symbol: str
+    bid_price: float
+    bid_size: int
+    ask_price: float
+    ask_size: int
+    timestamp: Optional[str]
+    conditions: List[str]
+    tape: Optional[str]
+
+class LatestQuotesResponse(BaseModel):
+    data: Dict[str, Dict[str, Any]]
 
 router = APIRouter()
 
@@ -37,6 +66,16 @@ def get_broker() -> AlpacaBrokerClient:
 @router.get("/health")
 def health() -> Dict[str, str]:
     return {"status": "ok"}
+
+# ---------- Debugging / info ----------
+@router.get("/debug_feed")
+def debug_feed(broker: AlpacaBrokerClient = Depends(get_broker)):
+    quote = broker.get_latest_quote("AAPL")
+    return {
+        "feed_used": "SIP" if quote.get("exchange") in ["Q","V","N"] else "IEX",
+        "exchange": quote.get("exchange"),
+        "sample_quote": quote
+    }
 
 
 # ---------- Account / positions ----------
@@ -292,6 +331,38 @@ def trading_blocked(
         return {"trading_blocked": blocked}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# ---------- Latest Trades ----------
+# --------------------------------
+# Get market data for latest trades per symbol
+@router.get("/latest_trade/{symbol}", response_model=LatestTradeResponse)
+async def get_latest_trade(
+    symbol: str,
+    broker: AlpacaBrokerClient = Depends(get_broker)
+) -> LatestTradeResponse:
+    """
+    Get the most recent trade for a symbol.
+    Example: /api/brokerage/latest_trade/AAPL
+    """
+    result = broker.get_latest_trade(symbol)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return LatestTradeResponse(**result)
+
+# ---------- Latest Quotes ----------
+@router.get("/latest_quote/{symbol}", response_model=LatestQuoteResponse)
+async def get_latest_quote(
+    symbol: str,
+    broker: AlpacaBrokerClient = Depends(get_broker)
+) -> LatestQuoteResponse:
+    """
+    Get the most recent quote for a symbol.
+    /api/brokerage/latest_quote/AAPL
+    """
+    result = broker.get_latest_quote(symbol)
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    return LatestQuoteResponse(**result)
 
 
 @router.get("/portfolio_history", response_model=PortfolioHistoryResponse)

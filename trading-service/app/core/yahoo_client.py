@@ -22,26 +22,7 @@ class YahooClient:
         result: Dict[str, Any] = {}
         if not symbols:
             return result
-
-        if len(symbols) == 1:
-            sym = symbols[0]
-            if data is None or data.empty:
-                result[sym] = []
-            else:
-                result[sym] = [
-                    {
-                        "timestamp": idx.to_pydatetime().isoformat(),
-                        "open": float(row["Open"]),
-                        "high": float(row["High"]),
-                        "low": float(row["Low"]),
-                        "close": float(row["Close"]),
-                        "volume": int(row["Volume"]),
-                    }
-                    for idx, row in data.iterrows()
-                ]
-            return result
-
-        # multi-ticker case
+        
         for sym in symbols:
             try:
                 df = data.xs(sym, axis=1, level=1)

@@ -84,6 +84,14 @@ async def node_decide_trade(llm, state: AgentState):
         f"   [🧠 Swing Trading Brain] Analyzing {state['ticker']} for {state['user_id']}..."
     )
 
+    def get_market_summary(state: AgentState) -> str:
+        """Safe market data extraction."""
+        market = state.get('market_data', {})
+        print(f"   [📈 Market Data] {market.get('yahoo', {})}")
+        return json.dumps(market)
+        
+    market_summary = get_market_summary(state)
+    # print(f"   [📈 Market Data] {market_summary}")
     # Enhanced prompt for news-driven swing trading
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -122,10 +130,10 @@ async def node_decide_trade(llm, state: AgentState):
             (
                 "human",
                 """
-            CURRENT MARKET SNAPSHOT:
-            Ticker: {ticker}
-            Current Price: {current_price}
-            ATR (14): {atr}
+            Below is the latest market data:
+            Alpaca is the brokerage data, Yahoo provides recent historicals.
+            Based on these data given, you are to make entry/exit decisions.
+            {market_summary}
 
             NEWS SIGNAL:
             Sentiment: {sentiment} (score: {score})
@@ -154,7 +162,7 @@ async def node_decide_trade(llm, state: AgentState):
             "take_profit": float,
             "qty": float,
             "risk_reward": "X:1",
-            "thesis": "Detailed reasoning with news + technical justification"
+            "thesis": "Detailed reasoning with news + technical justification (also provide figures from market data to support your entry and exit leveels)"
             }}
             """,
             ),
@@ -172,6 +180,7 @@ async def node_decide_trade(llm, state: AgentState):
         "historical_context": state.get("historical_context", []),
         "portfolio": state["portfolio"],
         "risk_profile": state["risk_profile"],
+        "market_summary": market_summary
     }
 
     # 3. Invoke LLM
@@ -182,9 +191,9 @@ async def node_decide_trade(llm, state: AgentState):
     try:
         content = response.content.strip()
         if "```json" in content:
-            content = content.split("```json").split("```").strip()[1]
+            content = content.split("```json")[1].split("```")[0].strip()
         elif "```" in content:
-            content = content.split("```")[28].split("```")[0].strip()
+            content = content.split("```")[1].split("```")[0].strip()
 
         decision = json.loads(content)
 

@@ -28,7 +28,7 @@ def get_client() -> YahooClient:
 
 @router.get("/quotes", response_model=QuotesResponse)
 async def get_quotes(
-    symbols: List[str] = Query(..., alias="symbol"),
+    symbols: Optional[List[str]] = Query(None, alias="symbol"),
     client: YahooClient = Depends(get_client),
 ) -> QuotesResponse:
     """
