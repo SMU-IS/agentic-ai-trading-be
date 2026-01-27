@@ -168,7 +168,7 @@ class AlpacaBrokerClient:
             qty=qty,
             notional=notional,
             side=self._side_from_str(side),
-            time_in_force=self._tif_from_str(time_in_force),
+            time_in_force=self._tif_from_str(time_in_force)
         )
         order = self.client.submit_order(order_data=order_req)
         return order.__dict__
@@ -181,6 +181,7 @@ class AlpacaBrokerClient:
         qty: Optional[float] = None,
         notional: Optional[float] = None,
         time_in_force: str = "day",
+        extended_hours: bool = True,
     ) -> Dict[str, Any]:
         if qty is None and notional is None:
             raise ValueError("Either qty or notional must be specified")
@@ -192,6 +193,7 @@ class AlpacaBrokerClient:
             side=self._side_from_str(side),
             time_in_force=self._tif_from_str(time_in_force),
             limit_price=limit_price,
+            extended_hours=extended_hours,
         )
         order = self.client.submit_order(order_data=order_req)
         return order.__dict__

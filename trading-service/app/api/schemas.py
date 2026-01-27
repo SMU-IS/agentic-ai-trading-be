@@ -18,6 +18,7 @@ class LimitOrderRequestBody(BaseModel):
     qty: Optional[float] = None
     notional: Optional[float] = None
     time_in_force: str = "day"
+    extended_hours: bool = True
 
 
 class StopOrderRequestBody(BaseModel):
