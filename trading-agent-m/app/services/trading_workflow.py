@@ -1,3 +1,4 @@
+import os
 from functools import partial
 
 from langgraph.graph import END, START, StateGraph
@@ -46,5 +47,20 @@ class TradingWorkflow:
     # ###### Public Runner ######
     async def run(self, input_data: dict):
         result = await self.graph.ainvoke(input_data)  # type: ignore
-
         return result
+
+    def export_graph(self):
+        folder_name = "public"
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
+
+        filename = "agent-m-workflow.png"
+        filepath = os.path.join(folder_name, filename)
+
+        self.graph.get_graph().draw_mermaid()
+        png_bytes = self.graph.get_graph().draw_mermaid_png()
+
+        with open(filepath, "wb") as f:
+            f.write(png_bytes)
+
+        print(f"\nGraph saved to {os.path.abspath(filepath)}")
