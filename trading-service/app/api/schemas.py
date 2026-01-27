@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from enum import Enum
 # ---------- Pydantic request models ----------
 
@@ -18,6 +18,7 @@ class LimitOrderRequestBody(BaseModel):
     qty: Optional[float] = None
     notional: Optional[float] = None
     time_in_force: str = "day"
+    extended_hours: bool = True
 
 
 class StopOrderRequestBody(BaseModel):
@@ -72,3 +73,11 @@ class ClosePositionRequestBody(BaseModel):
 
 class CloseAllPositionsRequestBody(BaseModel):
     cancel_orders: bool = True
+
+
+class HistoricalPoint(BaseModel):
+    date: str        # "2025-05-01T00:00:00.000Z"
+    value: float     # 30.52
+
+class PortfolioHistoryResponse(BaseModel):
+    historical: List[HistoricalPoint]

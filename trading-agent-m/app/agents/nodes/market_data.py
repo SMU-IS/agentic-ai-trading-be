@@ -8,8 +8,8 @@ import pandas as pd
 
 load_dotenv()
 
-ALPACA_BASE_URL = os.getenv("ALPACA_BASE_URL", "http://localhost:9000/api/brokerage")
-YAHOO_BASE_URL = os.getenv("YAHOO_BASE_URL", "http://localhost:9000/api/yahoo")
+ALPACA_BASE_URL = os.getenv("ALPACA_BASE_URL", "http://localhost:8000/api/v1/trading")
+YAHOO_BASE_URL = os.getenv("YAHOO_BASE_URL", "http://localhost:8000/api/v1/trading/yahoo")
 
 
 async def node_fetch_market_data(state: AgentState) -> AgentState:
@@ -63,27 +63,15 @@ async def fetch_alpaca_data(ticker: str) -> Dict[str, Any]:
             print(f"   [❌ Alpaca API] {e}")
             return {"error": str(e)}
 
-# async def fetch_yahoo_historical(ticker: str) -> Dict[str, Any]:
-#     """Yahoo recent historical (last 5 days daily)."""
-#     async with httpx.AsyncClient(timeout=10.0) as client:
-#         try:
-#             resp = await client.get(
-#                 f"{YAHOO_BASE_URL}/quotes",
-#                 params={"symbol": ticker, "interval": "1d", "period": "1w"}
-#             )
-#             return resp.json() if resp.status_code == 200 else {"error": "Yahoo unavailable"}
-#         except Exception as e:
-#             print(f"   [❌ Yahoo API] {e}")
-#             return {"error": str(e)}
-
 
 async def fetch_yahoo_historical(ticker: str) -> Dict[str, Any]:
     """Fetch Yahoo historical + key indicators for LLM prompts."""
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
+            print("Yahoo base URL", YAHOO_BASE_URL)
             resp = await client.get(
                 f"{YAHOO_BASE_URL}/history/{ticker}",
-                params={"interval": "1d", "period": "1mo"}
+                params={"interval": "1h", "period": "1mo"}
             )
             if resp.status_code != 200:
                 return {"error": "Yahoo unavailable"}

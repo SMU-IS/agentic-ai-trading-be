@@ -13,6 +13,7 @@ from app.api.schemas import (
     BracketOrderRequestBody,
     ClosePositionRequestBody,
     CloseAllPositionsRequestBody,
+    PortfolioHistoryResponse
 )
 
 # Data models for latest trades
@@ -182,6 +183,7 @@ def create_limit_order(
             qty=body.qty,
             notional=body.notional,
             time_in_force=body.time_in_force,
+            extended_hours=body.extended_hours
         )
         return data
     except Exception as e:
@@ -251,6 +253,7 @@ def create_bracket_order(
             take_profit_price=float(body.take_profit_price),
             stop_loss_price=float(body.stop_loss_price),
             time_in_force=body.time_in_force.value,  # Enum -> str
+            extended_hours=True,
         )
         
         # Log order ID for tracking
@@ -360,3 +363,18 @@ async def get_latest_quote(
     if "error" in result:
         raise HTTPException(status_code=404, detail=result["error"])
     return LatestQuoteResponse(**result)
+
+
+@router.get("/portfolio_history", response_model=PortfolioHistoryResponse)
+async def get_portfolio_history(
+    broker: AlpacaBrokerClient = Depends(get_broker)
+) -> PortfolioHistoryResponse:
+    """
+    Portfolio equity history (simple array format).
+    """
+    result = broker.get_portfolio_history()
+    
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    
+    return PortfolioHistoryResponse(**result)

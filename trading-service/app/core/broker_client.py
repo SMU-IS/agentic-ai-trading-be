@@ -19,8 +19,10 @@ from alpaca.trading.requests import (
     ClosePositionRequest,
     GetOrdersRequest,
     TakeProfitRequest,
-    StopLossRequest,
+    StopLossRequest
 )
+
+
 from alpaca.trading.models import Order, Position  # type hints only
 
 from alpaca.data.historical import StockHistoricalDataClient
@@ -165,7 +167,7 @@ class AlpacaBrokerClient:
             qty=qty,
             notional=notional,
             side=self._side_from_str(side),
-            time_in_force=self._tif_from_str(time_in_force),
+            time_in_force=self._tif_from_str(time_in_force)
         )
         order = self.client.submit_order(order_data=order_req)
         return order.__dict__
@@ -178,6 +180,7 @@ class AlpacaBrokerClient:
         qty: Optional[float] = None,
         notional: Optional[float] = None,
         time_in_force: str = "day",
+        extended_hours: bool = True,
     ) -> Dict[str, Any]:
         if qty is None and notional is None:
             raise ValueError("Either qty or notional must be specified")
@@ -189,6 +192,7 @@ class AlpacaBrokerClient:
             side=self._side_from_str(side),
             time_in_force=self._tif_from_str(time_in_force),
             limit_price=limit_price,
+            extended_hours=extended_hours,
         )
         order = self.client.submit_order(order_data=order_req)
         return order.__dict__
@@ -405,3 +409,27 @@ class AlpacaBrokerClient:
             }
         except Exception as e:
             return {"error": str(e)}
+        
+    # --------- Portfolio history ---------
+    def get_portfolio_history(
+        self,
+    ) -> Dict[str, Any]:
+        """
+        Get portfolio performance history using Alpaca TradingClient.
+        """
+        try:
+            history = self.client.get_portfolio_history()
+            
+            historical = []
+            for i, ts in enumerate(history.timestamp):
+                historical.append({
+                    "date": datetime.fromtimestamp(ts).isoformat() + "Z" if isinstance(ts, (int, float)) else f"{ts}Z",
+                    "value": float(history.equity[i])  # Use equity as main value
+                })
+            
+            return {
+                "historical": historical
+            }
+
+        except Exception as e:
+            return {"error": f"Portfolio history failed: {str(e)}"}

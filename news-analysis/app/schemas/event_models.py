@@ -1,43 +1,23 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class NewsPayload(BaseModel):
-    """
-    Schema for incoming news data from Scraper Service.
-    """
-
-    id: str
-    headline: str
-    content: str
-    source: Optional[str] = None
-
-
-class LLMEventResult(BaseModel):
-    """
-    Schema for the raw output expected from the LLM.
-    """
-
-    is_event: bool = Field(
-        description="True if a significant investment event is present"
-    )
-    event_category: str = Field(
-        description="Category of the event (e.g., earnings, merger, macro, none)"
-    )
-    confidence: float = Field(description="Confidence score between 0.0 and 1.0")
-    reasoning: str = Field(
-        description="Brief explanation of why this is or isn't an event"
-    )
+    headline: str = Field(..., alias="clean_title")
+    content: str = Field(..., alias="clean_combined")
+    model_config = ConfigDict(extra="ignore", populate_by_name=True)
 
 
 class EventResponse(BaseModel):
-    """
-    Schema for the final API response returned to the client.
-    """
-
-    event_detected: bool
-    event_type: Optional[str] = None
-    confidence: float
+    is_event: bool
+    event_type: str | None = None
+    ticker: Optional[str] = None
     method: str
-    summary: Optional[str] = None
+    summary: str
+
+
+class LLMEventResult(BaseModel):
+    is_event: bool
+    event_category: str
+    reasoning: str

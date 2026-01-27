@@ -1,14 +1,4 @@
 services:
-  qdrant:
-    image: qdrant/qdrant:latest
-    container_name: qdrant
-    ports:
-      - "7333:6333"
-      - "7334:6334"
-    volumes:
-      - ./qdrant_storage:/qdrant/storage:z
-    restart: unless-stopped
-
   rag-chatbot-service:
     build: .
     container_name: rag-agentic-app
@@ -17,7 +7,5 @@ services:
     volumes:
       - .:/code
     environment:
-      - QDRANT_HOST=qdrant
-    depends_on:
-      - qdrant
+      - QDRANT_DB_NEWS_ANALYSIS=http://news-analysis-service:5002/query
     command: fastapi dev app/main.py --host 0.0.0.0 --port 5001
