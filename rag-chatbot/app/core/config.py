@@ -20,5 +20,10 @@ class EnvConfig(BaseSettings):
     large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
     max_completion_tokens: int = Field(..., validation_alias="MAX_COMPLETION_TOKEN")
 
+    # Qdrant News Analysis
+    qdrant_db_news_analysis_url: str = Field(
+        ..., validation_alias="QDRANT_DB_NEWS_ANALYSIS"
+    )
+
 
 env_config = EnvConfig()  # type: ignore
