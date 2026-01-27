@@ -33,8 +33,9 @@ services:
       - REDIS_STREAM_KEY=${REDIS_STREAM_KEY}
       - REDIS_GROUP_NAME=${REDIS_GROUP_NAME}
       - REDIS_WORKER_NAME=${REDIS_WORKER_NAME}
-      - STORAGE_PROVIDER=${STORAGE_PROVIDER}
       - QDRANT_URL=${QDRANT_URL}
+      - ALPACA_BASE_URL=${ALPACA_BASE_URL}
+      - YAHOO_BASE_URL=${YAHOO_BASE_URL}
     depends_on:
       - redis-stream
       - qdrant-agent-m
