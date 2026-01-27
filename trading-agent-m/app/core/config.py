@@ -1,6 +1,5 @@
 import os
 
-from app.core.constant import StorageProviders
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -17,7 +16,6 @@ class EnvConfig(BaseSettings):
     ollama_base_url: str = Field(..., validation_alias="OLLAMA_BASE_URL")
     ollama_temperature: float = Field(..., validation_alias="TEMPERATURE")
     large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
-    text_embedding_model: str = Field(..., validation_alias="TEXT_EMBEDDING_MODEL")
 
     # Redis Stream
     redis_url: str = Field(..., validation_alias="REDIS_URL")
@@ -25,8 +23,6 @@ class EnvConfig(BaseSettings):
     redis_stream_key: str = Field(..., validation_alias="REDIS_STREAM_KEY")
     redis_group_name: str = Field(..., validation_alias="REDIS_GROUP_NAME")
 
-    # Vector Store
-    storage_provider: StorageProviders = Field(..., validation_alias="STORAGE_PROVIDER")
     qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
 
 
