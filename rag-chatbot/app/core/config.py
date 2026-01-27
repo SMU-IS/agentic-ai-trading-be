@@ -21,8 +21,8 @@ class EnvConfig(BaseSettings):
     max_completion_tokens: int = Field(..., validation_alias="MAX_COMPLETION_TOKEN")
 
     # Qdrant News Analysis
-    qdrant_db_news_analysis_url: str = Field(
-        ..., validation_alias="QDRANT_DB_NEWS_ANALYSIS"
+    news_analysis_query_url: str = Field(
+        ..., validation_alias="NEWS_ANALYSIS_QUERY_URL"
     )
 
 
