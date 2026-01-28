@@ -41,7 +41,7 @@ jobs:
           ruff format --check .
 
       - name: Run dependent services
-        run: docker-compose up -d redis-stream qdrant-agent-m
+        run: docker compose up -d redis-stream qdrant-agent-m
         env:
           QDRANT_URL: http://localhost:8333
           REDIS_URL: redis://localhost:7380
@@ -58,7 +58,7 @@ jobs:
 
       - name: Stop services
         if: always()
-        run: docker-compose down
+        run: docker compose down
 
       - name: Build Docker image
         uses: docker/build-push-action@v5
