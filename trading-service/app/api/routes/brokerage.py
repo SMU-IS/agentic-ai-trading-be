@@ -253,7 +253,6 @@ def create_bracket_order(
             take_profit_price=float(body.take_profit_price),
             stop_loss_price=float(body.stop_loss_price),
             time_in_force=body.time_in_force.value,  # Enum -> str
-            extended_hours=True,
         )
         
         # Log order ID for tracking

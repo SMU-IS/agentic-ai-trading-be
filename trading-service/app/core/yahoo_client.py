@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Any, Optional
 import yfinance as yf  # type: ignore
 from datetime import datetime
+import time
 
 @dataclass
 class YahooClient:
@@ -81,6 +82,64 @@ class YahooClient:
             "interval": interval,
             "bars": bars,
             "count": len(bars),
+        }
+        
+    def get_latest_info(
+        self,
+        symbol: str,
+    ) -> Dict[str, Any]:
+        """
+        Fetch latest price, quote, and key metrics from Yahoo Finance.
+        
+        Returns:
+            - lastPrice (fast_info - most recent)
+            - currentPrice (info dict)
+            - previousClose
+            - open, dayHigh, dayLow
+            - volume, marketCap, peRatio
+            - 50DayAverage, 200DayAverage
+        """
+        ticker = yf.Ticker(symbol)
+        
+        # Fast info (lightweight, latest)
+        fast = ticker.fast_info or {}
+        
+        # Full info (comprehensive)
+        info = ticker.info or {}
+        
+        # Latest history bar (fallback)
+        hist = ticker.history(period="1d")
+        latest_bar = hist.iloc[-1].to_dict() if not hist.empty else {}
+        
+        return {
+            "symbol": symbol,
+            "timestamp": time.time(),
+            "price": {
+                "last_price": round(float(fast.get('lastPrice', 0)), 2),
+                "current_price": round(float(info.get('currentPrice', 0)), 2),
+                "previous_close": round(float(fast.get('previousClose', 0)), 2),
+            },
+            "intraday": {
+                "open": round(float(latest_bar.get('Open', 0)), 2),
+                "high": round(float(latest_bar.get('High', 0)), 2),
+                "low": round(float(latest_bar.get('Low', 0)), 2),
+                "volume": int(latest_bar.get('Volume', 0)),
+            },
+            "averages": {
+                "sma_50": round(float(info.get('fiftyDayAverage', 0)), 2),
+                "sma_200": round(float(info.get('twoHundredDayAverage', 0)), 2),
+            },
+            "fundamentals": {
+                "market_cap": float(info.get('marketCap', 0)),
+                "pe_ratio": round(float(info.get('trailingPE', 0)), 2),
+                "forward_pe": round(float(info.get('forwardPE', 0)), 2),
+            },
+            "change": {
+                "day_change_pct": round(
+                    (fast.get('lastPrice', 0) - fast.get('previousClose', 0)) 
+                    / fast.get('previousClose', 0) * 100, 2
+                ),
+            }
         }
 
 
