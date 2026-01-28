@@ -86,10 +86,10 @@ async def node_decide_trade(llm, state: AgentState):
 
     def get_market_summary(state: AgentState) -> str:
         """Safe market data extraction."""
-        market = state.get('market_data', {})
+        market = state.get("market_data", {})
         print(f"   [📈 Market Data] {market.get('yahoo', {})}")
         return json.dumps(market)
-        
+
     market_summary = get_market_summary(state)
     # print(f"   [📈 Market Data] {market_summary}")
     # Enhanced prompt for news-driven swing trading
@@ -180,7 +180,7 @@ async def node_decide_trade(llm, state: AgentState):
         "historical_context": state.get("historical_context", []),
         "portfolio": state["portfolio"],
         "risk_profile": state["risk_profile"],
-        "market_summary": market_summary
+        "market_summary": market_summary,
     }
 
     # 3. Invoke LLM
