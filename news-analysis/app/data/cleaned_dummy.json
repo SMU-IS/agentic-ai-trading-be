@@ -625,5 +625,24 @@
     "clean_title": "Meta Platforms Q4 revenue grows despite ad slowdown",
     "clean_body": "Meta ($META) reported revenue growth of 4% YoY. Earnings article: https://www.cnbc.com/2024/01/22/meta-earnings-preview.html Infographic: Meta revenue: www.graphics.cnbc.com/meta_q4.png Alternative link: www.marketwatch.com/meta-q4 Highlights: Users growth stable, ad revenue recovering.",
     "clean_combined": "Meta Platforms Q4 revenue grows despite ad slowdown. Meta ($META) reported revenue growth of 4% YoY. Earnings article: https://www.cnbc.com/2024/01/22/meta-earnings-preview.html Infographic: Meta revenue: www.graphics.cnbc.com/meta_q4.png Alternative link: www.marketwatch.com/meta-q4 Highlights: Users growth stable, ad revenue recovering."
+  },
+  {
+    "Post_ID": "t3_raw034",
+    "Post_URL": "https://www.ft.com/content/google-antitrust",
+    "Author": "FinancialTimes",
+    "Timestamp_UTC": 1704672000,
+    "Timestamp_ISO": "2024-01-08T00:00:00",
+    "Total_Comments": 403,
+    "Score": 1900,
+    "Upvote_Ratio": 0.9,
+    "Subreddit": "technology",
+    "Domain": "ft.com",
+    "urls": [],
+    "images": [],
+    "raw_title": "Google faces renewed antitrust pressure from DOJ",
+    "raw_body": "The Department of Justice intensified its antitrust case.\n\nFT analysis inside.",
+    "clean_title": "Google faces renewed antitrust pressure from DOJ",
+    "clean_body": "The Department of Justice intensified its antitrust case. FT analysis inside.",
+    "clean_combined": "Google faces renewed antitrust pressure from DOJ. The Department of Justice intensified its antitrust case. FT analysis inside."
   }
 ]

@@ -1,1 +1,0 @@
-# FinBERT sentiment scoring logic

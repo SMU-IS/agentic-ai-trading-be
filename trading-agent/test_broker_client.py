@@ -1,6 +1,8 @@
-from broker_client import AlpacaBrokerClient, BrokerConfig
 import os
+
+from broker_client import AlpacaBrokerClient, BrokerConfig
 from dotenv import load_dotenv
+
 load_dotenv()
 
 cfg = BrokerConfig(

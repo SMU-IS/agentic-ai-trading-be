@@ -28,6 +28,15 @@ plugins:
       preflight_continue: false
 
 services:
+  # === News Analysis Microservice ===
+  - name: news-analysis-entry
+    url: http://news-analysis-service:5002
+    routes:
+      - name: news-analysis-routes
+        paths:
+          - /api/v1/news-analysis
+        strip_path: true
+
   # === User Info Microservice ===
   - name: user-service-entry
     url: http://user-service:8080

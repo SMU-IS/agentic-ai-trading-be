@@ -1,0 +1,45 @@
+name: News Analysis CI
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - "news-analysis/**"
+  pull_request:
+    branches: ["master"]
+    paths:
+      - "news-analysis/**"
+
+jobs:
+  python-tests:
+    name: Lint and Test
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: news-analysis
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.9"
+          cache: "pip"
+          cache-dependency-path: news-analysis/requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run Linting (Optional)
+        run: |
+          pip install flake8
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Run Tests
+        run: |
+          if [ -d "tests" ]; then python -m pytest; else echo "No tests folder found, skipping..."; fi

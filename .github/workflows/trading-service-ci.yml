@@ -1,0 +1,28 @@
+name: Trading Service CI
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - "trading-service/**"
+  pull_request:
+    branches: ["master"]
+    paths:
+      - "trading-service/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./trading-service
+          file: ./trading-service/Dockerfile
+          push: false

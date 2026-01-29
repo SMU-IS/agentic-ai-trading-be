@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  labels:
+    app: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+        - name: user-info
+          image: joshdavidang/agentic-ai-trading-be-user-info:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+
+          # Add other environment variables for DB, Redis, etc.
+          # - name: DB_HOST
+          #   value: "your-db-host"
+          # - name: REDIS_HOST
+          #   value: "your-redis-host"
