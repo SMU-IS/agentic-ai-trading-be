@@ -5,9 +5,18 @@ from services.reddit_stream_ingestion import RedditStreamService
 from services.reddit_batch_ingestion import RedditBatchService
 from config import REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT
 
-SUBREDDITS = ["wallstreetbets", "stocks", "investing", "options",
-             "securityanalysis", "stockmarket", "techstocks",
-             "tsla", "aapl", "nvda", "msft"]
+SUBREDDITS = [
+    "wallstreetbets", "stocks", "investing", "options",
+    "securityanalysis", "stockmarket", "techstocks",
+
+    "technology", "growthstocks",
+
+    "tsla", "aapl", "nvidiastock", "apple", "microsoft", "MSFT", "google",
+    "amazon", "aws", "meta", "netflix", "nvidia", "amd", "intel",
+
+    "MachineLearning", "artificial", "startups", "SaaS"
+]
+
 
 mode = sys.argv[1] if len(sys.argv) > 1 else "stream"
 
