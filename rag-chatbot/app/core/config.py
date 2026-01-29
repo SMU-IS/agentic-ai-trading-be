@@ -25,5 +25,7 @@ class EnvConfig(BaseSettings):
         ..., validation_alias="NEWS_ANALYSIS_QUERY_URL"
     )
 
+    secret_key: str = Field(..., validation_alias="SECRET_KEY")
+
 
 env_config = EnvConfig()  # type: ignore
