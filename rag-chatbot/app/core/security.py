@@ -1,12 +1,27 @@
+import jwt
+from app.core.config import env_config
 from fastapi import HTTPException, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 security = HTTPBearer(auto_error=False)
+SECRET_KEY = env_config.secret_key
+ALGORITHM = "HS256"
 
 
-# TODO: Helper function
-def is_valid(token: str) -> bool:
-    return token == "test"
+def verify_token(token: str) -> dict:
+    """
+    Decodes and verifies the JWT token.
+    Returns the token's payload if valid, otherwise raises an exception.
+    """
+
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.PyJWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+        )
 
 
 async def get_current_user(auth: HTTPAuthorizationCredentials = Security(security)):
@@ -18,10 +33,6 @@ async def get_current_user(auth: HTTPAuthorizationCredentials = Security(securit
         )
 
     token = auth.credentials
+    payload = verify_token(token)
 
-    if not is_valid(token):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-        )
-    return token
+    return payload
