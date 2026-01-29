@@ -85,7 +85,6 @@ pydantic_core==2.41.5
 Pygments==2.19.2
 PyJWT==2.10.1
 python-dotenv==1.2.1
-python-jose==3.5.0
 python-multipart==0.0.20
 PyYAML==6.0.3
 qdrant-client==1.16.2
