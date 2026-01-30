@@ -1,12 +1,12 @@
 import json
-from operator import itemgetter
 from typing import List
+from venv import logger
 
 import httpx
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnableLambda
+from langchain_core.runnables import Runnable
 
 from app.core.config import env_config
 
@@ -26,19 +26,11 @@ class RetrievalService:
             ]
         )
 
-        self.chain = (
-            {
-                "context": RunnableLambda(self.fetch_news_context),
-                "query": itemgetter("query"),
-            }
-            | self.prompt
-            | self.llm
-            | StrOutputParser()
-        )
+        self.rag_chain: Runnable = self.prompt | self.llm | StrOutputParser()
 
-    async def fetch_news_context(self, inputs: dict):
+    async def _fetch_news_context_and_articles(self, inputs: dict):
         """
-        Calls the external news-analysis service to retrieve news context.
+        Calls the external news-analysis service to retrieve news context and articles.
         """
 
         payload = {
@@ -55,15 +47,15 @@ class RetrievalService:
             articles = data.get("results", [])
 
             if not articles:
-                return "No relevant news found for the requested tickers."
-
-            context = "\n\n".join(
-                [
-                    f"Headline: {d['headline']}\nContent: {d['content_preview']}"
-                    for d in articles
-                ]
-            )
-            return context
+                context = "No relevant news found for the requested tickers."
+            else:
+                context = "\n\n".join(
+                    [
+                        f"Headline: {d.get('headline', 'No headline')}\nContent: {d.get('content_preview', 'No content preview')}"
+                        for d in articles
+                    ]
+                )
+            return {"context": context, "articles": articles}
 
     async def get_answer_stream(self, query: str, tickers: List[str]):
         """
@@ -73,9 +65,27 @@ class RetrievalService:
         inputs = {"query": query, "tickers": tickers}
 
         try:
-            async for chunk in self.chain.astream(inputs):
+            retrieved_data = await self._fetch_news_context_and_articles(inputs)
+            context = retrieved_data["context"]
+            articles = retrieved_data["articles"]
+
+            chain_input = {"context": context, "query": query}
+
+            async for chunk in self.rag_chain.astream(chain_input):
                 if chunk:
                     yield f"data: {json.dumps({'token': chunk})}\n\n"
+
+            if articles:
+                citations = [
+                    {
+                        "headline": article.get("headline"),
+                        "url": article.get("metadata", {}).get(
+                            "url", "No URL provided"
+                        ),
+                    }
+                    for article in articles
+                ]
+                yield f"data: {json.dumps({'citations': citations})}\n\n"
 
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
