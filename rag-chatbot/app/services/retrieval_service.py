@@ -78,8 +78,10 @@ class RetrievalService:
             if articles:
                 citations = [
                     {
-                        "headline": article.get("headline", "No headline"),
-                        "url": article.get("url", ""),
+                        "headline": article.get("headline"),
+                        "url": article.get("metadata", {}).get(
+                            "url", "No URL provided"
+                        ),
                     }
                     for article in articles
                 ]
