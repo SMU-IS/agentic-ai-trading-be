@@ -50,7 +50,7 @@ class RetrievalService:
             else:
                 context = "\n\n".join(
                     [
-                        f"Headline: {d['headline']}\nContent: {d['content_preview']}"
+                        f"Headline: {d.get('headline', 'No headline')}\nContent: {d.get('content_preview', 'No content preview')}"
                         for d in articles
                     ]
                 )
