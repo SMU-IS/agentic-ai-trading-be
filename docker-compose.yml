@@ -12,6 +12,7 @@ services:
       - KONG_ADMIN_ERROR_LOG=/dev/stderr
       - KONG_ADMIN_LISTEN=0.0.0.0:8001
       - KONG_PROXY_LISTEN=0.0.0.0:8000
+      - KONG_JWT_SECRET=${SECRET_KEY}
     volumes:
       - ./kong.yml:/usr/local/kong/declarative/kong.yml
     ports:

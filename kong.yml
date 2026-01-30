@@ -1,11 +1,19 @@
 _format_version: "3.0"
 _transform: true
 
+consumers:
+  - username: agentic-ai-user-service
+    jwt_secrets:
+      - key: agentic-ai-user-service
+        algorithm: HS256
+        secret: ${KONG_JWT_SECRET}
+
 plugins:
   - name: cors
     config:
       origins:
         - http://localhost:3000 # TODO: Add in production url
+        - https://main.d22zhvaaydu232.amplifyapp.com
       methods:
         - GET
         - POST
@@ -49,6 +57,8 @@ services:
   # === RAG Chatbot Microservice ===
   - name: rag-chatbot-service-entry
     url: http://rag-chatbot-service:5001
+    # plugins:
+    #   - name: jwt
     routes:
       - name: rag-chatbot-routes
         paths:
