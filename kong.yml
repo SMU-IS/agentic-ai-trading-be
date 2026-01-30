@@ -6,7 +6,7 @@ consumers:
     jwt_secrets:
       - key: agentic-ai-user-service
         algorithm: HS256
-        secret: ${KONG_JWT_SECRET}
+        secret: L5TjuuTAlM8MMcZ9nyhB9QkLXxgyW8tGlPQc40rJcMt # TODO: remove hardcoded secret.
 
 plugins:
   - name: cors
@@ -57,8 +57,8 @@ services:
   # === RAG Chatbot Microservice ===
   - name: rag-chatbot-service-entry
     url: http://rag-chatbot-service:5001
-    # plugins:
-    #   - name: jwt
+    plugins:
+      - name: jwt
     routes:
       - name: rag-chatbot-routes
         paths:
