@@ -1,6 +1,5 @@
 import json
 from typing import List
-from venv import logger
 
 import httpx
 from langchain_core.language_models.chat_models import BaseChatModel
