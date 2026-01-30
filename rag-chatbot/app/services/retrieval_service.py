@@ -81,8 +81,8 @@ class RetrievalService:
                         "headline": article["headline"],
                         "url": article.get("metadata", {}).get(
                             "url", "No URL provided"
-                        ),
-                    }
+                citations = [
+                    {"headline": article.get("headline", "No headline"), "url": article.get("url", "")}
                     for article in articles
                 ]
                 yield f"data: {json.dumps({'citations': citations})}\n\n"
