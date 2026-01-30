@@ -1,5 +1,6 @@
 import json
 from typing import List
+from venv import logger
 
 import httpx
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -76,7 +77,12 @@ class RetrievalService:
 
             if articles:
                 citations = [
-                    {"headline": article["headline"], "url": article.get("url", "")}
+                    {
+                        "headline": article["headline"],
+                        "url": article.get("metadata", {}).get(
+                            "url", "No URL provided"
+                        ),
+                    }
                     for article in articles
                 ]
                 yield f"data: {json.dumps({'citations': citations})}\n\n"
