@@ -14,9 +14,19 @@ class EnvConfig(BaseSettings):
         env_file=ENV_PATH, env_file_encoding="utf-8", extra="ignore"
     )
 
+    # S3
+    aws_bucket_access_key: str = Field(..., validation_alias="AWS_BUCKET_ACCESS_KEY")
+    aws_bucket_secret: str = Field(..., validation_alias="AWS_BUCKET_SECRET")
+    aws_region: str = Field(..., validation_alias="AWS_REGION")
+    aws_bucket_name: str = Field(..., validation_alias="AWS_BUCKET_NAME")
+
     # Redis
     redis_url: str = Field(..., validation_alias="REDIS_URL")
     redis_news_queue: str = Field(..., validation_alias="REDIS_QUEUE_NAME")
+    redis_host: str = Field(..., validation_alias="REDIS_HOST")
+    redis_port: str = Field(..., validation_alias="REDIS_PORT")
+    redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
+
 
     # LLM
     llm_provider: str = Field(..., validation_alias="LLM_PROVIDER")
