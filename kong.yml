@@ -36,6 +36,15 @@ plugins:
       preflight_continue: false
 
 services:
+  # === News Scraper Microservice ===
+  - name: news-scraper-entry
+    url: http://news-scraper-service:5003
+    routes:
+      - name: news-scraper-routes
+        paths:
+          - /api/v1/news-scraper
+        strip_path: true
+
   # === News Analysis Microservice ===
   - name: news-analysis-entry
     url: http://news-analysis-service:5002
