@@ -54,22 +54,13 @@ jobs:
         run: echo "${{ secrets.USER_INFO_SECRETS }}" > .env.prod
         shell: bash
 
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            changes:
-              - 'user-info/**'
-
       - name: Login to Docker Hub
-        if: steps.filter.outputs.changes == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build and Push Docker Image
-        if: steps.filter.outputs.changes == 'true'
+      - ame: Build and Push Docker Image
         run: make build
 
       - name: Setup Kubeconfig
