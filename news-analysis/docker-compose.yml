@@ -29,8 +29,8 @@ services:
       - QDRANT_URL=${QDRANT_URL}
       - REDIS_URL=${REDIS_URL}
       - REDIS_QUEUE_NAME=${REDIS_QUEUE_NAME}
-      - SENTIMENT_MODEL=${SENTIMENT_MODEL}
-      - SENTIMENT_DEVICE=${SENTIMENT_DEVICE}
+      # - SENTIMENT_MODEL=${SENTIMENT_MODEL}
+      # - SENTIMENT_DEVICE=${SENTIMENT_DEVICE}
     depends_on:
       - qdrant-db
       - redis-queue-news-analysis

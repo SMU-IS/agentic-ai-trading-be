@@ -6,6 +6,8 @@ from app.scripts.checkpoint import RedisCheckpoint
 from app.services._01_preprocesser import PreprocessingService
 from app.services._02_ticker_identification import TickerIdentificationService
 from app.services._03_event_identification import EventIdentifierService
+from app.services._04_credibility import CredibilityService
+from app.services._05_sentiment import SentimentAnalysisService
 from app.scripts.aws_bucket_access import AWSBucket
 from app.core.config import env_config
 
@@ -41,6 +43,10 @@ preprocessing_stream = RedisStreamStorage("preproc_stream", redis_client)
 ticker_stream = RedisStreamStorage("ticker_stream", redis_client)
 # event stream to be consumed by credibility service
 event_stream = RedisStreamStorage("event_stream", redis_client)
+# credibility stream to be consumed by sentiment service
+credibility_stream = RedisStreamStorage("credibility_stream", redis_client)
+# sentiment stream to be consumed by downstream services
+sentiment_stream = RedisStreamStorage("sentiment_stream", redis_client)
 # all tickers set to be updated and sent to scraping service
 all_tickers = set()
 
@@ -67,11 +73,15 @@ ticker_service = TickerIdentificationService(
     cleaned_tickers=cleaned_tickers,
     alias_to_canonical=alias_to_canonical,
 )
+credibility_service = CredibilityService()
+sentiment_service = SentimentAnalysisService()
 
 # # Clear streams for testing
 preprocessing_stream.clear_stream()
 ticker_stream.clear_stream()
 event_stream.clear_stream()
+credibility_stream.clear_stream()
+sentiment_stream.clear_stream()
 
 # Consume from Reddit stream
 entries = reddit_stream.read(last_id="0-0", count=50, block_ms=5000)
@@ -151,6 +161,19 @@ for _, messages in ticker_entries:
         post_content = data.get("data", data)
         event_data = eventidentifier.analyse_event(post_content)
         event_stream.save(event_data)
+        print(msg_id)
+        # checkpoint.save(msg_id)
+
+# Credibility and Sentiment Analysis
+event_entries = event_stream.read(last_id="0-0", count=50)
+
+for _, messages in event_entries:
+    for msg_id, data in messages:
+        sentiment = sentiment_service.analyse(data)
+        sentiment_stream.save(sentiment)
+
+        credibility = credibility_service.analyse(data)
+        credibility_stream.save(credibility)
         print(msg_id)
         # checkpoint.save(msg_id)
 
