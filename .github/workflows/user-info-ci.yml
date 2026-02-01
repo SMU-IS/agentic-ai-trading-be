@@ -64,5 +64,9 @@ jobs:
       #   with:
       #     kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
 
+      - name: Recreate .env file
+        run: |
+          echo "${{ secrets.USER_INFO_ENV_BASE_64 }}" | base64 --decode > .env
+
       - name: Deploy to Kubernetes
         run: make deploy
