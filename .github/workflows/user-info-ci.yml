@@ -60,7 +60,7 @@ jobs:
         run: make build
 
       - name: Setup Kubeconfig
-        uses: azure/k8s-setup-context@v3
+        uses: azure/k8s-set-context
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
