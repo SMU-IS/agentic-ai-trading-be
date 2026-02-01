@@ -60,7 +60,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - ame: Build and Push Docker Image
+      - name: Build and Push Docker Image
         run: make build
 
       - name: Setup Kubeconfig
