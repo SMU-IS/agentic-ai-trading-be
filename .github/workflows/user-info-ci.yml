@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create environment variable file from secret
-        run: echo "${{ secrets.USER_INFO_SECRETS }}" > .env
+        run: echo "${{ secrets.USER_INFO_SECRETS }}" > .env.prod
         shell: bash
 
       - uses: dorny/paths-filter@v3
@@ -77,10 +77,6 @@ jobs:
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
-
-      - name: Recreate .env file
-        run: |
-          echo "${{ secrets.USER_INFO_ENV_BASE_64 }}" | base64 --decode > .env
 
       - name: Deploy to Kubernetes
         run: make deploy
