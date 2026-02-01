@@ -1,4 +1,4 @@
-IMAGE_NAME = user-info-go
+IMAGE_NAME = rag-chatbot
 TAG = v1
 REGISTRY = joshdavidang
 
@@ -18,28 +18,28 @@ deploy:
 	@echo "===================================================="
 	@echo "🔐 1. SYNCING SECRETS"
 	@echo "===================================================="
-	@kubectl create secret generic user-info-secrets --from-env-file=.env.prod --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify --validate=false
+	@kubectl create secret generic rag-chatbot-secrets --from-env-file=.env.prod --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify --validate=false
 	@echo ""
 
 	@echo "===================================================="
 	@echo "🚀 2. APPLYING KUBERNETES MANIFESTS"
 	@echo "===================================================="
-	@kubectl apply -f ../k8s/user-info --insecure-skip-tls-verify --validate=false
+	@kubectl apply -f ../k8s/rag-chatbot --insecure-skip-tls-verify --validate=false
 	@echo ""
 
 	@echo "===================================================="
 	@echo "♻️  3. RESTARTING & WAITING FOR ROLLOUT"
 	@echo "===================================================="
-	@kubectl rollout restart deployment user-info-deployment
-	@kubectl rollout status deployment user-info-deployment
+	@kubectl rollout restart deployment rag-chatbot-deployment
+	@kubectl rollout status deployment rag-chatbot-deployment
 	@echo ""
 
 	@echo "===================================================="
 	@echo "📊 4. FINAL SYSTEM STATUS"
 	@echo "===================================================="
-	@kubectl get pods,svc,ingress -l app=user-info
+	@kubectl get pods,svc,ingress -l app=rag-chatbot
 	@echo ""
-	@echo "✅ User Info Deployment Complete!"
+	@echo "✅ RAG Chatbot Deployment Complete!"
 
 logs:
-	kubectl logs -l app=user-info -f --tail=50
+	kubectl logs -l app=rag-chatbot -f --tail=50
