@@ -18,7 +18,7 @@ spec:
         - name: news-analysis
           image: joshdavidang/news-analysis:v1
           ports:
-            - containerPort: 8080
+            - containerPort: 8000
           envFrom:
             - secretRef:
                 name: news-analysis-secrets

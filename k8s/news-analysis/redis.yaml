@@ -22,7 +22,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: news-analysis-service
+  name: redis-news-analysis-service
 spec:
   selector:
     app: redis
