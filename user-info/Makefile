@@ -18,13 +18,13 @@ deploy:
 	@echo "===================================================="
 	@echo "🔐 1. SYNCING SECRETS"
 	@echo "===================================================="
-	@kubectl create secret generic user-info-secrets --from-env-file=.env.prod --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create secret generic user-info-secrets --from-env-file=.env.prod --dry-run=client -o yaml | kubectl apply -f - --insecure-skip-tls-verify --validate=false
 	@echo ""
 
 	@echo "===================================================="
 	@echo "🚀 2. APPLYING KUBERNETES MANIFESTS"
 	@echo "===================================================="
-	@kubectl apply -f ../k8s/user-info
+	@kubectl apply -f ../k8s/user-info --insecure-skip-tls-verify --validate=false
 	@echo ""
 
 	@echo "===================================================="
