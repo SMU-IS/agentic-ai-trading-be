@@ -59,10 +59,10 @@ jobs:
       - name: Build and Push Docker Image
         run: make build
 
-      # - name: Setup Kubeconfig
-      #   uses: azure/k8s-setup-kubeconfig@v3
-      #   with:
-      #     kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
+      - name: Setup Kubeconfig
+        uses: azure/k8s-setup-kubeconfig@v3
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
 
       - name: Recreate .env file
         run: |
