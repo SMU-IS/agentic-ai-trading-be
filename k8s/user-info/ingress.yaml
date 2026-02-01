@@ -1,11 +1,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: user-service-ingress
+  name: user-info-ingress
   annotations:
-    kubernetes.io/ingress.class: kong
     konghq.com/strip-path: "true"
 spec:
+  ingressClassName: kong
   rules:
     - http:
         paths:
@@ -13,6 +13,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: user-service
+                name: user-info
                 port:
                   number: 8080
