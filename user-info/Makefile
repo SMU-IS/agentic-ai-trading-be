@@ -18,7 +18,7 @@ deploy:
 	@echo "===================================================="
 	@echo "🔐 1. SYNCING SECRETS"
 	@echo "===================================================="
-	@kubectl create secret generic user-info-secrets --from-env-file=.env --dry-run=client -o yaml | kubectl apply -f -
+	@kubectl create secret generic user-info-secrets --from-env-file=.env.prod --dry-run=client -o yaml | kubectl apply -f -
 	@echo ""
 
 	@echo "===================================================="

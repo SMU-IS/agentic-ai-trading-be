@@ -47,7 +47,7 @@ services:
 
   # === User Info Microservice ===
   - name: user-service-entry
-    url: http://user-service:8080
+    url: http://user-info-service:8080
     routes:
       - name: user-routes
         paths:
