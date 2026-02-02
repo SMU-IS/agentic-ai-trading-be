@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
@@ -43,6 +43,16 @@ class LatestQuoteResponse(BaseModel):
 
 class LatestQuotesResponse(BaseModel):
     data: Dict[str, Dict[str, Any]]
+    
+class CancelOrdersRequest(BaseModel):
+    order_ids: Optional[List[str]] = None
+    cancel_all: bool = False
+    
+class ConflictCheckRequest(BaseModel):
+    symbol: str = Field(..., description="Stock symbol")
+    intended_side: str = Field(..., pattern="^(buy|sell)$")
+    intended_qty: float = Field(..., gt=0)
+    auto_resolve: bool = Field(False, description="Auto close/cancel conflicts")
 
 router = APIRouter()
 
@@ -307,8 +317,64 @@ def close_all_positions(
         return data
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+    
+@router.delete("/orders/cancel")
+async def cancel_orders(
+    req: CancelOrdersRequest,
+    broker: AlpacaBrokerClient = Depends(get_broker)
+) -> Dict[str, Any]:
+    """
+    Cancel specific orders by ID or all open orders.
+    """
+    try:
+        result = broker.cancel_orders(
+            order_ids=req.order_ids,
+            cancel_all=req.cancel_all
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    
+# ---------- Conflict checking / resolution ----------
+@router.post("/orders/check-conflicts")
+async def check_conflicts(
+    req: ConflictCheckRequest,
+    broker: AlpacaBrokerClient = Depends(get_broker)
+) -> Dict[str, Any]:
+    """
+    Check for conflicting positions/orders before placing new trade.
+    
+    Returns conflicts found + required cleanup actions.
+    """
+    result = broker.check_conflicting_positions(
+        symbol=req.symbol,
+        intended_side=req.intended_side,
+        intended_qty=req.intended_qty
+    )
+    return result
 
 
+@router.post("/orders/resolve-conflicts")
+async def resolve_conflicts(
+    req: ConflictCheckRequest,
+    broker: AlpacaBrokerClient = Depends(get_broker)
+) -> Dict[str, Any]:
+    """
+    Check conflicts AND auto-resolve (close position + cancel orders).
+    
+    Use before submitting new bracket order to ensure clean entry.
+    """
+    result = broker.resolve_conflicts(
+        symbol=req.symbol,
+        intended_side=req.intended_side,
+        intended_qty=req.intended_qty,
+        auto_resolve=req.auto_resolve
+    )
+    return result
 # ---------- Convenience ----------
 
 @router.get("/account/equity_cash")
