@@ -67,3 +67,35 @@ jobs:
           file: ./trading-agent-m/Dockerfile
           push: false # Only build, don't push
           tags: trading-agent-m:latest
+
+  deploy-to-k8s:
+    name: Deploy to Kubernetes (Trading Agent M)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: trading-agent-m
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create environment variable file from secret
+        run: echo "${{ secrets.TRADING_AGENT_M_SECRETS }}" > .env.prod
+        shell: bash
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        run: make build
+
+      - name: Setup Kubeconfig
+        uses: azure/k8s-set-context@v4
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
+
+      - name: Deploy to Kubernetes
+        run: make deploy
