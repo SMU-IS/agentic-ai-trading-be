@@ -1,0 +1,31 @@
+name: Deploy Infrastructure
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "k8s/kong-values.yaml"
+
+jobs:
+  deploy-kong:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # AWS Credentials to configure kubectl.
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: us-east-1
+      #
+      # - name: Set up Kubeconfig
+      #   run: aws eks update-kubeconfig --name YOUR_CLUSTER_NAME --region YOUR_REGION
+
+      - name: Install Kong Ingress Controller
+        run: |
+          helm repo add kong https://charts.konghq.com
+          helm repo update
+          helm upgrade --install kong kong/ingress --namespace kong --create-namespace -f k8s/kong-values.yaml
