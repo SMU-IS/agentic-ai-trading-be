@@ -8,7 +8,7 @@
   <img width="220" height="204" alt="agent" src="https://github.com/user-attachments/assets/701e0359-cfb3-4f53-8d63-7cb2f93fcfa9" />
 </p>
 
-## 🤖 Agentic AI Trading Portfolio Backend
+## 🤖 Agent M | Agentic AI Trading Portfolio Backend
 
 Agent M - A dynamic, fully autonomous trading portfolio companion designed to navigate the complex digital financial landscape. Leveraging a multi-agent AI architecture, the platform transforms real-time market data, traditional news, and internet sentiment into personalised, actionable investment decisions.
 
