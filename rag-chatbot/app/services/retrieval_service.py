@@ -1,11 +1,10 @@
 import json
-from typing import List
 
 import httpx
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import Runnable
+from langchain_core.runnables import RunnableBranch, RunnableLambda
 
 from app.core.config import env_config
 
@@ -24,7 +23,16 @@ class RetrievalService:
             ]
         )
 
-        self.rag_chain: Runnable = self.prompt | self.llm | StrOutputParser()
+        def is_valid_order(inputs):
+            return "order_id" in inputs and inputs["order_id"]
+
+        rag_path = self.prompt | self.llm | StrOutputParser()
+
+        rejection_path = RunnableLambda(
+            lambda x: "I'm sorry, I cannot process your request without a valid Order ID."
+        )
+
+        self.rag_chain = RunnableBranch((is_valid_order, rag_path), rejection_path)
 
     async def _fetch_news_context_and_results(self, inputs: dict):
         """
@@ -32,7 +40,7 @@ class RetrievalService:
         """
 
         payload = {
-            "query": inputs["query"],
+            "query": inputs.get("query", ""),
             "limit": 5,
             "ticker_filter": inputs.get("tickers", []),
         }
@@ -54,17 +62,23 @@ class RetrievalService:
                 )
             return {"context": context, "results": results}
 
-    async def get_answer_stream(self, query: str, tickers: List[str]):
+    async def fetch_order_details_augment_response(
+        self, query: str, order_id: str | None
+    ):
         """
-        Streams response to FE.
+        - Fetch order details using order_id
+        - Augment response with order details
         """
 
+        tickers = [
+            "TSLA"
+        ]  # se order_id to fetch order details to get the tickers, hardcoded for now
         inputs = {"query": query, "tickers": tickers}
 
         try:
             news_context = await self._fetch_news_context_and_results(inputs)
             context, results = news_context["context"], news_context["results"]
-            chain_input = {"context": context, "query": query}
+            chain_input = {"context": context, "query": query, "order_id": order_id}
 
             async for chunk in self.rag_chain.astream(chain_input):
                 if chunk:
