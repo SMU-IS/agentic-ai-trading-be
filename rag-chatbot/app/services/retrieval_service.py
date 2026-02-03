@@ -14,7 +14,6 @@ class RetrievalService:
     def __init__(self, llm: BaseChatModel):
         self.llm = llm
         self.qdrant_db_url = env_config.news_analysis_query_url
-
         self.prompt = ChatPromptTemplate.from_messages(
             [
                 (
@@ -27,9 +26,9 @@ class RetrievalService:
 
         self.rag_chain: Runnable = self.prompt | self.llm | StrOutputParser()
 
-    async def _fetch_news_context_and_articles(self, inputs: dict):
+    async def _fetch_news_context_and_results(self, inputs: dict):
         """
-        Calls the external news-analysis service to retrieve news context and articles.
+        Calls the external news-analysis service to retrieve news context and results.
         """
 
         payload = {
@@ -42,19 +41,18 @@ class RetrievalService:
             response = await client.post(self.qdrant_db_url, json=payload)
             response.raise_for_status()
             data = response.json()
+            results = data.get("results", [])
 
-            articles = data.get("results", [])
-
-            if not articles:
+            if not results:
                 context = "No relevant news found for the requested tickers."
             else:
                 context = "\n\n".join(
                     [
                         f"Headline: {d.get('headline', 'No headline')}\nContent: {d.get('content_preview', 'No content preview')}"
-                        for d in articles
+                        for d in results
                     ]
                 )
-            return {"context": context, "articles": articles}
+            return {"context": context, "results": results}
 
     async def get_answer_stream(self, query: str, tickers: List[str]):
         """
@@ -64,25 +62,21 @@ class RetrievalService:
         inputs = {"query": query, "tickers": tickers}
 
         try:
-            retrieved_data = await self._fetch_news_context_and_articles(inputs)
-            context = retrieved_data["context"]
-            articles = retrieved_data["articles"]
-
+            news_context = await self._fetch_news_context_and_results(inputs)
+            context, results = news_context["context"], news_context["results"]
             chain_input = {"context": context, "query": query}
 
             async for chunk in self.rag_chain.astream(chain_input):
                 if chunk:
                     yield f"data: {json.dumps({'token': chunk})}\n\n"
 
-            if articles:
+            if results:
                 citations = [
                     {
-                        "headline": article.get("headline"),
-                        "url": article.get("metadata", {}).get(
-                            "url", "No URL provided"
-                        ),
+                        "headline": result.get("headline"),
+                        "url": result.get("metadata", {}).get("url", "No URL provided"),
                     }
-                    for article in articles
+                    for result in results
                 ]
                 yield f"data: {json.dumps({'citations': citations})}\n\n"
 
