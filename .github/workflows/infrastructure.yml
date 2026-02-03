@@ -2,9 +2,10 @@ name: Deploy Infrastructure
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "k8s/kong-values.yaml"
+  # TODO: Uncomment once its ready
+  # push:
+  #   paths:
+  #     - "k8s/kong-values.yaml"
 
 jobs:
   deploy-kong:
