@@ -43,7 +43,7 @@ async def start_consumer():
     # 3. The Infinite Loop
     try:
         while True:
-            logger.info("📖 Reading messages from Redis Stream")
+            # logger.info("📖 Reading messages from Redis Stream")
             try:
                 streams = await redis_client.xreadgroup(
                     env_config.redis_group_name,
