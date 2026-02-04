@@ -3,33 +3,58 @@ import praw
 from services.storage import RedisStreamStorage
 from services.reddit_stream_ingestion import RedditStreamService
 from services.reddit_batch_ingestion import RedditBatchService
+from services.entity_watcher import EntityWatcherService
 from config import REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USER_AGENT
 
-SUBREDDITS = [
-    "wallstreetbets", "stocks", "investing", "options",
-    "securityanalysis", "stockmarket", "techstocks",
+def run_stream_mode(reddit, storage, redis_client, base_subreddits):
+    print("[*] STREAM MODE: Starting RedditStreamService")
+    stream_service = RedditStreamService(reddit, storage, redis_client)
+    stream_service.run(base_subreddits)
 
-    "technology", "growthstocks",
+def run_batch_mode(reddit, storage, redis_client, base_subreddits):
+    hash_key = "all_identified_tickers"
+    existing_tickers = [t.decode() if isinstance(t, bytes) else t for t in redis_client.hkeys(hash_key)]
 
-    "tsla", "aapl", "nvidiastock", "apple", "microsoft", "MSFT", "google",
-    "amazon", "aws", "meta", "netflix", "nvidia", "amd", "intel",
+    batch_service = RedditBatchService(reddit, storage, redis_client)
+    resolved_subs = set(base_subreddits)
 
-    "MachineLearning", "artificial", "startups", "SaaS"
-]
+    for ticker in existing_tickers:
+        subs_for_ticker = batch_service.resolve_subreddits_for_ticker(ticker)
+        resolved_subs.update(subs_for_ticker)
+
+    initial_batch_subs = list(resolved_subs)
+    print(f"[*] Running initial batch for: {initial_batch_subs}")
+    batch_service.run(initial_batch_subs)
+
+    batch_service.run_worker()
 
 
-mode = sys.argv[1] if len(sys.argv) > 1 else "stream"
+def run_watcher_mode(redis_client):
 
-reddit = praw.Reddit(
-    client_id=REDDIT_CLIENT_ID,
-    client_secret=REDDIT_CLIENT_SECRET,
-    user_agent=REDDIT_USER_AGENT
-)
-storage = RedisStreamStorage()
+    print("[*] WATCHER MODE: Starting EntityWatcherService")
+    hash_key = "all_identified_tickers"
+    entity_watcher = EntityWatcherService(redis_client, hash_key)
+    entity_watcher.run()
 
-if mode == "batch":
-    RedditBatchService(reddit, storage).run(SUBREDDITS)
-elif mode == "stream":
-    RedditStreamService(reddit, storage).run("+".join(SUBREDDITS))
-else:
-    raise ValueError("Use: stream or batch")
+if __name__ == "__main__":
+    mode = sys.argv[1] if len(sys.argv) > 1 else "all"
+
+    storage = RedisStreamStorage()
+    redis_client = storage.r
+    reddit = praw.Reddit(
+        client_id=REDDIT_CLIENT_ID,
+        client_secret=REDDIT_CLIENT_SECRET,
+        user_agent=REDDIT_USER_AGENT
+    )
+    
+    base_subreddits = ["wallstreetbets", "stocks", "investing", "options", "stockmarket"]
+    
+    if mode == "stream":
+        run_stream_mode(reddit, storage, redis_client, base_subreddits)
+    elif mode == "batch":
+        run_batch_mode(reddit, storage, redis_client, base_subreddits)
+    elif mode == "watcher":
+        run_watcher_mode(redis_client)
+    else:
+        print(f"[!] Error")
+        sys.exit(1)
