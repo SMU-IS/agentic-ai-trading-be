@@ -35,9 +35,9 @@ func LoadDBConfig() *DBConfig {
 	dbConfig := DBConfig{
 		Host:     os.Getenv("HOST"),
 		Port:     os.Getenv("DB_PORT"),
-		User:     os.Getenv("DB_USERNAME"),
-		Password: os.Getenv("DB_PASSWORD"),
-		Name:     os.Getenv("DB_NAME"),
+		User:     os.Getenv("POSTGRES_USER"),
+		Password: os.Getenv("POSTGRES_PASSWORD"),
+		Name:     os.Getenv("POSTGRES_DB"),
 		SSLMode:  "disable",
 		TimeZone: "Asia/Singapore",
 	}

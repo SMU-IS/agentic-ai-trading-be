@@ -3,7 +3,12 @@ from functools import partial
 
 from langgraph.graph import END, START, StateGraph
 
-from app.agents.nodes import node_decide_trade, node_execute_trade, node_lookup_qdrant, node_fetch_market_data
+from app.agents.nodes import (
+    node_decide_trade,
+    node_execute_trade,
+    node_lookup_qdrant,
+    node_fetch_market_data,
+)
 from app.agents.state import AgentState
 
 

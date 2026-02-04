@@ -93,6 +93,7 @@ rich==14.2.0
 rich-toolkit==0.15.1
 rignore==0.7.6
 rsa==4.9.1
+ruff==0.14.14
 safetensors==0.7.0
 sentry-sdk==2.44.0
 shellingham==1.5.4

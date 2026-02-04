@@ -1,0 +1,60 @@
+name: News Scraper CI
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - "news-scraper/**"
+  pull_request:
+    branches: ["master"]
+    paths:
+      - "news-scraper/**"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./news-scraper
+          file: ./news-scraper/Dockerfile
+          push: false
+
+  # deploy-to-k8s:
+  #   name: Deploy to Kubernetes (News Scraper)
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: news-scraper
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Create environment variable file from secret
+  #       run: echo "${{ secrets.NEWS_SCRAPER_SECRETS }}" > .env.prod
+  #       shell: bash
+
+  #     - name: Login to Docker Hub
+  #       uses: docker/login-action@v3
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+  #     - name: Build and Push Docker Image
+  #       run: make build
+
+  #     - name: Setup Kubeconfig
+  #       uses: azure/k8s-set-context@v4
+  #       with:
+  #         method: kubeconfig
+  #         kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
+
+  #     - name: Deploy to Kubernetes
+  #       run: make deploy

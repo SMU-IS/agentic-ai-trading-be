@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-info-deployment
+  labels:
+    app: user-info
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-info
+  template:
+    metadata:
+      labels:
+        app: user-info
+    spec:
+      containers:
+        - name: user-info
+          image: joshdavidang/user-info-go:v1
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: user-info-secrets

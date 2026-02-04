@@ -44,6 +44,7 @@ func (s *userUseCase) generateToken(userID uint) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": userID,
 		"exp": time.Now().Add(expirationDuration).Unix(),
+		"iss": "agentic-ai-user-service",
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

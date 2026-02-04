@@ -1,11 +1,19 @@
 _format_version: "3.0"
 _transform: true
 
+consumers:
+  - username: agentic-ai-user-service
+    jwt_secrets:
+      - key: agentic-ai-user-service
+        algorithm: HS256
+        secret: L5TjuuTAlM8MMcZ9nyhB9QkLXxgyW8tGlPQc40rJcMt # TODO: remove hardcoded secret.
+
 plugins:
   - name: cors
     config:
       origins:
         - http://localhost:3000 # TODO: Add in production url
+        - https://main.d22zhvaaydu232.amplifyapp.com
       methods:
         - GET
         - POST
@@ -28,6 +36,15 @@ plugins:
       preflight_continue: false
 
 services:
+  # === News Scraper Microservice ===
+  - name: news-scraper-entry
+    url: http://news-scraper-service:5003
+    routes:
+      - name: news-scraper-routes
+        paths:
+          - /api/v1/news-scraper
+        strip_path: true
+
   # === News Analysis Microservice ===
   - name: news-analysis-entry
     url: http://news-analysis-service:5002
@@ -39,7 +56,7 @@ services:
 
   # === User Info Microservice ===
   - name: user-service-entry
-    url: http://user-service:8080
+    url: http://user-info-service:8080
     routes:
       - name: user-routes
         paths:
@@ -49,6 +66,8 @@ services:
   # === RAG Chatbot Microservice ===
   - name: rag-chatbot-service-entry
     url: http://rag-chatbot-service:5001
+    # plugins:
+    #   - name: jwt
     routes:
       - name: rag-chatbot-routes
         paths:

@@ -5,19 +5,33 @@
 </p>
 
 <p align="center">
-  <img width="220" height="204" alt="agent" src="https://github.com/user-attachments/assets/82d27a27-f71c-42ac-bf51-5b1a83893e6a" />
+  <img width="220" height="204" alt="agent" src="https://github.com/user-attachments/assets/701e0359-cfb3-4f53-8d63-7cb2f93fcfa9" />
 </p>
 
-## 🤖 Agentic AI Trading Portfolio Backend
+## 🤖 Agent M | Agentic AI Trading Portfolio Backend
 
 Agent M - A dynamic, fully autonomous trading portfolio companion designed to navigate the complex digital financial landscape. Leveraging a multi-agent AI architecture, the platform transforms real-time market data, traditional news, and internet sentiment into personalised, actionable investment decisions.
 
 The system operates on behalf of users to mitigate information overload and circumvent human emotional bias, executing optimised buy or sell orders via external brokerage APIs within user-defined risk guardrails
 
+## ⚙️ Key Features
+
+<p align="center">
+  <img width="1000" height="1000" alt="agent-m" src="https://github.com/user-attachments/assets/f5e2e749-a417-42a0-a39e-2d24fb0850a5" />
+</p>
+
+- **🤖 Multi-Agent AI Architecture**: Utilises a sophisticated multi-agent system to transform market data and sentiment into autonomous investment decisions.
+- **📥 Real-Time Data Ingestion**: Automatically scrapes and aggregates daily financial news and high-volume internet sentiment from sources like Yahoo Finance, Reddit, and X.
+- **🧠 NLP-Powered News Analysis**: Uses advanced Natural Language Processing (via spaCy, NLTK, and FinBERT) to extract investment-relevant events and perform sentiment analysis.
+- **🛡️ Credibility & Fact-Checking**: Evaluates source reliability and uses AI to validate the accuracy of claims, assigning a credibility score to weighted sentiment.
+- **💬 RAG Chatbot**: A natural language interface that allows users to query a news database and their portfolio context using Retrieval-Augmented Generation (RAG).
+- **🎩 Autonomous Trading Agent**: Synthesises market data with user-specific portfolio context to execute buy/sell orders via external brokerage APIs (e.g., Alpaca/IBKR).
+- **📊 Interactive Visualisation Dashboard**: Provides real-time sentiment indicators per ticker, profit and loss (P&L) trends, and current portfolio holdings.
+- **🔔 Notification System**: Delivers critical alerts when breaking news directly impacts a user’s specific holdings and confirms autonomous trade executions.
+
 ## ⚙️ System Architecture
 
 <img width="1442" height="691" alt="Agent M" src="https://github.com/user-attachments/assets/b3e892eb-8d90-4acf-a1cd-13b767843ad1" />
-
 
 ## 👨‍💻 Tech Stack
 
@@ -34,19 +48,10 @@ The system operates on behalf of users to mitigate information overload and circ
 - [🐘 PostgreSQL ](https://postgresql.org)
 - [☁️ Amazon Web Services](https://aws.amazon.com)
 
-## ⚙️ Key Features
-- **🤖 Multi-Agent AI Architecture**: Utilises a sophisticated multi-agent system to transform market data and sentiment into autonomous investment decisions.
-- **📥 Real-Time Data Ingestion**: Automatically scrapes and aggregates daily financial news and high-volume internet sentiment from sources like Yahoo Finance, Reddit, and X.
-- **🧠 NLP-Powered News Analysis**: Uses advanced Natural Language Processing (via spaCy, NLTK, and FinBERT) to extract investment-relevant events and perform sentiment analysis.
-- **🛡️ Credibility & Fact-Checking**: Evaluates source reliability and uses AI to validate the accuracy of claims, assigning a credibility score to weighted sentiment.
-- **💬 RAG Chatbot**: A natural language interface that allows users to query a news database and their portfolio context using Retrieval-Augmented Generation (RAG).
-- **🎩 Autonomous Trading Agent**: Synthesises market data with user-specific portfolio context to execute buy/sell orders via external brokerage APIs (e.g., Alpaca/IBKR).
-- **📊 Interactive Visualisation Dashboard**: Provides real-time sentiment indicators per ticker, profit and loss (P&L) trends, and current portfolio holdings.
-- **🔔 Notification System**: Delivers critical alerts when breaking news directly impacts a user’s specific holdings and confirms autonomous trade executions.
-
 ## 🚀 Getting Started
 
 To get the microservices backend up and running locally, follow these steps:
+
 - Ensure Docker is running
 - Setup Environment Variables: Create a `.env` file in the individual directory and configure keys.
 - Launch Containers: Run the following command to build and start the services in detached mode `docker compose up -d`
@@ -59,7 +64,7 @@ Developed by Mvidia (Team 2), IS484 Project Experience <br />
 In Collaboration With UBS.
 
 <a href="https://www.linkedin.com/in/joshydavid/">
-  <img src="https://github.com/user-attachments/assets/4dfe0c89-8ced-4e08-bcf3-6261bdbb956d" width="80">
+  <img src="https://github.com/user-attachments/assets/f9dd5867-724a-4dff-a2ad-61c81ea6e3b5" width="80">
 </a> &nbsp;
 
 <a href="https://www.linkedin.com/in/bryancjh/">
@@ -75,7 +80,7 @@ In Collaboration With UBS.
 </a> &nbsp;
 
 <a href="https://www.linkedin.com/in/jiayenbeh/">
-  <img src="[https://github.com/user-attachments/assets/6bd4f3a7-6784-402a-b891-03d91e15d705](https://media.licdn.com/dms/image/v2/D5603AQEqWsXbDOKWyw/profile-displayphoto-scale_400_400/B56ZmbOb1OHAAg-/0/1759245877416?e=1770249600&v=beta&t=w4zr9NdTnsOEKuO3Woe02NOv6NVU2hH8FadXhy51Y0s)" width="80">
+  <img src="https://github.com/user-attachments/assets/23ca9394-c7ed-4cdc-a1fc-5c67a37df9ee" width="80" style="border-radius: 50%">
 </a> &nbsp;
 
 <a href="https://www.linkedin.com/in/shawn-ng-yh/">

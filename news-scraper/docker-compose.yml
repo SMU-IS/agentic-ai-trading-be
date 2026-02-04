@@ -1,18 +1,9 @@
 services:
-  redis:
-    image: redis:7-alpine
-    container_name: reddit-redis
-    ports:
-      - "6381:6379"
-    restart: unless-stopped
-
   reddit-stream-service:
     build: .
     container_name: reddit-stream
     volumes:
       - .:/code
-    depends_on: 
-      - redis
     env_file: 
       - .env
     command: python app/main.py stream
@@ -23,8 +14,6 @@ services:
     container_name: reddit-batch
     volumes:
       - .:/code
-    depends_on: 
-      - redis
     env_file: 
       - .env
     environment:
