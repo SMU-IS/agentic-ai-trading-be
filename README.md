@@ -83,6 +83,6 @@ In Collaboration With UBS.
   <img src="https://github.com/user-attachments/assets/23ca9394-c7ed-4cdc-a1fc-5c67a37df9ee" width="80" style="border-radius: 50%">
 </a> &nbsp;
 
-<a href="https://www.linkedin.com/in/shawn-ng-yh/">
-  <img src="https://github.com/user-attachments/assets/6bd4f3a7-6784-402a-b891-03d91e15d705" width="80">
+<a href="https://www.linkedin.com/in/zi-you-foo">
+  <img src="https://github.com/user-attachments/assets/506dbced-5709-4477-978a-c0fb12ce7aec" width="80">
 </a> &nbsp;
