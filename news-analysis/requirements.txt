@@ -28,11 +28,15 @@ fastapi-cloud-cli==0.9.0
 fastar==0.8.0
 frozenlist==1.8.0
 ftfy==6.3.1
+grpcio==1.76.0
 h11==0.16.0
+h2==4.3.0
+hpack==4.1.0
 httpcore==1.0.9
 httptools==0.7.1
 httpx==0.28.1
 httpx-sse==0.4.3
+hyperframe==6.1.0
 idna==3.11
 iniconfig==2.3.0
 Jinja2==3.1.6
@@ -44,6 +48,7 @@ langchain-classic==1.0.1
 langchain-community==0.4.1
 langchain-core==1.2.7
 langchain-ollama==1.0.1
+langchain-qdrant==1.1.0
 langchain-text-splitters==1.1.0
 langgraph==1.0.6
 langgraph-checkpoint==4.0.0
@@ -64,8 +69,10 @@ orjson==3.11.5
 ormsgpack==1.12.1
 packaging==25.0
 pluggy==1.6.0
+portalocker==3.2.0
 preshed==3.0.12
 propcache==0.4.1
+protobuf==6.33.4
 pydantic==2.12.5
 pydantic-extra-types==2.11.0
 pydantic-settings==2.12.0
@@ -78,6 +85,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
 python-multipart==0.0.21
 PyYAML==6.0.3
+qdrant-client==1.16.2
 redis==7.1.0
 requests==2.32.5
 requests-toolbelt==1.0.0
@@ -115,6 +123,7 @@ watchfiles==1.1.1
 wcwidth==0.5.3
 weasel==0.4.3
 websockets==16.0
+wheel==0.46.3
 wrapt==2.0.1
 xxhash==3.6.0
 yarl==1.22.0
