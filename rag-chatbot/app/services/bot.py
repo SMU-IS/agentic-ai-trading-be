@@ -16,7 +16,6 @@ class BotService:
         self.agent_executor = self._build_agent_executor()
 
     def _build_agent_executor(self):
-        """Builds the 'Brain' that decides between RAG and Tools."""
         prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", TRADING_AGENT_PROMPT),
@@ -63,7 +62,6 @@ class BotService:
                 # 2. Stream tokens, typing the final answer
                 elif kind == LangChainEvent.CHAT_MODEL_STREAM:
                     chunk = event["data"]["chunk"]
-                    print(f"DEBUG: {chunk}")
                     if chunk.content and not chunk.tool_call_chunks:
                         yield f"data: {json.dumps({'token': chunk.content})}\n\n"
 

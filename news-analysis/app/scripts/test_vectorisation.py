@@ -32,7 +32,7 @@ async def run_test():
         return
 
     try:
-        service = VectorisationService(chunk_size=500, chunk_overlap=50)
+        service = VectorisationService()
         print("✅ Service Initialized (Connected to Qdrant/Ollama)")
     except Exception as e:
         print(f"❌ Connection Failed. Are Qdrant/Ollama running? Error: {e}")
