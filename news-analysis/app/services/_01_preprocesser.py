@@ -83,12 +83,12 @@ class PreprocessingService:
         clean_title = self.clean_text(raw_title) 
         clean_body_withurl = self.clean_text(raw_body, remove_urls=False)
         clean_body_withouturl = self.clean_text(raw_body, remove_urls=True)
-        if clean_title[-1] in string.punctuation:
-            clean_combined_withurl = f"{clean_title} {clean_body_withurl}".strip()
-            clean_combined_withouturl = f"{clean_title} {clean_body_withouturl}".strip()
-        else:
-            clean_combined_withurl = f"{clean_title}. {clean_body_withurl}".strip()
-            clean_combined_withouturl = f"{clean_title}. {clean_body_withouturl}".strip()
+        separator = ""
+        if clean_title:
+            separator = " " if clean_title[-1] in string.punctuation else ". "
+        
+        clean_combined_withurl = f"{clean_title}{separator}{clean_body_withurl}".strip()
+        clean_combined_withouturl = f"{clean_title}{separator}{clean_body_withouturl}".strip()
         post["content"]["clean_title"] = clean_title
         post["content"]["clean_body"] = clean_body_withurl
         post["content"]["clean_combined_withurl"] = clean_combined_withurl
