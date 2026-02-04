@@ -1,6 +1,7 @@
 # test_preprocess_single_post.py
 import json
 import redis
+
 from app.scripts.storage import RedisStreamStorage
 from app.scripts.checkpoint import RedisCheckpoint
 from app.services._01_preprocesser import PreprocessingService
@@ -94,7 +95,6 @@ for _, messages in entries:
         # checkpoint.save(msg_id)
 
 
-
 # Extract tickers 
 preproc_entries = preprocessing_stream.read(last_id="0-0", count=50, block_ms=5000)
 try:
@@ -164,18 +164,26 @@ for _, messages in ticker_entries:
         print(msg_id)
         # checkpoint.save(msg_id)
 
-# Credibility and Sentiment Analysis
+# Stage 4: Credibility Analysis
+print("\n=== Stage 4: Credibility Analysis ===\n")
 event_entries = event_stream.read(last_id="0-0", count=50)
 
+credibility_enriched = []
 for _, messages in event_entries:
     for msg_id, data in messages:
-        sentiment = sentiment_service.analyse(data)
-        sentiment_stream.save(sentiment)
-
+        # Analyze credibility first
         credibility = credibility_service.analyse(data)
         credibility_stream.save(credibility)
-        print(msg_id)
+        credibility_enriched.append(credibility)
+        print(f"Credibility: {msg_id}")
         # checkpoint.save(msg_id)
+
+# Stage 5: Sentiment Analysis (consumes credibility-enriched data)
+print("\n=== Stage 5: Sentiment Analysis ===\n")
+for item in credibility_enriched:
+    sentiment = sentiment_service.analyse(item)
+    sentiment_stream.save(sentiment)
+    print(f"Sentiment: {item.get('Post_ID', 'unknown')}")
 
 # View output
 print("\n=== Content in ticker stream ===\n")

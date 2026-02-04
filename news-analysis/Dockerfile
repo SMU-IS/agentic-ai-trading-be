@@ -5,11 +5,14 @@ WORKDIR /code
 COPY ./requirements.txt /code/requirements.txt
 RUN pip3 install --no-cache-dir --upgrade -r /code/requirements.txt
 
-# Pre-download FinBERT model to avoid delays on first request
-RUN python -c "from transformers import AutoTokenizer, AutoModelForSequenceClassification; \
-    AutoTokenizer.from_pretrained('ProsusAI/finbert'); \
-    AutoModelForSequenceClassification.from_pretrained('ProsusAI/finbert')"
-
 COPY ./app /code/app
+
+# Create directory for model cache (will be mounted as volume)
+RUN mkdir -p /root/.cache/huggingface
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
 
 CMD ["fastapi", "run", "app/main.py", "--port", "8000"]
