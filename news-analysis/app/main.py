@@ -3,7 +3,6 @@ import json
 import logging
 from contextlib import asynccontextmanager
 
-# from app.services.pipeline import run_pipeline # TODO: Add this once done
 import redis.asyncio as redis  # type: ignore
 from fastapi import FastAPI
 from fastapi.requests import Request
@@ -13,32 +12,20 @@ from fastapi.routing import APIRouter
 from app.core.config import env_config
 from app.core.constant import APIPath
 from app.routers import query_docs
+from app.services.orchestration import run_pipeline
 
 
 async def news_worker():
-    """
-    Continuous loop that consumes from the 'Raw News Queue' (Redis)
-    """
+    # r = redis.from_url(env_config.redis_url, decode_responses=True)
+    # queue_name = env_config.redis_news_queue
 
-    r = redis.from_url(env_config.redis_url, decode_responses=True)
-    queue_name = env_config.redis_news_queue
+    print("👷🏻‍♂️ News Analysis Worker started")
 
-    print(f"[*] News Analysis Worker started. Listening on '{queue_name}'...")
-
-    while True:
-        try:
-            result = await r.brpop(queue_name, timeout=0)
-
-            if result:
-                _, message = result
-                news_item = json.loads(message)
-
-                # Execute the full 5-step pipeline (01_preprocesser -> 05_vectorisation)
-                # await run_pipeline(news_item) # TODO: Add this once done
-
-        except Exception as e:
-            print(f"[!] Worker Error: {e}")
-            await asyncio.sleep(5)
+    try:
+        await run_pipeline()
+    except Exception as e:
+        print(f"[!] Worker Error: {e}")
+        await asyncio.sleep(5)
 
 
 @asynccontextmanager
