@@ -11,7 +11,7 @@ class RedisCheckpoint:
     def __init__(self, checkpoint_name: str, redis_client=None):
         self.r = redis_client or redis.Redis(host=env_config.redis_host, port=env_config.redis_port, password=env_config.redis_password, decode_responses=True)
         self.checkpoint_name = checkpoint_name
-        self.key = f"checkpoint:{self.name}"
+        self.key = f"checkpoint:{self.checkpoint_name}"
 
     def load(self) -> str:
         """
