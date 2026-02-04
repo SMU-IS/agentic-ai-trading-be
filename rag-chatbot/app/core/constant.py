@@ -3,7 +3,7 @@ from enum import Enum
 
 class APIPath(str, Enum):
     HEALTH_CHECK = "/healthcheck"
-    ORDER = "/order"
+    CHAT = "/chat"
 
 
 class LangChainEvent(str, Enum):
