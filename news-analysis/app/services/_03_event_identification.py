@@ -63,7 +63,7 @@ class EventIdentifierService:
             "- Avoid suggesting new event types based on trader behavior or social media chatter.\n"
             "- Do not use UNSPECIFIED_EVENT; if no relevant event is present, set proposed_event_name to null.\n\n"
 
-            f"Known investment event types:\n{', '.join(self.event_list)}\n\n"
+            f"Known investment event types:\n{', '.join(self.event_list['event_types'])}\n\n"
             "Ensure the JSON object strictly adheres to this structure and is valid JSON."
         )
 
