@@ -1,24 +1,18 @@
 import asyncio
-import json
 import logging
 from contextlib import asynccontextmanager
 
-import redis.asyncio as redis  # type: ignore
 from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 
-from app.core.config import env_config
 from app.core.constant import APIPath
 from app.routers import query_docs
 from app.services.orchestration import run_pipeline
 
 
 async def news_worker():
-    # r = redis.from_url(env_config.redis_url, decode_responses=True)
-    # queue_name = env_config.redis_news_queue
-
     print("👷🏻‍♂️ News Analysis Worker started")
 
     try:
