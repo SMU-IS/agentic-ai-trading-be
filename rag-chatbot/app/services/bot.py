@@ -35,22 +35,39 @@ class BotService:
             "query": f"User Query: {query} \n (Order ID Context: {order_id})",
         }
 
+        citations = []
+
         try:
             async for event in self.agent_executor.astream_events(
                 input_payload, version="v2"
             ):
                 kind = event["event"]
-
                 # 1. Detect when a tool is being called
                 if kind == LangChainEvent.TOOL_START:
                     yield f"data: {json.dumps({'status': f'Calling {event['name']}...'})}\n\n"
 
-                # 2. Stream the tokens from the final response
-                # 'on_chat_model_stream' catches the tokens as they fly out of the LLM
+                # 2. Detect when a tool has finished
+                elif kind == LangChainEvent.TOOL_END:
+                    output = event["data"].get("output")
+                    if isinstance(output, dict) and "results" in output:
+                        for result in output["results"]:
+                            citations.append(
+                                {
+                                    "headline": result.get("headline"),
+                                    "url": result.get("metadata", {}).get(
+                                        "url", "No URL provided"
+                                    ),
+                                }
+                            )
+
+                # 2. Stream tokens, typing the final answer
                 elif kind == LangChainEvent.CHAT_MODEL_STREAM:
                     content = event["data"]["chunk"].content
                     if content:
                         yield f"data: {json.dumps({'token': content})}\n\n"
+
+            if citations:
+                yield f"data: {json.dumps({'citations': citations})}\n\n"
 
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
