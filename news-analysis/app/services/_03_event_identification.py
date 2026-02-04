@@ -101,7 +101,7 @@ class EventIdentifierService:
             "Each ticker object must include:\n"
             "- event_type: One of the known investment event types, or null\n"
             "- event_description: Short description of the event from the text, or null\n\n"
-            f"Known investment event types:\n{self.event_list}\n\n"
+            f"Known investment event types:\n{self.event_list['event_types']}\n\n"
             "Classification rules:\n"
             "- Only use the provided event types; do NOT invent new event types.\n"
             "- If the text does not describe a material company event or situation for this ticker, set both fields to null.\n"
