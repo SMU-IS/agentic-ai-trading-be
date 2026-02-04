@@ -12,7 +12,7 @@ router = APIRouter(tags=["RAG Chatbot"])
 
 
 @lru_cache()
-def get_personalised_retrieval_service():
+def get_bot_service():
     strategy = get_strategy(env_config.llm_provider)
     llm_model = strategy.create_model()
     bot_service = BotService(llm_model)
@@ -23,7 +23,7 @@ def get_personalised_retrieval_service():
 @router.post(APIPath.CHAT)
 async def chat_stream(
     request: ChatRequest,
-    bot_service: BotService = Depends(get_personalised_retrieval_service),
+    bot_service: BotService = Depends(get_bot_service),
 ):
     return StreamingResponse(
         bot_service.fetch_order_details_augment_response(

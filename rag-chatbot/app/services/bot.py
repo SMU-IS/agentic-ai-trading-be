@@ -26,7 +26,7 @@ class BotService:
         )
 
         agent = create_tool_calling_agent(self.llm, self.tools, prompt)
-        return AgentExecutor(agent=agent, tools=self.tools, verbose=True)
+        return AgentExecutor(agent=agent, tools=self.tools)
 
     async def fetch_order_details_augment_response(
         self, query: str, order_id: str | None
