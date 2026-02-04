@@ -194,19 +194,13 @@ async def run_pipeline():
                 for _, messages in sentiment_entries:
                     for msg_id, data in messages:
                         try:
-                            # Convert the stream data into your Pydantic payload
-                            # This ensures all metadata (sentiment, tickers) is present
                             payload = NewsAnalysisPayload(**data)
-
-                            # Call your service to embed and save to Qdrant
                             await vectorisation_service.ingest_docs(payload)
-
-                            # Save checkpoint so we don't process this msg twice
                             vectorisation_checkpoint.save(msg_id)
                         except Exception as e:
                             print(f"Error in Vectorisation Step: {e}")
 
-                print("vectorisation and storage done\n\n\n")
+                print("🎉 Saved to Qdrant")
 
     except redis.exceptions.ConnectionError as e:
         print(f"[Error] Redis connection failed: {e}")
