@@ -31,43 +31,13 @@ async def main():
 
     # Test cases
     test_cases = [
-        # {
-        #     "user_id": "joshua_123",
-        #     "ticker": "AAPL",
-        #     "signal": {"sentiment": "bullish", "score": 0.95},
-        #     "portfolio": {"qty": 10, "avg_price": 150.0},
-        #     "risk_profile": "aggressive",
-        #     "query_vector": [0.0] * 10,
-        # },
-        # {
-        #     "user_id": "joshua_123",
-        #     "ticker": "AAPL",
-        #     "signal": {"sentiment": "bearish", "score": 0.2},
-        #     "portfolio": {"qty": 10, "avg_price": 150.0},
-        #     "risk_profile": "aggressive",
-        #     "query_vector": [0.0] * 10,
-        # },
-        # {
-        #     "user_id": "joshua_123",
-        #     "ticker": "AAPL",
-        #     "signal": {"sentiment": "neutral", "score": 0.5},
-        #     "portfolio": {"qty": 0, "avg_price": 0.0},
-        #     "risk_profile": "conservative",
-        #     "query_vector": [0.0] * 10,
-        # },
         {
-            "user_id": "joshua_123",
             "ticker": "AAPL",
             "signal": {
                 "sentiment": "bearish",
                 "score": -0.75,
                 "event_type": "earnings_miss",
-                "current_price": 145.0,
-                "atr": 4.2,  # 14-period ATR
             },
-            "portfolio": {"qty": 10, "avg_price": 150.0},
-            "risk_profile": "aggressive",
-            "query_vector": [0.0] * 10,
         }
     ]
 

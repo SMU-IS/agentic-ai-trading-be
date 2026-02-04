@@ -31,3 +31,4 @@ class AgentState(TypedDict):
     order_details: NotRequired[Optional[Dict[str, Any]]]
     should_execute: NotRequired[bool]
     reasoning: NotRequired[str]
+    has_trade_opportunity: NotRequired[bool]

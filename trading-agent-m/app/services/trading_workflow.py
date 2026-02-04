@@ -3,7 +3,7 @@ from functools import partial
 
 from langgraph.graph import END, START, StateGraph
 
-from app.agents.nodes import node_decide_trade, node_execute_trade, node_lookup_qdrant, node_fetch_market_data
+from app.agents.nodes import node_decide_trade, node_execute_trade, node_lookup_qdrant, node_fetch_market_data, node_risk_adjust_trade
 from app.agents.state import AgentState
 
 
@@ -17,35 +17,39 @@ class TradingWorkflow:
         graph = StateGraph(AgentState)
 
         reasoning_with_llm = partial(node_decide_trade, self.llm)
-        execute_with_broker = partial(node_execute_trade, self.broker)
+        # execute_with_broker = partial(node_execute_trade, self.broker)
 
         # 1. Nodes
         graph.add_node("lookup_context", node_lookup_qdrant)
         graph.add_node("fetch_market_data", node_fetch_market_data)
         graph.add_node("reasoning", reasoning_with_llm)
-        graph.add_node("execute", execute_with_broker)
+        graph.add_node("node_risk_adjust_trade", node_risk_adjust_trade)
+        graph.add_node("execute", node_execute_trade)
 
         # 2. Edges
         graph.add_edge(START, "lookup_context")
         graph.add_edge("lookup_context", "fetch_market_data")
         graph.add_edge("fetch_market_data", "reasoning")
-        # graph.add_edge(
-        #     "lookup_context", "reasoning"
-        # )  # TODO: use this once its completed
-        # # graph.add_edge(START, "reasoning")
-
+        graph.add_edge("reasoning", "node_risk_adjust_trade")
+        graph.add_edge("execute", END)
         # Conditional: Only trade if the brain says so
         graph.add_conditional_edges(
-            "reasoning", self.edge_should_execute, {True: "execute", False: END}
+            "reasoning", self.edge_has_trade_opportunity, {True: "node_risk_adjust_trade", False: END}
+        )
+        
+        graph.add_conditional_edges(
+            "node_risk_adjust_trade", self.edge_should_execute, {True: "execute", False: END}
         )
 
-        graph.add_edge("execute", END)
 
         return graph.compile()
 
     # ###### Edge Logic ######
     def edge_should_execute(self, state: AgentState):
         return state.get("should_execute", False)
+    
+    def edge_has_trade_opportunity(self, state: AgentState):
+        return state.get("has_trade_opportunity", False)
 
     # ###### Public Runner ######
     async def run(self, input_data: dict):
