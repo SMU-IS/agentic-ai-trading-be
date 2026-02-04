@@ -1,3 +1,4 @@
+import asyncio
 import json
 from datetime import datetime, timezone
 
@@ -232,3 +233,7 @@ async def run_pipeline():
                 )
         except Exception as e:
             print(f"[Error] Failed during cleanup: {e}")
+
+
+if __name__ == "__main__":
+    asyncio.run(run_pipeline())
