@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import List, Dict, Union
 import json
 import re
@@ -24,8 +25,8 @@ class TickerIdentificationService:
 
     def __init__(
         self,
-        cleaned_tickers_path: str,
-        alias_to_canonical_path: str,
+        cleaned_tickers: dict,
+        alias_to_canonical: dict,
         model_type: str = env_config.llm_provider,
         model_name: str = env_config.large_language_model,
         base_url: str = env_config.ollama_base_url,
@@ -33,15 +34,11 @@ class TickerIdentificationService:
     ):
         self.model_type = model_type
         self.model_name = model_name
+        self.new_alias_count = 0
         self.base_url = base_url
-        self.cleaned_tickers_path = cleaned_tickers_path
-        self.alias_to_canonical_path = alias_to_canonical_path
-
-        with open(cleaned_tickers_path, "r", encoding="utf-8") as f:
-            self.cleaned_tickers = json.load(f)
-        with open(alias_to_canonical_path, "r", encoding="utf-8") as f:
-            self.alias_to_canonical = json.load(f)
-
+        self.cleaned_tickers = cleaned_tickers
+        self.alias_to_canonical = alias_to_canonical
+        self.canonical_to_aliases = self.build_canonical_to_aliases(self.alias_to_canonical)
         self.ticker_to_title = {v["ticker"]: v["title"] for v in self.cleaned_tickers.values()}
         self.ticker_to_canonical = {v["ticker"]: k for k, v in self.cleaned_tickers.items()}
         self.nlp = spacy.load(spacy_model)
@@ -85,6 +82,7 @@ class TickerIdentificationService:
                 '- "company_name": The full name of the company as mentioned in the text.\n'
                 '- "ticker": The stock ticker symbol (if explicitly mentioned or can be confidently inferred), otherwise null.\n'
                 "- Only include companies that are clearly referenced as public companies. Consider aliases of the company, for example Google for Alpabet Inc. (GOOGL).\n"
+                "- Do not include tickers for parent companies or historically related companies. Example: If the post mentions SanDisk and not Western Digital, do not return WDC.\n"
                 "- Do not guess tickers. If unsure, set \"ticker\" to null.\n"
                 "{format_instructions}\n\n"
                 "Text to analyze:\n"
@@ -103,21 +101,35 @@ class TickerIdentificationService:
             print(f"LLM extraction error: {e}")
             return []
 
-    def update_alias_mapping(self, new_alias: str, canonical: str):
+    def get_aliases(self, tickers: List[str]) -> Dict[str, Dict[str, List[str]]]:
+        output = {}
+
+        for ticker in tickers:
+            canonical = self.ticker_to_canonical.get(ticker)
+            output[ticker] = {
+                "OfficialName": self.ticker_to_title.get(ticker, ""),
+                "Aliases": self.canonical_to_aliases.get(canonical, []) if canonical else []
+            }
+
+        return output
+
+                
+    def build_canonical_to_aliases(self, alias_to_canonical: Dict[str, str]) -> Dict[str, List[str]]:
+        canonical_to_aliases = defaultdict(list)
+        for alias, canonical in alias_to_canonical.items():
+            canonical_to_aliases[canonical].append(alias)
+        return canonical_to_aliases
+
+
+    def update_alias_mapping(self, new_alias: str, canonical: str) -> bool:
         # normalize identified alias and update alias mapping
         norm_alias = self._remove_suffix(new_alias)
         norm_alias = self._normalize_company(norm_alias)
         # ensure that alias doesnt exist in mapping and is not ticker
         if norm_alias not in self.alias_to_canonical and norm_alias != canonical:
             self.alias_to_canonical[norm_alias] = canonical
-            try:
-                # write to alias mapping file
-                with open(self.alias_to_canonical_path, "w", encoding="utf-8") as f:
-                    json.dump(self.alias_to_canonical, f, ensure_ascii=False, indent=2)
-                print(f"Updated alias to canonical mapping with new value: {norm_alias} : {canonical}")
-            except IOError as e:
-                print(f"Failed to write alias mapping: {e}")
-
+            self.new_alias_count += 1
+            print(f"[Memory Update] Added alias mapping: {norm_alias} -> {canonical}")
 
     def extract_tickers(self, text: str) -> Dict[str, Dict[str, List[str]]]:
         """
@@ -182,10 +194,11 @@ class TickerIdentificationService:
                             if ticker not in ticker_metadata:
                                 ticker_metadata[ticker] = {
                                     "OfficialName": self.ticker_to_title.get(ticker, ""),
-                                    "IdentifiedName": company["company_name"]
+                                    "NameIdentified": [company["company_name"]] 
                                 }
-                                # Update alias mapping with name identified by llm
+                                # Update alias mapping
                                 self.update_alias_mapping(company["company_name"], self.ticker_to_canonical[ticker])
+
 
 
         return ticker_metadata
@@ -193,7 +206,7 @@ class TickerIdentificationService:
 
     def process_post(self, post: Dict) -> Dict:
         # Add ticker metadata to a single post
-        ticker_metadata = self.extract_tickers(post["clean_combined"])
+        ticker_metadata = self.extract_tickers(post["content"]["clean_combined_withurl"])
         if ticker_metadata:
             post["ticker_metadata"] = ticker_metadata
             return post
@@ -201,13 +214,5 @@ class TickerIdentificationService:
             print("This post is removed as no ticker was identified:")
             print(post)
             print("\n")
-            return None
-
-    def process_input(self, data: Union[List[Dict], Dict]) -> Union[List[Dict], Dict, None]:
-        # Process a list or single dict, adding ticker metadata
-        if isinstance(data, list):
-            return [post for post in (self.process_post(p) for p in data) if post is not None]
-        if isinstance(data, dict):
-            return self.process_post(data)
-        raise TypeError("Input must be a dict or list of dicts")
+            return post
 

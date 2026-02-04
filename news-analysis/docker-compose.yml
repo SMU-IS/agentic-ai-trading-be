@@ -18,17 +18,19 @@ services:
 
   news-analysis-service:
     build: .
+    env_file:
+      - .env
     container_name: news-analysis-container
     ports:
       - "5002:5002"
     volumes:
       - .:/code
     environment:
-      - QDRANT_URL=http://qdrant-db:6333
-      - REDIS_URL=redis://redis-queue-news-analysis:6379
-      - REDIS_QUEUE_NAME=raw_news_queue
-      - SENTIMENT_MODEL=ProsusAI/finbert
-      - SENTIMENT_DEVICE=cpu
+      - QDRANT_URL=${QDRANT_URL}
+      - REDIS_URL=${REDIS_URL}
+      - REDIS_QUEUE_NAME=${REDIS_QUEUE_NAME}
+      - SENTIMENT_MODEL=${SENTIMENT_MODEL}
+      - SENTIMENT_DEVICE=${SENTIMENT_DEVICE}
     depends_on:
       - qdrant-db
       - redis-queue-news-analysis

@@ -1,8 +1,7 @@
-from typing import List
-
 from pydantic import BaseModel
+from pydantic.v1.fields import Field
 
 
 class ChatRequest(BaseModel):
-    message: str
-    tickers: List[str]
+    query: str = Field(..., description="User query to the LLM")
+    order_id: str | None = None
