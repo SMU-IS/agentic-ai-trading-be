@@ -1,4 +1,5 @@
 import json
+from typing import List, Optional
 
 import httpx
 from langchain_core.tools import tool
@@ -41,7 +42,9 @@ def get_trade_history_details(order_id: str):
 
 
 @tool
-async def get_general_news_context_and_result(inputs: dict):
+async def get_general_news_context_and_result(
+    query: str, tickers: Optional[List[str]] = None
+):
     """
     Search and analyse recent financial news, market sentiment, and hot stocks.
 
@@ -51,8 +54,8 @@ async def get_general_news_context_and_result(inputs: dict):
     - The user asks about news specific to one or more tickers (e.g., "What's the news on NVDA and TSLA?").
 
     Args:
-        inputs (dict): A dictionary containing:
-            - "query" (str): The specific topic or question to search news for.
+        query (str): The specific topic or question to search news for.
+        tickers (Optional[List[str]]): An optional list of stock tickers to filter the news by.
 
     Returns:
         A dictionary containing a structured 'context' string for final responses
@@ -60,11 +63,9 @@ async def get_general_news_context_and_result(inputs: dict):
     """
 
     payload = {
-        "query": inputs.get("query", ""),
+        "query": query,
         "limit": 5,
-        "ticker_filter": [
-            "TSLA"
-        ],  # TODO: hardcoded for now. inputs.get("tickers", []),
+        "ticker_filter": tickers or [],
     }
 
     async with httpx.AsyncClient() as client:
