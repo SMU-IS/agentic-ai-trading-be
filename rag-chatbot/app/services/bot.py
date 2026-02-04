@@ -20,7 +20,7 @@ class BotService:
         prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", TRADING_AGENT_PROMPT),
-                ("human", "{query}"),
+                ("human", "Query: {query}\nOrder ID: {order_id}"),
                 ("placeholder", "{agent_scratchpad}"),
             ]
         )
@@ -49,7 +49,7 @@ class BotService:
                 # 2. Detect when a tool has finished
                 elif kind == LangChainEvent.TOOL_END:
                     output = event["data"].get("output")
-                    if isinstance(output, dict) and "results" in output:
+                    if isinstance(output, dict) and output.get("results"):
                         for result in output["results"]:
                             citations.append(
                                 {
@@ -62,9 +62,10 @@ class BotService:
 
                 # 2. Stream tokens, typing the final answer
                 elif kind == LangChainEvent.CHAT_MODEL_STREAM:
-                    content = event["data"]["chunk"].content
-                    if content:
-                        yield f"data: {json.dumps({'token': content})}\n\n"
+                    chunk = event["data"]["chunk"]
+                    print(f"DEBUG: {chunk}")
+                    if chunk.content and not chunk.tool_call_chunks:
+                        yield f"data: {json.dumps({'token': chunk.content})}\n\n"
 
             if citations:
                 yield f"data: {json.dumps({'citations': citations})}\n\n"
