@@ -55,7 +55,8 @@ async def get_general_news_context_and_result(
 
     Args:
         query (str): The specific topic or question to search news for.
-        tickers (Optional[List[str]]): An optional list of stock tickers to filter the news by.
+        tickers (Optional[List[str]]): A list of stock symbols (e.g. ["AAPL", "TSLA"]).
+                                       Pass an empty list [] if no specific tickers are mentioned.
 
     Returns:
         A dictionary containing a structured 'context' string for final responses
