@@ -32,11 +32,11 @@ class BotService:
         self, query: str, order_id: str | None
     ):
         input_payload = {
-            "query": f"User Query: {query} \n (Order ID Context: {order_id})",
+            "query": query,
+            "order_id": order_id if order_id else "Not Applicable",
         }
 
         citations = []
-
         try:
             async for event in self.agent_executor.astream_events(
                 input_payload, version="v2"
