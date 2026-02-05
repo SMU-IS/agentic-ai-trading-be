@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: news-analysis-service
+  labels:
+    app: news-analysis
+spec:
+  selector:
+    app: news-analysis
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: LoadBalancer

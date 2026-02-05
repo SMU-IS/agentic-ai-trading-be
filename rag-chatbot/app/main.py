@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 
 from app.core.constant import APIPath
-from app.routers import retrieval
+from app.routers import bot
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -42,6 +42,6 @@ def root():
 
 
 # ====== API Endpoints ======
-api_router.include_router(retrieval.router)
+api_router.include_router(bot.router)
 
 app.include_router(api_router)

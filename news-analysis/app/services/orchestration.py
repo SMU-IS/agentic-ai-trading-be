@@ -1,201 +1,261 @@
-# test_preprocess_single_post.py
+import asyncio
 import json
+from datetime import datetime, timezone
+
 import redis
 
-from app.scripts.storage import RedisStreamStorage
-from app.scripts.checkpoint import RedisCheckpoint
-from app.services._01_preprocesser import PreprocessingService
-from app.services._02_ticker_identification import TickerIdentificationService
-from app.services._03_event_identification import EventIdentifierService
-from app.services._04_credibility import CredibilityService
-from app.services._05_sentiment import SentimentAnalysisService
-from app.scripts.aws_bucket_access import AWSBucket
 from app.core.config import env_config
+from app.schemas.compiled_news_payload import NewsAnalysisPayload
+from app.scripts.aws_bucket_access import AWSBucket
+from app.scripts.checkpoint import RedisCheckpoint
+from app.scripts.storage import RedisStreamStorage
+from app.services import (
+    CredibilityService,
+    EventIdentifierService,
+    PreprocessingService,
+    SentimentAnalysisService,
+    TickerIdentificationService,
+    VectorisationService,
+)
 
 # Setup Redis and S3
 redis_client = redis.Redis(
     host=env_config.redis_host,
     port=env_config.redis_port,
     password=env_config.redis_password,
-    decode_responses=True
+    decode_responses=True,
 )
+
 bucket = AWSBucket()
 
-# method to view what is currently in the stream
-# to change last_id to dynamic - currently still testing hence start from 0-0
-def view_stream(stream, count=50):
-    entries = stream.read(last_id="0-0", count=count, block_ms=1000)
-    if not entries:
-        print(f"{stream.stream_name} is empty\n")
-        return entries
-    for _, messages in entries:
-        for msg_id, data in messages:
-            print(f"Post {msg_id}:")
-            print(json.dumps(data, indent=2))
-            print("\n---\n")
-    return entries
-
-
 # Setup streams & services
-reddit_stream = RedisStreamStorage("reddit_stream", redis_client)
-# preproc stream to be consumed by ticker service
-preprocessing_stream = RedisStreamStorage("preproc_stream", redis_client)
-# ticker stream to be consumed by event service
-ticker_stream = RedisStreamStorage("ticker_stream", redis_client)
+reddit_stream = RedisStreamStorage(env_config.redis_reddit_stream, redis_client)
+# # preproc stream to be consumed by ticker service
+preprocessing_stream = RedisStreamStorage(env_config.redis_preproc_stream, redis_client)
+# # ticker stream to be consumed by event service
+ticker_stream = RedisStreamStorage(env_config.redis_ticker_stream, redis_client)
 # event stream to be consumed by credibility service
-event_stream = RedisStreamStorage("event_stream", redis_client)
-# credibility stream to be consumed by sentiment service
-credibility_stream = RedisStreamStorage("credibility_stream", redis_client)
-# sentiment stream to be consumed by downstream services
-sentiment_stream = RedisStreamStorage("sentiment_stream", redis_client)
-# all tickers set to be updated and sent to scraping service
-all_tickers = set()
-
-# keys for AWS bucket files
-CLEANED_KEY = "data/processed/cleaned_tickers.json"
-ALIAS_KEY = "data/processed/alias_to_canonical.json"
-EVENTS_KEY = "data/config/financial_event_types.json"
-
-# load files from AWS bucket
-cleaned_tickers = json.loads(bucket.read_text(CLEANED_KEY))
-alias_to_canonical = json.loads(bucket.read_text(ALIAS_KEY))
-events_types = json.loads(bucket.read_text(EVENTS_KEY))
-
-# Service Initialisation
-# todo: to update checkpoint and read based on checkpoint
-# currently 0-0 to test first 50
-# checkpoint = RedisCheckpoint("preprocess")
-# checkpoint = RedisCheckpoint("tickeridentification")
-# checkpoint = RedisCheckpoint("eventidentification")
-
-preprocessor = PreprocessingService()
-eventidentifier = EventIdentifierService(event_list=events_types)
-ticker_service = TickerIdentificationService(
-    cleaned_tickers=cleaned_tickers,
-    alias_to_canonical=alias_to_canonical,
+event_stream = RedisStreamStorage(env_config.redis_event_stream, redis_client)
+# # ticker stream to be consumed by event service
+sentiment_stream = RedisStreamStorage(env_config.redis_sentiment_stream, redis_client)
+# event stream to be consumed by credibility service
+credibility_stream = RedisStreamStorage(
+    env_config.redis_credibility_stream, redis_client
 )
 credibility_service = CredibilityService()
 sentiment_service = SentimentAnalysisService()
 
-# # Clear streams for testing
-preprocessing_stream.clear_stream()
-ticker_stream.clear_stream()
-event_stream.clear_stream()
-credibility_stream.clear_stream()
-sentiment_stream.clear_stream()
 
-# Consume from Reddit stream
-entries = reddit_stream.read(last_id="0-0", count=50, block_ms=5000)
-
-for _, messages in entries:
-    for msg_id, data in messages:
-        post_content = data.get("data", data)
-        processed = preprocessor.preprocess_post(post_content)
-        preprocessing_stream.save(processed)
-        # checkpoint.save(msg_id)
+# all tickers set to be updated and sent to scraping service
+all_tickers = set()
+removed_posts = []
 
 
-# Extract tickers 
-preproc_entries = preprocessing_stream.read(last_id="0-0", count=50, block_ms=5000)
-try:
-    for _, messages in preproc_entries:
-        for msg_id, data in messages:
-            post_content = data.get("data", data)
-            tickers_post = ticker_service.process_post(post_content)
-            if not tickers_post:
+# load files from AWS bucket
+cleaned_tickers = json.loads(bucket.read_text(env_config.aws_bucket_cleaned_key))
+alias_to_canonical = json.loads(bucket.read_text(env_config.aws_bucket_alias_key))
+events_types = json.loads(bucket.read_text(env_config.aws_bucket_events_key))
+
+
+async def run_pipeline():
+    # Service Initialisation
+    preproc_checkpoint = RedisCheckpoint("preprocess", redis_client)
+    ticker_checkpoint = RedisCheckpoint("tickeridentification", redis_client)
+    event_checkpoint = RedisCheckpoint("eventidentification", redis_client)
+    sentiment_checkpoint = RedisCheckpoint("sentiment", redis_client)
+    credibility_checkpoint = RedisCheckpoint("credibility", redis_client)
+    vectorisation_checkpoint = RedisCheckpoint("vectorisation", redis_client)
+
+    # Service Initialisation
+    preprocessor = PreprocessingService()
+
+    eventidentifier = EventIdentifierService(event_list=events_types)
+    ticker_service = TickerIdentificationService(
+        cleaned_tickers=cleaned_tickers,
+        alias_to_canonical=alias_to_canonical,
+    )
+
+    vectorisation_service = VectorisationService()
+
+    # # Clear streams for testing
+    # preprocessing_stream.clear_stream()
+    # ticker_stream.clear_stream()
+    # event_stream.clear_stream()
+
+    try:
+        while True:
+            # Step 1: Consume scrapped data from Reddit stream
+            preproc_last_id = preproc_checkpoint.load()
+            reddit_entries = reddit_stream.read(
+                last_id=preproc_last_id, count=10, block_ms=5000
+            )
+            if not reddit_entries:
                 continue
+            for _, messages in reddit_entries:
+                for msg_id, data in messages:
+                    post_content = data.get("data", data)
+                    processed = preprocessor.preprocess_post(post_content)
+                    preprocessing_stream.save(processed)
+                    preproc_checkpoint.save(msg_id)
+            print("preprocessing done\n\n\n")
 
-            ticker_stream.save(tickers_post)
-
-            ticker_metadata = tickers_post.get("ticker_metadata", {})
-            if not ticker_metadata:
+            # Step 2: Extract tickers
+            ticker_last_id = ticker_checkpoint.load()
+            preproc_entries = preprocessing_stream.read(
+                last_id=ticker_last_id, count=10, block_ms=5000
+            )
+            if not preproc_entries:
                 continue
+            for _, messages in preproc_entries:
+                for msg_id, data in messages:
+                    tickers_post = ticker_service.process_post(data)
+                    if not tickers_post:
+                        continue
+                    ticker_metadata = tickers_post.get("ticker_metadata", {})
+                    if not ticker_metadata:
+                        tickers_post["removed_reason"] = "No ticker identified"
+                        tickers_post["removed_datetime"] = (
+                            f"{datetime.now(timezone.utc)}"
+                        )
+                        removed_posts.append(tickers_post)
+                        continue
+                    ticker_stream.save(tickers_post)
+                    ticker_checkpoint.save(msg_id)
+            print("ticker identification done\n\n\n")
 
-            simple_ticker_metadata = {
-                ticker: info["OfficialName"]
-                for ticker, info in ticker_metadata.items()
-            }
+            # Step 3: Add newly identified tickers to be consumed at scraping service
+            if all_tickers:
+                aliases = ticker_service.get_aliases(list(all_tickers))
 
-            redis_client.hset(
-                "ticker_to_official_name",
-                mapping=simple_ticker_metadata
+                for ticker, data in aliases.items():
+                    redis_client.hset(
+                        "all_identified_tickers", ticker, json.dumps(data)
+                    )
+
+            # Step 4: Event Identification
+            event_last_id = event_checkpoint.load()
+            ticker_entries = ticker_stream.read(
+                last_id=event_last_id, count=10, block_ms=5000
+            )
+            if not ticker_entries:
+                continue
+            for _, messages in ticker_entries:
+                for msg_id, data in messages:
+                    event_data = eventidentifier.analyse_event(data)
+                    if not event_data:
+                        continue
+
+                    ticker_metadata = event_data.get("ticker_metadata", {})
+
+                    # Collect tickers with no event info
+                    tickers_to_remove = {
+                        ticker: info
+                        for ticker, info in ticker_metadata.items()
+                        if info.get("event_type") is None
+                        and info.get("event_proposal") is None
+                    }
+
+                    # Remove these tickers from the original ticker_metadata
+                    for ticker in tickers_to_remove:
+                        ticker_metadata.pop(ticker)
+
+                    # If any tickers were removed, store them as one removed_post
+                    if tickers_to_remove:
+                        removed_post = {
+                            **event_data,  # copy the rest of the event_data
+                            "ticker_metadata": tickers_to_remove,
+                            "removed_reason": "No event identified",
+                            "removed_datetime": f"{datetime.now(timezone.utc)}",
+                        }
+                        removed_posts.append(removed_post)
+
+                    # Save remaining tickers to event_stream
+                    if ticker_metadata:
+                        event_data["ticker_metadata"] = ticker_metadata
+                        all_tickers.update(ticker_metadata.keys())
+                        event_stream.save(event_data)
+                        event_checkpoint.save(msg_id)
+            print("event identification done\n\n\n")
+
+            # Step 5: Credibility Analysis
+            credibility_last_id = credibility_checkpoint.load()
+            event_entries = event_stream.read(
+                last_id=credibility_last_id, count=10, block_ms=5000
+            )
+            if not event_entries:
+                continue
+            for _, messages in event_entries:
+                for msg_id, data in messages:
+                    cred_result = credibility_service.analyse(data)
+                    credibility_stream.save(cred_result)
+                    credibility_checkpoint.save(msg_id)
+            print("credibility analysis done\n\n\n")
+
+            # Step 6: Sentiment Analysis
+            sentiment_last_id = sentiment_checkpoint.load()
+            credibility_entries = credibility_stream.read(
+                last_id=sentiment_last_id, count=10, block_ms=5000
+            )
+            if not credibility_entries:
+                continue
+            for _, messages in credibility_entries:
+                for msg_id, data in messages:
+                    sentiment_result = sentiment_service.analyse(data)
+                    sentiment_stream.save(sentiment_result)
+                    sentiment_checkpoint.save(msg_id)
+            print("sentiment analysis done\n\n\n")
+
+            # Step 7: Vectorisation - joshua
+            # first load Vectorisation checkpoint - if nothing processed yet, it will be 0-0
+            # consume from sentiment_stream and save to vectorDB
+            vector_last_id = vectorisation_checkpoint.load()
+            sentiment_entries = sentiment_stream.read(
+                last_id=vector_last_id, count=10, block_ms=5000
             )
 
-            all_tickers.update(simple_ticker_metadata.keys())
+            if sentiment_entries:
+                for _, messages in sentiment_entries:
+                    for msg_id, data in messages:
+                        try:
+                            payload = NewsAnalysisPayload(**data)
+                            await vectorisation_service.ingest_docs(payload)
+                            vectorisation_checkpoint.save(msg_id)
+                        except Exception as e:
+                            print(f"Error in Vectorisation Step: {e}")
 
-            # Intermediate S3 save (save at every new 100 aliases)
-            if (
-                ticker_service.new_alias_count > 0
-                and ticker_service.new_alias_count % 100 == 0
-            ):
-                print(
-                    f"[S3 Save] {ticker_service.new_alias_count} new aliases added "
-                    f"(intermediate save)"
-                )
+                print("🎉 Saved to Qdrant")
+
+    except redis.exceptions.ConnectionError as e:
+        print(f"[Error] Redis connection failed: {e}")
+    except json.JSONDecodeError as e:
+        print(f"[Error] JSON decoding failed: {e}")
+    except Exception as e:
+        print(f"[Error] Unexpected error: {e}")
+    except KeyboardInterrupt as e:
+        print(f"Exiting program now...")
+
+    finally:
+        try:
+            if ticker_service.new_alias_count > 0:
+                print(f"[S3 Save] — {ticker_service.new_alias_count} new aliases added")
                 bucket.write_text(
                     json.dumps(ticker_service.alias_to_canonical, indent=2),
-                    ALIAS_KEY,
+                    env_config.aws_bucket_alias_key,
+                )
+            if removed_posts:
+                bucket.write_text(
+                    json.dumps(removed_posts, indent=2),
+                    env_config.aws_bucket_removed_key,
                 )
 
-except Exception as e:
-    print(f"[Error] Processing crashed: {e}")
+            if eventidentifier.event_list and eventidentifier.neweventcount > 0:
+                bucket.write_text(
+                    json.dumps(eventidentifier.event_list, indent=2),
+                    env_config.aws_bucket_events_key,
+                )
+        except Exception as e:
+            print(f"[Error] Failed during cleanup: {e}")
 
-finally:
-    if ticker_service.new_alias_count > 0:
-        print(
-            f"[S3 Save] Final save — {ticker_service.new_alias_count} new aliases added"
-        )
-        bucket.write_text(
-            json.dumps(ticker_service.alias_to_canonical, indent=2),
-            ALIAS_KEY,
-        )
 
-# Add newly identified tickers to be consumed at scraping service
-if all_tickers:
-    redis_client.sadd("all_identified_tickers", *all_tickers)
-
-# Event Identification
-ticker_entries = ticker_stream.read(last_id="0-0", count=50, block_ms=5000)
-for _, messages in ticker_entries:
-    for msg_id, data in messages:
-        post_content = data.get("data", data)
-        event_data = eventidentifier.analyse_event(post_content)
-        event_stream.save(event_data)
-        print(msg_id)
-        # checkpoint.save(msg_id)
-
-# Stage 4: Credibility Analysis
-print("\n=== Stage 4: Credibility Analysis ===\n")
-event_entries = event_stream.read(last_id="0-0", count=50)
-
-credibility_enriched = []
-for _, messages in event_entries:
-    for msg_id, data in messages:
-        # Analyze credibility first
-        credibility = credibility_service.analyse(data)
-        credibility_stream.save(credibility)
-        credibility_enriched.append(credibility)
-        print(f"Credibility: {msg_id}")
-        # checkpoint.save(msg_id)
-
-# Stage 5: Sentiment Analysis (consumes credibility-enriched data)
-print("\n=== Stage 5: Sentiment Analysis ===\n")
-for item in credibility_enriched:
-    sentiment = sentiment_service.analyse(item)
-    sentiment_stream.save(sentiment)
-    print(f"Sentiment: {item.get('Post_ID', 'unknown')}")
-
-# View output
-print("\n=== Content in ticker stream ===\n")
-view_stream(ticker_stream)
-
-print("\n=== Current tickers in Redis ===\n")
-for ticker, name in redis_client.hgetall("ticker_to_official_name").items():
-    print(f"{ticker}: {name}")
-
-print("\n=== All tickers set in Redis ===\n")
-for ticker in redis_client.smembers("all_identified_tickers"):
-    print(ticker)
-
-print("\n=== Content in event stream ===\n")
-view_stream(event_stream)
+if __name__ == "__main__":
+    asyncio.run(run_pipeline())

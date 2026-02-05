@@ -1,3 +1,4 @@
+from collections import defaultdict
 from typing import List, Dict, Union
 import json
 import re
@@ -37,7 +38,7 @@ class TickerIdentificationService:
         self.base_url = base_url
         self.cleaned_tickers = cleaned_tickers
         self.alias_to_canonical = alias_to_canonical
-
+        self.canonical_to_aliases = self.build_canonical_to_aliases(self.alias_to_canonical)
         self.ticker_to_title = {v["ticker"]: v["title"] for v in self.cleaned_tickers.values()}
         self.ticker_to_canonical = {v["ticker"]: k for k, v in self.cleaned_tickers.items()}
         self.nlp = spacy.load(spacy_model)
@@ -99,6 +100,26 @@ class TickerIdentificationService:
         except Exception as e:
             print(f"LLM extraction error: {e}")
             return []
+
+    def get_aliases(self, tickers: List[str]) -> Dict[str, Dict[str, List[str]]]:
+        output = {}
+
+        for ticker in tickers:
+            canonical = self.ticker_to_canonical.get(ticker)
+            output[ticker] = {
+                "OfficialName": self.ticker_to_title.get(ticker, ""),
+                "Aliases": self.canonical_to_aliases.get(canonical, []) if canonical else []
+            }
+
+        return output
+
+                
+    def build_canonical_to_aliases(self, alias_to_canonical: Dict[str, str]) -> Dict[str, List[str]]:
+        canonical_to_aliases = defaultdict(list)
+        for alias, canonical in alias_to_canonical.items():
+            canonical_to_aliases[canonical].append(alias)
+        return canonical_to_aliases
+
 
     def update_alias_mapping(self, new_alias: str, canonical: str) -> bool:
         # normalize identified alias and update alias mapping
@@ -193,5 +214,5 @@ class TickerIdentificationService:
             print("This post is removed as no ticker was identified:")
             print(post)
             print("\n")
-            return None
+            return post
 

@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: user-info-ingress
+  name: news-scraper-ingress
   annotations:
     konghq.com/strip-path: "true"
 spec:
@@ -9,10 +9,10 @@ spec:
   rules:
     - http:
         paths:
-          - path: /api/v1/user
+          - path: /api/v1/news-scraper
             pathType: Prefix
             backend:
               service:
-                name: user-info
+                name: news-scraper
                 port:
                   number: 8080

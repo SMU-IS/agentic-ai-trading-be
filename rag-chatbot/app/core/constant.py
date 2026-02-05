@@ -3,7 +3,6 @@ from enum import Enum
 
 class APIPath(str, Enum):
     HEALTH_CHECK = "/healthcheck"
-    INGEST_DOCUMENTS = "/documents"  # TODO: To be removed
     CHAT = "/chat"
 
 
