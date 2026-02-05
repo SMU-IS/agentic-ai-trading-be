@@ -305,7 +305,7 @@ class CredibilityService:
         self.llm = None
         self.parser = None
         self.model_provider = model_provider
-        self.model_name = model_name or env_config.large_language_model or "llama3.2"
+        self.model_name = model_name or env_config.large_language_model or "llama3:8b"
 
         if enable_llm:
             self._initialize_llm()

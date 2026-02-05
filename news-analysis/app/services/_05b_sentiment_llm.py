@@ -2,7 +2,7 @@
 LLM-Based Sentiment Analysis Service
 File: news-analysis/app/services/_05b_sentiment_llm.py
 
-Uses Ollama LLM (llama3.2) for sentiment analysis with detailed reasoning.
+Uses Ollama LLM for sentiment analysis with detailed reasoning.
 """
 
 import asyncio
@@ -41,7 +41,7 @@ class LLMSentimentService:
     """
     Sentiment analysis using Ollama LLM.
 
-    Uses llama3.2 for nuanced financial sentiment analysis with detailed reasoning.
+    Uses Ollama LLM for nuanced financial sentiment analysis with detailed reasoning.
     Better at understanding context, sarcasm, and complex financial language.
     """
 
@@ -55,7 +55,7 @@ class LLMSentimentService:
 
     def __init__(
         self,
-        model_name: str = "llama3.2",
+        model_name: str = env_config.large_language_model or "llama3:8b",
         model_provider: str = "ollama",
         temperature: float = 0.1
     ):

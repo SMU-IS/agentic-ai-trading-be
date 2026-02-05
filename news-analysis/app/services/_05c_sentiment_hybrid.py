@@ -4,7 +4,7 @@ File: news-analysis/app/services/_05c_sentiment_hybrid.py
 
 Ensemble approach combining:
 - FinBERT: Fast, reliable for standard financial text
-- LLM (llama3.2): Better reasoning, catches nuance and sarcasm
+- LLM: Better reasoning, catches nuance and sarcasm
 """
 
 import asyncio
@@ -328,7 +328,7 @@ class HybridSentimentService:
             llm_factors=llm.key_factors,
 
             agreement=agreement,
-            models_used=["FinBERT", "LLM-llama3.2"],
+            models_used=["FinBERT", f"LLM-{env_config.large_language_model or 'llama3:8b'}"],
             weights_used={
                 "finbert": round(final_fb_weight, 3),
                 "llm": round(final_lm_weight, 3)
