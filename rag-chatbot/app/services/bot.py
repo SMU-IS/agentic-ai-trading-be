@@ -4,8 +4,9 @@ from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 
+from app.core.config import env_config
 from app.core.constant import LangChainEvent
-from app.core.prompts import TRADING_AGENT_PROMPT
+from app.core.s3_config import S3ConfigService
 from app.services.tools import RAG_BOT_TOOLS
 
 
@@ -13,12 +14,26 @@ class BotService:
     def __init__(self, llm: BaseChatModel):
         self.llm = llm
         self.tools = RAG_BOT_TOOLS
+
+        self.aws_config = S3ConfigService()
+        self.aws_s3_bucket_name = env_config.aws_bucket_name
+        self.aws_s3_file_name = env_config.aws_file_name
+
         self.agent_executor = self._build_agent_executor()
+
+    def _load_prompt_from_s3(self) -> str:
+        try:
+            return self.aws_config.get_file_content(
+                self.aws_s3_bucket_name, self.aws_s3_file_name
+            )
+        except Exception as e:
+            print(f"Error loading prompt from S3: {e}")
+            raise
 
     def _build_agent_executor(self):
         prompt = ChatPromptTemplate.from_messages(
             [
-                ("system", TRADING_AGENT_PROMPT),
+                ("system", self._load_prompt_from_s3()),
                 ("human", "Query: {query}\nOrder ID: {order_id}"),
                 ("placeholder", "{agent_scratchpad}"),
             ]
