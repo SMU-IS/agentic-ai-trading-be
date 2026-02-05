@@ -1,12 +1,16 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Dict, Optional
 
 from pydantic import BaseModel, Field
 
 
+class TickerEvent(BaseModel):
+    event_type: str
+
+
 class NewsMetadata(BaseModel):
     article_id: str
-    tickers: List[str]
+    tickers_metadata: Dict[str, TickerEvent]
     timestamp: datetime
     source_domain: str
     event_type: str

@@ -7,7 +7,10 @@ dummy_payload_data = {
     "id": "uuid-v4-generated-id",
     "metadata": {
         "article_id": "uuid-v4-generated-id",
-        "tickers": ["TSLA", "ELON"],
+        "tickers_metadata": {
+            "TSLA": {"event_type": "Earnings Report"},
+            "ELON": {"event_type": "Earnings Report"},
+        },
         "timestamp": "2026-01-25T09:30:00Z",
         "source_domain": "bloomberg.com",
         "event_type": "Earnings Report",

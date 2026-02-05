@@ -33,6 +33,8 @@ def get_trade_history_details(query: str, order_id: str):
 
     print(f"User query: {query}. Analysing history for order {order_id}")
 
+    # retrieve order details using order_id from postgres
+
     # TODO: hardcoded for now
     return json.dumps(
         {
