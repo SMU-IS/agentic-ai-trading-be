@@ -8,26 +8,14 @@ from langchain_ollama import ChatOllama
 
 from app.services.trading_workflow import TradingWorkflow
 
-
-class MockBroker:
-    """Simple mock broker that just logs orders."""
-
-    def place_order(self, *args, **kwargs):
-        print(
-            "[MockBroker] place_order called:",
-            json.dumps({"args": args, "kwargs": kwargs}, indent=2),
-        )
-
-
 async def main():
     ollama = ChatOllama(
-        model="llama3.1",
+        model="llama3.1:latest",
         temperature=0.1,
         base_url="http://localhost:11434",
     )
 
-    broker_client = MockBroker()
-    workflow = TradingWorkflow(llm_client=ollama, broker_client=broker_client)
+    workflow = TradingWorkflow(llm_client=ollama)
 
     # Test cases
     test_cases = [
@@ -51,12 +39,12 @@ async def main():
 
         result = await workflow.run(input_data)
 
-        print("📊 Final Result:")
-        print(f"  Action: {result.get('action', 'N/A')}")
-        print(f"  Should Execute: {result.get('should_execute', 'N/A')}")
-        print(f"  Order Details: {result.get('order_details', 'N/A')}")
-        print(f"  Reasoning: {result.get('reasoning', 'N/A')}")
-        print("\n" + "=" * 60 + "\n")
+        # print("📊 Final Result:")
+        # print(f"  Action: {result.get('action', 'N/A')}")
+        # print(f"  Should Execute: {result.get('should_execute', 'N/A')}")
+        # print(f"  Order Details: {result.get('order_details', 'N/A')}")
+        # print(f"  Reasoning: {result.get('reasoning', 'N/A')}")
+        # print("\n" + "=" * 60 + "\n")
 
     print("🎉 All tests complete!")
     await asyncio.sleep(0.1)

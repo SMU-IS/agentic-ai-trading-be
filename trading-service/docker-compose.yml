@@ -1,4 +1,21 @@
 services:
+  postgres-decisions:
+    image: postgres:16-alpine
+    container_name: postgres-trading-decisions
+    restart: unless-stopped
+    ports:
+      - "9100:5432"
+    environment:
+      POSTGRES_DSN: ${POSTGRES_DSN}
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data:z
+      - ./trading-service-db/init-trading.sql:/docker-entrypoint-initdb.d/init.sql:z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trader trading_decisions"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   broker-service:
     build: .
     container_name: alpaca-broker-service

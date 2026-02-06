@@ -143,6 +143,7 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
             5. Position sizing (keep it to 10)
             6. Clear thesis (why this swing works)
 
+            entry price should be within current stock price and place strategically based on market data.
             double check stop_loss and take_profit price, it should be relative to entry price.
             if action is sell, stop_loss should be higher than entry price, take_profit should be lower than entry price;
             if action is buy, stop_loss should be lower than entry price, take_profit should be higher than entry price;

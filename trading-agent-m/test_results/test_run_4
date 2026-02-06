@@ -1,0 +1,230 @@
+# === Testing TradingWorkflow with Ollama ===
+
+# 🧪 Test Case 1: AAPL (bearish)
+# ------------------------------------------------------------
+#    [🔍 Qdrant] Searching for historical context on AAPL...  
+#    [⚡ Qdrant] Connection initialized to http://localhost:8333
+#    [🔍 Qdrant] Generated dummy query vector.
+#    [✅ Qdrant] Retrieved 5 results for AAPL.
+#    [📊 Market Data] Fetching data for AAPL...
+#    [📈 Yahoo Market Data] {'indicators': {'price': 275.9100036621094, 'atr14': 6.871430533272879, 'sma20': 259.1959991455078, 'sma50': 268.65819885253904, 'support': 243.4199981689453, 'resistance': 279.5}, 'summary': '62 bars, 2025-11-06→2026-02-05'}
+#    [📈 Alpaca Market Data] {'latest_quote': {'symbol': 'AAPL', 'bid_price': 264.05, 'bid_size': 100, 'ask_price': 291.92, 'ask_size': 100, 'timestamp': '2026-02-05T21:00:00.000620+00:00', 'conditions': ['R'], 'tape': 'C'}, 'latest_trade': {'symbol': 'AAPL', 'price': 277.09, 'size': 107, 'exchange': 'V', 'conditions': ['@', 'T'], 'timestamp': '2026-02-05T21:52:17.899769+00:00', 'id': '23359', 'tape': 'C'}, 'spread': 27.870000000000005}
+#    [🧠 Swing Trading Brain] Analyzing AAPL...
+# Raw LLM: {
+#     "action": "SELL",
+#     "confidence": 0.8,
+#     "entry_price": 275.91,
+#     "stop_loss": 281.5,
+#     "take_profit": 269.5,
+#     "qty": 10,
+#     "risk_reward": "1:2",
+#     "thesis": "The news signal indicates a bearish sentiment with an earnings miss, which is likely to lead to a short-term price drop. The technical setup supports this thesis as the stock price is near resistance (279.5) and the RSI (62.12) is overbought. The volatility regime is moderate (ATR: 6.87), making it suitable for a swing trade. We will sell at the current price of $275.91, with a stop loss at $281.5 (1% above entry price) and take profit at $269.5 (3% below entry price).",
+#     "current_stock_price": 275.9100036621094
+# }
+# ✅ Parsed: {'action': 'SELL', 'confidence': 0.8, 'entry_price': 275.91, 'stop_loss': 281.5, 'take_profit': 269.5, 'qty': 10, 'risk_reward': '1:2', 'thesis': 'Th
+# e news signal indicates a bearish sentiment with an earnings miss, which is likely to lead to a short-term price drop. The technical setup supports this thesis as the stock price is near resistance (279.5) and the RSI (62.12) is overbought. The volatility regime is moderate (ATR: 6.87), making it suitable for a swing trade. We will sell at the current price of $275.91, with a stop loss at $281.5 (1% above entry price) and take profit at $269.5 (3% below entry price).', 'current_stock_price': 275.9100036621094}
+#    [🛡️ Risk Layer] Evaluating trade risk...
+#    [💰 Buying Power] 72701.98
+# {'risk_status': 'APPROVED', 'risk_score': 1.25, 'adjusted_trade': {'action': 'SELL', 'confidence': 0.8, 'entry_price': 275.91, 'stop_loss': 279.5, 'take_profit': 262.16714259556363, 'qty': 13.0, 'risk_reward': '1:2', 'thesis': 'The news signal indicates a bearish sentiment with an earnings miss, which is likely to lead to a short-term price drop. The technical setup supports this thesis as the stock price is near resistance (279.5) and the RSI (62.12) is overbought. The volatility regime is moderate (ATR: 6.87), making it suitable for a swing trade. We will sell at the current price of $275.91, with a stop loss at $281.5 (1% above entry price) and take profit at $269.5 (3% below entry price).', 'current_stock_price': 275.9100036621094, 'ticker': 'AAPL', 'has_trade_opportunity': True}, 'metrics': {'risk_per_share': '$3.59', 'reward_per_share': '$13.74', 'actual_rr': '3.8:1', 'total_risk': '$36 (0.0%)', 'suggested_qty': '13', 'near_resistance': True, 'atr_distance': '6.9', 'max_risk_5pct': '$3635'}, 'issues': []}
+
+# ============================================================
+# 🎯 RISK EVALUATION REPORT
+# ============================================================
+
+# ✅ STATUS: APPROVED
+# 📊 RISK SCORE: 1.25/1.50
+
+# 📋 TRADE SETUP
+#   Action:        SELL
+#   Symbol:        AAPL
+#   Confidence:    80%
+#   Entry:         $275.91
+#   Stop Loss:     $279.50
+#   Take Profit:   $262.17
+#   Quantity:      13.0 shares
+
+# 💰 RISK METRICS
+#   Risk/Share:    $3.59
+#   Reward/Share:  $13.74
+#   Actual R:R:    3.8:1
+#   Total Risk:    $36 (0.0%)
+
+# 📐 POSITION SIZING
+#   Current Qty:   13.0 shares
+#   Suggested Qty: 13 shares (5% risk)
+#   Max Risk (5%): $3635
+
+# 📈 TECHNICAL CONTEXT
+#   Near Resistance: Yes ✅
+#   ATR Distance:    6.9
+
+# 💡 THESIS
+#   The news signal indicates a bearish sentiment with an
+#   earnings miss, which is likely to lead to a
+#   short-term price drop. The technical setup supports
+#   this thesis as the stock price is near resistance
+#   (279.5) and the RSI (62.12) is overbought. The
+#   volatility regime is moderate (ATR: 6.87), making it
+#   suitable for a swing trade. We will sell at the
+#   current price of $275.91, with a stop loss at $281.5
+#   (1% above entry price) and take profit at $269.5 (3%
+#   below entry price).
+
+# ✅ NO ADJUSTMENTS NEEDED
+
+# ============================================================
+
+# [🛡️ RISK LAYER RESULT] {'status': 'no_conflict', 'symbol': 'AAPL', 'message': 'No conflicts found -  ready to trade'}
+
+#    [🛡️ Risk Layer] Should Execute?  True
+# !!! [🤝🏻 Market Access] Executing SELL {'action': 'SELL', 'confidence': 0.8, 'entry_price': 275.91, 'stop_loss': 279.5, 'take_profit': 262.16714259556363, 'qty': 13.0, 'risk_reward': '1:2', 'thesis': 'The news signal indicates a bearish sentiment with an earnings miss, which is likely to lead to a short-term price drop. The technical setup supports this thesis as the stock price is near resistance (279.5) and the RSI (62.12) is overbought. The volatility regime is moderate (ATR: 6.87), making it suitable for a swing trade. We will sell at the current price of $275.91, with a stop loss at $281.5 (1% above entry price) and take profit at $269.5 (3% below entry price).', 'current_stock_price': 275.9100036621094, 'ticker': 'AAPL', 'has_trade_opportunity': True}
+#    [📤 API] POST http://localhost:8000/api/v1/trading/orders/bracket
+#    [📤 Payload] {'symbol': 'AAPL', 'side': 'sell', 'qty': 13.0, 'entry_type': 'limit', 'take_profit_price': 262.17, 'stop_loss_price': 279.5, 'time_in_force': 
+# 'day', 'entry_price': 275.91}
+#    [✅ SUCCESS] Order ID: 488f54ab-1148-4dee-8635-4534bdf7c8ce
+#    [🧾 Execution Result] {'execution_result': {'status': 'success', 'order_id': '488f54ab-1148-4dee- 8635-4534bdf7c8ce', 'symbol': 'AAPL', 'side': 'SELL', 'subm
+# itted_at': None, 'full_response': {'success': True, 'order_id': '488f54ab-1148-4dee-8635-4534bdf7c8ce', 'status': 'pending_new', 'symbol': 'AAPL', 'order': {'id': '488f54ab-1148-4dee-8635-4534bdf7c8ce', 'client_order_id': '1db2518a-7500-4c02-af3d-968d8a84766e', 'created_at': '2026-02-06T09:00:02.464279Z', 'updated_at': '2026-02-06T09:00:02.506653Z', 'submitted_at': '2026-02-06T09:00:02.464279Z', 'filled_at': None, 'expired_at': None, 'expires_at': '2026-02-06T21:00:00Z', 'canceled_at': None, 'failed_at': None, 'replaced_at': None, 'replaced_by': None, 'replaces': None, 'asset_id': 'b0b6dd9d-8b9b-48a9-ba46-b9d54906e415', 'symbol': 'AAPL', 'asset_class': 'us_equity', 'notional': None, 'qty': '13', 'filled_qty': '0', 'filled_avg_price': None, 'order_class': 'bracket', 'order_type': 'limit', 'type': 'limit', 'side': 'sell', 'time_in_force': 'day', 'limit_price': '275.91', 'stop_price': None, 'status': 'pending_new', 'extended_hours': False, 'legs': [{'id': '3c21ff23-a3cc-4dc4-85b1-f316a100f406', 'client_order_id': '4254cd7f-60d3-4283-b8c0-1e0446dba121', 'created_at': '2026-02-06T09:00:02.464279Z', 'updated_at': '2026-02-06T09:00:02.506600Z', 'submitted_at': '2026-02-06T09:00:02.464279Z', 'filled_at': None, 'expired_at': None, 'expires_at': '2026-02-06T21:00:00Z', 'canceled_at': None, 'failed_at': None, 'replaced_at': None, 'replaced_by': None, 'replaces': None, 'asset_id': 'b0b6dd9d-8b9b-48a9-ba46-b9d54906e415', 'symbol': 'AAPL', 'asset_class': 'us_equity', 'notional': None, 'qty': '13', 'filled_qty': '0', 'filled_avg_price': None, 'order_class': 'bracket', 'order_type': 'limit', 'type': 'limit', 'side': 'buy', 'time_in_force': 'day', 'limit_price': '262.17', 'stop_price': None, 'status': 'held', 'extended_hours': False, 'legs': None, 'trail_percent': None, 'trail_price': None, 'hwm': None, 'position_intent': 'buy_to_close', 'ratio_qty': None}, {'id': 'af21348e-d6e3-49d1-9002-577e20d196ea', 'client_order_id': 'd5d01658-2120-425c-8378-317b296fd038', 'created_at': '2026-02-06T09:00:02.464279Z', 'updated_at': '2026-02-06T09:00:02.506624Z', 'submitted_at': '2026-02-06T09:00:02.464279Z', 'filled_at': None, 'expired_at': None, 'expires_at': '2026-02-06T21:00:00Z', 'canceled_at': None, 'failed_at': None, 'replaced_at': None, 'replaced_by': None, 'replaces': None, 'asset_id': 'b0b6dd9d-8b9b-48a9-ba46-b9d54906e415', 'symbol': 'AAPL', 'asset_class': 'us_equity', 'notional': None, 'qty': '13', 'filled_qty': '0', 'filled_avg_price': None, 'order_class': 'bracket', 'order_type': 'stop', 'type': 'stop', 'side': 'buy', 'time_in_force': 'day', 'limit_price': None, 'stop_price': '279.5', 'status': 'held', 'extended_hours': False, 'legs': None, 'trail_percent': None, 'trail_price': None, 'hwm': None, 'position_intent': 'buy_to_close', 'ratio_qty': None}], 'trail_percent': None, 'trail_price': None, 'hwm': None, 'position_intent': 'sell_to_open', 'ratio_qty': None}}}}
+# ========================================
+#    [📝 Trade Logging] Current Agent State:
+# ========================================
+# {
+#   "ticker": "AAPL",
+#   "signal": {
+#     "sentiment": "bearish",
+#     "score": -0.75,
+#     "event_type": "earnings_miss"
+#   },
+#   "query_vector": [
+#     0.865463576795483,
+#     0.4031029016752977,
+#     0.33445295284716225,
+#     0.5391735488636858,
+#     0.8814333298668827,
+#     0.3384213448755886,
+#     0.25359123372195436,
+#     0.04371998969614843,
+#     0.07729242143891502,
+#     0.8873756755767959
+#   ],
+#   "historical_context": [
+#     {
+#       "id": "6c8a5b7d-33dd-4643-9697-4082584d1f9c",
+#       "score": 0.86384225,
+#       "payload": {
+#         "ticker": "AAPL",
+#         "timestamp": "2026-01-28T12:00:00Z",
+#         "price": 148.57112708365798,
+#         "sentiment": "bullish",
+#         "news_headline": "Dummy AAPL news #18: Strong earnings",
+#         "volume": 6446217
+#       }
+#     },
+#     {
+#       "id": "bc7b2716-c7e1-40a8-96d4-ba1e8653ced4",
+#       "score": 0.84443676,
+#       "payload": {
+#         "ticker": "AAPL",
+#         "timestamp": "2026-01-14T12:00:00Z",
+#         "price": 145.09975287801282,
+#         "sentiment": "bearish",
+#         "news_headline": "Dummy AAPL news #4: Market volatility",
+#         "volume": 6326224
+#       }
+#     },
+#     {
+#       "id": "94b0ba75-f337-4c0b-996c-0398d99786da",
+#       "score": 0.8096526,
+#       "payload": {
+#         "ticker": "AAPL",
+#         "timestamp": "2026-01-13T12:00:00Z",
+#         "price": 143.21142005571463,
+#         "sentiment": "bearish",
+#         "news_headline": "Dummy AAPL news #3: Strong earnings",
+#         "volume": 1649674
+#       }
+#     },
+#     {
+#       "id": "bed0c41d-e857-40fd-a7ce-2964c0d5d3ee",
+#       "score": 0.8079828,
+#       "payload": {
+#         "ticker": "AAPL",
+#         "timestamp": "2026-01-26T12:00:00Z",
+#         "price": 154.48164342129306,
+#         "sentiment": "bearish",
+#         "news_headline": "Dummy AAPL news #16: Market volatility",
+#         "volume": 2246002
+#       }
+#     },
+#     {
+#       "id": "e603175a-e54e-4318-8b9d-dcbef6eaba67",
+#       "score": 0.7976109,
+#       "payload": {
+#         "ticker": "AAPL",
+#         "timestamp": "2026-01-17T12:00:00Z",
+#         "price": 154.02092643019796,
+#         "sentiment": "bullish",
+#         "news_headline": "Dummy AAPL news #7: Market volatility",
+#         "volume": 9745101
+#       }
+#     }
+#   ],
+#   "market_data": {
+#     "alpaca": {
+#       "latest_quote": {
+#         "symbol": "AAPL",
+#         "bid_price": 264.05,
+#         "bid_size": 100,
+#         "ask_price": 291.92,
+#         "ask_size": 100,
+#         "timestamp": "2026-02-05T21:00:00.000620+00:00",
+#         "conditions": [
+#           "R"
+#         ],
+#         "tape": "C"
+#       },
+#       "latest_trade": {
+#         "symbol": "AAPL",
+#         "price": 277.09,
+#         "size": 107,
+#         "exchange": "V",
+#         "conditions": [
+#           "@",
+#           "T"
+#         ],
+#         "timestamp": "2026-02-05T21:52:17.899769+00:00",
+#         "id": "23359",
+#         "tape": "C"
+#       },
+#       "spread": 27.870000000000005
+#     },
+#     "yahoo": {
+#       "indicators": {
+#         "price": 275.9100036621094,
+#         "atr14": 6.871430533272879,
+#         "sma20": 259.1959991455078,
+#         "sma50": 268.65819885253904,
+#         "support": 243.4199981689453,
+#         "resistance": 279.5
+#       },
+#       "summary": "62 bars, 2025-11-06\u21922026-02-05"
+#     },
+#     "timestamp": 1728254.109
+#   },
+#   "order_details": {
+#     "action": "SELL",
+#     "confidence": 0.8,
+#     "entry_price": 275.91,
+#     "stop_loss": 279.5,
+#     "take_profit": 262.17,
+#     "qty": 13.0,
+#     "risk_reward": "1:2",
+#     "thesis": "The news signal indicates a bearish sentiment with an earnings miss, which is likely to lead to a short-term price drop. The technical setup supports this thesis as the stock price is near resistance (279.5) and the RSI (62.12) is overbought. The volatility regime is moderate (ATR: 6.87), making it suitable for a swing trade. We will sell at the current price of $275.91, with a stop loss at $281.5 (1% above entry price) and take profit at $269.5 (3% below entry price).",
+#     "current_stock_price": 275.9100036621094,
+#     "ticker": "AAPL",
+#     "has_trade_opportunity": true
+#   },
+#   "should_execute": true
+# }
+# ========================================
+#    [📝 Trade Logging] Trade Decision: {'action': 'SELL', 'confidence': 0.8, 'entry_price': 275.91, 'stop_loss': 279.5, 'take_profit': 262.17, 'qty': 13.0, 'risk_reward': '1:2', 'thesis': 'The news signal indicates a bearish sentiment with an earnings miss, which is likely to lead to a short-term price drop. The technical setup supports this thesis as the stock price is near resistance (279.5) and the RSI (62.12) is overbought. The volatility regime is moderate (ATR: 6.87), making it suitable for a swing trade. We will sell at the current price of $275.91, with a stop loss at $281.5 (1% above entry price) and take profit at $269.5 (3% below entry price).', 'current_stock_price': 275.9100036621094, 'ticker': 'AAPL', 'has_trade_opportunity': True} | Execute: True | Reason:
+# 🎉 All tests complete!

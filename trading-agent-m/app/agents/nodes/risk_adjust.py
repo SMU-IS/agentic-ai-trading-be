@@ -264,9 +264,11 @@ def risk_evaluation_metrics(trade_decision, yahoo_data, account_bp) -> Dict[str,
     
     # ✅ FIX: Convert qty to float
     qty = float(adjusted_trade["qty"])
+
     max_risk_pct = 0.05 if float(trade["confidence"]) >= 0.8 else 0.03
     max_risk_dollars = account_bp * max_risk_pct
-    suggested_qty = max_risk_dollars / risk_per_share
+    suggested_qty = max_risk_dollars // current_price
+    adjusted_trade["qty"] = suggested_qty # Use suggested qty for 5% risk
     
     total_risk_dollars = qty * risk_per_share  # ✅ Now float * float
     risk_pct_account = (total_risk_dollars / account_bp) * 100
