@@ -12,13 +12,11 @@ on:
 
 jobs:
   python-tests:
-    name: Lint and Test
+    name: Continuous Integration
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: rag-chatbot
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,11 +43,9 @@ jobs:
           if [ -d "tests" ]; then python -m pytest; else echo "No tests folder found, skipping..."; fi
 
   deploy:
+    name: xxxx
     runs-on: ubuntu-latest
     needs: python-tests
-    defaults:
-      run:
-        working-directory: rag-chatbot
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -71,7 +67,7 @@ jobs:
           ECR_REPOSITORY: rag-chatbot
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./rag_chatbot
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Update Kubeconfig
@@ -91,6 +87,6 @@ jobs:
         env:
           WORKSPACE: ${{ github.workspace }}
         run: |
-          helm upgrade --install rag-chatbot "$WORKSPACE/infra"
-            -f "$WORKSPACE/deploy/values-chatbot.yaml"
+          helm upgrade --install ./infra \
+            -f ./deploy/values-chatbot.yaml \
             --set image.tag=${{ github.sha }}
