@@ -78,4 +78,4 @@ jobs:
         env:
           WORKSPACE: ${{ github.workspace }}
         run: |
-          helm upgrade --install news-scraper ./infra -f ./deploy/value-news-scraper.yaml --set image.tag=${{ github.sha }}
+          helm upgrade --install news-scraper ./infra -f ./deploy/values-news-scraper.yaml --set image.tag=${{ github.sha }}
