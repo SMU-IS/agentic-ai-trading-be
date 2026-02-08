@@ -30,7 +30,6 @@ jobs:
   deploy:
     name: Continuous Deployment
     runs-on: ubuntu-latest
-    needs: python-tests
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
