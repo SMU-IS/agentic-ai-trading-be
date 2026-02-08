@@ -260,7 +260,7 @@ class TickerIdentificationService:
 
         return ticker_metadata
 
-
+    
     def process_post(self, post: Dict) -> Dict:
         # Add ticker metadata to a single post
         ticker_metadata = self.extract_tickers(post["content"]["clean_combined_withurl"])
