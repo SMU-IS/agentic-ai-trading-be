@@ -5,6 +5,7 @@ from ._02_ticker_identification import TickerIdentificationService
 from ._03_event_identification import EventIdentifierService
 from ._04_credibility import CredibilityService
 from ._05_sentiment import SentimentAnalysisService
+from ._05b_sentiment_llm import LLMSentimentService
 from ._06_vectorisation import VectorisationService
 
 __all__ = [
@@ -13,5 +14,6 @@ __all__ = [
     "EventIdentifierService",
     "CredibilityService",
     "SentimentAnalysisService",
+    "LLMSentimentService",
     "VectorisationService",
 ]

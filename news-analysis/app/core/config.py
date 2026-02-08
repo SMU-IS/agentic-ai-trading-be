@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -38,12 +39,13 @@ class EnvConfig(BaseSettings):
     redis_sentiment_stream: str = Field(..., validation_alias="SENTIMENT_STREAM")
 
     # LLM
-    llm_provider: str = Field(..., validation_alias="LLM_PROVIDER")
-    ollama_base_url: str = Field(..., validation_alias="OLLAMA_BASE_URL")
-    open_ai_api_key: str = Field(..., validation_alias="OPEN_AI_API_KEY")
-    text_embedding_model: str = Field(..., validation_alias="TEXT_EMBEDDING_MODEL")
-    large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
-    max_completion_tokens: int = Field(..., validation_alias="MAX_COMPLETION_TOKEN")
+    llm_provider: str = Field(default="gemini", validation_alias="LLM_PROVIDER")
+    ollama_base_url: Optional[str] = Field(default=None, validation_alias="OLLAMA_BASE_URL")
+    open_ai_api_key: Optional[str] = Field(default=None, validation_alias="OPEN_AI_API_KEY")
+    gemini_api_key: str = Field(..., validation_alias="GEMINI_API_KEY")
+    text_embedding_model: str = Field(default="text-embedding-004", validation_alias="TEXT_EMBEDDING_MODEL")
+    large_language_model: str = Field(default="gemini-2.5-flash-lite", validation_alias="LARGE_LANGUAGE_MODEL")
+    max_completion_tokens: int = Field(default=1000, validation_alias="MAX_COMPLETION_TOKEN")
 
     # Vector Store
     storage_provider: StorageProviders = Field(..., validation_alias="STORAGE_PROVIDER")
