@@ -1,0 +1,24 @@
+replicaCount: 2
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/news-scraper
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 5003
+  targetPort: 5003
+
+livenessProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5003
+  initialDelaySeconds: 60
+readinessProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5003
+  initialDelaySeconds: 30
+
+secretName: news-scraper-secrets

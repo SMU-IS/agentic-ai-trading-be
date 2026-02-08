@@ -27,34 +27,55 @@ jobs:
           file: ./news-scraper/Dockerfile
           push: false
 
-  # deploy-to-k8s:
-  #   name: Deploy to Kubernetes (News Scraper)
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: news-scraper
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+  deploy:
+    name: Continuous Deployment
+    runs-on: ubuntu-latest
+    needs: python-tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Create environment variable file from secret
-  #       run: echo "${{ secrets.NEWS_SCRAPER_SECRETS }}" > .env.prod
-  #       shell: bash
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
-  #     - name: Login to Docker Hub
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-  #     - name: Build and Push Docker Image
-  #       run: make build
+      - name: Ensure ECR Repository exists
+        run: |
+          aws ecr describe-repositories --repository-names news-scraper || \
+          aws ecr create-repository --repository-name news-scraper
 
-  #     - name: Setup Kubeconfig
-  #       uses: azure/k8s-set-context@v4
-  #       with:
-  #         method: kubeconfig
-  #         kubeconfig: ${{ secrets.KUBE_CONFIG_DATA }}
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: news-scraper
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -f ./news-scraper/Dockerfile ./news-scraper
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-  #     - name: Deploy to Kubernetes
-  #       run: make deploy
+      - name: Update Kubeconfig
+        run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
+
+      - name: Create K8s Secret from AWS_EKS_RAG_CHATBOT
+        run: |
+          echo "${{ secrets.AWS_EKS_RAG_CHATBOT }}" > .env.tmp
+
+          kubectl create secret generic news-scraper-secrets \
+            --from-env-file=.env.tmp \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          rm .env.tmp
+
+      - name: Deploy to AWS EKS
+        env:
+          WORKSPACE: ${{ github.workspace }}
+        run: |
+          helm upgrade --install news-scraper ./infra -f ./deploy/value-news-scraper.yaml --set image.tag=${{ github.sha }}
