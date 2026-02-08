@@ -8,6 +8,7 @@ from app.core.config import env_config
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_ollama import ChatOllama
+import yfinance as yf
 
 STOP_SUFFIXES = [
     "inc", "corp", "corporation", "ltd", "llc", "co", "&co", ",inc", ",inc.", "/new", "/de/", "/mn"
@@ -42,6 +43,7 @@ class TickerIdentificationService:
         self.ticker_to_title = {v["ticker"]: v["title"] for v in self.cleaned_tickers.values()}
         self.ticker_to_canonical = {v["ticker"]: k for k, v in self.cleaned_tickers.items()}
         self.nlp = spacy.load(spacy_model)
+        self.stock_tickers = set()
 
     # Normalizes text by converting it to lowercase and removing all characters that are not lowercase letters or digits
     def _normalize_company(self, text: str) -> str:
@@ -113,6 +115,31 @@ class TickerIdentificationService:
 
         return output
 
+
+    def _classify_ticker(self, ticker: str) -> str:
+        try:
+            t = yf.Ticker(ticker)
+            info = t.info
+
+            quote_type = info.get("quoteType")
+
+            mapping = {
+                "EQUITY": "stock",
+                "ETF": "etf",
+                "CRYPTOCURRENCY": "crypto",
+                "INDEX": "index",
+                "CURRENCY": "forex"
+            }
+            mapvalue = mapping.get(quote_type, "unknown")
+            if mapvalue == "stock":
+                self.stock_tickers.add(ticker)
+
+            return mapvalue
+
+        except Exception:
+            return "unknown"
+
+
                 
     def build_canonical_to_aliases(self, alias_to_canonical: Dict[str, str]) -> Dict[str, List[str]]:
         canonical_to_aliases = defaultdict(list)
@@ -154,12 +181,21 @@ class TickerIdentificationService:
                 if canonical in self.cleaned_tickers:
                     ticker = self.cleaned_tickers[canonical]["ticker"]
 
-            if ticker:
+            if ticker and ticker in self.ticker_to_title:
+
                 if ticker not in ticker_metadata:
+                    if ticker in self.stock_tickers:
+                        ticker_type = "stock"
+                    else:
+                        ticker_type = self._classify_ticker(ticker)
+                        if ticker_type != "stock":
+                            continue
                     ticker_metadata[ticker] = {
+                        "Type": ticker_type,
                         "OfficialName": self.ticker_to_title.get(ticker, ""),
                         "NameIdentified": [org]
                     }
+                    
                 # include all names identified in post for the respective ticker
                 else:
                     if org not in ticker_metadata[ticker]["NameIdentified"]:
@@ -171,8 +207,16 @@ class TickerIdentificationService:
             ticker = match.replace("$", "").upper()
             # check if ticker identified matches our ticker knowledge base
             if ticker in self.ticker_to_title:
+                if ticker in self.stock_tickers:
+                    ticker_type = "stock"
+                else:
+                    ticker_type = self._classify_ticker(ticker)
+                    if ticker_type != "stock":
+                        continue
+
                 if ticker not in ticker_metadata:
                     ticker_metadata[ticker] = {
+                        "Type": ticker_type,
                         "OfficialName": self.ticker_to_title.get(ticker, ""),
                         "NameIdentified": [match]
                     }
@@ -180,6 +224,7 @@ class TickerIdentificationService:
                     # include ticker as the name identified in post 
                     if match not in ticker_metadata[ticker]["NameIdentified"]:
                         ticker_metadata[ticker]["NameIdentified"].append(match)
+
 
         # 3. Fallback to LLM if nothing found
         if not ticker_metadata:
@@ -191,8 +236,15 @@ class TickerIdentificationService:
                         # normalize ticker
                         ticker = company["ticker"].replace("$", "").upper()
                         if ticker in self.ticker_to_title:
+                            if ticker in self.stock_tickers:
+                                ticker_type = "stock"
+                            else:
+                                ticker_type = self._classify_ticker(ticker)
+                                if ticker_type != "stock":
+                                    continue
                             if ticker not in ticker_metadata:
                                 ticker_metadata[ticker] = {
+                                    "Type": ticker_type,
                                     "OfficialName": self.ticker_to_title.get(ticker, ""),
                                     "NameIdentified": [company["company_name"]] 
                                 }
