@@ -34,7 +34,7 @@ The system operates on behalf of users to mitigate information overload and circ
 
 ## 🚀 Getting Started
 
-To get the microservices backend up and running locally, follow these steps:
+To get the microservices backend up and running locally, follow these steps ->
 
 - Ensure Docker is running
 - Setup Environment Variables: Create a `.env` file in the individual directory and configure keys.

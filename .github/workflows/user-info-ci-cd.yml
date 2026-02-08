@@ -38,55 +38,55 @@ jobs:
       - name: Verify Binary Compilation
         run: go build -v -o app ./cmd/main.go
 
-  deploy:
-    name: Continuous Deployment
-    runs-on: ubuntu-latest
-    needs: go-tests
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # deploy:
+  #   name: Continuous Deployment
+  #   runs-on: ubuntu-latest
+  #   needs: go-tests
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+  #     - name: Configure AWS Credentials
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: us-east-1
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+  #     - name: Login to Amazon ECR
+  #       id: login-ecr
+  #       uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Ensure ECR Repository exists
-        run: |
-          aws ecr describe-repositories --repository-names user-info || \
-          aws ecr create-repository --repository-name user-info
+  #     - name: Ensure ECR Repository exists
+  #       run: |
+  #         aws ecr describe-repositories --repository-names user-info || \
+  #         aws ecr create-repository --repository-name user-info
 
-      - name: Build, tag, and push image to Amazon ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: user-info
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
-            -f ./user-info/Dockerfile ./user-info
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  #     - name: Build, tag, and push image to Amazon ECR
+  #       env:
+  #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+  #         ECR_REPOSITORY: user-info
+  #         IMAGE_TAG: ${{ github.sha }}
+  #       run: |
+  #         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+  #           -f ./user-info/Dockerfile ./user-info
+  #         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Update Kubeconfig
-        run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
+  #     - name: Update Kubeconfig
+  #       run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
 
-      - name: Create K8s Secret from USER_INFO_SECRETS
-        run: |
-          echo "${{ secrets.USER_INFO_SECRETS }}" > .env.tmp
+  #     - name: Create K8s Secret from USER_INFO_SECRETS
+  #       run: |
+  #         echo "${{ secrets.USER_INFO_SECRETS }}" > .env.tmp
 
-          kubectl create secret generic user-info-secrets \
-            --from-env-file=.env.tmp \
-            --dry-run=client -o yaml | kubectl apply -f -
+  #         kubectl create secret generic user-info-secrets \
+  #           --from-env-file=.env.tmp \
+  #           --dry-run=client -o yaml | kubectl apply -f -
 
-          rm .env.tmp
+  #         rm .env.tmp
 
-      - name: Deploy to AWS EKS
-        env:
-          WORKSPACE: ${{ github.workspace }}
-        run: |
-          helm upgrade --install user-info ./infra -f ./deploy/values-user-info.yaml --set image.tag=${{ github.sha }}
+  #     - name: Deploy to AWS EKS
+  #       env:
+  #         WORKSPACE: ${{ github.workspace }}
+  #       run: |
+  #         helm upgrade --install user-info ./infra -f ./deploy/values-user-info.yaml --set image.tag=${{ github.sha }}
