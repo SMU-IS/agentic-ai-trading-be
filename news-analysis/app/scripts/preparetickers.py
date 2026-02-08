@@ -1,6 +1,7 @@
 import json
 import re
 from app.scripts.aws_bucket_access import AWSBucket
+import yfinance as yf
 
 bucket = AWSBucket()
 
@@ -48,6 +49,29 @@ def expand_abbreviations(name):
 def normalize_ticker(ticker):
     return ticker.replace("-", ".").upper()
 
+def classify_ticker(ticker: str) -> str:
+    try:
+        t = yf.Ticker(ticker)
+        info = t.info
+
+        quote_type = info.get("quoteType")
+
+        mapping = {
+            "EQUITY": "stock",
+            "ETF": "etf",
+            "CRYPTOCURRENCY": "crypto",
+            "INDEX": "index",
+            "CURRENCY": "forex"
+        }
+        mapvalue = mapping.get(quote_type, "unknown")
+        if mapvalue:
+            return mapvalue
+        else:
+            return None
+
+    except Exception:
+        return None
+
 # Build canonical mapping
 cleaned_mapping = {}
 for entry in sec_data.values():
@@ -58,11 +82,12 @@ for entry in sec_data.values():
 
     ticker = normalize_ticker(ticker_raw)
     name_norm = normalize_company(title_raw)
-
+    mapping = classify_ticker(ticker)
     if name_norm not in cleaned_mapping:
         cleaned_mapping[name_norm] = {
             "ticker": ticker,
             "title": title_raw,
+            "type": mapping
         }
 
 # Build alias mapping
