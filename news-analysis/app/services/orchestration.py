@@ -180,6 +180,10 @@ async def run_pipeline():
     # preprocessing_stream.clear_stream()
     # ticker_stream.clear_stream()
     # event_stream.clear_stream()
+    # sentiment_stream.clear_stream()
+    # redis_client.delete("all_identified_tickers")
+
+
 
     try:
         while True:

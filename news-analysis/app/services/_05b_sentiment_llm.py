@@ -65,7 +65,7 @@ class LLMSentimentService:
 
     def __init__(
         self,
-        model_name: str = env_config.large_language_model or "gemini-2.5-flash-lite",
+        model_name: str = env_config.large_language_model_gemini or "gemini-2.5-flash-lite",
         temperature: float = 0.1
     ):
         if self._initialized:

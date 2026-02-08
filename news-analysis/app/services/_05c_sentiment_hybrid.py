@@ -328,7 +328,7 @@ class HybridSentimentService:
             llm_factors=llm.key_factors,
 
             agreement=agreement,
-            models_used=["FinBERT", f"LLM-{env_config.large_language_model or 'llama3:8b'}"],
+            models_used=["FinBERT", f"LLM-{env_config.large_language_model_gemini or 'llama3:8b'}"],
             weights_used={
                 "finbert": round(final_fb_weight, 3),
                 "llm": round(final_lm_weight, 3)
