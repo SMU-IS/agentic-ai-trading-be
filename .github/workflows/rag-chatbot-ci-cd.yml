@@ -88,6 +88,4 @@ jobs:
         env:
           WORKSPACE: ${{ github.workspace }}
         run: |
-          helm upgrade --install rag-chatbot./infra \
-            -f ./deploy/values-chatbot.yaml \
-            --set image.tag=${{ github.sha }}
+          helm upgrade --install rag-chatbot ./infra -f ./deploy/values-chatbot.yaml --set image.tag=${{ github.sha }}
