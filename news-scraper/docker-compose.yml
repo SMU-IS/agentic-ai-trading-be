@@ -1,34 +1,37 @@
 services:
-  redis:
-    image: redis:7-alpine
-    container_name: reddit-redis
-    ports:
-      - "6381:6379"
-    restart: unless-stopped
-
+  entity-watcher:
+    build: .
+    container_name: entity-watcher
+    volumes:
+      - .:/code
+    env_file:
+      - .env
+    environment:
+    - PYTHONUNBUFFERED=1
+    command: python app/main.py watcher 
+    restart: always
+    
   reddit-stream-service:
     build: .
     container_name: reddit-stream
     volumes:
       - .:/code
-    depends_on: 
-      - redis
     env_file: 
       - .env
+    environment:
+    - PYTHONUNBUFFERED=1
     command: python app/main.py stream
-    restart: unless-stopped
+    restart: always
 
   reddit-batch-service:
     build: .
     container_name: reddit-batch
     volumes:
       - .:/code
-    depends_on: 
-      - redis
     env_file: 
       - .env
     environment:
     - PYTHONUNBUFFERED=1
     command: python app/main.py batch
-    restart: "no"
+    restart: always
 

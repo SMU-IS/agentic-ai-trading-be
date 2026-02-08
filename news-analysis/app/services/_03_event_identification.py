@@ -1,39 +1,31 @@
-from typing import Optional
+from typing import Dict
+import json
 
-import spacy
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_ollama import ChatOllama
 
 from app.core.config import env_config
-from app.schemas.event_models import (
-    EventResponse,
-    LLMEventResult,
-    NewsPayload,
-)
 
 
 class EventIdentifierService:
+    """
+    Event Identification Service that extracts events from post by llm and a defined list of events.
+    If event is not identified, it will fallback to llm to suggest a new event that is not in the list, 
+    and update the list of defined events accordingly 
+    """
     def __init__(
         self,
+        event_list: dict,
         model_type: str = env_config.llm_provider,
         model_name: str = env_config.large_language_model,
-        base_url: str = "http://127.0.0.1:11434"
-        or env_config.ollama_base_url,  # Remove hardcoded env
-        spacy_model: str = "en_core_web_sm",
+        base_url: str = env_config.ollama_base_url,
     ):
         self.model_type = model_type
         self.model_name = model_name
         self.base_url = base_url
-
-        try:
-            self.nlp = spacy.load(spacy_model)
-        except OSError:
-            print(f"Spacy model '{spacy_model}' not found.")
-            from spacy.cli import download
-
-            download(spacy_model)
-            self.nlp = spacy.load(spacy_model)
+        self.event_list = event_list
+        self.neweventcount: int = 0
 
     def _get_llm(self):
         if self.model_type == env_config.llm_provider:
@@ -43,141 +35,164 @@ class EventIdentifierService:
                 temperature=0,
                 format="json",
             )
-        else:
-            raise ValueError(f"Unsupported model type: {self.model_type}")
+        raise ValueError(f"Unsupported model type: {self.model_type}")
 
-    def _analyse_with_spacy(self, text: str) -> Optional[dict]:
-        """
-        Extracts semantic SVO (Subject-Verb-Object) but preserves descriptive details and entities.
-
-        Requirements for spaCy:
-            1. A Root Verb: The main action.
-            2. A Subject (nsubj): Who did it.
-            3. An Object (dobj or attr): What they acted upon.
-
-        Requirements for LLM Fallback:
-            Use intransitive verbs (Failed by spaCy → LLM Trigger): "Apple stock plummeted."
-            Subject: Apple stock | Verb: Plummeted | Object: None
-        """
-
-        doc = self.nlp(text)
-
-        for token in doc:
-            if token.pos_ == "VERB" and token.dep_ == "ROOT":
-                # 1. Expanded Subject/Object Detection
-                # Check for active subjects ('nsubj') AND passive subjects ('nsubjpass')
-                subjects = [w for w in token.lefts if w.dep_ in ["nsubj", "nsubjpass"]]
-
-                # Check for direct objects ('dobj')
-                objects = [w for w in token.rights if w.dep_ in ["dobj", "attr"]]
-
-                if subjects and objects:
-                    subj_token = subjects[0]
-                    obj_token = objects[0]
-
-                    # 2. Use Noun Chunks for "Meaningful" Text
-                    # Grab "strong Q4 earnings", not just "earnings"
-                    subj_text = self._get_full_text(doc, subj_token)
-                    obj_text = self._get_full_text(doc, obj_token)
-
-                    # 3. Extract High-Value Entities
-                    entities = {
-                        "organizations": [
-                            e.text for e in doc.ents if e.label_ == "ORG"
-                        ],
-                        "money": [e.text for e in doc.ents if e.label_ == "MONEY"],
-                        "dates": [e.text for e in doc.ents if e.label_ == "DATE"],
-                        "percentages": [
-                            e.text for e in doc.ents if e.label_ == "PERCENT"
-                        ],
-                    }
-
-                    # 4. Sentiment Hints  e.g. "strong", "weak", "record-breaking"
-                    adjectives = [
-                        child.text
-                        for child in obj_token.children
-                        if child.pos_ == "ADJ"
-                    ]
-
-                    return {
-                        "subject": subj_text,
-                        "action": token.lemma_,
-                        "target": obj_text,
-                        "context": {
-                            "entities": entities,
-                            "sentiment_words": adjectives,
-                        },
-                    }
-        return None
-
-    def _get_full_text(self, doc, token):
-        """
-        Helper: Returns the full 'Noun Chunk' containing the token
-        (e.g., returns 'strong Q4 earnings' instead of just 'earnings')
-        """
-
-        for chunk in doc.noun_chunks:
-            if token in chunk:
-                return chunk.text
-
-        return token.text
-
-    async def _analyse_with_llm(self, headline: str, content: str) -> LLMEventResult:
+    # if no event identified from defined list, llm will propose suitable event with confidence score
+    def _propose_new_event_with_llm(self, text: str, ticker: str) -> dict:
         llm = self._get_llm()
-        parser = JsonOutputParser(pydantic_object=LLMEventResult)
+        parser = JsonOutputParser()
 
-        prompt_template = PromptTemplate(
-            template="""
-            You are a financial analyst AI. Analyze the following news for significant investment events.
+        format_instructions = (
+            "Output a JSON object with the following fields:\n"
+            "- description (string): A plain-language description of the company event.\n"
+            "- proposed_event_name (string): A concise UPPER_SNAKE_CASE name for the event, or null if it matches an existing type.\n"
+            "- difference_reason (string): A brief explanation of why this event is materially different from existing ones.\n"
+            "- confidence (float): A confidence score between 0 and 1, representing your certainty about the event's significance and accuracy (0 = no confidence, 1 = absolute certainty).\n\n"
+            
+            "Strict formatting rules:\n"
+            "- Use double quotes for all keys and string values.\n"
+            "- No trailing commas or extra fields.\n"
+            "- Do not include any text, commentary, or metadata outside the JSON object.\n\n"
+            
+            "Event rules:\n"
+            "- Only propose events directly related to the ticker/company.\n"
+            "- Focus on events likely to have a material impact on the company's stock price, e.g., product launches, mergers, acquisitions, regulatory changes, earnings surprises.\n"
+            "- Ignore general discussion posts, daily threads, memes, or non-specific chatter; set proposed_event_name to null.\n"
+            "- Speculative sentiment is allowed only if it reflects market perception of the company's events or situations.\n"
+            "- Do not include ticker or company name in proposed_event_name (e.g., use EARNINGS_CALL, not APPLE_EARNINGS_CALL).\n"
+            "- Avoid suggesting new event types based on trader behavior or social media chatter.\n"
+            "- Do not use UNSPECIFIED_EVENT; if no relevant event is present, set proposed_event_name to null.\n\n"
 
-            Headline: {headline}
-            Snippet: {content}
-
-            {format_instructions}
-            """,
-            input_variables=["headline", "content"],
-            partial_variables={"format_instructions": parser.get_format_instructions()},
+            f"Known investment event types:\n{', '.join(self.event_list['event_types'])}\n\n"
+            "Ensure the JSON object strictly adheres to this structure and is valid JSON."
         )
 
-        chain = prompt_template | llm | parser
+        prompt = PromptTemplate(
+            template=(
+                "You identified an investment-relevant event that does NOT match the existing taxonomy.\n\n"
+                "Ticker: {ticker}\n\n"
+                "Text:\n{text}\n\n"
+                "{format_instructions}"
+            ),
+            input_variables=["text", "ticker"],
+            partial_variables={"format_instructions": format_instructions},
+        )
+
+        chain = prompt | llm | parser
+
         try:
-            result = chain.invoke({"headline": headline, "content": content})
-            return LLMEventResult(**result)
+            return chain.invoke({"text": text, "ticker": ticker})
+        except json.JSONDecodeError as e:
+            print(f"[LLM Event Proposal Error] Malformed JSON: {e}")
+            return None
         except Exception as e:
-            return LLMEventResult(
-                is_event=False, event_category="error", reasoning=str(e)
-            )
+            print(f"[LLM Event Proposal Error] {e}")
+            return None
 
-    async def process_event(self, payload: NewsPayload) -> EventResponse:
-        """
-        Workflow: Semantic spaCy extraction -> LLM fallback.
-        """
-        full_text = f"{payload.headline} {payload.content}"
 
-        # 1. Semantic Analysis
-        semantic_info = self._analyse_with_spacy(full_text)
-        if semantic_info:
-            return EventResponse(
-                is_event=True,
-                event_type=semantic_info["action"],
-                method="spacy-nlp",
-                summary=f"{semantic_info}",
-            )
+    def _analyse_events_with_llm(self, text: str, ticker_metadata: dict) -> dict:
+        llm = self._get_llm()
+        parser = JsonOutputParser()
 
-        # 2. LLM Fallback (Complex inference)
-        llm_result = await self._analyse_with_llm(payload.headline, payload.content)
+        tickers_json = json.dumps(ticker_metadata, indent=2)
 
-        if llm_result.is_event:
-            return EventResponse(
-                is_event=True,
-                event_type=llm_result.event_category,
-                method=f"llm-{self.model_type}",
-                summary=llm_result.reasoning,
-            )
-
-        return EventResponse(
-            is_event=True,
-            event_type="None",
-            method="Not Found",
-            summary="No significant event identified.",
+        format_instructions = (
+            "Output a JSON object keyed by ticker.\n"
+            "Each ticker object must include:\n"
+            "- event_type: One of the known investment event types, or null\n"
+            "- event_description: Short description of the event from the text, or null\n\n"
+            f"Known investment event types:\n{self.event_list['event_types']}\n\n"
+            "Classification rules:\n"
+            "- Only use the provided event types; do NOT invent new event types.\n"
+            "- If the text does not describe a material company event or situation for this ticker, set both fields to null.\n"
+            "- Ignore mentions of unrelated assets, indices, commodities, or other companies.\n"
+            "- Posts about individual investor actions or positions (e.g., 'I bought', 'I'm holding', 'I sold') should be assigned to INVESTOR_ACTION\n"
+            "- Posts expressing opinions, predictions, or subjective sentiment unrelated to company events should be assigned INVESTOR_OPINION.\n"
+            "- All posts about investor relevant actions and opinions should be assigned only to either INVESTOR_ACTION or INVESTOR_OPINION\n"
+            "- Focus on events that are likely to have a material impact on the company's stock price.\n"
         )
+
+        prompt = PromptTemplate(
+            template=(
+                "You are a financial analyst AI.\n"
+                "Analyze the following text for investment events.\n\n"
+                "Tickers:\n{ticker_metadata_json}\n\n"
+                "Text:\n{input_text}\n\n"
+                "{format_instructions}"
+            ),
+            input_variables=["input_text"],
+            partial_variables={
+                "ticker_metadata_json": tickers_json,
+                "format_instructions": format_instructions,
+            },
+        )
+
+        chain = prompt | llm | parser
+
+        # Initialize default values
+        for data in ticker_metadata.values():
+            data["event_type"] = None
+            data["event_description"] = None
+            data["event_proposal"] = None
+
+        try:
+            llm_result = chain.invoke({"input_text": text})
+
+            if not isinstance(llm_result, dict):
+                return ticker_metadata
+
+            for ticker, result in llm_result.items():
+                if ticker not in ticker_metadata or not isinstance(result, dict):
+                    continue
+
+                event_type = result.get("event_type")
+                event_desc = result.get("event_description")
+
+                normalized_event_type = (
+                    event_type.strip().upper()
+                    if isinstance(event_type, str)
+                    else None
+                )
+
+                if normalized_event_type and normalized_event_type not in {
+                    "NONE", "NO_EVENT", "NULL", "UNKNOWN", "N/A"
+                }:
+   
+                    ticker_metadata[ticker]["event_type"] = event_type
+                    ticker_metadata[ticker]["event_description"] = event_desc
+                    continue
+
+                proposal = self._propose_new_event_with_llm(text, ticker)
+                if isinstance(proposal, dict):
+                    proposed_event_name = proposal.get("proposed_event_name")
+                    confidence = proposal.get("confidence")
+                    if confidence and confidence >= 0.7 and proposed_event_name:
+                        proposed_event_name = proposed_event_name.replace(" ", "_").upper()
+                        proposal["proposed_event_name"] = proposed_event_name
+                        ticker_metadata[ticker]["event_proposal"] = proposal
+                        if proposed_event_name not in self.event_list["event_types"]:
+                            self.event_list["event_types"].append(proposed_event_name)
+                            self.neweventcount += 1
+                            print(f"new event type added: {proposed_event_name}\n\n")
+
+            return ticker_metadata
+
+        except Exception as e:
+            print(f"[LLM Event Extraction Error] {e}")
+            return ticker_metadata
+
+
+    
+    def analyse_event(self, post: Dict) -> Dict:
+        """
+        Injects event_type / event_description into ticker_metadata.
+        Adds event_proposal if taxonomy misses.
+        """
+        full_text = post["content"]["clean_combined_withurl"]
+        ticker_metadata = post.get("ticker_metadata", {})
+
+        post["ticker_metadata"] = self._analyse_events_with_llm(
+            full_text, ticker_metadata
+        )
+
+        return post

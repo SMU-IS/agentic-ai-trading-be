@@ -56,6 +56,7 @@ vendor/
 # =========================
 *.env
 .env.*
+!*.env.sample
 secrets/
 credentials/
 *.key
@@ -102,3 +103,4 @@ htmlcov/
 *.seed
 
 postgres_data/
+.claude/

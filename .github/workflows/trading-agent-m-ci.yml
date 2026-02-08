@@ -1,0 +1,53 @@
+name: Trading Agent M CI
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - "trading-agent-m/**"
+  pull_request:
+    branches: ["master"]
+    paths:
+      - "trading-agent-m/**"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./trading-agent-m
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: "trading-agent-m/requirements.txt"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint with ruff
+        run: |
+          pip install ruff
+          ruff check .
+          ruff format --check .
+
+      - name: Stop services
+        if: always()
+        run: docker compose down
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./trading-agent-m
+          file: ./trading-agent-m/Dockerfile
+          push: false # Only build, don't push
+          tags: trading-agent-m:latest

@@ -18,7 +18,7 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
         """Safe market data extraction."""
         market = state.get('market_data', {})
         return json.dumps(market)
-        
+
     market_summary = get_market_summary(state)
 
     # Enhanced prompt for news-driven swing trading

@@ -1,11 +1,13 @@
 services:
-  redis-queue-news-analysis:
-    image: redis:7-alpine
-    container_name: redis-queue-news-analysis
-    ports:
-      - "6380:6379"
-    restart: unless-stopped
+  # Local Redis - COMMENTED OUT (using Redis Cloud instead)
+  # redis-queue-news-analysis:
+  #   image: redis:7-alpine
+  #   container_name: redis-queue-news-analysis
+  #   ports:
+  #     - "6380:6379"
+  #   restart: unless-stopped
 
+  # Local Qdrant for vector storage
   qdrant-db:
     image: qdrant/qdrant:latest
     container_name: qdrant-news-analysis
@@ -16,20 +18,42 @@ services:
       - ./qdrant_storage:/qdrant/storage:z
     restart: unless-stopped
 
+  # News Analysis Pipeline Service
   news-analysis-service:
     build: .
+    env_file:
+      - .env
     container_name: news-analysis-container
     ports:
       - "5002:5002"
     volumes:
       - .:/code
     environment:
+      # Qdrant - use container name for Docker networking
       - QDRANT_URL=http://qdrant-db:6333
-      - REDIS_URL=redis://redis-queue-news-analysis:6379
-      - REDIS_QUEUE_NAME=raw_news_queue
-      - SENTIMENT_MODEL=ProsusAI/finbert
-      - SENTIMENT_DEVICE=cpu
+      # Redis Cloud - loaded from .env
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      # Gemini LLM
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - LARGE_LANGUAGE_MODEL=${LARGE_LANGUAGE_MODEL}
     depends_on:
       - qdrant-db
-      - redis-queue-news-analysis
-    command: fastapi dev app/main.py --host 0.0.0.0 --port 5002
+    # Run the orchestration pipeline (not FastAPI server)
+    command: python -m app.services.orchestration
+    restart: unless-stopped
+
+  # Optional: Run FastAPI server separately for API endpoints
+  # news-analysis-api:
+  #   build: .
+  #   env_file:
+  #     - .env
+  #   container_name: news-analysis-api
+  #   ports:
+  #     - "5002:5002"
+  #   environment:
+  #     - QDRANT_URL=http://qdrant-db:6333
+  #   depends_on:
+  #     - qdrant-db
+  #   command: fastapi dev app/main.py --host 0.0.0.0 --port 5002

@@ -1,14 +1,15 @@
 import json
 import re
-import os
+from app.scripts.aws_bucket_access import AWSBucket
 
-current_dir = os.path.dirname(__file__)
-json_path = os.path.join(current_dir, '..', 'data', 'company_tickers.json')
-output_path = os.path.join(current_dir, '..', 'data', 'cleaned_tickers.json')
-alias_output_path = os.path.join(current_dir, '..', 'data', 'alias_to_canonical.json')
+bucket = AWSBucket()
 
-with open(json_path, "r") as f:
-    sec_data = json.load(f)
+# object keys to be stored in s3
+RAW_KEY = "data/raw/company_tickers.json"
+CLEANED_KEY = "data/processed/cleaned_tickers.json"
+ALIAS_KEY = "data/processed/alias_to_canonical.json"
+
+sec_data = json.loads(bucket.read_text(RAW_KEY))
 
 STOP_SUFFIXES = [
     "inc", "corp", "corporation", "ltd", "llc", "co", "&co", ",inc", ",inc.", "/new", "/de/", "/mn"
@@ -31,7 +32,6 @@ ABBREV_MAP = {
     r'\bmgmt\b': 'management'
 }
 
-# Normalize company name by lowercasing, removing punctuation and stripping common suffixes
 def normalize_company(name):
     text = re.sub(r"[^a-z0-9]", "", name.lower())
     for s in STOP_SUFFIXES:
@@ -39,33 +39,33 @@ def normalize_company(name):
             text = text[: -len(s)]
     return text
 
-# expand abbreviations to build alias mapping
-# e.g. Apple bgrp becomes Apple group
 def expand_abbreviations(name):
     expanded = name
     for abbrev, full in ABBREV_MAP.items():
         expanded = re.sub(abbrev, full, expanded, flags=re.IGNORECASE)
     return expanded
 
-# normalize tickers by uppercasing and replacing dash with dot for BRK-B style tickers 
 def normalize_ticker(ticker):
     return ticker.replace("-", ".").upper()
 
-# Step 1: Build canonical mapping
+# Build canonical mapping
 cleaned_mapping = {}
 for entry in sec_data.values():
     ticker_raw = entry.get("ticker")
     title_raw = entry.get("title")
     if not ticker_raw or not title_raw:
-        continue  
+        continue
 
     ticker = normalize_ticker(ticker_raw)
     name_norm = normalize_company(title_raw)
 
     if name_norm not in cleaned_mapping:
-        cleaned_mapping[name_norm] = {"ticker": ticker, "title": title_raw}
+        cleaned_mapping[name_norm] = {
+            "ticker": ticker,
+            "title": title_raw,
+        }
 
-# Step 2: Build alias-to-canonical mapping
+# Build alias mapping
 alias_to_canonical = {}
 for entry in sec_data.values():
     title_raw = entry.get("title")
@@ -73,21 +73,15 @@ for entry in sec_data.values():
         continue
 
     name_norm = normalize_company(title_raw)
-    expanded_title = expand_abbreviations(title_raw)
-    expanded_norm = normalize_company(expanded_title)
+    expanded_norm = normalize_company(expand_abbreviations(title_raw))
 
-    # Map both the original and expanded forms to the canonical name_norm
-    for alias in {normalize_company(title_raw), expanded_norm}:
+    for alias in {name_norm, expanded_norm}:
         if alias != name_norm:
             alias_to_canonical[alias] = name_norm
 
-# Save cleaned mapping
-with open(output_path, "w") as f:
-    json.dump(cleaned_mapping, f, indent=2)
+# Upload results to S3 bucket
+bucket.write_text(json.dumps(cleaned_mapping, indent=2), CLEANED_KEY)
+bucket.write_text(json.dumps(alias_to_canonical, indent=2), ALIAS_KEY)
 
-# Save alias mapping
-with open(alias_output_path, "w") as f:
-    json.dump(alias_to_canonical, f, indent=2)
-
-print(f"Cleaned {len(cleaned_mapping)} companies saved to cleaned_tickers.json")
-print(f"Alias mapping saved to alias_to_canonical.json")
+print(f"Uploaded {len(cleaned_mapping)} companies")
+print(f"Uploaded {len(alias_to_canonical)} alias mappings")

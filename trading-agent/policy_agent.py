@@ -1,17 +1,13 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import List, Optional
-
 import json
 import os
+from dataclasses import dataclass
+from typing import List, Literal, Optional
 
-from pydantic import BaseModel, Field, ValidationError, conlist
+import ollama
+from pydantic import BaseModel, Field, ValidationError
 
-import ollama  # pip install ollama
-
-
-# ---------- LLM interface and Ollama implementation ----------
 
 class LLMClient:
     """
@@ -64,7 +60,7 @@ class OllamaLLMClient(LLMClient):
 
 
 # ---------- Pydantic schema for the agent output ----------
-from typing import Optional, List, Literal
+
 
 class TradeIntent(BaseModel):
     symbol: str
@@ -75,9 +71,7 @@ class TradeIntent(BaseModel):
     take_profit: Optional[float] = Field(
         None, description="Target exit price for profit"
     )
-    stop_loss: Optional[float] = Field(
-        None, description="Protective stop price"
-    )
+    stop_loss: Optional[float] = Field(None, description="Protective stop price")
 
     max_risk_pct: float = Field(1.0, ge=0.1, le=1.0)
     time_in_force: Literal["day", "gtc"] = "day"
@@ -88,7 +82,9 @@ class PolicyOutput(BaseModel):
     # Pydantic v2: use list[...] + min_length/max_length on Field instead of conlist. [web:105][web:108]
     trades: List[TradeIntent] = Field(default_factory=list, max_length=5)
 
+
 # ---------- Config + agent wrapper ----------
+
 
 @dataclass
 class PolicyAgentConfig:
@@ -201,7 +197,9 @@ Task:
         - Applies optional symbol whitelist filter
         """
         system_prompt = self._build_system_prompt()
-        user_prompt = self._build_user_prompt(context, indicators_summary, account_equity)
+        user_prompt = self._build_user_prompt(
+            context, indicators_summary, account_equity
+        )
 
         raw = self.llm.generate(system_prompt, user_prompt)
 
