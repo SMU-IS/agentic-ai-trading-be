@@ -96,6 +96,9 @@ async def node_execute_trade_logic(state: AgentState) -> Dict[str, Any]:
 async def node_execute_trade(state: AgentState) -> AgentState:
     """Wrapper to mutate state."""
     execution_result = await node_execute_trade_logic(state)
-    state["execution_result"] = execution_result
     print(f"   [🧾 Execution Result] {execution_result}")
-    return state
+    # Store execution order id
+    return {
+        **state,
+        "execution_order_id": execution_result.get("execution_result", {}).get("order_id", None),
+    }

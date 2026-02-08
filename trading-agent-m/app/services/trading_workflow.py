@@ -34,13 +34,14 @@ class TradingWorkflow:
 
         # Conditional: Only trade if the brain says so
         graph.add_conditional_edges(
-            "reasoning", self.edge_has_trade_opportunity, {True: "node_risk_adjust_trade", False: END}
+            "reasoning", self.edge_has_trade_opportunity, {True: "node_risk_adjust_trade", False: "trade_logging"}
         )
         
         graph.add_conditional_edges(
-            "node_risk_adjust_trade", self.edge_should_execute, {True: "execute", False: END}
+            "node_risk_adjust_trade", self.edge_should_execute, {True: "execute", False: "trade_logging"}
         )
-
+        
+        graph.add_edge("trade_logging", END)
 
         return graph.compile()
 

@@ -11,6 +11,19 @@ class Signal(BaseModel):
     risk_profile: str  # "aggressive"
 
 
+class db_trade_decision(TypedDict):
+    order_id: str
+    symbol: str
+    action: str
+    reasonings: str
+
+
+class risk_evaluation_result(TypedDict):
+    adjusted_order_details: Optional[Dict[str, Any]]
+    risk_evaluation: Optional[Dict[str, Any]]
+    confidence: Optional[float]
+    risk_score: Optional[float]
+
 class AgentState(TypedDict):
     # Required input fields
     user_id: str
@@ -29,6 +42,18 @@ class AgentState(TypedDict):
     # Output from reasoning
     action: NotRequired[str]  # "BUY", "SELL", "HOLD", "IGNORE"
     order_details: NotRequired[Optional[Dict[str, Any]]]
+
+    # Conditional execution
     should_execute: NotRequired[bool]
-    reasoning: NotRequired[str]
     has_trade_opportunity: NotRequired[bool]
+
+    # Output from risk adjustment
+    adjusted_order_details: NotRequired[Optional[Dict[str, Any]]]
+    risk_evaluation: NotRequired[Optional[Dict[str, Any]]]
+
+    # Save to db
+    execution_order_id: NotRequired[Optional[str]]
+    trade_decision: NotRequired[Optional[Dict[str, Any]]]
+
+    # Conlfict resolution
+    conflict_resolution: NotRequired[Optional[Dict[db_trade_decision, Any]]]

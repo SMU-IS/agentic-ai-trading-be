@@ -1,74 +1,3 @@
-# async def node_decide_trade(self, state: AgentState):
-#     """
-#     Brain: Uses Ollama to decide on the trade.
-#     """
-
-#     print(
-#         f"   [🧠 LLM Brain] Analyzing {state['ticker']} ..."
-#     )
-
-#     # 1. Prompt
-#     prompt = ChatPromptTemplate.from_messages(
-#         [
-#             (
-#                 "system",
-#                 """You are a Portfolio Manager.
-#             Analyse the following market signal and portfolio status.
-
-#             DECISION RULES:
-#             - BUY if sentiment is bullish (score > 0.7) and risk is aggressive.
-#             - SELL if sentiment is bearish (score < 0.3) and we own the stock.
-#             - HOLD otherwise.
-
-#             Return ONLY a JSON object in this format:
-#             {{ "action": "BUY", "qty": 5, "reason": "Sentiment is strong" }}
-#             """,
-#             ),
-#             (
-#                 "human",
-#                 """
-#             Ticker: {ticker}
-#             Signal: {signal}
-#             Portfolio: {portfolio}
-#             Risk Profile: {risk_profile}
-#             """,
-#             ),
-#         ]
-#     )
-
-#     # 2. Invoke Ollama
-#     chain = prompt | self.llm
-#     response = await chain.ainvoke(
-#         {
-#             "ticker": state["ticker"],
-#             "signal": state["signal"],
-#             "portfolio": state["portfolio"],
-#             "risk_profile": state["risk_profile"],
-#         }
-#     )
-
-#     # 3. Parse JSON Output
-#     try:
-#         content = response.content.strip()
-
-#         if "```json" in content:
-#             content = content.split("```json")[1].split("```")[0].strip()
-#         elif "```" in content:
-#             content = content.split("```")[1].split("```")[0].strip()
-
-#         decision = json.loads(content)
-
-#     except json.JSONDecodeError:
-#         print(f"❌ Failed to parse JSON from LLM: {response.content}")
-#         decision = {"action": "HOLD", "qty": 0, "reason": "JSON Parse Error"}
-
-#     return {
-#         "action": decision.get("action", "HOLD"),
-#         "order_details": {"ticker": state["ticker"], "qty": decision.get("qty", 0)},
-#         "should_execute": decision.get("action") in ["BUY", "SELL"],
-#         "reasoning": decision.get("reason", "No reason provided"),
-#     }
-
 import json
 import re
 
@@ -143,7 +72,7 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
             5. Position sizing (keep it to 10)
             6. Clear thesis (why this swing works)
 
-            entry price should be within current stock price and place strategically based on market data.
+            entry price should be within current stock price and place strategically based on market data. entry price should not be too far from current stock price.
             double check stop_loss and take_profit price, it should be relative to entry price.
             if action is sell, stop_loss should be higher than entry price, take_profit should be lower than entry price;
             if action is buy, stop_loss should be lower than entry price, take_profit should be higher than entry price;
@@ -185,13 +114,13 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
     decision = parse_llm_json(response.content)
     if decision.get("action") not in ["BUY", "SELL", "HOLD"]:
         decision["action"] = "HOLD"
-        
+
     return {
         "order_details": {
             **decision,
             "ticker": state["ticker"],
-            "has_trade_opportunity": decision.get("action") in ["BUY", "SELL"]
         },
+        "has_trade_opportunity": decision.get("action") in ["BUY", "SELL"],
     }
 
 # Helper function to parse LLM JSON responses robustly
