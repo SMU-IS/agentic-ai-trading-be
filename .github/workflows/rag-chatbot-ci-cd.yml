@@ -43,7 +43,7 @@ jobs:
           if [ -d "tests" ]; then python -m pytest; else echo "No tests folder found, skipping..."; fi
 
   deploy:
-    name: xxxx
+    name: Continuous Deployment
     runs-on: ubuntu-latest
     needs: python-tests
     steps:
@@ -67,13 +67,13 @@ jobs:
           ECR_REPOSITORY: rag-chatbot
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./rag_chatbot
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./rag-chatbot/Dockerfile ./rag-chatbot
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Update Kubeconfig
         run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
 
-      - name: Create K8s Secret from Env Content
+      - name: Create K8s Secret from AWS_EKS_RAG_CHATBOT
         run: |
           echo "${{ secrets.AWS_EKS_RAG_CHATBOT }}" > .env.tmp
 
