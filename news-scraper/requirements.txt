@@ -1,8 +1,7 @@
 fastapi==0.128.4
-praw==7.8.1
-prawcore==3.0.2
+praw
+prawcore
 pydantic==2.12.5
 pydantic_settings==2.12.0
 python-dotenv==1.2.1
-redis==7.1.0
-starlette==0.52.1
+redis
