@@ -2,13 +2,13 @@ import logging
 import sys
 
 import praw
-from app.core.config import env_config
 from fastapi import FastAPI
-from services.entity_watcher import EntityWatcherService
-from services.reddit_batch_ingestion import RedditBatchService
-from services.reddit_stream_ingestion import RedditStreamService
-from services.storage import RedisStreamStorage
-from starlette.responses import JSONResponse
+
+from app.core.config import env_config
+from app.services.entity_watcher import EntityWatcherService
+from app.services.reddit_batch_ingestion import RedditBatchService
+from app.services.reddit_stream_ingestion import RedditStreamService
+from app.services.storage import RedisStreamStorage
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -58,26 +58,11 @@ def healthcheck():
         redis_client = RedisStreamStorage().r
         redis_client.ping()
 
-        return JSONResponse(
-            status_code=200,
-            content={
-                "status": "healthy",
-                "service": "news-scraper",
-                "redis": "connected",
-            },
-        )
+        return {"status": "News Scraper Service is healthy"}
 
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        return JSONResponse(
-            status_code=503,
-            content={
-                "status": "unhealthy",
-                "service": "news-scraper",
-                "redis": "disconnected",
-                "error": str(e),
-            },
-        )
+        return {"status": "News Scraper Service is unhealthy"}
 
 
 if __name__ == "__main__":
