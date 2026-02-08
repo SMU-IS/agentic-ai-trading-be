@@ -312,6 +312,65 @@ class AlpacaBrokerClient:
         if isinstance(res, dict):
             return [res]
         return [r for r in res]
+    
+    def cancel_orders(
+        self,
+        order_ids: Optional[List[str]] = None,
+        cancel_all: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Cancel one or more open orders by ID, or cancel all open orders.
+        
+        Args:
+            order_ids: List of order IDs to cancel (e.g., ["abc-123", "def-456"])
+            cancel_all: If True, cancels ALL open orders (ignores order_ids)
+        
+        Returns:
+            Dict with success/failure results for each order
+        """
+        if cancel_all:
+            try:
+                # Cancel all open orders at once
+                cancelled = self.client.cancel_orders()
+                return {
+                    "status": "success",
+                    "message": "All open orders cancelled",
+                    "cancelled_count": len(cancelled) if cancelled else 0,
+                    "details": [order.__dict__ for order in cancelled] if cancelled else []
+                }
+            except Exception as e:
+                return {
+                    "status": "error",
+                    "message": f"Failed to cancel all orders: {str(e)}"
+                }
+        
+        if not order_ids:
+            raise ValueError("Must provide order_ids or set cancel_all=True")
+        
+        # Cancel specific orders
+        results = {
+            "success": [],
+            "failed": [],
+            "total": len(order_ids)
+        }
+        
+        for order_id in order_ids:
+            try:
+                self.client.cancel_order_by_id(order_id)
+                results["success"].append({
+                    "order_id": order_id,
+                    "status": "cancelled"
+                })
+            except Exception as e:
+                results["failed"].append({
+                    "order_id": order_id,
+                    "error": str(e)
+                })
+        
+        results["success_count"] = len(results["success"])
+        results["failed_count"] = len(results["failed"])
+        
+        return results
 
     # --------- Convenience helpers ---------
 
@@ -433,3 +492,208 @@ class AlpacaBrokerClient:
 
         except Exception as e:
             return {"error": f"Portfolio history failed: {str(e)}"}
+
+
+    # Check for conflicting positions
+    # ---------------------------------
+    def check_conflicting_positions(
+        self,
+        symbol: str,
+        intended_side: str,
+        intended_qty: float
+    ) -> Dict[str, Any]:
+        """
+        Check for conflicting positions and orders that need cleanup.
+        """
+        try:
+            # Get current position
+            current_position = None
+            try:
+                current_position = self.client.get_open_position(symbol)
+            except Exception:
+                pass  # No position exists
+            
+            # ✅ FIXED: Use GetOrdersRequest object
+            order_filter = GetOrdersRequest(
+                status=QueryOrderStatus.OPEN,
+                symbols=[symbol]
+            )
+            open_orders = self.client.get_orders(filter=order_filter)
+            
+            conflicts = {
+                "has_conflict": False,
+                "symbol": symbol,
+                "intended_side": intended_side,
+                "intended_qty": intended_qty,
+                "current_position": None,
+                "conflicting_orders": [],
+                "actions_required": []
+            }
+            
+            # Check position conflict
+            if current_position:
+                position_qty = float(current_position.qty)
+                position_side = "long" if position_qty > 0 else "short"
+                
+                conflicts["current_position"] = {
+                    "qty": position_qty,
+                    "side": position_side,
+                    "avg_entry_price": float(current_position.avg_entry_price),
+                    "market_value": float(current_position.market_value),
+                    "unrealized_pl": float(current_position.unrealized_pl)
+                }
+                
+                # Conflict: trying to SELL when LONG or BUY when SHORT
+                if (intended_side.lower() == "sell" and position_qty > 0) or \
+                (intended_side.lower() == "buy" and position_qty < 0):
+                    conflicts["has_conflict"] = True
+                    conflicts["actions_required"].append({
+                        "action": "close_position",
+                        "symbol": symbol,
+                        "current_qty": position_qty,
+                        "reason": f"Cannot {intended_side.upper()} while holding {position_side.upper()} position"
+                    })
+            
+            # Check conflicting orders
+            if open_orders:
+                for order in open_orders:
+                    order_dict = {
+                        "order_id": str(order.id),
+                        "side": order.side.value,
+                        "qty": float(order.qty) if order.qty else None,
+                        "order_type": order.order_type.value,
+                        "status": order.status.value,
+                        "order_class": order.order_class.value if order.order_class else None
+                    }
+                    conflicts["conflicting_orders"].append(order_dict)
+                
+                conflicts["has_conflict"] = True
+                conflicts["actions_required"].append({
+                    "action": "cancel_orders",
+                    "order_ids": [str(order.id) for order in open_orders],
+                    "count": len(open_orders),
+                    "reason": f"Cancel {len(open_orders)} pending orders for {symbol}"
+                })
+            
+            return conflicts
+            
+        except Exception as e:
+            return {
+                "error": str(e),
+                "symbol": symbol
+            }
+            
+    # Resolve conflicts by closing positions and cancelling orders
+    # -----------------------------------------------------------------
+    def resolve_conflicts(
+        self,
+        symbol: str,
+        intended_side: str,
+        intended_qty: float,
+        auto_resolve: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Resolve conflicts: CANCEL ORDERS FIRST → CLOSE POSITION → Clean slate.
+        """
+        # Step 1: Check conflicts
+        conflicts = self.check_conflicting_positions(symbol, intended_side, intended_qty)
+        
+        if not conflicts.get("has_conflict"):
+            return {
+                "status": "no_conflict",
+                "symbol": symbol,
+                "message": "No conflicts found - ready to trade"
+            }
+        
+        if not auto_resolve:
+            return {
+                "status": "conflict_detected",
+                "conflicts": conflicts,
+                "message": "Conflicts found but auto_resolve=False"
+            }
+        
+        # Step 2: Auto-resolve (ORDERS FIRST → POSITION)
+        resolution_results = {
+            "status": "resolved",
+            "symbol": symbol,
+            "actions_taken": [],
+            "conflicts_detected": conflicts
+        }
+        
+        # ✅ ORDER 1: Cancel pending orders FIRST
+        for action in conflicts.get("actions_required", []):
+            if action["action"] == "cancel_orders":
+                try:
+                    cancel_result = self.cancel_orders(order_ids=action["order_ids"])
+                    resolution_results["actions_taken"].append({
+                        "action": "cancelled_orders",
+                        "order_ids": action["order_ids"],
+                        "count": cancel_result.get("success_count", 0),
+                        "status": "success"
+                    })
+                    print(f"   [✅ CANCELLED] {cancel_result.get('success_count', 0)} orders for {symbol}")
+                except Exception as e:
+                    resolution_results["actions_taken"].append({
+                        "action": "cancel_orders_failed",
+                        "order_ids": action["order_ids"],
+                        "error": str(e)
+                    })
+                    print(f"   [❌ CANCEL FAILED] {str(e)}")
+        
+        # ✅ ORDER 2: Close position SECOND (after orders cancelled)
+        for action in conflicts.get("actions_required", []):
+            if action["action"] == "close_position":
+                try:
+                    close_result = self.client.close_position(symbol)
+                    resolution_results["actions_taken"].append({
+                        "action": "closed_position",
+                        "symbol": symbol,
+                        "qty_closed": action["current_qty"],
+                        "order_id": str(close_result.id) if close_result else None,
+                        "status": "success"
+                    })
+                    print(f"   [✅ CLOSED] {symbol} position ({action['current_qty']} shares)")
+                except Exception as e:
+                    resolution_results["actions_taken"].append({
+                        "action": "close_position_failed",
+                        "symbol": symbol,
+                        "qty_closed": action["current_qty"],
+                        "error": str(e)
+                    })
+                    print(f"   [❌ CLOSE FAILED] {str(e)}")
+        
+        # Step 3: Verify clean slate
+        verification = self.verify_clean_slate(symbol)
+        resolution_results["verification"] = verification
+        
+        return resolution_results
+
+
+    def verify_clean_slate(self, symbol: str) -> Dict[str, Any]:
+        """
+        Verify no positions or open orders remain for symbol.
+        """
+        try:
+            # Check position
+            try:
+                self.client.get_open_position(symbol)
+                position_status = "position_exists"
+            except:
+                position_status = "no_position"
+            
+            # Check orders  
+            order_filter = GetOrdersRequest(
+                status=QueryOrderStatus.OPEN,
+                symbols=[symbol]
+            )
+            open_orders = self.client.get_orders(filter=order_filter)
+            orders_status = "orders_exist" if open_orders else "no_orders"
+            
+            return {
+                "symbol": symbol,
+                "position_status": position_status,
+                "orders_status": orders_status,
+                "ready_to_trade": position_status == "no_position" and orders_status == "no_orders"
+            }
+        except Exception as e:
+            return {"error": str(e), "symbol": symbol}

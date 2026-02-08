@@ -1,0 +1,35 @@
+# 28 Jan 
+=== Testing TradingWorkflow with Ollama ===
+
+🧪 Test Case 1: AAPL (bearish)
+------------------------------------------------------------
+   [🔍 Qdrant] Searching for historical context on AAPL...
+   [⚡ Qdrant] Connection initialized to http://localhost:8333
+   [🔍 Qdrant] Generated dummy query vector.
+   [✅ Qdrant] Retrieved 5 results for AAPL.
+   [📊 Market Data] Fetching data for AAPL...
+   [✅ Market Data] AAPL: bid=$N/A, latest=N/A, 0 Yahoo bars
+   [🧠 Swing Trading Brain] Analyzing AAPL...
+   [📈 Market Data] {'price': 258.2699890136719, 'atr14': 5.3650022234235495, 'sma20': 259.87449645996094, 'sma50': nan, 'support': 243.4199981689453, 'resistance': 277.8399963378906}
+Raw LLM: {
+    "action": "SELL",
+    "confidence": 0.8,
+    "entry_price": 258.2699890136719,
+    "stop_loss": 262.3599853515625,
+    "take_profit": 253.4199981689453,
+    "qty": 10,
+    "risk_reward": "2:1",
+    "thesis": "The bearish sentiment score of -0.75 indicates a strong negative reaction to the earn...
+✅ Parsed: {'action': 'SELL', 'confidence': 0.8, 'entry_price': 258.2699890136719, 'stop_loss': 262.3599853515625, 'take_profit': 253.4199981689453, 'qty': 10, 'risk_reward': '2:1', 'thesis': 'The bearish sentiment score of -0.75 indicates a strong negative reaction to the earnings miss, which is a high-impact event. The stock price has been trending downwards since the news, with a clear support level at $243.42 and resistance at $277.84. The RSI is overbought at 73.12, indicating a potential reversal. With an ATR of 5.37, we can set our stop-loss at $262.36 (2 * ATR above entry price) and take-profit at $253.42 (1 * ATR below entry price). This trade has a risk-reward ratio of 2:1.', 'current_stock_price': 258.2699890136719}
+!!! [🤝🏻 Market Access] Executing SELL {'ticker': 'AAPL', 'side': 'SELL', 'qty': 10.0, 'entry_price': 258.2699890136719, 'stop_loss': 262.3599853515625, 'take_profit': 253.4199981689453}
+   [📤 API] POST http://localhost:8000/api/v1/trading/orders/bracket
+   [📤 Payload] {'symbol': 'AAPL', 'side': 'sell', 'qty': 10.0, 'entry_type': 'limit', 'take_profit_price': 253.42, 'stop_loss_price': 262.36, 'time_in_force': 'day', 'entry_price': 258.27}
+   [✅ SUCCESS] Order ID: 31140daa-1622-4b2d-8239-3e504fe92177
+   [🧾 Execution Result] {'execution_result': {'status': 'success', 'order_id': '31140daa-1622-4b2d-8239-3e504fe92177', 'symbol': 'AAPL', 'side': 'SELL', 'submitted_at': None, 'full_response': {'success': True, 'order_id': '31140daa-1622-4b2d-8239-3e504fe92177', 'status': 'accepted', 'symbol': 'AAPL', 'order': {'id': '31140daa-1622-4b2d-8239-3e504fe92177', 'client_order_id': '5fdb19d3-868e-4188-9ef9-43150f756f38', 'created_at': '2026-01-28T04:57:24.146046Z', 'updated_at': '2026-01-28T04:57:24.147402Z', 'submitted_at': '2026-01-28T04:57:24.146046Z', 'filled_at': None, 'expired_at': None, 'expires_at': '2026-01-28T21:00:00Z', 'canceled_at': None, 'failed_at': None, 'replaced_at': None, 'replaced_by': None, 'replaces': None, 'asset_id': 'b0b6dd9d-8b9b-48a9-ba46-b9d54906e415', 'symbol': 'AAPL', 'asset_class': 'us_equity', 'notional': None, 'qty': '10', 'filled_qty': '0', 'filled_avg_price': None, 'order_class': 'bracket', 'order_type': 'limit', 'type': 'limit', 'side': 'sell', 'time_in_force': 'day', 'limit_price': '258.27', 'stop_price': None, 'status': 'accepted', 'extended_hours': False, 'legs': [{'id': 'e8c9b6c4-5152-427f-a05d-aad35e883351', 'client_order_id': '33fcb2ac-0b82-4688-9500-d43f5d244216', 'created_at': '2026-01-28T04:57:24.146046Z', 'updated_at': '2026-01-28T04:57:24.147444Z', 'submitted_at': '2026-01-28T04:57:24.146046Z', 'filled_at': None, 'expired_at': None, 'expires_at': '2026-01-28T21:00:00Z', 'canceled_at': None, 'failed_at': None, 'replaced_at': None, 'replaced_by': None, 'replaces': None, 'asset_id': 'b0b6dd9d-8b9b-48a9-ba46-b9d54906e415', 'symbol': 'AAPL', 'asset_class': 'us_equity', 'notional': None, 'qty': '10', 'filled_qty': '0', 'filled_avg_price': None, 'order_class': 'bracket', 'order_type': 'limit', 'type': 'limit', 'side': 'buy', 'time_in_force': 'day', 'limit_price': '253.42', 'stop_price': None, 'status': 'held', 'extended_hours': False, 'legs': None, 'trail_percent': None, 'trail_price': None, 'hwm': None, 'position_intent': 'buy_to_close', 'ratio_qty': None}, {'id': '66ac3407-855f-4a88-87ac-e90a35c4ebd9', 'client_order_id': 'b99dbd4a-09d5-421b-a749-d721203b4e71', 'created_at': '2026-01-28T04:57:24.146046Z', 'updated_at': '2026-01-28T04:57:24.147470Z', 'submitted_at': '2026-01-28T04:57:24.146046Z', 'filled_at': None, 'expired_at': None, 'expires_at': '2026-01-28T21:00:00Z', 'canceled_at': None, 'failed_at': None, 'replaced_at': None, 'replaced_by': None, 'replaces': None, 'asset_id': 'b0b6dd9d-8b9b-48a9-ba46-b9d54906e415', 'symbol': 'AAPL', 'asset_class': 'us_equity', 'notional': None, 'qty': '10', 'filled_qty': '0', 'filled_avg_price': None, 'order_class': 'bracket', 'order_type': 'stop', 'type': 'stop', 'side': 'buy', 'time_in_force': 'day', 'limit_price': None, 'stop_price': '262.36', 'status': 'held', 'extended_hours': False, 'legs': None, 'trail_percent': None, 'trail_price': None, 'hwm': None, 'position_intent': 'buy_to_close', 'ratio_qty': None}], 'trail_percent': None, 'trail_price': None, 'hwm': None, 'position_intent': 'sell_to_open', 'ratio_qty': None}}}}
+📊 Final Result:
+  Action: SELL
+  Should Execute: True
+  Order Details: {'ticker': 'AAPL', 'side': 'SELL', 'qty': 10.0, 'entry_price': 258.2699890136719, 'stop_loss': 262.3599853515625, 'take_profit': 253.4199981689453}
+  Reasoning: The bearish sentiment score of -0.75 indicates a strong negative reaction to the earnings miss, which is a high-impact event. The stock price has been trending downwards since the news, with a clear support level at $243.42 and resistance at $277.84. The RSI is overbought at 73.12, indicating a potential reversal. With an ATR of 5.37, we can set our stop-loss at $262.36 (2 * ATR above entry price) and take-profit at $253.42 (1 * ATR below entry price). This trade has a risk-reward ratio of 2:1.
+
+============================================================

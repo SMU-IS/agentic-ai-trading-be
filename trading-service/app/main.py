@@ -3,8 +3,7 @@ load_dotenv()
 
 
 from fastapi import FastAPI
-from .config import settings
-from .api.routes import brokerage, yahoo
+from .api.routes import brokerage, yahoo, trading_db
 
 app = FastAPI(
     title="Alpaca Broker Service", 
@@ -14,3 +13,4 @@ app = FastAPI(
 
 app.include_router(brokerage.router, prefix="", tags=["brokerage"])
 app.include_router(yahoo.router, prefix="/yahoo", tags=["yahoo"])
+app.include_router(trading_db.router, prefix="/decisions", tags=["decisions"])

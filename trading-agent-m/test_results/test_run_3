@@ -1,0 +1,60 @@
+# === Testing TradingWorkflow with Ollama ===
+
+# 🧪 Test Case 1: AAPL (bearish)
+# ------------------------------------------------------------
+#    [🔍 Qdrant] Searching for historical context on AAPL...
+#    [⚡ Qdrant] Connection initialized to http://localhost:8333
+#    [🔍 Qdrant] Generated dummy query vector.
+#    [✅ Qdrant] Retrieved 5 results for AAPL.
+#    [📊 Market Data] Fetching data for AAPL...
+#    [📈 Yahoo Market Data] {'indicators': {'price': 268.7099914550781, 'atr14': 6.375718252999442, 'sma20': 257.6719970703125, 'sma50': nan, 'support': 243.4199981689453, 'resistance': 271.5799865722656}, 'summary': '21 bars, 2026-01-05→2026-02-03'}
+#    [📈 Alpaca Market Data] {'latest_quote': {'symbol': 'AAPL', 'bid_price': 268.67, 'bid_size': 200, 'ask_price': 268.69, 'ask_size': 200, 'timestamp': '2026-02-03T17:24:50.779120+00:00', 'conditions': ['R'], 'tape': 'C'}, 'latest_trade': {'symbol': 'AAPL', 'price': 268.71, 'size': 100, 'exchange': 'V', 'conditions': ['@'], 'timestamp': '2026-02-03T17:24:48.268318+00:00', 'id': '11302', 'tape': 'C'}, 'spread': 0.01999999999998181}
+#    [🧠 Swing Trading Brain] Analyzing AAPL...
+# Raw LLM: {
+#   "action": "SELL",
+#   "confidence": 0.8,
+#   "entry_price": 268.7,
+#   "stop_loss": 270.5,
+#   "take_profit": 266.2,
+#   "qty": 10.0,
+#   "risk_reward": "1:1.4",
+#   "thesis": "The bearish sentiment score of -0.75 indicates a strong negative reaction to the earnings miss, which is a high-impact event. The sto...
+# ✅ Parsed: {'action': 'SELL', 'confidence': 0.8, 'entry_price': 268.7, 'stop_loss': 270.5, 'take_profit': 266.2, 'qty': 10.0, 'risk_reward': '1:1.4', 'thesis': 'The bearish sentiment score of -0.75 indicates a strong negative reaction to the earnings miss, which is a high-impact event. The stock price has reached resistance at $271.58 (yahoo data), and the RSI is overbought at 72. This suggests that the stock is due for a correction. With an ATR of $6.38 (yahoo data), we can set our stop-loss at $270.5, which is just above the current price, and our take-profit at $266.2, which is about 1.4 times the risk.', 'current_stock_price': 268.7}
+#    [💰 Buying Power] 78102.29
+# [🛡️ RISK LAYER RESULT] {'status': 'resolved', 'symbol': 'AAPL', 'actions_taken': [{'action': 'cancelled_orders', 'order_ids': ['5265687c-b3be-44b8-bb79-211ad0ebe871'], 'count': 1, 'status': 'success'}, {'action': 'closed_position', 'symbol': 'AAPL', 'qty_closed': 10.0, 'order_id': '5c03ec22-8aba-4a36-abe6-be37e1f08aa0', 'status': 'success'}], 'conflicts_detected': {'has_conflict': True, 'symbol': 'AAPL', 'intended_side': 'sell', 'intended_qty': 10.0, 'current_position': {'qty': 10.0, 'side': 'long', 'avg_entry_price': 268.47, 'market_value': 2687.6, 'unrealized_pl': 2.9}, 'conflicting_orders': [{'order_id': '5265687c-b3be-44b8-bb79-211ad0ebe871', 'side': 'buy', 'qty': 15.0, 'order_type': 'limit', 'status': 'new', 'order_class': 'simple'}], 'actions_required': [{'action': 'close_position', 'symbol': 'AAPL', 'current_qty': 10.0, 'reason': 'Cannot SELL while holding LONG position'}, {'action': 'cancel_orders', 'order_ids': ['5265687c-b3be-44b8-bb79-211ad0ebe871'], 'count': 1, 'reason': 'Cancel 1 pending orders for AAPL'}]}, 'verification': {'symbol': 'AAPL', 'position_status': 'position_exists', 'orders_status': 'orders_exist', 'ready_to_trade': False}}
+
+# 🎯 CONFLICT: True
+# 🛡️ RISK LAYER
+#   📊 Current qty:     10.0
+#   🔄 Current side:    long
+#   💰 Avg entry:       $268.47
+#   📈 Market value:    $2687.60
+#   🎯 Unrealized P&L:  $2.90
+
+# 📋 ALL ACTIONS SUMMARY
+# [{'action': 'cancelled_orders', 'status': 'success', 'count': 1, 'order_ids': ['5265687c-b3be-44b8-bb79-211ad0ebe871'], 'details': {'qty': 15.0, 'side': 'buy', 'order_type': 'limit', 'status': 'new'}, 'reason': 'Cancel 1 pending orders for AAPL', 'symbol': 'AAPL'}, {'action': 'closed_position', 'status': 'success', 'qty': 10.0, 'side': 'SELL', 'order_id': '5c03ec22-8aba-4a36-abe6-be37e1f08aa0', 'reason': 'Cannot SELL while holding LONG position', 'symbol': 'AAPL'}]
+# ⚡ ACTIONS TAKEN
+#   1. ✅ Cancelled Orders
+#      Status: success
+#      Count: 1 orders
+#      Orders: 5265687c-b3be-44b8-bb79-211ad0ebe871
+#      Details: 15.0 buy limit
+#      Reason: Cancel 1 pending orders for AAPL
+
+#   2. ✅ Closed Position
+#      Status: success
+#      Qty: 10.0 | Side: SELL
+#      Order: 5c03ec22-8aba-4a36-abe6-be37e1f08aa0
+#      Reason: Cannot SELL while holding LONG position
+
+#    [🛡️ Risk Layer] Conflict resolution summary: {'status': 'resolved', 'symbol': 'AAPL', 'has_conflict': True, 'current_position': {'qty': 10.0, 'side': 'long', 'avg_entry_price': 268.47, 'market_value': 2687.6, 'unrealized_pl': 2.9}, 'actions_taken': [{'action': 'cancelled_orders', 'status': 'success', 'count': 1, 'order_ids': ['5265687c-b3be-44b8-bb79-211ad0ebe871'], 'details': {'qty': 15.0, 'side': 'buy', 'order_type': 'limit', 'status': 'new'}, 'reason': 'Cancel 1 pending orders for AAPL', 'symbol': 'AAPL'}, {'action': 'closed_position', 'status': 'success', 'qty': 10.0, 'side': 'SELL', 'order_id': '5c03ec22-8aba-4a36-abe6-be37e1f08aa0', 'reason': 'Cannot SELL while holding LONG position', 'symbol': 'AAPL'}]}
+#    [🛡️ Risk Layer] {'action': 'HOLD', 'qty': 0, 'reason': 'Conflicting position/orders resolved'}
+# 📊 Final Result:
+#   Action: SELL
+#   Should Execute: True
+#   Order Details: {'ticker': 'AAPL', 'side': 'SELL', 'qty': 10.0, 'entry_price': 268.7, 'stop_loss': 270.5, 'take_profit': 266.2}
+#   Reasoning: The bearish sentiment score of -0.75 indicates a strong negative reaction to the earnings miss, which is a high-impact event. The stock price has reached resistance at $271.58 (yahoo data), and the RSI is overbought at 72. This suggests that the stock is due for a correction. With an ATR of $6.38 (yahoo data), we can set our stop-loss at $270.5, which is just above the current price, and our take-profit at $266.2, which is about 1.4 times the risk.
+
+# ============================================================
+
+# 🎉 All tests complete!

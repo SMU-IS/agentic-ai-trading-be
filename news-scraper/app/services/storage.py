@@ -1,7 +1,9 @@
 import json
+
 import redis
-import os
-from core.config import env_config
+
+from app.core.config import env_config
+
 
 class RedisStreamStorage:
     def __init__(

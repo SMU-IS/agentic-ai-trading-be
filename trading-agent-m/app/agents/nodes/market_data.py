@@ -29,19 +29,14 @@ async def node_fetch_market_data(state: AgentState) -> AgentState:
     yahoo_task = fetch_yahoo_historical(ticker)
 
     alpaca_data, yahoo_data = await asyncio.gather(alpaca_task, yahoo_task)
-
     state["market_data"] = {
         "alpaca": alpaca_data,
         "yahoo": yahoo_data,
         "timestamp": asyncio.get_event_loop().time(),
     }
-
-    print(
-        f"   [✅ Market Data] {ticker}: bid=${alpaca_data.get('bid_price', 'N/A')}, "
-        f"latest={alpaca_data.get('price', 'N/A')}, "
-        f"{len(yahoo_data.get('bars', []))} Yahoo bars"
-    )
-
+    print(f"   [📈 Yahoo Market Data] {yahoo_data}")
+    print(f"   [📈 Alpaca Market Data] {alpaca_data}")
+    
     return state
 
 
@@ -75,10 +70,9 @@ async def fetch_yahoo_historical(ticker: str) -> Dict[str, Any]:
     """Fetch Yahoo historical + key indicators for LLM prompts."""
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
-            print("Yahoo base URL", YAHOO_BASE_URL)
             resp = await client.get(
                 f"{YAHOO_BASE_URL}/history/{ticker}",
-                params={"interval": "1h", "period": "1mo"},
+                params={"interval": "1d", "period": "3mo"}
             )
             if resp.status_code != 200:
                 return {"error": "Yahoo unavailable"}
@@ -104,14 +98,14 @@ async def fetch_yahoo_historical(ticker: str) -> Dict[str, Any]:
             ).max(axis=1)
 
             return {
-                "raw_data": bars,
+                # "raw_data": bars,
                 "indicators": {
                     "price": float(df["close"].iloc[-1]),
                     "atr14": float(tr.rolling(14).mean().iloc[-1]),
-                    "sma20": float(df["close"].rolling(20).mean().iloc[-1]),
-                    "sma50": float(df["close"].rolling(50).mean().iloc[-1]),
-                    "support": float(df["low"].tail(20).min()),
-                    "resistance": float(df["high"].tail(20).max()),
+                    "sma20": float(df['close'].rolling(20).mean().iloc[-1]),
+                    "sma50": float(df['close'].rolling(50).mean().iloc[-1]),
+                    "support": float(df['low'].tail(30).min()),
+                    "resistance": float(df['high'].tail(30).max())
                 },
                 "summary": f"{df.shape[0]} bars, {df.index[0].date()}→{df.index[-1].date()}",
             }
