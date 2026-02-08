@@ -7,7 +7,10 @@ dummy_payload_data = {
     "id": "uuid-v4-generated-id",
     "metadata": {
         "article_id": "uuid-v4-generated-id",
-        "tickers": ["TSLA", "ELON"],
+        "tickers_metadata": {
+            "TSLA": {"event_type": "Earnings Report"},
+            "ELON": {"event_type": "Earnings Report"},
+        },
         "timestamp": "2026-01-25T09:30:00Z",
         "source_domain": "bloomberg.com",
         "event_type": "Earnings Report",
@@ -32,7 +35,7 @@ async def run_test():
         return
 
     try:
-        service = VectorisationService(chunk_size=500, chunk_overlap=50)
+        service = VectorisationService()
         print("✅ Service Initialized (Connected to Qdrant/Ollama)")
     except Exception as e:
         print(f"❌ Connection Failed. Are Qdrant/Ollama running? Error: {e}")

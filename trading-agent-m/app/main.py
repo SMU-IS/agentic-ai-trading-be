@@ -1,11 +1,8 @@
-import asyncio
 import logging
-from contextlib import asynccontextmanager
 
 from fastapi import APIRouter, FastAPI
 
 from app.agents.graph import app_workflow
-from app.workers.consumer import start_consumer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -15,23 +12,24 @@ logging.basicConfig(
 logger = logging.getLogger("API")
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    logger.info("🚀 API Starting up...")
-    task = asyncio.create_task(start_consumer())
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     logger.info("🚀 API Starting up...")
+#     task = asyncio.create_task(start_consumer())
 
-    yield
+#     yield
 
-    logger.info("🛑 API Shutting down...")
-    task.cancel()
+#     logger.info("🛑 API Shutting down...")
+#     task.cancel()
 
-    try:
-        await task
-    except asyncio.CancelledError:
-        logger.info("✅ Worker cancelled successfully")
+#     try:
+#         await task
+#     except asyncio.CancelledError:
+#         logger.info("✅ Worker cancelled successfully")
 
 
-app = FastAPI(lifespan=lifespan)
+# app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 router = APIRouter()
 
 

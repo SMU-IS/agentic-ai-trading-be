@@ -1,14 +1,15 @@
 import json
-from typing import List, Optional
+from typing import List
 
 import httpx
 from langchain_core.tools import tool
 
 from app.core.config import env_config
+from app.schemas.chat import GeneralNews, TradeHistory
 
 
-@tool
-def get_trade_history_details(order_id: str):
+@tool(args_schema=TradeHistory)
+def get_trade_history_details(query: str, order_id: str):
     """
     Retrieve deep-dive technical details and trade reasoning for a specific past transaction.
 
@@ -30,21 +31,23 @@ def get_trade_history_details(order_id: str):
         - reasoning: The specific technical justification (e.g., RSI/ATR values).
     """
 
+    print(f"User query: {query}. Analysing history for order {order_id}")
+
+    # retrieve order details using order_id from postgres
+
     # TODO: hardcoded for now
     return json.dumps(
         {
             "ticker": "AAPL",
             "action": "SELL",
             "entry_price": 248.04,
-            "reasoning": "Bearish RSI divergence (55.32) and missed earnings.",
+            "reasoning": "Based on the news signal, AAPL has missed earnings expectations with a bearish sentiment score of -0.75. The recent historical data shows that the stock has been trending downwards since January 16th. The technical setup is also bearish, as the RSI (14) is at 55.32 and there's a bearish divergence between the price action and the RSI. Volatility is moderate, with an ATR of 4.35. Given the aggressive risk profile, we can enter short with a stop-loss at $251.56 (2x ATR from entry) and take-profit at $244.68 (1x ATR from entry). This trade has a risk-reward ratio of 2:1",
         }
     )
 
 
-@tool
-async def get_general_news_context_and_result(
-    query: str, tickers: Optional[List[str]] = None
-):
+@tool(args_schema=GeneralNews)
+async def get_general_news_context_and_result(query: str, tickers: List[str]):
     """
     Search and analyse recent financial news, market sentiment, and hot stocks.
 
@@ -66,7 +69,7 @@ async def get_general_news_context_and_result(
     payload = {
         "query": query,
         "limit": 5,
-        "ticker_filter": tickers or [],
+        "ticker_filter": tickers if tickers is not None else [],
     }
 
     async with httpx.AsyncClient() as client:

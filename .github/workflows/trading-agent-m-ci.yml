@@ -40,22 +40,6 @@ jobs:
           ruff check .
           ruff format --check .
 
-      - name: Run dependent services
-        run: docker compose up -d redis-stream qdrant-agent-m
-        env:
-          QDRANT_URL: http://localhost:8333
-          REDIS_URL: redis://localhost:7380
-
-      - name: Wait for services to be ready
-        run: |
-          echo "Waiting for Redis and Qdrant..."
-          sleep 15
-
-      - name: Populate Qdrant for tests
-        run: python test_scripts/populate_qdrant.py
-        env:
-          QDRANT_URL: http://localhost:8333
-
       - name: Stop services
         if: always()
         run: docker compose down

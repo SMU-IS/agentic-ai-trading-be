@@ -18,12 +18,12 @@ class EnvConfig(BaseSettings):
     large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
 
     # Redis Stream
-    redis_url: str = Field(..., validation_alias="REDIS_URL")
-    redis_worker_name: str = Field(..., validation_alias="REDIS_WORKER_NAME")
-    redis_stream_key: str = Field(..., validation_alias="REDIS_STREAM_KEY")
-    redis_group_name: str = Field(..., validation_alias="REDIS_GROUP_NAME")
+    # redis_url: str = Field(..., validation_alias="REDIS_URL")
+    # redis_worker_name: str = Field(..., validation_alias="REDIS_WORKER_NAME")
+    # redis_stream_key: str = Field(..., validation_alias="REDIS_STREAM_KEY")
+    # redis_group_name: str = Field(..., validation_alias="REDIS_GROUP_NAME")
 
-    qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
+    # qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
 
 
 env_config = EnvConfig()  # type: ignore
