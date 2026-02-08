@@ -5,7 +5,7 @@ from copy import deepcopy
 
 class MongoDBClient:
     def __init__(self, uri: str = "mongodb://mongo:27017", db_name: str = "trading_db"):
-        self.client = pymongo.MongoClient(uri)
+        self.client = pymongo.MongoClient(uri, uuidRepresentation="standard")
         self.db = self.client[db_name]
         self.orders = self.db.orders
         
@@ -36,3 +36,18 @@ class MongoDBClient:
                 doc["_id"] = str(doc["_id"])  # Still convert MongoDB _id to string
             return doc
         return None
+    
+    def get_reasonings_batch(self, order_ids: List[str]) -> Dict[str, Dict]:
+        """Get reasonings for multiple order_ids {order_id: {reasonings: "..."}}"""
+        docs = self.orders.find({"order_id": {"$in": order_ids}})
+        
+        result = {}
+        for doc in docs:
+            order_id = doc['order_id']
+            # Inline ObjectId → str conversion (only _id field)
+            serialized_doc = doc.copy()
+            if '_id' in serialized_doc:
+                serialized_doc['_id'] = str(serialized_doc['_id'])
+            result[order_id] = serialized_doc
+        
+        return result

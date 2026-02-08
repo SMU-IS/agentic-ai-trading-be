@@ -16,6 +16,8 @@ from app.api.schemas import (
     PortfolioHistoryResponse
 )
 
+from app.core.services import services
+
 # Data models for latest trades
 class LatestTradeResponse(BaseModel):
     symbol: str
@@ -68,7 +70,8 @@ logger = logging.getLogger(__name__)
 
 # Dependency to get a broker instance (can be singleton or factory)
 def get_broker() -> AlpacaBrokerClient:
-    return create_broker_client()
+    return services.brokerage
+    # return create_broker_client()
 
 
 # ---------- Health ----------
@@ -144,7 +147,26 @@ def list_all_orders(
     broker: AlpacaBrokerClient = Depends(get_broker),
 ) -> List[Dict[str, Any]]:
     try:
-        return broker.list_all_orders(limit=limit)
+        all_orders = broker.list_all_orders(limit=limit)
+        order_ids = [str(order['id']) for order in all_orders]
+        print("Fetching reasonings for order IDs:", order_ids)
+
+        reasonings = services.trading_db.get_reasonings_batch(order_ids)
+        print("Fetched reasonings for orders:", reasonings)
+        # Single line enrichment
+        for order in all_orders:
+            order_id = str(order['id'])
+            has_reasoning = reasonings.get(order_id, {}).get('reasonings', None) is not None
+            if has_reasoning:
+                order['trading_agent_reasonings'] = reasonings.get(order_id, {}).get('reasonings', '')
+                order['is_trading_agent'] = True
+                order['risk_evaluation'] = reasonings.get(order_id, {}).get('risk_evaluation', {})
+                order['risk_adjustments_made'] = reasonings.get(order_id, {}).get('risk_adjustments_made', [])
+            else:
+                order['trading_agent_reasonings'] = None
+                order['is_trading_agent'] = False
+
+        return all_orders
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -155,7 +177,19 @@ def get_order(
     broker: AlpacaBrokerClient = Depends(get_broker),
 ) -> Dict[str, Any]:
     try:
-        return broker.get_order(order_id)
+        order_info = broker.get_order(order_id)
+        order_ids = [str(order_info['id'])]
+        reasonings = services.trading_db.get_reasonings_batch(order_ids)
+
+        if reasonings.get(order_id, {}).get('reasonings', None) is not None:
+            order_info['trading_agent_reasonings'] = reasonings.get(order_id, {}).get('reasonings', '')
+            order_info['is_trading_agent'] = True
+            order_info['risk_evaluation'] = reasonings.get(order_id, {}).get('risk_evaluation', {})
+            order_info['risk_adjustments_made'] = reasonings.get(order_id, {}).get('risk_adjustments_made', [])
+        else:
+            order_info['trading_agent_reasonings'] = None
+            order_info['is_trading_agent'] = False
+        return order_info
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
