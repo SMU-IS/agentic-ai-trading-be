@@ -132,7 +132,7 @@ class TickerIdentificationService:
             }
             mapvalue = mapping.get(quote_type, "unknown")
             if mapvalue == "stock":
-                self.stock_tickers.append(ticker)
+                self.stock_tickers.add(ticker)
 
             return mapvalue
 
