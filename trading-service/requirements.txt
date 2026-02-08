@@ -9,3 +9,5 @@ pydantic-core>=2.41.5
 uvicorn>=0.30.0
 pydantic-settings>=2.12.0
 yfinance>=0.2.18
+asyncpg>=0.29.0
+motor>=3.5.1
