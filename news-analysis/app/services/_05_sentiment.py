@@ -38,7 +38,7 @@ class SentimentLabel(Enum):
 class SentimentResult:
     """Structured sentiment analysis result matching your JSON schema"""
     sentiment_label: str
-    sentiment_score: float
+    sentiment_score: float  # Range: -1.0 to 1.0
     confidence: float
     positive_prob: float
     negative_prob: float
@@ -46,6 +46,7 @@ class SentimentResult:
     emoji_influence: float
     models_used: List[str]
     method_used: str
+    reasoning: str = ""  # Explanation of sentiment factors
 
 
 class EmojiSentimentAnalyzer:
@@ -393,7 +394,43 @@ class SentimentAnalysisService:
             threshold=0.05  # Reduced from 0.1 for more decisive results
         )
 
-        sentiment_score = final_positive - final_negative
+        # Calculate sentiment score with explicit clamping to [-1, 1]
+        sentiment_score = max(-1.0, min(1.0, final_positive - final_negative))
+
+        # Build reasoning string
+        reasoning_parts = []
+
+        # Emoji influence reasoning
+        if emoji_count > 0:
+            emoji_sentiment_desc = "bullish" if emoji_score > 0.2 else "bearish" if emoji_score < -0.2 else "mixed"
+            reasoning_parts.append(
+                f"Found {emoji_count} emojis ({emoji_sentiment_desc}, influence: {emoji_influence:.0%})"
+            )
+
+        # VADER slang detection reasoning
+        if "VADER" in models_used:
+            reasoning_parts.append("Financial slang detected (VADER boost applied)")
+
+        # FinBERT reasoning
+        if "FinBERT" in models_used:
+            if finbert_scores['positive'] > 0.7:
+                reasoning_parts.append(f"Strong positive language (FinBERT: {finbert_scores['positive']:.2f})")
+            elif finbert_scores['negative'] > 0.7:
+                reasoning_parts.append(f"Strong negative language (FinBERT: {finbert_scores['negative']:.2f})")
+            elif finbert_scores['neutral'] > 0.6:
+                reasoning_parts.append(f"Neutral/factual language (FinBERT: {finbert_scores['neutral']:.2f})")
+            else:
+                reasoning_parts.append(f"Mixed signals (pos: {finbert_scores['positive']:.2f}, neg: {finbert_scores['negative']:.2f})")
+
+        # Final sentiment reasoning
+        if label == "positive":
+            reasoning_parts.append(f"Overall positive sentiment (score: {sentiment_score:.2f})")
+        elif label == "negative":
+            reasoning_parts.append(f"Overall negative sentiment (score: {sentiment_score:.2f})")
+        else:
+            reasoning_parts.append(f"Neutral/uncertain sentiment (score: {sentiment_score:.2f})")
+
+        reasoning = "; ".join(reasoning_parts) if reasoning_parts else "Standard analysis"
 
         return SentimentResult(
             sentiment_label=label,
@@ -404,7 +441,8 @@ class SentimentAnalysisService:
             neutral_prob=final_neutral,
             emoji_influence=emoji_influence,
             models_used=models_used,
-            method_used=method_used
+            method_used=method_used,
+            reasoning=reasoning
         )
 
     def _emoji_score_to_probs(self, emoji_score: float, strength: float = 1.0) -> Dict[str, float]:
@@ -504,6 +542,180 @@ class SentimentAnalysisService:
 
         logger.info(f"Completed sentiment analysis for {len(results)} items")
         return results
+
+    def analyse(self, item: Dict) -> Dict:
+        """
+        Analyze a single item for sentiment (synchronous).
+        Returns the item enriched with sentiment scores.
+        Handles nested pipeline data structure.
+        """
+        try:
+            # Extract text from nested structure
+            content = item.get('content', {})
+            text = (
+                content.get('clean_combined_withurl', '') or
+                content.get('clean_combined_withouturl', '') or
+                content.get('clean_combined', '') or
+                item.get('clean_combined', '') or
+                item.get('clean_title', '') or
+                ''
+            )
+
+            sentiment = self.analyze_text(text, use_adaptive_weights=True)
+
+            # Enrich item with sentiment data
+            item['sentiment_score'] = round(sentiment.sentiment_score, 6)
+            item['sentiment_label'] = sentiment.sentiment_label
+            item['sentiment_confidence'] = round(sentiment.confidence, 6)
+            item['positive_prob'] = round(sentiment.positive_prob, 6)
+            item['negative_prob'] = round(sentiment.negative_prob, 6)
+            item['neutral_prob'] = round(sentiment.neutral_prob, 6)
+            item['emoji_influence'] = round(sentiment.emoji_influence, 6)
+            item['models_used'] = sentiment.models_used
+            item['method_used'] = sentiment.method_used
+            item['sentiment_reasoning'] = sentiment.reasoning
+
+            return item
+
+        except Exception as e:
+            logger.error(f"Sentiment analysis failed for {item.get('Post_ID', 'unknown')}: {e}")
+            item['sentiment_score'] = 0.0
+            item['sentiment_label'] = "neutral"
+            item['sentiment_confidence'] = 0.0
+            item['models_used'] = []
+            item['sentiment_reasoning'] = f"Analysis error: {str(e)}"
+            return item
+
+    def _extract_ticker_context(
+        self,
+        text: str,
+        ticker: str,
+        ticker_info: Dict,
+        context_sentences: int = 2
+    ) -> str:
+        """
+        Extract sentences mentioning a specific ticker or company.
+
+        Args:
+            text: Full text to search
+            ticker: Stock ticker symbol (e.g., "AAPL")
+            ticker_info: Ticker metadata with OfficialName and NameIdentified
+            context_sentences: Number of sentences around mention to include
+
+        Returns:
+            Extracted context text for this ticker
+        """
+        if not text:
+            return ""
+
+        # Build search terms from ticker info
+        search_terms = [ticker.upper(), ticker.lower(), f"${ticker.upper()}"]
+
+        # Add official name and identified names
+        official_name = ticker_info.get('OfficialName', '')
+        if official_name:
+            search_terms.append(official_name)
+            # Also add partial name (first word for multi-word companies)
+            first_word = official_name.split()[0] if official_name else ''
+            if len(first_word) > 3:
+                search_terms.append(first_word)
+
+        names_identified = ticker_info.get('NameIdentified', [])
+        if isinstance(names_identified, list):
+            search_terms.extend(names_identified)
+
+        # Split into sentences
+        sentences = re.split(r'[.!?]+', text)
+        sentences = [s.strip() for s in sentences if s.strip()]
+
+        # Find sentences containing any search term
+        relevant_indices = set()
+        for i, sentence in enumerate(sentences):
+            sentence_lower = sentence.lower()
+            for term in search_terms:
+                if term.lower() in sentence_lower:
+                    # Add this sentence and context
+                    for j in range(max(0, i - context_sentences), min(len(sentences), i + context_sentences + 1)):
+                        relevant_indices.add(j)
+                    break
+
+        if not relevant_indices:
+            # No specific mention found, return full text (ticker may be implied)
+            return text
+
+        # Build context from relevant sentences
+        relevant_sentences = [sentences[i] for i in sorted(relevant_indices)]
+        return ". ".join(relevant_sentences)
+
+    def analyse_per_ticker(self, item: Dict) -> Dict:
+        """
+        Analyze sentiment for each ticker mentioned in the post.
+        Processes ALL tickers with no limit.
+
+        Args:
+            item: Post data with ticker_metadata
+
+        Returns:
+            Item enriched with ticker_sentiments dict
+        """
+        ticker_metadata = item.get('ticker_metadata', {})
+
+        # Extract full text
+        content = item.get('content', {})
+        full_text = (
+            content.get('clean_combined_withurl', '') or
+            content.get('clean_combined_withouturl', '') or
+            content.get('clean_combined', '') or
+            item.get('clean_combined', '') or
+            ''
+        )
+
+        if not ticker_metadata:
+            # No tickers identified - just do overall sentiment
+            item['ticker_sentiments'] = {}
+            return self.analyse(item)
+
+        ticker_sentiments = {}
+
+        for ticker, info in ticker_metadata.items():
+            try:
+                # Extract context for this ticker
+                ticker_context = self._extract_ticker_context(full_text, ticker, info)
+
+                # Analyze sentiment for this context
+                sentiment = self.analyze_text(ticker_context, use_adaptive_weights=True)
+
+                ticker_sentiments[ticker] = {
+                    'sentiment_label': sentiment.sentiment_label,
+                    'sentiment_score': round(sentiment.sentiment_score, 6),
+                    'confidence': round(sentiment.confidence, 6),
+                    'reasoning': sentiment.reasoning,
+                    'context_length': len(ticker_context.split()),
+                    'official_name': info.get('OfficialName', ticker)
+                }
+
+            except Exception as e:
+                logger.error(f"Per-ticker sentiment failed for {ticker}: {e}")
+                ticker_sentiments[ticker] = {
+                    'sentiment_label': 'neutral',
+                    'sentiment_score': 0.0,
+                    'confidence': 0.0,
+                    'reasoning': f"Analysis error: {str(e)}",
+                    'official_name': info.get('OfficialName', ticker)
+                }
+
+        item['ticker_sentiments'] = ticker_sentiments
+
+        # Also compute overall sentiment
+        item = self.analyse(item)
+
+        # Add summary stats
+        if ticker_sentiments:
+            scores = [ts['sentiment_score'] for ts in ticker_sentiments.values()]
+            item['ticker_sentiment_avg'] = round(sum(scores) / len(scores), 6)
+            item['ticker_sentiment_count'] = len(ticker_sentiments)
+
+        return item
 
 
 # Singleton instance

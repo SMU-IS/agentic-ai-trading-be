@@ -11,7 +11,7 @@ import strip_markdown
 
 class PreprocessingService:
     """
-    Preprocesses scraped posts and removes multispace, control characters, markdown and emojis (converted into :emoji:)
+    Preprocesses scraped posts and removes multispace, control characters and markdown. 
     Preserves casing, symbols, numbers, punctuation, and emoji description for downstream analysis.
     """
 
@@ -53,8 +53,7 @@ class PreprocessingService:
 
         # Remove remaining Markdown syntax
         text = strip_markdown.strip_markdown(text)
-        # Convert emoji to text, e.g., 😍 -> :heart_eyes:
-        text = emoji.demojize(text)
+        
         # Replace control characters and normalize spaces
         text = self.CONTROL_CHARS.sub(" ", text)
         text = self.MULTI_WHITESPACE.sub(" ", text).strip()

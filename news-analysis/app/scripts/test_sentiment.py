@@ -161,7 +161,7 @@ def test_with_actual_json():
             print("-"*80)
         
         # Save results to output file
-        output_path = json_path.parent / "sentiment_analyzed.json"
+        output_path = json_path.parent / "test_sentiment.json"
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(results, f, indent=2)
         
