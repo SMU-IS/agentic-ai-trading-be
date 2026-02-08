@@ -1,0 +1,256 @@
+[
+  {
+    "Post_ID": "t3_raw001",
+    "Post_URL": "https://www.reddit.com/r/stocks/comments/raw001/",
+    "Author": "marketwatcher92",
+    "Timestamp_UTC": 1704067200,
+    "Timestamp_ISO": "2024-01-01T00:00:00",
+    "Total_Comments": 245,
+    "Score": 1820,
+    "Upvote_Ratio": 0.93,
+    "Subreddit": "stocks",
+    "Domain": "reddit.com",
+    "urls": [
+      "https://www.cnbc.com/2024/01/10/apple-earnings"
+    ],
+    "images": [],
+    "content": {
+      "clean_title": "Apple reports strong Q4 earnings & beats expectations :rocket:",
+      "clean_body": "Apple Inc. ($AAPL) just reported earnings. Full article here: https://www.cnbc.com/2024/01/10/apple-earnings Thoughts?",
+      "clean_combined": "Apple reports strong Q4 earnings & beats expectations :rocket:. Apple Inc. ($AAPL) just reported earnings. Full article here: https://www.cnbc.com/2024/01/10/apple-earnings Thoughts?",
+      "clean_combined_withurl": "Apple reports strong Q4 earnings & beats expectations :rocket:. Apple Inc. ($AAPL) just reported earnings. Full article here: https://www.cnbc.com/2024/01/10/apple-earnings Thoughts?",
+      "clean_combined_withouturl": "Apple reports strong Q4 earnings & beats expectations :rocket:. Apple Inc. ($AAPL) just reported earnings. Full article here: https://www.cnbc.com/2024/01/10/apple-earnings Thoughts?"
+    },
+    "ticker_metadata": {
+      "AAPL": {
+        "OfficialName": "Apple Inc.",
+        "NameIdentified": [
+          "apple"
+        ],
+        "event_type": "News/Social Media",
+        "sentiment_score": 0.85,
+        "sentiment_label": "positive",
+        "sentiment_confidence": 0.4389,
+        "sentiment_reasoning": "The content explicitly states Apple reported 'strong Q4 earnings' and 'beats expectations,' which are major positive financial catalysts, further reinforced by the rocket emoji."
+      }
+    },
+    "sentiment_analysis": {
+      "overall_sentiment_score": 0.85,
+      "overall_sentiment_label": "positive",
+      "analysis_successful": true,
+      "ticker_sentiments": {
+        "AAPL": {
+          "sentiment_score": 0.85,
+          "sentiment_label": "positive",
+          "confidence": 0.4389,
+          "raw_llm_confidence": 0.95,
+          "reasoning": "The content explicitly states Apple reported 'strong Q4 earnings' and 'beats expectations,' which are major positive financial catalysts, further reinforced by the rocket emoji.",
+          "official_name": "Apple Inc."
+        }
+      }
+    }
+  },
+  {
+    "Post_ID": "t3_raw002",
+    "Post_URL": "https://www.reuters.com/technology/microsoft-cloud-growth/",
+    "Author": "AutoModerator",
+    "Timestamp_UTC": 1704153600,
+    "Timestamp_ISO": "2024-01-02T00:00:00",
+    "Total_Comments": 198,
+    "Score": 1340,
+    "Upvote_Ratio": 0.91,
+    "Subreddit": "investing",
+    "Domain": "reuters.com",
+    "urls": [
+      "https://www.reuters.com/technology/"
+    ],
+    "images": [],
+    "content": {
+      "clean_title": "Microsoft cloud growth slows < analysts expected",
+      "clean_body": "Reuters: Microsoft Azure growth slowed in Q4 as enterprise clients cut costs. Read more: https://www.reuters.com/technology/",
+      "clean_combined": "Microsoft cloud growth slows < analysts expected. Reuters: Microsoft Azure growth slowed in Q4 as enterprise clients cut costs. Read more: https://www.reuters.com/technology/",
+      "clean_combined_withurl": "Microsoft cloud growth slows < analysts expected. Reuters: Microsoft Azure growth slowed in Q4 as enterprise clients cut costs. Read more: https://www.reuters.com/technology/",
+      "clean_combined_withouturl": "Microsoft cloud growth slows < analysts expected. Reuters: Microsoft Azure growth slowed in Q4 as enterprise clients cut costs. Read more: https://www.reuters.com/technology/"
+    },
+    "ticker_metadata": {
+      "MSFT": {
+        "OfficialName": "Microsoft Corporation",
+        "NameIdentified": [
+          "microsoft"
+        ],
+        "event_type": "News/Social Media",
+        "sentiment_score": -0.5,
+        "sentiment_label": "negative",
+        "sentiment_confidence": 0.4961,
+        "sentiment_reasoning": "The news indicates that Microsoft's cloud growth (Azure) slowed in Q4 and was below analyst expectations, which is a negative development for the company's financial performance and outlook."
+      }
+    },
+    "sentiment_analysis": {
+      "overall_sentiment_score": -0.5,
+      "overall_sentiment_label": "negative",
+      "analysis_successful": true,
+      "ticker_sentiments": {
+        "MSFT": {
+          "sentiment_score": -0.5,
+          "sentiment_label": "negative",
+          "confidence": 0.4961,
+          "raw_llm_confidence": 0.9,
+          "reasoning": "The news indicates that Microsoft's cloud growth (Azure) slowed in Q4 and was below analyst expectations, which is a negative development for the company's financial performance and outlook.",
+          "official_name": "Microsoft Corporation"
+        }
+      }
+    }
+  },
+  {
+    "Post_ID": "t3_raw003",
+    "Post_URL": "https://www.reddit.com/r/wallstreetbets/comments/raw003/",
+    "Author": "YOLOtraderX",
+    "Timestamp_UTC": 1704240000,
+    "Timestamp_ISO": "2024-01-03T00:00:00",
+    "Total_Comments": 412,
+    "Score": 980,
+    "Upvote_Ratio": 0.88,
+    "Subreddit": "wallstreetbets",
+    "Domain": "reddit.com",
+    "urls": [
+      "https://imgur.com/abc123"
+    ],
+    "images": [],
+    "content": {
+      "clean_title": "TSLA sinks after margin concerns resurface :grimacing_face:",
+      "clean_body": "TSLA down nearly 7% today... margins looking ugly imo. Chart: https://imgur.com/abc123",
+      "clean_combined": "TSLA sinks after margin concerns resurface :grimacing_face:. TSLA down nearly 7% today... margins looking ugly imo. Chart: https://imgur.com/abc123",
+      "clean_combined_withurl": "TSLA sinks after margin concerns resurface :grimacing_face:. TSLA down nearly 7% today... margins looking ugly imo. Chart: https://imgur.com/abc123",
+      "clean_combined_withouturl": "TSLA sinks after margin concerns resurface :grimacing_face:. TSLA down nearly 7% today... margins looking ugly imo. Chart: https://imgur.com/abc123"
+    },
+    "ticker_metadata": {
+      "TSLA": {
+        "OfficialName": "Tesla Inc.",
+        "NameIdentified": [
+          "tsla"
+        ],
+        "event_type": "News/Social Media",
+        "sentiment_score": -0.85,
+        "sentiment_label": "negative",
+        "sentiment_confidence": 0.4608,
+        "sentiment_reasoning": "The content explicitly states TSLA 'sinks,' is 'down nearly 7%,' and highlights 'margin concerns' and 'ugly margins,' all indicating a strong negative outlook for the company."
+      }
+    },
+    "sentiment_analysis": {
+      "overall_sentiment_score": -0.85,
+      "overall_sentiment_label": "negative",
+      "analysis_successful": true,
+      "ticker_sentiments": {
+        "TSLA": {
+          "sentiment_score": -0.85,
+          "sentiment_label": "negative",
+          "confidence": 0.4608,
+          "raw_llm_confidence": 0.95,
+          "reasoning": "The content explicitly states TSLA 'sinks,' is 'down nearly 7%,' and highlights 'margin concerns' and 'ugly margins,' all indicating a strong negative outlook for the company.",
+          "official_name": "Tesla Inc."
+        }
+      }
+    }
+  },
+  {
+    "Post_ID": "t3_raw004",
+    "Post_URL": "https://www.bloomberg.com/news/articles/amazon-layoffs",
+    "Author": "newsbot",
+    "Timestamp_UTC": 1704326400,
+    "Timestamp_ISO": "2024-01-04T00:00:00",
+    "Total_Comments": 356,
+    "Score": 2100,
+    "Upvote_Ratio": 0.94,
+    "Subreddit": "technology",
+    "Domain": "bloomberg.com",
+    "urls": [
+      "https://bloomberg.com/layoffs",
+      "http://www.bloomberg.com"
+    ],
+    "images": [],
+    "content": {
+      "clean_title": "Amazon announces new layoffs in retail division. Look at report here: https://bloomberg.com/layoffs.",
+      "clean_body": "Bloomberg: http://www.bloomberg.com reports Amazon will cut hundreds of jobs as part of cost optimization & restructuring.",
+      "clean_combined": "Amazon announces new layoffs in retail division. Look at report here: https://bloomberg.com/layoffs.. Bloomberg: http://www.bloomberg.com reports Amazon will cut hundreds of jobs as part of cost optimization & restructuring.",
+      "clean_combined_withurl": "Amazon announces new layoffs in retail division. Look at report here: https://bloomberg.com/layoffs.. Bloomberg: http://www.bloomberg.com reports Amazon will cut hundreds of jobs as part of cost optimization & restructuring.",
+      "clean_combined_withouturl": "Amazon announces new layoffs in retail division. Look at report here: https://bloomberg.com/layoffs.. Bloomberg: http://www.bloomberg.com reports Amazon will cut hundreds of jobs as part of cost optimization & restructuring."
+    },
+    "ticker_metadata": {
+      "AMZN": {
+        "OfficialName": "Amazon.com Inc.",
+        "NameIdentified": [
+          "amazon"
+        ],
+        "event_type": "News/Social Media",
+        "sentiment_score": -0.55,
+        "sentiment_label": "negative",
+        "sentiment_confidence": 0.4713,
+        "sentiment_reasoning": "The news explicitly states Amazon is implementing new layoffs in its retail division, cutting hundreds of jobs, which is generally viewed as a negative development for a company's immediate outlook, despite being framed as cost optimization."
+      }
+    },
+    "sentiment_analysis": {
+      "overall_sentiment_score": -0.55,
+      "overall_sentiment_label": "negative",
+      "analysis_successful": true,
+      "ticker_sentiments": {
+        "AMZN": {
+          "sentiment_score": -0.55,
+          "sentiment_label": "negative",
+          "confidence": 0.4713,
+          "raw_llm_confidence": 0.9,
+          "reasoning": "The news explicitly states Amazon is implementing new layoffs in its retail division, cutting hundreds of jobs, which is generally viewed as a negative development for a company's immediate outlook, despite being framed as cost optimization.",
+          "official_name": "Amazon.com Inc."
+        }
+      }
+    }
+  },
+  {
+    "Post_ID": "t3_raw005",
+    "Post_URL": "https://www.reddit.com/r/investing/comments/raw005/",
+    "Author": "longtermholder",
+    "Timestamp_UTC": 1704412800,
+    "Timestamp_ISO": "2024-01-05T00:00:00",
+    "Total_Comments": 289,
+    "Score": 2600,
+    "Upvote_Ratio": 0.96,
+    "Subreddit": "investing",
+    "Domain": "reddit.com",
+    "urls": [],
+    "images": [],
+    "content": {
+      "clean_title": "NVIDIA demand remains red hot as AI spending accelerates",
+      "clean_body": "Data center demand for NVIDIA GPUs continues to surge due to generative AI adoption!!! :rocket::rocket:",
+      "clean_combined": "NVIDIA demand remains red hot as AI spending accelerates. Data center demand for NVIDIA GPUs continues to surge due to generative AI adoption!!! :rocket::rocket:",
+      "clean_combined_withurl": "NVIDIA demand remains red hot as AI spending accelerates. Data center demand for NVIDIA GPUs continues to surge due to generative AI adoption!!! :rocket::rocket:",
+      "clean_combined_withouturl": "NVIDIA demand remains red hot as AI spending accelerates. Data center demand for NVIDIA GPUs continues to surge due to generative AI adoption!!! :rocket::rocket:"
+    },
+    "ticker_metadata": {
+      "NVDA": {
+        "OfficialName": "NVIDIA Corporation",
+        "NameIdentified": [
+          "nvidia"
+        ],
+        "event_type": "News/Social Media",
+        "sentiment_score": 0.9,
+        "sentiment_label": "positive",
+        "sentiment_confidence": 0.4189,
+        "sentiment_reasoning": "The content explicitly states 'NVIDIA demand remains red hot' and 'demand for NVIDIA GPUs continues to surge' due to accelerating AI spending and generative AI adoption, indicating strong positive catalysts and reinforced by bullish rocket emojis."
+      }
+    },
+    "sentiment_analysis": {
+      "overall_sentiment_score": 0.9,
+      "overall_sentiment_label": "positive",
+      "analysis_successful": true,
+      "ticker_sentiments": {
+        "NVDA": {
+          "sentiment_score": 0.9,
+          "sentiment_label": "positive",
+          "confidence": 0.4189,
+          "raw_llm_confidence": 0.95,
+          "reasoning": "The content explicitly states 'NVIDIA demand remains red hot' and 'demand for NVIDIA GPUs continues to surge' due to accelerating AI spending and generative AI adoption, indicating strong positive catalysts and reinforced by bullish rocket emojis.",
+          "official_name": "NVIDIA Corporation"
+        }
+      }
+    }
+  }
+]

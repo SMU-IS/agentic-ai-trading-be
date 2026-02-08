@@ -1,17 +1,34 @@
 import asyncio
 import json
 from datetime import datetime, timezone
+from typing import Dict, Any, Optional
 
 import redis
 
 from app.core.config import env_config
-from app.schemas.compiled_news_payload import NewsAnalysisPayload
+
+# =============================================================================
+# RATE LIMITING CONFIGURATION (for testing with API rate limits)
+# Set ENABLE_RATE_LIMITING = False for production with paid API tier
+# =============================================================================
+# Enable/disable rate limiting (False = real-time processing for production)
+ENABLE_RATE_LIMITING = True
+
+# Delay between each LLM API call in seconds (only when rate limiting enabled)
+SENTIMENT_API_DELAY_SECONDS = 3.0  # 3 seconds between calls
+
+# Number of items to process per pipeline cycle (lower = slower but safer)
+SENTIMENT_BATCH_SIZE = 50  # Process 50 posts per cycle when rate limiting
+# =============================================================================
+
+from app.schemas.compiled_news_payload import NewsAnalysisPayload, NewsMetadata
 from app.scripts.aws_bucket_access import AWSBucket
 from app.scripts.checkpoint import RedisCheckpoint
 from app.scripts.storage import RedisStreamStorage
 from app.services import (
     EventIdentifierService,
     PreprocessingService,
+    LLMSentimentService,
     TickerIdentificationService,
     VectorisationService,
 )
@@ -32,14 +49,12 @@ reddit_stream = RedisStreamStorage(env_config.redis_reddit_stream, redis_client)
 preprocessing_stream = RedisStreamStorage(env_config.redis_preproc_stream, redis_client)
 # # ticker stream to be consumed by event service
 ticker_stream = RedisStreamStorage(env_config.redis_ticker_stream, redis_client)
-# event stream to be consumed by credibility service
+# event stream to be consumed by sentiment service
 event_stream = RedisStreamStorage(env_config.redis_event_stream, redis_client)
-# # ticker stream to be consumed by event service
+# sentiment stream to be consumed by vectorisation service
 sentiment_stream = RedisStreamStorage(env_config.redis_sentiment_stream, redis_client)
-# event stream to be consumed by credibility service
-credibility_stream = RedisStreamStorage(
-    env_config.redis_credibility_stream, redis_client
-)
+# LLM-based sentiment analysis service using Gemini
+sentiment_service = LLMSentimentService()
 
 
 # all tickers set to be updated and sent to scraping service
@@ -53,13 +68,101 @@ alias_to_canonical = json.loads(bucket.read_text(env_config.aws_bucket_alias_key
 events_types = json.loads(bucket.read_text(env_config.aws_bucket_events_key))
 
 
+def transform_to_payload(data: Dict[str, Any]) -> Optional[NewsAnalysisPayload]:
+    """
+    Transform pipeline data to NewsAnalysisPayload for vectorisation.
+
+    Args:
+        data: Pipeline data with content, ticker_metadata, and sentiment_analysis
+
+    Returns:
+        NewsAnalysisPayload ready for vectorisation, or None if transformation fails
+    """
+    try:
+        # Extract content
+        content = data.get('content', {})
+        clean_text = (
+            content.get('clean_combined_withurl', '') or
+            content.get('clean_combined_withouturl', '') or
+            content.get('clean_combined', '') or
+            ''
+        )
+        headline = (
+            content.get('clean_title', '') or
+            data.get('clean_title', '') or
+            'No headline'
+        )
+
+        # Extract ticker metadata and list of tickers
+        ticker_metadata = data.get('ticker_metadata', {})
+        tickers = list(ticker_metadata.keys())
+
+        # Get primary event type (from first ticker or default)
+        event_type = 'Unknown'
+        if ticker_metadata:
+            first_ticker = next(iter(ticker_metadata.values()), {})
+            event_type = first_ticker.get('event_type', 'Unknown') or 'Unknown'
+
+        # Extract sentiment analysis
+        sentiment_analysis = data.get('sentiment_analysis', {})
+        overall_score = sentiment_analysis.get('overall_sentiment_score', 0.0)
+        overall_label = sentiment_analysis.get('overall_sentiment_label', 'neutral')
+
+        # Calculate average confidence from per-ticker sentiments
+        ticker_sentiments = sentiment_analysis.get('ticker_sentiments', {})
+        confidences = [
+            ts.get('confidence', 0.5)
+            for ts in ticker_sentiments.values()
+        ]
+        avg_confidence = sum(confidences) / len(confidences) if confidences else 0.5
+
+        # Extract post metadata
+        post_id = data.get('Post_ID', data.get('id', f"post_{datetime.now().timestamp()}"))
+        source = data.get('subreddit', 'reddit')
+        url = data.get('URL', data.get('url', ''))
+        author = data.get('Author', data.get('author', None))
+
+        # Parse timestamp
+        created_utc = data.get('Created_UTC', data.get('created_utc', None))
+        if created_utc:
+            if isinstance(created_utc, (int, float)):
+                timestamp = datetime.fromtimestamp(created_utc, tz=timezone.utc)
+            else:
+                timestamp = datetime.fromisoformat(str(created_utc).replace('Z', '+00:00'))
+        else:
+            timestamp = datetime.now(timezone.utc)
+
+        # Build metadata
+        metadata = NewsMetadata(
+            article_id=post_id,
+            tickers=tickers,
+            timestamp=timestamp,
+            source_domain=f"reddit.com/r/{source}" if source else "reddit.com",
+            event_type=event_type,
+            sentiment_score=overall_score,
+            sentiment_label=overall_label,
+            sentiment_confidence=avg_confidence,
+            headline=headline,
+            text_content=clean_text,
+            url=url,
+            author=author,
+            ticker_metadata=ticker_metadata,
+            sentiment_analysis=sentiment_analysis
+        )
+
+        return NewsAnalysisPayload(id=post_id, metadata=metadata)
+
+    except Exception as e:
+        print(f"[Error] Failed to transform data to payload: {e}")
+        return None
+
+
 async def run_pipeline():
     # Service Initialisation
     preproc_checkpoint = RedisCheckpoint("preprocess", redis_client)
     ticker_checkpoint = RedisCheckpoint("tickeridentification", redis_client)
     event_checkpoint = RedisCheckpoint("eventidentification", redis_client)
     sentiment_checkpoint = RedisCheckpoint("sentiment", redis_client)
-    credibility_checkpoint = RedisCheckpoint("credibility", redis_client)
     vectorisation_checkpoint = RedisCheckpoint("vectorisation", redis_client)
 
     # Service Initialisation
@@ -71,8 +174,6 @@ async def run_pipeline():
         alias_to_canonical=alias_to_canonical,
     )
 
-    # TODO: Intialiase credibility service - jiayen
-    # TODO: Intialiase sentiment service - jiayen
     vectorisation_service = VectorisationService()
 
     # # Clear streams for testing
@@ -175,15 +276,39 @@ async def run_pipeline():
                         event_checkpoint.save(msg_id)
             print("event identification done\n\n\n")
 
-            # Step 5: Credibility - jiayen
-            # first load credibility checkpoint - if nothing processed yet, it will be 0-0
-            # consume from event_stream and push to credibility_stream
+            # Step 5: Sentiment Analysis (LLM-based using Gemini)
+            # Rate limiting: process fewer items with delays between calls for testing
+            # Set ENABLE_RATE_LIMITING = False for real-time production processing
+            sentiment_last_id = sentiment_checkpoint.load()
 
-            # Step 6: Sentiment Analysis - jiayen
-            # first load Sentiment checkpoint - if nothing processed yet, it will be 0-0
-            # consume from event_stream and push to sentiment_stream
+            # Adjust batch size based on rate limiting mode
+            read_count = SENTIMENT_BATCH_SIZE if ENABLE_RATE_LIMITING else 10
 
-            # Step 7: Vectorisation - joshua
+            event_entries = event_stream.read(
+                last_id=sentiment_last_id, count=read_count, block_ms=5000
+            )
+            if not event_entries:
+                continue
+
+            processed_count = 0
+            for _, messages in event_entries:
+                for msg_id, data in messages:
+                    # Rate limiting: add delay between API calls (for testing)
+                    if ENABLE_RATE_LIMITING and processed_count > 0:
+                        print(f"[Rate Limit] Waiting {SENTIMENT_API_DELAY_SECONDS}s before next API call...")
+                        await asyncio.sleep(SENTIMENT_API_DELAY_SECONDS)
+
+                    sentiment_result = await sentiment_service.analyse(data)
+                    sentiment_stream.save(sentiment_result)
+                    sentiment_checkpoint.save(msg_id)
+                    processed_count += 1
+
+                    if ENABLE_RATE_LIMITING:
+                        print(f"[Rate Limit] Processed {processed_count}/{read_count} items")
+
+            print("sentiment analysis done\n\n\n")
+
+            # Step 6: Vectorisation
             # first load Vectorisation checkpoint - if nothing processed yet, it will be 0-0
             # consume from sentiment_stream and save to vectorDB
             vector_last_id = vectorisation_checkpoint.load()
@@ -195,9 +320,13 @@ async def run_pipeline():
                 for _, messages in sentiment_entries:
                     for msg_id, data in messages:
                         try:
-                            payload = NewsAnalysisPayload(**data)
-                            await vectorisation_service.ingest_docs(payload)
-                            vectorisation_checkpoint.save(msg_id)
+                            # Transform pipeline data to NewsAnalysisPayload
+                            payload = transform_to_payload(data)
+                            if payload:
+                                await vectorisation_service.ingest_docs(payload)
+                                vectorisation_checkpoint.save(msg_id)
+                            else:
+                                print(f"[Warning] Skipping message {msg_id}: transformation failed")
                         except Exception as e:
                             print(f"Error in Vectorisation Step: {e}")
 
