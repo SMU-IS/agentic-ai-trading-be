@@ -2,7 +2,7 @@ import logging
 import sys
 
 import praw
-from core.config import env_config
+from app.core.config import env_config
 from fastapi import FastAPI
 from services.entity_watcher import EntityWatcherService
 from services.reddit_batch_ingestion import RedditBatchService
