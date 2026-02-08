@@ -6,6 +6,21 @@ from typing import Dict, Any, Optional
 import redis
 
 from app.core.config import env_config
+
+# =============================================================================
+# RATE LIMITING CONFIGURATION (for testing with API rate limits)
+# Set ENABLE_RATE_LIMITING = False for production with paid API tier
+# =============================================================================
+# Enable/disable rate limiting (False = real-time processing for production)
+ENABLE_RATE_LIMITING = True
+
+# Delay between each LLM API call in seconds (only when rate limiting enabled)
+SENTIMENT_API_DELAY_SECONDS = 3.0  # 3 seconds between calls
+
+# Number of items to process per pipeline cycle (lower = slower but safer)
+SENTIMENT_BATCH_SIZE = 50  # Process 50 posts per cycle when rate limiting
+# =============================================================================
+
 from app.schemas.compiled_news_payload import NewsAnalysisPayload, NewsMetadata
 from app.scripts.aws_bucket_access import AWSBucket
 from app.scripts.checkpoint import RedisCheckpoint
@@ -262,17 +277,35 @@ async def run_pipeline():
             print("event identification done\n\n\n")
 
             # Step 5: Sentiment Analysis (LLM-based using Gemini)
+            # Rate limiting: process fewer items with delays between calls for testing
+            # Set ENABLE_RATE_LIMITING = False for real-time production processing
             sentiment_last_id = sentiment_checkpoint.load()
+
+            # Adjust batch size based on rate limiting mode
+            read_count = SENTIMENT_BATCH_SIZE if ENABLE_RATE_LIMITING else 10
+
             event_entries = event_stream.read(
-                last_id=sentiment_last_id, count=10, block_ms=5000
+                last_id=sentiment_last_id, count=read_count, block_ms=5000
             )
             if not event_entries:
                 continue
+
+            processed_count = 0
             for _, messages in event_entries:
                 for msg_id, data in messages:
+                    # Rate limiting: add delay between API calls (for testing)
+                    if ENABLE_RATE_LIMITING and processed_count > 0:
+                        print(f"[Rate Limit] Waiting {SENTIMENT_API_DELAY_SECONDS}s before next API call...")
+                        await asyncio.sleep(SENTIMENT_API_DELAY_SECONDS)
+
                     sentiment_result = await sentiment_service.analyse(data)
                     sentiment_stream.save(sentiment_result)
                     sentiment_checkpoint.save(msg_id)
+                    processed_count += 1
+
+                    if ENABLE_RATE_LIMITING:
+                        print(f"[Rate Limit] Processed {processed_count}/{read_count} items")
+
             print("sentiment analysis done\n\n\n")
 
             # Step 6: Vectorisation

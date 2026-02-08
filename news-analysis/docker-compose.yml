@@ -28,7 +28,6 @@ services:
       - "5002:5002"
     volumes:
       - .:/code
-      - huggingface-cache:/root/.cache/huggingface
     environment:
       # Qdrant - use container name for Docker networking
       - QDRANT_URL=http://qdrant-db:6333
@@ -58,6 +57,3 @@ services:
   #   depends_on:
   #     - qdrant-db
   #   command: fastapi dev app/main.py --host 0.0.0.0 --port 5002
-
-volumes:
-  huggingface-cache:
