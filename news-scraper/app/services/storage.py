@@ -1,14 +1,19 @@
 import json
 import redis
 import os
-from config import REDIS_HOST, REDIS_PORT, REDIS_STREAM_NAME
+from core.config import env_config
 
 class RedisStreamStorage:
-    def __init__(self, host=REDIS_HOST, port=REDIS_PORT, stream_name=REDIS_STREAM_NAME):
+    def __init__(
+        self,
+        stream_name: str = env_config.redis_stream_name,
+        host: str = env_config.redis_host,
+        port: int = env_config.redis_port,
+    ):
         self.r = redis.Redis(
             host=host,
             port=port,
-            password=os.getenv("REDIS_PASSWORD"),
+            password=env_config.redis_password,
             decode_responses=True,
         )
         self.stream_name = stream_name

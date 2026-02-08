@@ -26,8 +26,6 @@ class EnvConfig(BaseSettings):
     aws_bucket_removed_key: str = Field(..., validation_alias="REMOVED_KEY")
 
     # Redis
-    redis_url: str = Field(..., validation_alias="REDIS_URL")
-    redis_news_queue: str = Field(..., validation_alias="REDIS_QUEUE_NAME")
     redis_host: str = Field(..., validation_alias="REDIS_HOST")
     redis_port: int = Field(..., validation_alias="REDIS_PORT")
     redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")

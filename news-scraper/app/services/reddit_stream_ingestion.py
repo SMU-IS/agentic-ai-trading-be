@@ -19,17 +19,11 @@ class RedditStreamService:
                 subreddit_str = "+".join(subreddits)
                 stream_version = self.redis.get("stream_version")
 
-                # self.redis.set(
-                #     "active_stream_subreddits",
-                #     json.dumps(sorted(subreddits))
-                # )
                 print(f"[*] Streaming subreddits: {subreddits}")
 
                 subreddit = self.reddit_client.subreddit(subreddit_str)
                 
                 for post in subreddit.stream.submissions(skip_existing=True):
-                    # if self.redis.sismember(self.processed_posts_key, post.id):
-                    #     continue
                     if self.redis.get("stream_version") != stream_version:
                         print("[*] Stream version changed → rebuilding stream")
                         break

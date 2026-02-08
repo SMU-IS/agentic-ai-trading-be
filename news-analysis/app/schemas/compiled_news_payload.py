@@ -36,7 +36,7 @@ class SentimentAnalysis(BaseModel):
 
 class NewsMetadata(BaseModel):
     article_id: str
-    tickers: List[str]
+    tickers_metadata: Dict[str, TickerEvent]
     timestamp: datetime
     source_domain: str
     event_type: str

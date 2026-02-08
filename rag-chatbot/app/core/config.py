@@ -1,8 +1,9 @@
 import os
 
-from app.core.constant import LLMProviders
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.core.constant import LLMProviders
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ENV_PATH = os.path.join(BASE_DIR, ".env")
@@ -24,6 +25,12 @@ class EnvConfig(BaseSettings):
     news_analysis_query_url: str = Field(
         ..., validation_alias="NEWS_ANALYSIS_QUERY_URL"
     )
+
+    # AWS
+    aws_access_key_id: str = Field(..., validation_alias="AWS_ACCESS_KEY_ID")
+    aws_secret_access_key: str = Field(..., validation_alias="AWS_SECRET_ACCESS_KEY")
+    aws_bucket_name: str = Field(..., validation_alias="AWS_S3_BUCKET_NAME")
+    aws_file_name: str = Field(..., validation_alias="AWS_S3_FILE_NAME")
 
 
 env_config = EnvConfig()  # type: ignore
