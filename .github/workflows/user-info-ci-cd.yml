@@ -14,7 +14,6 @@ jobs:
   go-tests:
     name: Continuous Integration
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: user-info
