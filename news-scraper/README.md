@@ -1,1 +1,1 @@
-# News Scraper Service (Trigger)
+# News Scraper Service
