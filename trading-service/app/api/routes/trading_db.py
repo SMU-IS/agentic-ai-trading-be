@@ -23,3 +23,9 @@ def get_orders(symbol: Optional[str] = None, limit: int = 50,
                client: MongoDBClient = Depends(lambda: mongo_client)):
     return client.get_orders(symbol, limit)
 
+@router.get("/orders/{order_id}")
+def get_order_by_id(order_id: str, client: MongoDBClient = Depends(lambda: mongo_client)):
+    order = client.get_order_by_id(order_id)
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return order

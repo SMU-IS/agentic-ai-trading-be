@@ -29,9 +29,10 @@ class MongoDBClient:
                 for doc in cursor]
     
     def get_order_by_id(self, order_id: str) -> Optional[Dict]:
-        """Get single order by ID"""
-        doc = self.orders.find_one({"_id": ObjectId(order_id)})
+        """Get single order by custom order_id field"""
+        doc = self.orders.find_one({"order_id": order_id})  # Changed from _id to order_id
         if doc:
-            doc["_id"] = str(doc["_id"])
+            if "_id" in doc:
+                doc["_id"] = str(doc["_id"])  # Still convert MongoDB _id to string
             return doc
         return None
