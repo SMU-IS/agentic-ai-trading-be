@@ -34,8 +34,10 @@ import httpx
 import json
 import re
 import os
-from typing import List, Dict, Any
+from typing import Any, Dict, List, Union
+from pydantic import BaseModel
 from src.config import settings
+from src.services.json_parser import safe_parse
 
 class LLMService:
     def __init__(self, api_key: str = None):
@@ -79,6 +81,12 @@ class LLMService:
     async def generate_list(self, prompt: str) -> List[dict]:
         response = await self.generate(prompt)
         return self.parse_json_list(response)
+    
+    async def generate_parse_json(self, prompt: str,  system_prompt: str = None, model_class: type[BaseModel] = None) -> BaseModel:
+        """Generate + auto-parse into Pydantic model"""
+        response = await self.generate(prompt, system_prompt)
+        return safe_parse(model_class, response)
+
     
     def parse_json_list(self, response: str) -> List[dict]:
         json_match = re.search(r'\[.*\]', response, re.DOTALL)
