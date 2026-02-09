@@ -10,17 +10,19 @@ async def publish_test_news():
     
     # Sample news for testing
     test_articles = {
-        "AVAV":{
+        "AVAV": {
             "Type": "stock",
             "OfficialName": "AeroVironment Inc",
-            "NameIdentified": ["AVAV"],
+            "NameIdentified": [
+                "AVAV"
+            ],
             "event_type": "REGULATORY_APPROVAL",
-            "event_description": "The U.S. Government issued a stop work order...",
+            "event_description": "The U.S. Government issued a stop work order on the Company's Other Transaction Agreement for the delivery of BADGER phased array antenna systems to support the Satellite Communication Augmentation Resource (",
             "event_proposal": None,
             "sentiment_score": -0.85,
             "sentiment_label": "negative",
             "sentiment_confidence": 0.6145,
-            "sentiment_reasoning": "The company received a 'stop work order'..."
+            "sentiment_reasoning": "The company received a 'stop work order' from the U.S. Government on a significant program, which is a major negative regulatory event, causing the stock to drop over 15%."
         }
     }
     

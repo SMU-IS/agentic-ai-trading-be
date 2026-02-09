@@ -72,38 +72,38 @@ class DeepAnalyzer:
         return analysis_json
 
 
+
+    def print_analysis(self,analysis: DeepAnalysis):
+        """Print DeepAnalysis in trading terminal format"""
+        print("\n" + "="*80)
+        print(f"📊 DEEP ANALYSIS REPORT - {analysis.ticker}")
+        print("="*80)
+        
+        # Summary row
+        signal_emoji = {"BUY": "🟢", "SHORT": "🔴", "NO_TRADE": "⚪"}
+        print(f"{signal_emoji[analysis.trade_signal]} {analysis.trade_signal:<10} Confidence: {analysis.confidence}/10")
+        print(f"   📈 Position: {analysis.position_size_pct}% | Stop: {analysis.stop_loss_pct}% | Target: {analysis.target_pct}%")
+        
+        print(f"\n💬 Rumor: {analysis.rumor_summary}")
+        print(f"🔍 Credibility: {analysis.credibility:<7} ({analysis.confidence}/10)")
+        print(f"📝 Reason: {analysis.credibility_reason}")
+        
+        if analysis.references:
+            print(f"🔗 Sources ({len(analysis.references)}):")
+            for i, ref in enumerate(analysis.references[:3], 1):  # First 3
+                print(f"   {i}. {ref}")
+            if len(analysis.references) > 3:
+                print(f"   ... +{len(analysis.references)-3} more")
+        
+        print(f"\n⚙️  TRADE RATIONALE: {analysis.trade_rationale}")
+        print("="*80 + "\n")
+
+
 async def test():
     llm = LLMService()
     analyzer = DeepAnalyzer(llm)
     analysis = await analyzer.analyze(sample_news_prompt)
-    print_analysis(analysis)
-
-
-def print_analysis(analysis: DeepAnalysis):
-    """Print DeepAnalysis in trading terminal format"""
-    print("\n" + "="*80)
-    print(f"📊 DEEP ANALYSIS REPORT - {analysis.ticker}")
-    print("="*80)
-    
-    # Summary row
-    signal_emoji = {"BUY": "🟢", "SHORT": "🔴", "NO_TRADE": "⚪"}
-    print(f"{signal_emoji[analysis.trade_signal]} {analysis.trade_signal:<10} Confidence: {analysis.confidence}/10")
-    print(f"   📈 Position: {analysis.position_size_pct}% | Stop: {analysis.stop_loss_pct}% | Target: {analysis.target_pct}%")
-    
-    print(f"\n💬 Rumor: {analysis.rumor_summary}")
-    print(f"🔍 Credibility: {analysis.credibility:<7} ({analysis.confidence}/10)")
-    print(f"📝 Reason: {analysis.credibility_reason}")
-    
-    if analysis.references:
-        print(f"🔗 Sources ({len(analysis.references)}):")
-        for i, ref in enumerate(analysis.references[:3], 1):  # First 3
-            print(f"   {i}. {ref}")
-        if len(analysis.references) > 3:
-            print(f"   ... +{len(analysis.references)-3} more")
-    
-    print(f"\n⚙️  TRADE RATIONALE: {analysis.trade_rationale}")
-    print("="*80 + "\n")
-
+    analyzer.print_analysis(analysis)
 
 if __name__ == "__main__":
     import asyncio

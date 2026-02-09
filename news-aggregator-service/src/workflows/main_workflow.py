@@ -1,119 +1,176 @@
 # src/workflows/main_workflow.py
-from typing import TypedDict, Annotated
+from typing import Dict, List, Optional, TypedDict, Any
+from pydantic import BaseModel
 from langgraph.graph import StateGraph, END
 from src.services.redis_service import RedisService
 from src.services.llm_service import LLMService
-from src.agents import NewsParser, ThresholdMonitor, DeepAnalyzer
+from src.agents import NewsParser, ThresholdMonitor, DeepAnalyzer, lookup_qdrant
 from src.models.news import TickerTopic, DeepAnalysis, TradingSignal, NewsArticle, TickerSentiment
-
-# Global services (initialize once)
-redis_service = None
-llm_service = None
+import os
 
 class AgentState(TypedDict):
     articles: list
     topics: list
     triggered_topics: list
-    analyses: list  # Now contains complete trading decisions!
+    deep_analysis: DeepAnalysis  # Now contains complete trading decisions!
     signals: list
-
-async def parse_news(state: AgentState) -> AgentState:
-    """Extract tickers/topics from articles"""
-    print("🗞️ Parsing news articles for tickers/topics")
-    all_topics = []
-    
-    for article in state["articles"]:
-        # Convert dict back to model if needed
-        if isinstance(article, dict):
-            article = TickerSentiment(**article)
-            print(f"\n📰 Parsing article for tickers/topics: {article.ticker}")
-    return {}
-
-async def monitor_thresholds(state: AgentState) -> AgentState:
-    """Check sentiment/volume triggers"""
-    print("🚦 Monitoring thresholds for topics")
-    return {}  # Temporarily disable threshold monitoring
-    # monitor = ThresholdMonitor(redis_service)
-    # topics = [TickerTopic(**t) for t in state["topics"]]
-    # triggered = await monitor.check_triggers(topics)
-    
-    # print(f"🚨 {len(triggered)}/{len(topics)} topics triggered thresholds")
-    # return {"triggered_topics": [t.model_dump() for t in triggered]}
-
-async def deep_analyze(state: AgentState) -> AgentState:
-    """Deep analysis → Complete trading decisions"""
-    print("🔬 Deep analysis of triggered topics")
-    analyzer = DeepAnalyzer(llm_service)
-    analyses = []
-    
-    for topic_data in state["triggered_topics"]:
-        topic = TickerTopic(**topic_data)
-        print(f"\n🔍 Analyzing {topic.ticker}:{topic.topic}...")
-        
-        analysis = await analyzer.analyze(topic)
-        analyses.append(analysis)
-        
-        # Pretty print each analysis
-        analyzer.print_analysis(analysis)
-    
-    print(f"✅ Generated {len(analyses)} deep analyses")
-    return {"analyses": [a.model_dump() for a in analyses]}
-
-async def generate_signals(state: AgentState) -> AgentState:
-    """Convert analyses → Trading signals → Redis"""
-    print("⚠️ Signal generation")
-    return {}  # Temporarily disable signal generation
-    # signals = []
-    
-    # for analysis_data in state["analyses"]:
-    #     analysis = DeepAnalysis(**analysis_data)
-        
-    #     # Filter actionable signals (confidence >= 7, not NO_TRADE)
-    #     if analysis.confidence >= 7 and analysis.trade_signal != "NO_TRADE":
-    #         signal = TradingSignal(
-    #             ticker=analysis.ticker,
-    #             signal_type=analysis.trade_signal,
-    #             confidence=analysis.confidence / 10.0,
-    #             urgency="HIGH" if analysis.confidence >= 9 else "MEDIUM",
-    #             position_size=analysis.position_size_pct / 100,
-    #             risk_limit=analysis.stop_loss_pct / 100,
-    #             reasoning=f"{analysis.trade_rationale} | {analysis.rumor_summary}",
-    #             timestamp=analysis.model_dump().get("timestamp", datetime.utcnow())
-    #         )
-            
-    #         signals.append(signal)
-    #         await redis_service.publish_signal(signal.model_dump())
-    #         print(f"📡 SENT SIGNAL: {signal.ticker} {signal.signal_type} ({signal.confidence:.2f})")
-    
-    # print(f"🚀 Published {len(signals)} signals to Redis")
-    # return {"signals": [s.model_dump() for s in signals]}
+    qdrant_context: list[dict]
 
 # Initialize services & build workflow
-async def initialize_workflow():
-    global redis_service, llm_service
-    redis_service = RedisService()
-    llm_service = LLMService()
+class WorkflowManager:
+    def __init__(self):
+        self.redis_service = None
+        self.llm_service = None
+        self.app = None
+
+    async def initialize(self):
+        """Initialize services and compile workflow"""
+        self.redis_service = RedisService()
+        self.llm_service = LLMService()
+        
+        await self.redis_service.connect()
+        
+        # Build workflow
+        self.app = self._build_workflow()
+        print("✅ TradingWorkflow initialized!")
+        return self
     
-    await redis_service.connect()
-    await llm_service.client.__aenter__()  # httpx client
+    def _build_workflow(self):
+        """Build LangGraph workflow"""
+        workflow = StateGraph(AgentState)
+        
+        # Add nodes
+        workflow.add_node("parse", self.parse_news)
+        workflow.add_node("monitor", self.monitor_thresholds)
+        workflow.add_node("qdrant_lookup", self.get_qdrant_vector)
+        workflow.add_node("analyze", self.deep_analyze)
+        workflow.add_node("gensignals", self.generate_signals)
+        
+        # Edges
+        workflow.set_entry_point("parse")
+        workflow.add_edge("parse", "monitor")
+        workflow.add_edge("qdrant_lookup", "analyze")
+        workflow.add_edge("analyze", "gensignals")
+        workflow.add_edge("gensignals", END)
+        
+        # Conditional edges
+        workflow.add_conditional_edges(
+            "monitor", 
+            self.has_triggered_topics,
+            {True: "qdrant_lookup", False: END}
+        )
+        workflow.add_conditional_edges(
+            "analyze", 
+            self.has_trade_signal,
+            {True: "gensignals", False: END}
+        )
+        
+        return workflow.compile()
     
-    # Build workflow
-    workflow = StateGraph(AgentState)
-    workflow.add_node("parse", parse_news)
-    workflow.add_node("monitor", monitor_thresholds)
-    workflow.add_node("analyze", deep_analyze)
-    workflow.add_node("gensignals", generate_signals)
+    async def run(self, input_data: dict) -> dict:
+        """Run the compiled workflow"""
+        if self.app is None:
+            await self.initialize()
+        return await self.app.ainvoke(input_data)
     
-    workflow.set_entry_point("parse")
-    workflow.add_edge("parse", "monitor")
-    workflow.add_edge("monitor", "analyze")
-    workflow.add_edge("analyze", "gensignals")
-    workflow.add_edge("gensignals", END)
+    def has_triggered_topics(self, state: AgentState) -> str:
+        """Router: triggered topics? → qdrant_lookup : END"""
+        triggered_len = len(state.get("triggered_topics", []))
+        print(f"🔀 Router: {triggered_len} triggered topics")
+        return  triggered_len > 0
+        
+    def has_trade_signal(self, state: AgentState) -> str:
+        """Router: has trade signal? → gensignals : END"""
+        deep_analysis = state.get("deep_analysis", None)
+        if deep_analysis and deep_analysis.trade_signal != "NO_TRADE":
+            print(f"🔀 Router: Found trade signal for {deep_analysis.ticker}")
+            return True
+        print("🔀 Router: No actionable trade signal found")
+        return False
     
-    return workflow.compile()
+    async def export_graph(self):
+        """Simple PNG export - just get the PNG file"""
+        if not self.app:
+            print("❌ Initialize workflow first")
+            return
+        
+        folder_name = "public"
+        os.makedirs(folder_name, exist_ok=True)
+        
+        filepath = os.path.join(folder_name, "news-aggregator-flow.png")
+        
+        try:
+            self.app.get_graph().draw_mermaid_png()
+            png_bytes = self.app.get_graph().draw_mermaid_png()
+            
+            with open(filepath, "wb") as f:
+                f.write(png_bytes)
+                
+            print(f"✅ PNG saved: {os.path.abspath(filepath)}")
+            
+        except Exception as e:
+            print(f"❌ PNG failed: {e}")
+
+    # Agent Nodes
+    # ###### Node Logic ######
+    async def parse_news(self, state: AgentState) -> AgentState:
+        """Extract tickers/topics from articles"""
+        print("🗞️ Parsing news articles for tickers/topics")
+        
+        all_articles = []
+        for article in state["articles"]:
+            # Convert dict back to model if needed
+            if isinstance(article, dict):
+                article = TickerSentiment(**article)
+                all_articles.append(article)
+                print(f"\n📰 Parsing article for tickers/topics: {article.ticker}")
+        state["articles"] = all_articles
+        return state
+
+    async def monitor_thresholds(self, state: AgentState) -> AgentState:
+        """Check sentiment/volume triggers"""
+        print("🚦 Monitoring thresholds for topics")
+        print(state["articles"])
+
+        monitor = ThresholdMonitor(self.redis_service)
+        triggered = await monitor.check_triggers(state["articles"])
+        for sentiment in triggered:
+            print(f"🎯 TRIGGERED: {sentiment.ticker} {sentiment.event_type} "
+                f"(score: {sentiment.sentiment_score:.2f}, vol: {getattr(sentiment, 'volume', 0)})")
+            state["triggered_topics"].append({
+                "ticker": sentiment.ticker,
+                "event_type": sentiment.event_type,
+            })
+        return state 
+
+    async def get_qdrant_vector(self,state: AgentState) -> AgentState:
+        print("================================")
+        print("🔍 Looking up Qdrant for historical context")
+        qdrant_content = await lookup_qdrant(state["articles"][0].ticker)
+        # print("QDRANT CONTENT:", qdrant_content)
+        state["qdrant_context"] = qdrant_content
+        print("🔍 Qdrant content points retrieved:", len(qdrant_content))
+        return state
+
+    async def deep_analyze(self, state: AgentState) -> AgentState:
+        """Deep analysis → Complete trading decisions"""
+        print("🔬 Deep analysis of triggered topics")
+        analyzer = DeepAnalyzer(self.llm_service)
+        print(state.keys())
+        news_content_compile = [a["metadata"]["text_content"] for a in state["qdrant_context"]]
+        news_content = "\n".join(news_content_compile)
+        analysis = await analyzer.analyze(news_content)
+        analyzer.print_analysis(analysis)
+        state["deep_analysis"] = analysis
+        return state
+
+    async def generate_signals(self, state: AgentState) -> AgentState:
+        """Convert analyses → Trading signals → Redis"""
+        print("⚠️ Signal generation")
+        return {}  # Temporarily disable signal generation
 
 # Global app instance
-
 async def setup_workflow():
-    app = await initialize_workflow()
-    return app
+    workflow = WorkflowManager()
+    await workflow.initialize()
+    return workflow

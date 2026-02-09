@@ -41,11 +41,11 @@ class DeepAnalysis(BaseModel):
     credibility_reason: str = Field(..., description="2-3 sentences")
     references: List[str] = Field(default_factory=list, description="URLs/sources")
     trade_signal: TradeSignal = Field(..., description="BUY|SHORT|NO_TRADE")
-    confidence: int = Field(ge=1, le=10, description="1-10 scale")
+    confidence: int = Field(..., description="1-10 scale")
     trade_rationale: str = Field(..., description="Why this signal")
-    position_size_pct: float = Field(ge=0, le=5, description="0.5|1|2")
-    stop_loss_pct: float = Field(ge=5, le=15, description="8|10|12")
-    target_pct: float = Field(ge=10, le=60, description="20|30|50")
+    position_size_pct: float = Field(..., description="0.5|1|2")
+    stop_loss_pct: float = Field(..., description="8|10|12")
+    target_pct: float = Field(..., description="20|30|50")
 
 class TradingSignal(BaseModel):
     ticker: str

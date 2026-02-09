@@ -11,23 +11,23 @@ from src.workflows.main_workflow import setup_workflow
 from src.models.news import TickerSentiment
 
 async def main():
-    app = await setup_workflow()  # Initializes global services + app
-    
+    workflow = await setup_workflow()  # Initializes global services + app
+
     print("🚀 News Aggregator started...")
     
     redis_service = RedisService()  # Global instance
     await redis_service.connect()
     
     print("🚀 News Aggregator Live!")
-    # print(f"📡 app: {app}")  # Should print StateGraph object
 
     async for article in redis_service.listen_news_stream():
-        result = await app.ainvoke({
+        result = await workflow.run({
             "articles": [article.to_dict()],
+            "qdrant_context": [],
             "topics": [],
             "triggered_topics": [],
             "analyses": [],
-            "signals": []
+            "signals": [],
         })
         
         if result["signals"]:

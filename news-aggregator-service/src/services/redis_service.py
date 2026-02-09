@@ -40,7 +40,8 @@ class RedisService:
 
                         raw_data_str = fields[b"data"].decode('utf-8')
                         raw_data = json.loads(raw_data_str)
-                        print("📨 Fields:", raw_data)
+                        print()
+                        print("📨 Ingesting News:", raw_data)
                         tickers = self._extract_tickers_from_message(raw_data)
                         print(f"   Extracted {tickers} tickers from message ID {msg_id}"   )
                         for ticker_sentiment in tickers:
@@ -66,9 +67,9 @@ class RedisService:
         """Publish to trading agent queue"""
         await self.redis.xadd(settings.signal_queue, {"signal": json.dumps(signal)})
     
-    async def track_volume(self, ticker_topic: str) -> int:
-        """Track article volume per ticker+topic"""
-        key = f"volume:{ticker_topic}"
+    async def track_volume(self, ticker_event: str) -> int:
+        """Track volume for ticker:event_type combo"""
+        key = f"volume:{ticker_event}"
         count = await self.redis.incr(key)
         await self.redis.expire(key, settings.hours_window * 3600)
         return count
