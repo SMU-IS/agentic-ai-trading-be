@@ -180,6 +180,10 @@ async def run_pipeline():
     # preprocessing_stream.clear_stream()
     # ticker_stream.clear_stream()
     # event_stream.clear_stream()
+    # sentiment_stream.clear_stream()
+    # redis_client.delete("all_identified_tickers")
+
+
 
     try:
         while True:
@@ -349,20 +353,34 @@ async def run_pipeline():
                     json.dumps(ticker_service.alias_to_canonical, indent=2),
                     env_config.aws_bucket_alias_key,
                 )
+                print("Successfully updated alias mapping\n\n\n")
+
             if removed_posts:
                 bucket.write_text(
                     json.dumps(removed_posts, indent=2),
                     env_config.aws_bucket_removed_key,
                 )
+                print("Successfully updated removed post list\n\n\n")
+
 
             if eventidentifier.event_list and eventidentifier.neweventcount > 0:
                 bucket.write_text(
                     json.dumps(eventidentifier.event_list, indent=2),
                     env_config.aws_bucket_events_key,
                 )
+                print("Successfully updated event type list\n\n\n")
+
+            if ticker_service.cleaned_tickers and ticker_service.new_type_count > 0:
+                bucket.write_text(
+                    json.dumps(ticker_service.cleaned_tickers, indent=2),
+                    env_config.aws_bucket_cleaned_key,
+                )
+                print("Successfully updated cleaned ticker list\n\n\n")
+                
         except Exception as e:
             print(f"[Error] Failed during cleanup: {e}")
 
 
 if __name__ == "__main__":
     asyncio.run(run_pipeline())
+

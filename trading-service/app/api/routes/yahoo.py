@@ -20,6 +20,16 @@ class HistoryResponse(BaseModel):
     interval: str
     count: int
     bars: List[Dict[str, Any]]
+    
+class LatestInfoResponse(BaseModel):
+    """Latest ticker price, quote, and metrics."""
+    symbol: str
+    timestamp: float
+    price: Dict[str, float] = Field(..., description="Last, current, previous close")
+    intraday: Dict[str, Any] = Field(..., description="OHLCV latest bar")
+    averages: Dict[str, float] = Field(..., description="SMA 50/200")
+    fundamentals: Dict[str, Any] = Field(..., description="Market cap, PE")
+    change: Dict[str, float] = Field(..., description="Day % change")
 
 
 def get_client() -> YahooClient:
@@ -72,3 +82,28 @@ async def get_history(
         return HistoryResponse(**result)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/latest/{symbol}", response_model=LatestInfoResponse)
+async def get_latest_info(
+    symbol: str,
+    client: YahooClient = Depends(get_client),
+) -> LatestInfoResponse:
+    """
+    Latest price, quote, and key metrics for a ticker.
+    
+    **Perfect for**:
+    - LLM trade prompts (current price)
+    - Risk sizing (entry_price validation)
+    - Real-time dashboards
+    
+    **Example**:
+    ```
+    GET /latest/AAPL → {"price": {"last_price": 258.27, "day_change_pct": -1.25}, ...}
+    ```
+    """
+    try:
+        result = client.get_latest_info(symbol)
+        return LatestInfoResponse(**result)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Latest info failed: {str(e)}")

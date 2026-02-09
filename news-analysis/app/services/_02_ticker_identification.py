@@ -8,6 +8,7 @@ from app.core.config import env_config
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_ollama import ChatOllama
+import yfinance as yf
 
 STOP_SUFFIXES = [
     "inc", "corp", "corporation", "ltd", "llc", "co", "&co", ",inc", ",inc.", "/new", "/de/", "/mn"
@@ -35,6 +36,7 @@ class TickerIdentificationService:
         self.model_type = model_type
         self.model_name = model_name
         self.new_alias_count = 0
+        self.new_type_count = 0
         self.base_url = base_url
         self.cleaned_tickers = cleaned_tickers
         self.alias_to_canonical = alias_to_canonical
@@ -59,6 +61,47 @@ class TickerIdentificationService:
             temperature=0,
             format="json",
         )
+
+    def classify_ticker(self, ticker: str) -> str:
+        try:
+            t = yf.Ticker(ticker)
+            info = t.info
+
+            quote_type = info.get("quoteType")
+
+            mapping = {
+                "EQUITY": "stock",
+                "ETF": "etf",
+                "CRYPTOCURRENCY": "crypto",
+                "INDEX": "index",
+                "CURRENCY": "forex"
+            }
+            mapvalue = mapping.get(quote_type, "unknown")
+            if mapvalue:
+                return mapvalue
+            else:
+                return None
+
+        except Exception:
+            return None
+
+    def _update_cleaned_entry(self, ticker: str) -> Union[str, None]:
+        canon = self.ticker_to_canonical.get(ticker)
+        if not canon:
+            return None
+        cleaned_entry = self.cleaned_tickers.get(canon, {})
+        cleaned_type = cleaned_entry.get("type")
+        if cleaned_type is None:
+            ticker_type = self.classify_ticker(ticker)
+            if ticker_type:
+                self.new_type_count += 1
+                cleaned_entry["type"] = ticker_type
+                self.cleaned_tickers[canon] = cleaned_entry
+                print(f"Updated {canon} type to {ticker_type}")
+        else:
+            ticker_type = cleaned_type
+        return ticker_type
+
 
     def _extract_company_ticker_llm(self, text: str):
         """
@@ -112,7 +155,6 @@ class TickerIdentificationService:
             }
 
         return output
-
                 
     def build_canonical_to_aliases(self, alias_to_canonical: Dict[str, str]) -> Dict[str, List[str]]:
         canonical_to_aliases = defaultdict(list)
@@ -154,12 +196,18 @@ class TickerIdentificationService:
                 if canonical in self.cleaned_tickers:
                     ticker = self.cleaned_tickers[canonical]["ticker"]
 
-            if ticker:
+            if ticker and ticker in self.ticker_to_title:
+
                 if ticker not in ticker_metadata:
+                    ticker_type = self._update_cleaned_entry(ticker)
+                    if ticker_type != "stock":
+                        continue
                     ticker_metadata[ticker] = {
+                        "Type": ticker_type,
                         "OfficialName": self.ticker_to_title.get(ticker, ""),
                         "NameIdentified": [org]
                     }
+                    
                 # include all names identified in post for the respective ticker
                 else:
                     if org not in ticker_metadata[ticker]["NameIdentified"]:
@@ -170,9 +218,13 @@ class TickerIdentificationService:
             # normalize ticker
             ticker = match.replace("$", "").upper()
             # check if ticker identified matches our ticker knowledge base
-            if ticker in self.ticker_to_title:
+            if ticker and ticker in self.ticker_to_title:
+                ticker_type = self._update_cleaned_entry(ticker)
+                if ticker_type != "stock":
+                    continue
                 if ticker not in ticker_metadata:
                     ticker_metadata[ticker] = {
+                        "Type": ticker_type,
                         "OfficialName": self.ticker_to_title.get(ticker, ""),
                         "NameIdentified": [match]
                     }
@@ -181,18 +233,23 @@ class TickerIdentificationService:
                     if match not in ticker_metadata[ticker]["NameIdentified"]:
                         ticker_metadata[ticker]["NameIdentified"].append(match)
 
+
         # 3. Fallback to LLM if nothing found
         if not ticker_metadata:
             llm_result = self._extract_company_ticker_llm(text)
             if llm_result:
-                for company in llm_result["companies"]:
+                for company in llm_result.get("companies", []):
                     # check if llm result is empty
                     if company["ticker"] and company["company_name"]:
                         # normalize ticker
                         ticker = company["ticker"].replace("$", "").upper()
-                        if ticker in self.ticker_to_title:
+                        if ticker and ticker in self.ticker_to_title:
+                            ticker_type = self._update_cleaned_entry(ticker)
+                            if ticker_type != "stock":
+                                continue
                             if ticker not in ticker_metadata:
                                 ticker_metadata[ticker] = {
+                                    "Type": ticker_type,
                                     "OfficialName": self.ticker_to_title.get(ticker, ""),
                                     "NameIdentified": [company["company_name"]] 
                                 }
@@ -203,7 +260,7 @@ class TickerIdentificationService:
 
         return ticker_metadata
 
-
+    
     def process_post(self, post: Dict) -> Dict:
         # Add ticker metadata to a single post
         ticker_metadata = self.extract_tickers(post["content"]["clean_combined_withurl"])

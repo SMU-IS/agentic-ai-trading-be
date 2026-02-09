@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
@@ -15,6 +15,8 @@ from app.api.schemas import (
     CloseAllPositionsRequestBody,
     PortfolioHistoryResponse
 )
+
+from app.core.services import services
 
 # Data models for latest trades
 class LatestTradeResponse(BaseModel):
@@ -43,6 +45,16 @@ class LatestQuoteResponse(BaseModel):
 
 class LatestQuotesResponse(BaseModel):
     data: Dict[str, Dict[str, Any]]
+    
+class CancelOrdersRequest(BaseModel):
+    order_ids: Optional[List[str]] = None
+    cancel_all: bool = False
+    
+class ConflictCheckRequest(BaseModel):
+    symbol: str = Field(..., description="Stock symbol")
+    intended_side: str = Field(..., pattern="^(buy|sell)$")
+    intended_qty: float = Field(..., gt=0)
+    auto_resolve: bool = Field(False, description="Auto close/cancel conflicts")
 
 router = APIRouter()
 
@@ -58,7 +70,8 @@ logger = logging.getLogger(__name__)
 
 # Dependency to get a broker instance (can be singleton or factory)
 def get_broker() -> AlpacaBrokerClient:
-    return create_broker_client()
+    return services.brokerage
+    # return create_broker_client()
 
 
 # ---------- Health ----------
@@ -134,7 +147,26 @@ def list_all_orders(
     broker: AlpacaBrokerClient = Depends(get_broker),
 ) -> List[Dict[str, Any]]:
     try:
-        return broker.list_all_orders(limit=limit)
+        all_orders = broker.list_all_orders(limit=limit)
+        order_ids = [str(order['id']) for order in all_orders]
+        print("Fetching reasonings for order IDs:", order_ids)
+
+        reasonings = services.trading_db.get_reasonings_batch(order_ids)
+        print("Fetched reasonings for orders:", reasonings)
+        # Single line enrichment
+        for order in all_orders:
+            order_id = str(order['id'])
+            has_reasoning = reasonings.get(order_id, {}).get('reasonings', None) is not None
+            if has_reasoning:
+                order['trading_agent_reasonings'] = reasonings.get(order_id, {}).get('reasonings', '')
+                order['is_trading_agent'] = True
+                order['risk_evaluation'] = reasonings.get(order_id, {}).get('risk_evaluation', {})
+                order['risk_adjustments_made'] = reasonings.get(order_id, {}).get('risk_adjustments_made', [])
+            else:
+                order['trading_agent_reasonings'] = None
+                order['is_trading_agent'] = False
+
+        return all_orders
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -145,7 +177,19 @@ def get_order(
     broker: AlpacaBrokerClient = Depends(get_broker),
 ) -> Dict[str, Any]:
     try:
-        return broker.get_order(order_id)
+        order_info = broker.get_order(order_id)
+        order_ids = [str(order_info['id'])]
+        reasonings = services.trading_db.get_reasonings_batch(order_ids)
+
+        if reasonings.get(order_id, {}).get('reasonings', None) is not None:
+            order_info['trading_agent_reasonings'] = reasonings.get(order_id, {}).get('reasonings', '')
+            order_info['is_trading_agent'] = True
+            order_info['risk_evaluation'] = reasonings.get(order_id, {}).get('risk_evaluation', {})
+            order_info['risk_adjustments_made'] = reasonings.get(order_id, {}).get('risk_adjustments_made', [])
+        else:
+            order_info['trading_agent_reasonings'] = None
+            order_info['is_trading_agent'] = False
+        return order_info
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -253,7 +297,6 @@ def create_bracket_order(
             take_profit_price=float(body.take_profit_price),
             stop_loss_price=float(body.stop_loss_price),
             time_in_force=body.time_in_force.value,  # Enum -> str
-            extended_hours=True,
         )
         
         # Log order ID for tracking
@@ -308,8 +351,64 @@ def close_all_positions(
         return data
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+    
+@router.delete("/orders/cancel")
+async def cancel_orders(
+    req: CancelOrdersRequest,
+    broker: AlpacaBrokerClient = Depends(get_broker)
+) -> Dict[str, Any]:
+    """
+    Cancel specific orders by ID or all open orders.
+    """
+    try:
+        result = broker.cancel_orders(
+            order_ids=req.order_ids,
+            cancel_all=req.cancel_all
+        )
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    
+# ---------- Conflict checking / resolution ----------
+@router.post("/orders/check-conflicts")
+async def check_conflicts(
+    req: ConflictCheckRequest,
+    broker: AlpacaBrokerClient = Depends(get_broker)
+) -> Dict[str, Any]:
+    """
+    Check for conflicting positions/orders before placing new trade.
+    
+    Returns conflicts found + required cleanup actions.
+    """
+    result = broker.check_conflicting_positions(
+        symbol=req.symbol,
+        intended_side=req.intended_side,
+        intended_qty=req.intended_qty
+    )
+    return result
 
 
+@router.post("/orders/resolve-conflicts")
+async def resolve_conflicts(
+    req: ConflictCheckRequest,
+    broker: AlpacaBrokerClient = Depends(get_broker)
+) -> Dict[str, Any]:
+    """
+    Check conflicts AND auto-resolve (close position + cancel orders).
+    
+    Use before submitting new bracket order to ensure clean entry.
+    """
+    result = broker.resolve_conflicts(
+        symbol=req.symbol,
+        intended_side=req.intended_side,
+        intended_qty=req.intended_qty,
+        auto_resolve=req.auto_resolve
+    )
+    return result
 # ---------- Convenience ----------
 
 @router.get("/account/equity_cash")
