@@ -7,6 +7,7 @@ class MongoDBClient:
         self.client = pymongo.MongoClient(uri, uuidRepresentation="standard")
         self.db = self.client[db_name]
         self.orders = self.db.orders
+        self.signals = self.db.signals 
         
     def store_orders_bulk(self, orders: List[Dict[str, Any]]) -> Dict[str, int]:
         """Store multiple orders (synchronous)"""
@@ -50,3 +51,15 @@ class MongoDBClient:
             result[order_id] = serialized_doc
         
         return result
+    
+    # Signals - From aggregator service
+    def store_signal(self, signal: Dict[str, Any]) -> Dict[str, Any]:
+        """Store single trading signal."""
+        signal_copy = deepcopy(signal)
+        result = self.signals.insert_one(signal_copy)
+        return {"success": bool(result.inserted_id), "id": str(result.inserted_id) if result.inserted_id else None}
+    
+    def get_signals(self, ticker: str = None) -> List[Dict[str, Any]]:
+        """Retrieve signals, optionally filtered by ticker."""
+        query = {} if ticker is None else {"ticker": ticker}
+        return list(self.signals.find(query, {"_id": 0}))

@@ -4,8 +4,8 @@ from pydantic import BaseModel
 from langgraph.graph import StateGraph, END
 from src.services.redis_service import RedisService
 from src.services.llm_service import LLMService
-from src.agents import NewsParser, ThresholdMonitor, DeepAnalyzer, lookup_qdrant
-from src.models.news import TickerTopic, DeepAnalysis, TradingSignal, NewsArticle, TickerSentiment
+from src.agents import ThresholdMonitor, DeepAnalyzer, lookup_qdrant
+from src.models.news import DeepAnalysis, TickerSentiment
 import os
 
 class AgentState(TypedDict):

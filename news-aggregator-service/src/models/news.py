@@ -1,28 +1,9 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
+from typing import List, Optional
 from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass, field
 from datetime import datetime
-
-class NewsArticle(BaseModel):
-    id: str
-    title: str
-    content: str
-    sentiment: float = Field(..., ge=-1.0, le=1.0)
-    timestamp: datetime
-    source: str
-
-class TickerTopic(BaseModel):
-    ticker: str
-    topic: str
-    sentiment: float
-    volume: int = 0
-    articles: List[str] = []
-
-class ResearchQuestion(BaseModel):
-    question: str
-    sources_needed: List[str]
 
 class Credibility(str, Enum):
     LOW = "Low"
@@ -46,16 +27,6 @@ class DeepAnalysis(BaseModel):
     position_size_pct: float = Field(..., description="0.5|1|2")
     stop_loss_pct: float = Field(..., description="8|10|12")
     target_pct: float = Field(..., description="20|30|50")
-
-class TradingSignal(BaseModel):
-    ticker: str
-    signal_type: str  # "BUY", "SELL", "HOLD", "ALERT"
-    confidence: float
-    urgency: str  # "HIGH", "MEDIUM", "LOW"
-    position_size: Optional[float] = None
-    risk_limit: float
-    reasoning: str
-    timestamp: datetime
 
 
 class SentimentLabel(str, Enum):

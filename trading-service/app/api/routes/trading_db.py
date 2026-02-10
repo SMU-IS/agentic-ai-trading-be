@@ -5,7 +5,7 @@ from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, HTTPException
 from app.core.trading_db_client import MongoDBClient
 from app.core.services import services
-
+from app.api.schemas import DeepAnalysis
 router = APIRouter()
 
 # mongo_client = MongoDBClient(uri=os.getenv("MONGODB_URI", "mongodb://mongo:27017"), db_name="trading_db")
@@ -27,3 +27,36 @@ def get_order_by_id(order_id: str, client: MongoDBClient = Depends(lambda: mongo
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+    
+    
+#  Signals
+@router.post("/signals/", status_code=201)
+async def create_signal(
+    signal: DeepAnalysis,  # Or Signal(model_validate compatible)
+    client: MongoDBClient = Depends(lambda: mongo_client)
+):
+    """Create a new trading signal."""
+    signal_dict = signal.model_dump()
+    result = client.store_signal(signal_dict)
+    if not result["success"]:
+        raise HTTPException(status_code=500, detail="Failed to store signal")
+    return result
+
+@router.get("/signals/", response_model=List[DeepAnalysis])
+async def get_signals(
+    client: MongoDBClient = Depends(lambda: mongo_client)
+):
+    """Get all trading signals."""
+    docs = client.get_signals()
+    return [DeepAnalysis.model_validate(doc) for doc in docs]
+
+@router.get("/signals/{ticker}", response_model=List[DeepAnalysis])
+async def get_signal_by_ticker(
+    ticker: str,
+    client: MongoDBClient = Depends(lambda: mongo_client)
+):
+    """Get trading signals by ticker."""
+    docs = client.get_signals(ticker=ticker)
+    if not docs:
+        raise HTTPException(status_code=404, detail=f"No signals for {ticker}")
+    return [DeepAnalysis.model_validate(doc) for doc in docs]
