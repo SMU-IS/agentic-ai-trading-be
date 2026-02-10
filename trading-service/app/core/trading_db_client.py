@@ -1,6 +1,5 @@
 import pymongo
 from typing import List, Dict, Any, Optional
-from bson import ObjectId
 from copy import deepcopy
 
 class MongoDBClient:

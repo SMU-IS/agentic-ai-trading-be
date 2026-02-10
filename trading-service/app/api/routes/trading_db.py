@@ -1,11 +1,8 @@
 """
 Trading Database API Routes
 """
-from pydantic import BaseModel
-from datetime import datetime
-from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, Query
-import os
+from typing import List, Optional, Dict
+from fastapi import APIRouter, Depends, HTTPException
 from app.core.trading_db_client import MongoDBClient
 from app.core.services import services
 

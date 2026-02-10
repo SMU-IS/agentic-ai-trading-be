@@ -1,6 +1,5 @@
 from app.agents.state import AgentState, db_trade_decision
 from typing import Dict, Any, List
-from math import floor
 import httpx
 
 import asyncio
