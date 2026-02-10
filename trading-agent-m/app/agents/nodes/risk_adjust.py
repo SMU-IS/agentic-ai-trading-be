@@ -37,18 +37,7 @@ async def node_risk_adjust_trade_logic(state: AgentState) -> AgentState:
 
     state["order_details"] = evaluation_result.get("adjusted_trade", order_details)
     order_details = state.get("order_details", {})
-    # Check action
-    # get open position for ticker
-    # close out position if direction is opposite
 
-    # get existing pending orders for ticker
-    # close out pending orders if any
-    # end trade - no trade if conflicts exist
-
-    # Confidence Gate
-
-    # Market Regime Filters
-    # VIX > 30 → Max risk 0.5%, qty * 0.5
     conflict_resolve_task = resolve_conflicting_position(
         order_details.get("ticker"), action.lower(), order_details.get("qty", 0)
     )
