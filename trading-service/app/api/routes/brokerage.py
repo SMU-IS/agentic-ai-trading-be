@@ -1,10 +1,9 @@
-from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app.core.broker_client import AlpacaBrokerClient, create_broker_client
+from app.core.broker_client import AlpacaBrokerClient
 from app.api.schemas import (
     MarketOrderRequestBody,
     LimitOrderRequestBody,
