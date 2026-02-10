@@ -36,7 +36,7 @@ async def main():
         )
         print("-" * 60)
 
-        result = await workflow.run(input_data)
+        # result = await workflow.run(input_data)
 
         # print("📊 Final Result:")
         # print(f"  Action: {result.get('action', 'N/A')}")

@@ -339,9 +339,6 @@ def risk_evaluation_metrics(trade_decision, yahoo_data, account_bp) -> Dict[str,
     risk_per_share = abs(float(adjusted_trade["entry_price"]) - float(adjusted_trade["stop_loss"]))
     reward_per_share = abs(float(adjusted_trade["take_profit"]) - float(adjusted_trade["entry_price"]))
     actual_rr = reward_per_share / risk_per_share
-    
-    # ✅ FIX: Convert qty to float
-    qty = float(adjusted_trade["qty"])
 
     max_risk_pct = 0.05 if float(trade["confidence"]) >= 0.8 else 0.03
     max_risk_dollars = account_bp * max_risk_pct
@@ -389,7 +386,7 @@ def print_risk_evaluation(evaluation_result):
     
     # Header
     print("\n" + "="*60)
-    print(f"🎯 RISK EVALUATION REPORT")
+    print("🎯 RISK EVALUATION REPORT")
     print("="*60)
     
     # Status
@@ -398,7 +395,7 @@ def print_risk_evaluation(evaluation_result):
     print(f"📊 RISK SCORE: {result['risk_score']:.2f}/1.50")
     
     # Trade Details
-    print(f"\n📋 TRADE SETUP")
+    print("\n📋 TRADE SETUP")
     print(f"  Action:        {trade['action']}")
     print(f"  Symbol:        {trade.get('ticker', 'N/A')}")
     print(f"  Confidence:    {trade['confidence']*100:.0f}%")
@@ -408,26 +405,26 @@ def print_risk_evaluation(evaluation_result):
     print(f"  Quantity:      {trade['qty']} shares")
     
     # Risk Metrics
-    print(f"\n💰 RISK METRICS")
+    print("\n💰 RISK METRICS")
     print(f"  Risk/Share:    {metrics['risk_per_share']}")
     print(f"  Reward/Share:  {metrics['reward_per_share']}")
     print(f"  Actual R:R:    {metrics['actual_rr']}")
     print(f"  Total Risk:    {metrics['total_risk']}")
     
     # Position Sizing
-    print(f"\n📐 POSITION SIZING")
+    print("\n📐 POSITION SIZING")
     print(f"  Current Qty:   {trade['qty']} shares")
     print(f"  Suggested Qty: {metrics['suggested_qty']} shares (5% risk)")
     print(f"  Max Risk (5%): {metrics['max_risk_5pct']}")
     
     # Technical Context
-    print(f"\n📈 TECHNICAL CONTEXT")
+    print("\n📈 TECHNICAL CONTEXT")
     print(f"  Near Resistance: {'Yes ✅' if metrics['near_resistance'] else 'No'}")
     print(f"  ATR Distance:    {metrics['atr_distance']}")
     
     # Thesis
     if 'thesis' in trade:
-        print(f"\n💡 THESIS")
+        print("\n💡 THESIS")
         # Wrap thesis text
         thesis = trade['thesis']
         max_width = 56
@@ -448,10 +445,10 @@ def print_risk_evaluation(evaluation_result):
     
     # Issues/Warnings
     if result['issues']:
-        print(f"\n⚠️ ADJUSTMENTS MADE")
+        print("\n⚠️ ADJUSTMENTS MADE")
         for issue in result['issues']:
             print(f"  • {issue}")
     else:
-        print(f"\n✅ NO ADJUSTMENTS NEEDED")
+        print("\n✅ NO ADJUSTMENTS NEEDED")
     
     print("\n" + "="*60 + "\n")
