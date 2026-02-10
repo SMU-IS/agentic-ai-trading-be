@@ -1,5 +1,4 @@
 from src.services.qdrant import QdrantManager
-from qdrant_client.http.exceptions import UnexpectedResponse
 from qdrant_client.http.models import FieldCondition, Filter, MatchValue
 import asyncio  # Add this
 

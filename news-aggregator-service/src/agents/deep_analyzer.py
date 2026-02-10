@@ -1,5 +1,4 @@
-from typing import List
-from src.models.news import TickerTopic, DeepAnalysis, ResearchQuestion
+from src.models.news import DeepAnalysis
 from src.services.llm_service import LLMService
 
 system_prompt = """

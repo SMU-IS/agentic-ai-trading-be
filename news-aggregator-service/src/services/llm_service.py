@@ -1,42 +1,9 @@
-# import openai
-# from typing import List
-# from pydantic import BaseModel
-
-# class LLMService:
-#     def __init__(self, api_key: str):
-#         openai.api_key = api_key
-    
-#     async def generate(self, prompt: str) -> str:
-#         # Replace with your LLM provider (OpenAI, Anthropic, etc.)
-#         response = await openai.ChatCompletion.acreate(
-#             model="gpt-4",
-#             messages=[{"role": "user", "content": prompt}],
-#             temperature=0.1
-#         )
-#         return response.choices[0].message.content
-    
-#     async def generate_list(self, prompt: str) -> List[dict]:
-#         response = await self.generate(prompt)
-#         # Simple JSON parsing - enhance with proper error handling
-#         import json
-#         return json.loads(response)
-    
-#     def parse_json_list(self, response: str) -> List[dict]:
-#         import json, re
-#         # Extract JSON array from response
-#         json_match = re.search(r'\[.*\]', response, re.DOTALL)
-#         if json_match:
-#             return json.loads(json_match.group())
-#         return []
-
-
 import httpx
 import json
 import re
 import os
-from typing import Any, Dict, List, Union
+from typing import List
 from pydantic import BaseModel
-from src.config import settings
 from src.services.json_parser import safe_parse
 
 class LLMService:

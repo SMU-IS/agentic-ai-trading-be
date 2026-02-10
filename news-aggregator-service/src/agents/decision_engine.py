@@ -1,7 +1,6 @@
 from datetime import datetime
 from src.models.news import DeepAnalysis, TradingSignal
 from src.services.llm_service import LLMService
-from src.config import settings
 
 class DecisionEngine:
     def __init__(self, llm: LLMService):

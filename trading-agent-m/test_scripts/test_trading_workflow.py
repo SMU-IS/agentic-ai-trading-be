@@ -2,7 +2,6 @@
 # test_trading_workflow_ollama.py
 #
 import asyncio
-import json
 
 from langchain_ollama import ChatOllama
 

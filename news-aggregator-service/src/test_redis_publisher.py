@@ -1,8 +1,6 @@
 import asyncio
 import json
-from datetime import datetime
 from src.services.redis_service import RedisService
-from src.models.news import NewsArticle
 
 async def publish_test_news():
     redis = RedisService()

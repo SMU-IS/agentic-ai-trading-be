@@ -1,6 +1,4 @@
 import asyncio
-import os
-from src.config import settings
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -8,7 +6,6 @@ load_dotenv()
 import asyncio
 from src.services.redis_service import RedisService
 from src.workflows.main_workflow import setup_workflow
-from src.models.news import TickerSentiment
 
 async def main():
     workflow = await setup_workflow()  # Initializes global services + app

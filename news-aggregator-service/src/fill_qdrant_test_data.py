@@ -1,11 +1,10 @@
 import asyncio
 import uuid
-from xmlrpc import client
 import numpy as np
 from datetime import datetime, timedelta
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
-    PointStruct, VectorParams, Distance, Filter, FieldCondition, MatchValue, MatchAny, NestedCondition, Nested
+    PointStruct, VectorParams, Distance, Filter, FieldCondition, MatchValue
 )
 
 async def fill_qdrant_tickers():
