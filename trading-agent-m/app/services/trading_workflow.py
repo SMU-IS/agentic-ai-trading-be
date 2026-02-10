@@ -3,7 +3,14 @@ from functools import partial
 
 from langgraph.graph import END, START, StateGraph
 
-from app.agents.nodes import node_decide_trade, node_execute_trade, node_lookup_qdrant, node_fetch_market_data, node_risk_adjust_trade, node_trade_logging
+from app.agents.nodes import (
+    node_decide_trade,
+    node_execute_trade,
+    node_lookup_qdrant,
+    node_fetch_market_data,
+    node_risk_adjust_trade,
+    node_trade_logging,
+)
 from app.agents.state import AgentState
 
 
@@ -34,13 +41,17 @@ class TradingWorkflow:
 
         # Conditional: Only trade if the brain says so
         graph.add_conditional_edges(
-            "reasoning", self.edge_has_trade_opportunity, {True: "node_risk_adjust_trade", False: "trade_logging"}
+            "reasoning",
+            self.edge_has_trade_opportunity,
+            {True: "node_risk_adjust_trade", False: "trade_logging"},
         )
-        
+
         graph.add_conditional_edges(
-            "node_risk_adjust_trade", self.edge_should_execute, {True: "execute", False: "trade_logging"}
+            "node_risk_adjust_trade",
+            self.edge_should_execute,
+            {True: "execute", False: "trade_logging"},
         )
-        
+
         graph.add_edge("trade_logging", END)
 
         return graph.compile()
@@ -48,7 +59,7 @@ class TradingWorkflow:
     # ###### Edge Logic ######
     def edge_should_execute(self, state: AgentState):
         return state.get("should_execute", False)
-    
+
     def edge_has_trade_opportunity(self, state: AgentState):
         return state.get("has_trade_opportunity", False)
 

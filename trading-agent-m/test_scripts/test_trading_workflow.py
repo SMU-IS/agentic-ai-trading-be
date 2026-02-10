@@ -7,6 +7,7 @@ from langchain_ollama import ChatOllama
 
 from app.services.trading_workflow import TradingWorkflow
 
+
 async def main():
     ollama = ChatOllama(
         model="llama3.1:latest",
