@@ -8,6 +8,6 @@ llm = ChatOllama(
     temperature=env_config.ollama_temperature,
     base_url=env_config.ollama_base_url,
 )
-broker = None
-trading_agent = TradingWorkflow(llm_client=llm, broker_client=broker)
+
+trading_agent = TradingWorkflow(llm_client=llm)
 app_workflow = trading_agent

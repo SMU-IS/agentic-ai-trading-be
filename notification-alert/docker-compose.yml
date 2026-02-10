@@ -6,8 +6,7 @@ services:
       - .:/code
     env_file: .env
     ports:
-      - "8000:8000"  
+      - "5004:5004"
     restart: unless-stopped
     environment:
-    - PYTHONUNBUFFERED=1
-
+      - PYTHONUNBUFFERED=1
