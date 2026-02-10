@@ -36,7 +36,7 @@ async def node_fetch_market_data(state: AgentState) -> AgentState:
     }
     print(f"   [📈 Yahoo Market Data] {yahoo_data}")
     print(f"   [📈 Alpaca Market Data] {alpaca_data}")
-    
+
     return state
 
 
@@ -72,7 +72,7 @@ async def fetch_yahoo_historical(ticker: str) -> Dict[str, Any]:
         try:
             resp = await client.get(
                 f"{YAHOO_BASE_URL}/history/{ticker}",
-                params={"interval": "1d", "period": "3mo"}
+                params={"interval": "1d", "period": "3mo"},
             )
             if resp.status_code != 200:
                 return {"error": "Yahoo unavailable"}
@@ -102,11 +102,11 @@ async def fetch_yahoo_historical(ticker: str) -> Dict[str, Any]:
                 "indicators": {
                     "price": float(df["close"].iloc[-1]),
                     "atr14": float(tr.rolling(14).mean().iloc[-1]),
-                    "sma20": float(df['close'].rolling(20).mean().iloc[-1]),
-                    "sma50": float(df['close'].rolling(50).mean().iloc[-1]),
-                    "support": float(df['low'].tail(30).min()),
-                    "resistance": float(df['high'].tail(30).max()),
-                    "rsi14": float(rsi(df['close'], 14).iloc[-1])
+                    "sma20": float(df["close"].rolling(20).mean().iloc[-1]),
+                    "sma50": float(df["close"].rolling(50).mean().iloc[-1]),
+                    "support": float(df["low"].tail(30).min()),
+                    "resistance": float(df["high"].tail(30).max()),
+                    "rsi14": float(rsi(df["close"], 14).iloc[-1]),
                 },
                 "summary": f"{df.shape[0]} bars, {df.index[0].date()}→{df.index[-1].date()}",
             }

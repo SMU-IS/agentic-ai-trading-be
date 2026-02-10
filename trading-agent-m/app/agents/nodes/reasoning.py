@@ -10,13 +10,11 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
     Brain: Uses LLM for short-term swing trades driven by news volatility.
     Goal: Capture 2-5 day swings against short-term news-driven volatility.
     """
-    print(
-        f"   [🧠 Swing Trading Brain] Analyzing {state['ticker']}..."
-    )
+    print(f"   [🧠 Swing Trading Brain] Analyzing {state['ticker']}...")
 
     def get_market_summary(state: AgentState) -> str:
         """Safe market data extraction."""
-        market = state.get('market_data', {})
+        market = state.get("market_data", {})
         return json.dumps(market)
 
     market_summary = get_market_summary(state)
@@ -54,8 +52,7 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
                 You are to analyse and provide technical justifications based on this data.
                 Use this market data to find exact entry price, stop loss and take profit levels.
                 {market_summary}
-                """
-                
+                """,
             ),
             (
                 "human",
@@ -104,13 +101,13 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
         "sentiment": state["signal"].get("sentiment", "neutral"),
         "score": state["signal"].get("score", 0.0),
         "event_type": state["signal"].get("event_type", "general"),
-        "market_summary": market_summary
+        "market_summary": market_summary,
     }
 
     # 3. Invoke LLM
     chain = prompt | llm
     response = await chain.ainvoke(input_vars)
-    
+
     decision = parse_llm_json(response.content)
     if decision.get("action") not in ["BUY", "SELL", "HOLD"]:
         decision["action"] = "HOLD"
@@ -123,25 +120,30 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
         "has_trade_opportunity": decision.get("action") in ["BUY", "SELL"],
     }
 
+
 # Helper function to parse LLM JSON responses robustly
 def parse_llm_json(response_content: str) -> dict:
     content = response_content.strip()
     print("Raw LLM:", content)
-    
+
     # Step 1: Extract JSON (handles ```json, ```, raw, or nested)
-    json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', content, re.DOTALL | re.IGNORECASE)
+    json_match = re.search(
+        r"```(?:json)?\s*(\{.*?\})\s*```", content, re.DOTALL | re.IGNORECASE
+    )
     if json_match:
         raw_json = json_match.group(1)
     else:
         # Largest valid JSON block fallback
-        json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', content)
+        json_match = re.search(r"\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}", content)
         raw_json = json_match.group(0) if json_match else content.strip()
-    
+
     # Step 2: Strip comments & normalize
-    raw_json = re.sub(r'//.*?(?=\n|$)', '', raw_json, flags=re.MULTILINE)     # // comments
-    raw_json = re.sub(r'/\*.*?\*/', '', raw_json, flags=re.DOTALL)           # /* */ comments
-    raw_json = raw_json.replace("'", '"').replace('True', 'true').replace('False', 'false')  # Fix quotes/booleans
-    
+    raw_json = re.sub(r"//.*?(?=\n|$)", "", raw_json, flags=re.MULTILINE)  # // comments
+    raw_json = re.sub(r"/\*.*?\*/", "", raw_json, flags=re.DOTALL)  # /* */ comments
+    raw_json = (
+        raw_json.replace("'", '"').replace("True", "true").replace("False", "false")
+    )  # Fix quotes/booleans
+
     try:
         decision = json.loads(raw_json)
         print("✅ Parsed:", decision)
@@ -149,6 +151,7 @@ def parse_llm_json(response_content: str) -> dict:
     except json.JSONDecodeError as e:
         print(f"❌ Parse failed: {e} | Raw: {raw_json[:200]}...")
         return fallback_decision()
+
 
 def fallback_decision() -> dict:
     return {
