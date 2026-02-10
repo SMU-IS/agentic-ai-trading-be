@@ -1,0 +1,13 @@
+services:
+  notification-service:
+    build: .
+    container_name: notification-service
+    volumes:
+      - .:/code
+    env_file: .env
+    ports:
+      - "8000:8000"  
+    restart: unless-stopped
+    environment:
+    - PYTHONUNBUFFERED=1
+
