@@ -96,3 +96,15 @@ jobs:
           WORKSPACE: ${{ github.workspace }}
         run: |
           helm upgrade --install news-analysis ./infra -f ./deploy/values-news-analysis.yaml --set image.tag=${{ github.sha }}
+
+      - name: Verify Health and Status
+        if: always()
+        run: |
+          echo "****** Helm Release Status ******"
+          helm status news-analysis
+
+          echo "****** Deployment Revision History ******"
+          helm history news-analysis
+
+          echo "****** Kubernetes Pod Status ******"
+          kubectl get pods -l app.kubernetes.io/instance=news-analysis

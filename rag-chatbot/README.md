@@ -8,7 +8,7 @@
   <img width="220" height="204" alt="agent" src="https://github.com/user-attachments/assets/82d27a27-f71c-42ac-bf51-5b1a83893e6a" />
 </p>
 
-## 🤖 Agent M | Agentic AI Trading Portfolio Backend
+## 🤖 Agent M | Agentic AI Trading Portfolio Backend (RAG)
 
 A dynamic, fully autonomous trading portfolio companion designed to navigate the complex digital financial landscape. Leveraging a multi-agent AI architecture, the platform transforms real-time market data, traditional news, and internet sentiment into personalised, actionable investment decisions.
 
