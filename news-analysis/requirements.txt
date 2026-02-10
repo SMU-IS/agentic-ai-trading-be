@@ -145,6 +145,8 @@ tokenizers==0.22.2
 tqdm==4.67.3
 typer==0.21.1
 
+transformers==5.1.0
+
 typer-slim==0.21.1
 typing-inspect==0.9.0
 typing-inspection==0.4.2
