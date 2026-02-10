@@ -44,3 +44,8 @@ include:
   - path: ./trading-service/docker-compose.yml
     env_file: ./trading-service/.env
     project_directory: ./trading-service
+
+  # === Notification Alert Service Microservice ===
+  - path: ./notification-alert/docker-compose.yml
+    env_file: ./notification-alert/.env
+    project_directory: ./notification-alert

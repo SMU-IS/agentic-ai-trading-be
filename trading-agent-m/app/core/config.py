@@ -23,7 +23,7 @@ class EnvConfig(BaseSettings):
     # redis_stream_key: str = Field(..., validation_alias="REDIS_STREAM_KEY")
     # redis_group_name: str = Field(..., validation_alias="REDIS_GROUP_NAME")
 
-    qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
+    # qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
 
 
 env_config = EnvConfig()  # type: ignore
