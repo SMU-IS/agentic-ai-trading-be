@@ -105,9 +105,21 @@ async def fetch_yahoo_historical(ticker: str) -> Dict[str, Any]:
                     "sma20": float(df['close'].rolling(20).mean().iloc[-1]),
                     "sma50": float(df['close'].rolling(50).mean().iloc[-1]),
                     "support": float(df['low'].tail(30).min()),
-                    "resistance": float(df['high'].tail(30).max())
+                    "resistance": float(df['high'].tail(30).max()),
+                    "rsi14": float(rsi(df['close'], 14).iloc[-1])
                 },
                 "summary": f"{df.shape[0]} bars, {df.index[0].date()}→{df.index[-1].date()}",
             }
         except Exception as e:
             return {"error": str(e)}
+
+
+def rsi(series, period=14):
+    delta = series.diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(window=period).mean()
+    avg_loss = loss.rolling(window=period).mean()
+    rs = avg_gain / avg_loss
+    rsi_val = 100 - (100 / (1 + rs))
+    return rsi_val
