@@ -13,4 +13,4 @@ async def start_consumers():
     sentiment_bridge = SentimentBridge()
     asyncio.create_task(sentiment_bridge.async_start())
 
-
+    # Notification consumer 
