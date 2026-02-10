@@ -94,3 +94,15 @@ jobs:
           WORKSPACE: ${{ github.workspace }}
         run: |
           helm upgrade --install rag-chatbot ./infra -f ./deploy/values-chatbot.yaml --set image.tag=${{ github.sha }}
+
+      - name: Verify Health and Status
+        if: always()
+        run: |
+          echo "****** Helm Release Status ******"
+          helm status rag-chatbot
+
+          echo "****** Deployment Revision History ******"
+          helm history rag-chatbot
+
+          echo "****** Kubernetes Pod Status ******"
+          kubectl get pods -l app.kubernetes.io/instance=rag-chatbot

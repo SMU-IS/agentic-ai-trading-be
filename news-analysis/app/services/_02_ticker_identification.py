@@ -36,6 +36,7 @@ class TickerIdentificationService:
         self.model_type = model_type
         self.model_name = model_name
         self.new_alias_count = 0
+        self.new_type_count = 0
         self.base_url = base_url
         self.cleaned_tickers = cleaned_tickers
         self.alias_to_canonical = alias_to_canonical
@@ -43,7 +44,6 @@ class TickerIdentificationService:
         self.ticker_to_title = {v["ticker"]: v["title"] for v in self.cleaned_tickers.values()}
         self.ticker_to_canonical = {v["ticker"]: k for k, v in self.cleaned_tickers.items()}
         self.nlp = spacy.load(spacy_model)
-        self.stock_tickers = set()
 
     # Normalizes text by converting it to lowercase and removing all characters that are not lowercase letters or digits
     def _normalize_company(self, text: str) -> str:
@@ -61,6 +61,47 @@ class TickerIdentificationService:
             temperature=0,
             format="json",
         )
+
+    def classify_ticker(self, ticker: str) -> str:
+        try:
+            t = yf.Ticker(ticker)
+            info = t.info
+
+            quote_type = info.get("quoteType")
+
+            mapping = {
+                "EQUITY": "stock",
+                "ETF": "etf",
+                "CRYPTOCURRENCY": "crypto",
+                "INDEX": "index",
+                "CURRENCY": "forex"
+            }
+            mapvalue = mapping.get(quote_type, "unknown")
+            if mapvalue:
+                return mapvalue
+            else:
+                return None
+
+        except Exception:
+            return None
+
+    def _update_cleaned_entry(self, ticker: str) -> Union[str, None]:
+        canon = self.ticker_to_canonical.get(ticker)
+        if not canon:
+            return None
+        cleaned_entry = self.cleaned_tickers.get(canon, {})
+        cleaned_type = cleaned_entry.get("type")
+        if cleaned_type is None:
+            ticker_type = self.classify_ticker(ticker)
+            if ticker_type:
+                self.new_type_count += 1
+                cleaned_entry["type"] = ticker_type
+                self.cleaned_tickers[canon] = cleaned_entry
+                print(f"Updated {canon} type to {ticker_type}")
+        else:
+            ticker_type = cleaned_type
+        return ticker_type
+
 
     def _extract_company_ticker_llm(self, text: str):
         """
@@ -114,32 +155,6 @@ class TickerIdentificationService:
             }
 
         return output
-
-
-    def _classify_ticker(self, ticker: str) -> str:
-        try:
-            t = yf.Ticker(ticker)
-            info = t.info
-
-            quote_type = info.get("quoteType")
-
-            mapping = {
-                "EQUITY": "stock",
-                "ETF": "etf",
-                "CRYPTOCURRENCY": "crypto",
-                "INDEX": "index",
-                "CURRENCY": "forex"
-            }
-            mapvalue = mapping.get(quote_type, "unknown")
-            if mapvalue == "stock":
-                self.stock_tickers.add(ticker)
-
-            return mapvalue
-
-        except Exception:
-            return "unknown"
-
-
                 
     def build_canonical_to_aliases(self, alias_to_canonical: Dict[str, str]) -> Dict[str, List[str]]:
         canonical_to_aliases = defaultdict(list)
@@ -184,12 +199,9 @@ class TickerIdentificationService:
             if ticker and ticker in self.ticker_to_title:
 
                 if ticker not in ticker_metadata:
-                    if ticker in self.stock_tickers:
-                        ticker_type = "stock"
-                    else:
-                        ticker_type = self._classify_ticker(ticker)
-                        if ticker_type != "stock":
-                            continue
+                    ticker_type = self._update_cleaned_entry(ticker)
+                    if ticker_type != "stock":
+                        continue
                     ticker_metadata[ticker] = {
                         "Type": ticker_type,
                         "OfficialName": self.ticker_to_title.get(ticker, ""),
@@ -206,14 +218,10 @@ class TickerIdentificationService:
             # normalize ticker
             ticker = match.replace("$", "").upper()
             # check if ticker identified matches our ticker knowledge base
-            if ticker in self.ticker_to_title:
-                if ticker in self.stock_tickers:
-                    ticker_type = "stock"
-                else:
-                    ticker_type = self._classify_ticker(ticker)
-                    if ticker_type != "stock":
-                        continue
-
+            if ticker and ticker in self.ticker_to_title:
+                ticker_type = self._update_cleaned_entry(ticker)
+                if ticker_type != "stock":
+                    continue
                 if ticker not in ticker_metadata:
                     ticker_metadata[ticker] = {
                         "Type": ticker_type,
@@ -230,18 +238,15 @@ class TickerIdentificationService:
         if not ticker_metadata:
             llm_result = self._extract_company_ticker_llm(text)
             if llm_result:
-                for company in llm_result["companies"]:
+                for company in llm_result.get("companies", []):
                     # check if llm result is empty
                     if company["ticker"] and company["company_name"]:
                         # normalize ticker
                         ticker = company["ticker"].replace("$", "").upper()
-                        if ticker in self.ticker_to_title:
-                            if ticker in self.stock_tickers:
-                                ticker_type = "stock"
-                            else:
-                                ticker_type = self._classify_ticker(ticker)
-                                if ticker_type != "stock":
-                                    continue
+                        if ticker and ticker in self.ticker_to_title:
+                            ticker_type = self._update_cleaned_entry(ticker)
+                            if ticker_type != "stock":
+                                continue
                             if ticker not in ticker_metadata:
                                 ticker_metadata[ticker] = {
                                     "Type": ticker_type,
@@ -255,7 +260,7 @@ class TickerIdentificationService:
 
         return ticker_metadata
 
-
+    
     def process_post(self, post: Dict) -> Dict:
         # Add ticker metadata to a single post
         ticker_metadata = self.extract_tickers(post["content"]["clean_combined_withurl"])
