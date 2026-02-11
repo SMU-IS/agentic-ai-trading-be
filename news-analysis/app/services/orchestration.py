@@ -176,6 +176,7 @@ async def run_pipeline():
     )
 
     vectorisation_service = VectorisationService()
+    await vectorisation_service.setup_indexing()
 
     # # Clear streams for testing
     # preprocessing_stream.clear_stream()

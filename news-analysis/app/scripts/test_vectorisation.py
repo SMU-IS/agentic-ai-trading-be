@@ -80,6 +80,7 @@ async def run_test():
 
     try:
         service = VectorisationService()
+        await service.setup_indexing()
         print("✅ Service Initialized (Connected to Qdrant/Ollama)")
     except Exception as e:
         print(f"❌ Connection Failed. Are Qdrant/Ollama running? Error: {e}")

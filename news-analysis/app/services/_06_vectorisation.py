@@ -1,4 +1,3 @@
-import uuid
 from typing import Any
 from urllib.parse import urlparse
 
@@ -21,6 +20,14 @@ class VectorisationService:
     ):
         strategy = QdrantOllamaStrategy()
         self.vector_store = strategy.get_vector_store()
+
+    async def setup_indexing(self):
+        client = self.vector_store.client  # type: ignore
+        client.create_payload_index(
+            collection_name="news_analysis_compiled",
+            field_name="metadata.tickers_metadata",
+            field_schema=models.PayloadSchemaType.KEYWORD,
+        )
 
     async def get_sanitised_news_payload(self, processed_source: RedditSourcePayload):
         fields = processed_source.fields
