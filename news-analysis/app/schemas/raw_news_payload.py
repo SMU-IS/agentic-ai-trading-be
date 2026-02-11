@@ -32,11 +32,14 @@ class TickerDetail(BaseModel):
     name_identified: list[str]
     event_type: Optional[str] = None
     event_description: Optional[str] = None
-    event_proposal: Optional[str] = None
+    event_proposal: Optional[EventProposal] = None
     sentiment_score: float = Field(..., ge=-1, le=1)
     sentiment_label: str
     sentiment_confidence: float = Field(..., ge=0, le=1)
     sentiment_reasoning: str
+
+class EventProposal(BaseModel):
+    proposed_event_name: str
 
 
 class RedditFields(BaseModel):

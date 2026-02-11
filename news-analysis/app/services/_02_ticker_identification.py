@@ -184,6 +184,17 @@ class TickerIdentificationService:
             self.new_alias_count += 1
             print(f"[Memory Update] Added alias mapping: {norm_alias} -> {canonical}")
 
+    def get_aliases(self, tickers: List[str]) -> Dict[str, Dict[str, List[str]]]:
+        output = {}
+        for ticker in tickers:
+            canonical = self.ticker_to_canonical.get(ticker)
+            output[ticker] = {
+                "OfficialName": self.ticker_to_title.get(ticker, ""),
+                "Aliases": self.canonical_to_aliases.get(canonical, []) if canonical else []
+            }
+
+        return output
+
     def extract_tickers(self, text: str) -> Dict[str, Dict[str, Union[str, List[str]]]]:
         ticker_metadata: Dict[str, Dict[str, Union[str, List[str]]]] = {}
         doc = self.nlp(text)
