@@ -3,6 +3,32 @@ import asyncio
 from app.schemas.raw_news_payload import RedditSourcePayload
 from app.services._06_vectorisation import VectorisationService
 
+qdrant_result = {
+    "id": "uuid-v4-generated-id",
+    "metadata": {
+        "article_id": "uuid-v4-generated-id",
+        "tickers_metadata": {
+            "TSLA": {
+                "event_type": "Earnings Report",
+                "sentiment_score": 0.852341,
+                "sentiment_label": "positive",
+            },
+            "ELON": {
+                "event_type": "Earnings Report",
+                "sentiment_score": -0.451234,
+                "sentiment_label": "negative",
+            },
+            "timestamp": "2026-01-25T09:30:00Z",
+            "source_domain": "bloomberg.com",
+            "credibility_score": 0.95,
+            "headline": "Tesla Q4 Earnings Beat Expectations",
+            "text_content": "Tesla reported revenue of... [chunked text]...",
+            "url": "https://bloomberg.com/news/...",
+            "author": "Mark Gurman",
+        },
+    },
+}
+
 reddit_source_payload = {
     "id": "1770583212835-0",
     "fields": {

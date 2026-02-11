@@ -13,3 +13,4 @@ services:
       - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
       - AWS_S3_FILE_NAME=${AWS_S3_FILE_NAME}
     command: fastapi dev app/main.py --host 0.0.0.0 --port 5001
+    restart: unless-stopped

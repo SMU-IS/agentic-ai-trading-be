@@ -94,7 +94,7 @@ class VectorisationService:
             search_filter = models.Filter(
                 must=[
                     models.FieldCondition(
-                        key="metadata.tickers",
+                        key="metadata.tickers_metadata",
                         match=models.MatchAny(any=payload.ticker_filter),
                     )
                 ]
@@ -109,8 +109,9 @@ class VectorisationService:
             for doc, score in results:
                 formatted_results.append(
                     {
-                        "id": doc.metadata.get("id"),
+                        "id": doc.metadata.get("article_id"),
                         "headline": doc.metadata.get("headline"),
+                        "text_content": doc.metadata.get("text_content"),
                         "similarity_score": score,
                         "content_preview": doc.page_content[:200],
                         "metadata": doc.metadata,
