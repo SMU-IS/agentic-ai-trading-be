@@ -22,7 +22,9 @@ class VectorStorageStrategy(ABC):
 # Strategy A: Qdrant + Ollama
 class QdrantOllamaStrategy(VectorStorageStrategy):
     def __init__(self):
-        self.client = QdrantClient(url=env_config.qdrant_url)
+        self.client = QdrantClient(
+            url=env_config.qdrant_url, api_key=env_config.qdrant_api_key
+        )
         self.collection_name = "news_analysis_compiled"
 
         self._ensure_collection_exists()

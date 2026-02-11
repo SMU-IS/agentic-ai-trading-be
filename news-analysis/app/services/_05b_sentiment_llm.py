@@ -179,12 +179,7 @@ class LLMSentimentService:
         # Extract text from nested structure
         content = item.get('content', {})
         text = (
-            content.get('clean_combined_withurl', '') or
-            content.get('clean_combined_withouturl', '') or
-            content.get('clean_combined', '') or
-            item.get('clean_combined', '') or
-            item.get('clean_title', '') or
-            ''
+            content.get('clean_combined_withouturl', '')
         )
 
         # Get ticker metadata from upstream ticker identification

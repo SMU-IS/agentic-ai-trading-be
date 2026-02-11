@@ -10,11 +10,19 @@ service:
   port: 5003
   targetPort: 5003
 
+startupProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5003
+  failureThreshold: 30
+  periodSeconds: 10
+
 livenessProbe:
   httpGet:
     path: /healthcheck
     port: 5003
   initialDelaySeconds: 60
+
 readinessProbe:
   httpGet:
     path: /healthcheck

@@ -25,6 +25,7 @@ class risk_evaluation_result(TypedDict):
     confidence: Optional[float]
     risk_score: Optional[float]
 
+
 class AgentState(TypedDict):
     # Required input fields
     user_id: str

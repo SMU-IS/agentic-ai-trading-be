@@ -2,11 +2,11 @@
 # test_trading_workflow_ollama.py
 #
 import asyncio
-import json
 
 from langchain_ollama import ChatOllama
 
 from app.services.trading_workflow import TradingWorkflow
+
 
 async def main():
     ollama = ChatOllama(
@@ -37,7 +37,7 @@ async def main():
         )
         print("-" * 60)
 
-        result = await workflow.run(input_data)
+        # result = await workflow.run(input_data)
 
         # print("📊 Final Result:")
         # print(f"  Action: {result.get('action', 'N/A')}")

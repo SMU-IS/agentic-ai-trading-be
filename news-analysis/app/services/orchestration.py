@@ -1,11 +1,22 @@
 import asyncio
 import json
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional
 
 import redis
+from redis import exceptions
 
 from app.core.config import env_config
+from app.schemas.raw_news_payload import RedditSourcePayload
+from app.scripts.aws_bucket_access import AWSBucket
+from app.scripts.checkpoint import RedisCheckpoint
+from app.scripts.storage import RedisStreamStorage
+from app.services import (
+    EventIdentifierService,
+    LLMSentimentService,
+    PreprocessingService,
+    TickerIdentificationService,
+    VectorisationService,
+)
 
 # =============================================================================
 # RATE LIMITING CONFIGURATION (for testing with API rate limits)
@@ -21,17 +32,6 @@ SENTIMENT_API_DELAY_SECONDS = 3.0  # 3 seconds between calls
 SENTIMENT_BATCH_SIZE = 50  # Process 50 posts per cycle when rate limiting
 # =============================================================================
 
-from app.schemas.compiled_news_payload import NewsAnalysisPayload, NewsMetadata
-from app.scripts.aws_bucket_access import AWSBucket
-from app.scripts.checkpoint import RedisCheckpoint
-from app.scripts.storage import RedisStreamStorage
-from app.services import (
-    EventIdentifierService,
-    PreprocessingService,
-    LLMSentimentService,
-    TickerIdentificationService,
-    VectorisationService,
-)
 
 # Setup Redis and S3
 redis_client = redis.Redis(
@@ -68,93 +68,94 @@ alias_to_canonical = json.loads(bucket.read_text(env_config.aws_bucket_alias_key
 events_types = json.loads(bucket.read_text(env_config.aws_bucket_events_key))
 
 
-def transform_to_payload(data: Dict[str, Any]) -> Optional[NewsAnalysisPayload]:
-    """
-    Transform pipeline data to NewsAnalysisPayload for vectorisation.
+# def transform_to_payload(data: Dict[str, Any]) -> Optional[NewsAnalysisPayload]:
+#     """
+#     Transform pipeline data to NewsAnalysisPayload for vectorisation.
 
-    Args:
-        data: Pipeline data with content, ticker_metadata, and sentiment_analysis
+#     Args:
+#         data: Pipeline data with content, ticker_metadata, and sentiment_analysis
 
-    Returns:
-        NewsAnalysisPayload ready for vectorisation, or None if transformation fails
-    """
-    try:
-        # Extract content
-        content = data.get('content', {})
-        clean_text = (
-            content.get('clean_combined_withurl', '') or
-            content.get('clean_combined_withouturl', '') or
-            content.get('clean_combined', '') or
-            ''
-        )
-        headline = (
-            content.get('clean_title', '') or
-            data.get('clean_title', '') or
-            'No headline'
-        )
+#     Returns:
+#         NewsAnalysisPayload ready for vectorisation, or None if transformation fails
+#     """
+#     try:
+#         # Extract content
+#         content = data.get("content", {})
+#         clean_text = (
+#             content.get("clean_combined_withurl", "")
+#             or content.get("clean_combined_withouturl", "")
+#             or content.get("clean_combined", "")
+#             or ""
+#         )
+#         headline = (
+#             content.get("clean_title", "")
+#             or data.get("clean_title", "")
+#             or "No headline"
+#         )
 
-        # Extract ticker metadata and list of tickers
-        ticker_metadata = data.get('ticker_metadata', {})
-        tickers = list(ticker_metadata.keys())
+#         # Extract ticker metadata and list of tickers
+#         ticker_metadata = data.get("ticker_metadata", {})
+#         tickers = list(ticker_metadata.keys())
 
-        # Get primary event type (from first ticker or default)
-        event_type = 'Unknown'
-        if ticker_metadata:
-            first_ticker = next(iter(ticker_metadata.values()), {})
-            event_type = first_ticker.get('event_type', 'Unknown') or 'Unknown'
+#         # Get primary event type (from first ticker or default)
+#         event_type = "Unknown"
+#         if ticker_metadata:
+#             first_ticker = next(iter(ticker_metadata.values()), {})
+#             event_type = first_ticker.get("event_type", "Unknown") or "Unknown"
 
-        # Extract sentiment analysis
-        sentiment_analysis = data.get('sentiment_analysis', {})
-        overall_score = sentiment_analysis.get('overall_sentiment_score', 0.0)
-        overall_label = sentiment_analysis.get('overall_sentiment_label', 'neutral')
+#         # Extract sentiment analysis
+#         sentiment_analysis = data.get("sentiment_analysis", {})
+#         overall_score = sentiment_analysis.get("overall_sentiment_score", 0.0)
+#         overall_label = sentiment_analysis.get("overall_sentiment_label", "neutral")
 
-        # Calculate average confidence from per-ticker sentiments
-        ticker_sentiments = sentiment_analysis.get('ticker_sentiments', {})
-        confidences = [
-            ts.get('confidence', 0.5)
-            for ts in ticker_sentiments.values()
-        ]
-        avg_confidence = sum(confidences) / len(confidences) if confidences else 0.5
+#         # Calculate average confidence from per-ticker sentiments
+#         ticker_sentiments = sentiment_analysis.get("ticker_sentiments", {})
+#         confidences = [ts.get("confidence", 0.5) for ts in ticker_sentiments.values()]
+#         avg_confidence = sum(confidences) / len(confidences) if confidences else 0.5
 
-        # Extract post metadata
-        post_id = data.get('Post_ID', data.get('id', f"post_{datetime.now().timestamp()}"))
-        source = data.get('subreddit', 'reddit')
-        url = data.get('URL', data.get('url', ''))
-        author = data.get('Author', data.get('author', None))
+#         # Extract post metadata
+#         post_id = data.get(
+#             "Post_ID", data.get("id", f"post_{datetime.now().timestamp()}")
+#         )
+#         source = data.get("subreddit", "reddit")
+#         url = data.get("URL", data.get("url", ""))
+#         author = data.get("Author", data.get("author", None))
 
-        # Parse timestamp
-        created_utc = data.get('Created_UTC', data.get('created_utc', None))
-        if created_utc:
-            if isinstance(created_utc, (int, float)):
-                timestamp = datetime.fromtimestamp(created_utc, tz=timezone.utc)
-            else:
-                timestamp = datetime.fromisoformat(str(created_utc).replace('Z', '+00:00'))
-        else:
-            timestamp = datetime.now(timezone.utc)
+#         # Parse timestamp
+#         created_utc = data.get("Created_UTC", data.get("created_utc", None))
+#         if created_utc:
+#             if isinstance(created_utc, (int, float)):
+#                 timestamp = datetime.fromtimestamp(created_utc, tz=timezone.utc)
+#             else:
+#                 timestamp = datetime.fromisoformat(
+#                     str(created_utc).replace("Z", "+00:00")
+#                 )
+#         else:
+#             timestamp = datetime.now(timezone.utc)
 
-        # Build metadata
-        metadata = NewsMetadata(
-            article_id=post_id,
-            tickers=tickers,
-            timestamp=timestamp,
-            source_domain=f"reddit.com/r/{source}" if source else "reddit.com",
-            event_type=event_type,
-            sentiment_score=overall_score,
-            sentiment_label=overall_label,
-            sentiment_confidence=avg_confidence,
-            headline=headline,
-            text_content=clean_text,
-            url=url,
-            author=author,
-            ticker_metadata=ticker_metadata,
-            sentiment_analysis=sentiment_analysis
-        )
+#         # Build metadata
+#         metadata = NewsMetadata(
+#             article_id=post_id,
+#             tickers=tickers,
+#             timestamp=timestamp,
+#             source_domain=f"reddit.com/r/{source}" if source else "reddit.com",
+#             event_type=event_type,
+#             sentiment_score=overall_score,
+#             sentiment_label=overall_label,
+#             sentiment_confidence=avg_confidence,
+#             headline=headline,
+#             text_content=clean_text,
+#             url=url,
+#             author=author,
+#             ticker_metadata=ticker_metadata,
+#             sentiment_analysis=sentiment_analysis,
+#         )
 
-        return NewsAnalysisPayload(id=post_id, metadata=metadata)
+#         return NewsAnalysisPayload(id=post_id, metadata=metadata)
 
-    except Exception as e:
-        print(f"[Error] Failed to transform data to payload: {e}")
-        return None
+#     except Exception as e:
+#         print(f"[Error] Failed to transform data to payload: {e}")
+#         return None
 
 
 async def run_pipeline():
@@ -175,6 +176,7 @@ async def run_pipeline():
     )
 
     vectorisation_service = VectorisationService()
+    await vectorisation_service.setup_indexing()
 
     # # Clear streams for testing
     # preprocessing_stream.clear_stream()
@@ -182,8 +184,6 @@ async def run_pipeline():
     # event_stream.clear_stream()
     # sentiment_stream.clear_stream()
     # redis_client.delete("all_identified_tickers")
-
-
 
     try:
         while True:
@@ -299,7 +299,9 @@ async def run_pipeline():
                 for msg_id, data in messages:
                     # Rate limiting: add delay between API calls (for testing)
                     if ENABLE_RATE_LIMITING and processed_count > 0:
-                        print(f"[Rate Limit] Waiting {SENTIMENT_API_DELAY_SECONDS}s before next API call...")
+                        print(
+                            f"[Rate Limit] Waiting {SENTIMENT_API_DELAY_SECONDS}s before next API call..."
+                        )
                         await asyncio.sleep(SENTIMENT_API_DELAY_SECONDS)
 
                     sentiment_result = await sentiment_service.analyse(data)
@@ -308,7 +310,9 @@ async def run_pipeline():
                     processed_count += 1
 
                     if ENABLE_RATE_LIMITING:
-                        print(f"[Rate Limit] Processed {processed_count}/{read_count} items")
+                        print(
+                            f"[Rate Limit] Processed {processed_count}/{read_count} items"
+                        )
 
             print("sentiment analysis done\n\n\n")
 
@@ -325,25 +329,29 @@ async def run_pipeline():
                     for msg_id, data in messages:
                         try:
                             # Transform pipeline data to NewsAnalysisPayload
-                            payload = transform_to_payload(data)
+                            payload = RedditSourcePayload(**data)
                             if payload:
-                                await vectorisation_service.ingest_docs(payload)
+                                await vectorisation_service.get_sanitised_news_payload(
+                                    payload
+                                )
                                 vectorisation_checkpoint.save(msg_id)
                             else:
-                                print(f"[Warning] Skipping message {msg_id}: transformation failed")
+                                print(
+                                    f"[Warning] Skipping message {msg_id}: transformation failed"
+                                )
                         except Exception as e:
                             print(f"Error in Vectorisation Step: {e}")
 
                 print("🎉 Saved to Qdrant")
 
-    except redis.exceptions.ConnectionError as e:
+    except exceptions.ConnectionError as e:
         print(f"[Error] Redis connection failed: {e}")
     except json.JSONDecodeError as e:
         print(f"[Error] JSON decoding failed: {e}")
     except Exception as e:
         print(f"[Error] Unexpected error: {e}")
     except KeyboardInterrupt as e:
-        print(f"Exiting program now...")
+        print(f"Exiting program now... {e}")
 
     finally:
         try:
@@ -362,7 +370,6 @@ async def run_pipeline():
                 )
                 print("Successfully updated removed post list\n\n\n")
 
-
             if eventidentifier.event_list and eventidentifier.neweventcount > 0:
                 bucket.write_text(
                     json.dumps(eventidentifier.event_list, indent=2),
@@ -376,11 +383,10 @@ async def run_pipeline():
                     env_config.aws_bucket_cleaned_key,
                 )
                 print("Successfully updated cleaned ticker list\n\n\n")
-                
+
         except Exception as e:
             print(f"[Error] Failed during cleanup: {e}")
 
 
 if __name__ == "__main__":
     asyncio.run(run_pipeline())
-

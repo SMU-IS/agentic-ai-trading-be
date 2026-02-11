@@ -20,6 +20,11 @@ services:
     restart: always
 
 include:
+  # === News Scraper Microservice ===
+  - path: ./news-scraper/docker-compose.yml
+    env_file: ./news-scraper/.env
+    project_directory: ./news-scraper
+
   # === News Analysis Microservice ===
   - path: ./news-analysis/docker-compose.yml
     env_file: ./news-analysis/.env
@@ -44,3 +49,8 @@ include:
   - path: ./trading-service/docker-compose.yml
     env_file: ./trading-service/.env
     project_directory: ./trading-service
+
+  # === Notification Alert Service Microservice ===
+  - path: ./notification-alert/docker-compose.yml
+    env_file: ./notification-alert/.env
+    project_directory: ./notification-alert

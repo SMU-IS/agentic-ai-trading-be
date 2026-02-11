@@ -1,4 +1,12 @@
-replicaCount: 2
+replicaCount: 1
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
 
 image:
   repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/news-analysis
@@ -10,11 +18,19 @@ service:
   port: 5002
   targetPort: 5002
 
+startupProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5002
+  failureThreshold: 30
+  periodSeconds: 10
+
 livenessProbe:
   httpGet:
     path: /healthcheck
     port: 5002
   initialDelaySeconds: 60
+
 readinessProbe:
   httpGet:
     path: /healthcheck

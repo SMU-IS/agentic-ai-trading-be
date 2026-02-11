@@ -1,6 +1,9 @@
+fastapi[standard]==0.128.6
+fastapi-cli==0.0.20
+fastapi-cloud-cli==0.11.0
 praw==7.8.1
+prawcore==2.4.0
 pydantic==2.12.5
-pydantic-extra-types==2.11.0
-pydantic-settings==2.12.0
-pydantic_core==2.41.5
-redis==7.1.0
+pydantic_settings==2.12.0
+python-dotenv==1.2.1
+redis==7.1.1

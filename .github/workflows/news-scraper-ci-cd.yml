@@ -63,9 +63,9 @@ jobs:
       - name: Update Kubeconfig
         run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
 
-      - name: Create K8s Secret from NEWS_SCRAPER_SECRET
+      - name: Create K8s Secret from NEWS_SCRAPER_SECRETS
         run: |
-          echo "${{ secrets.NEWS_SCRAPER_SECRET }}" > .env.tmp
+          echo "${{ secrets.NEWS_SCRAPER_SECRETS }}" > .env.tmp
 
           kubectl create secret generic news-scraper-secrets \
             --from-env-file=.env.tmp \
@@ -78,3 +78,15 @@ jobs:
           WORKSPACE: ${{ github.workspace }}
         run: |
           helm upgrade --install news-scraper ./infra -f ./deploy/values-news-scraper.yaml --set image.tag=${{ github.sha }}
+
+      - name: Verify Health and Status
+        if: always()
+        run: |
+          echo "****** Helm Release Status ******"
+          helm status news-scraper
+
+          echo "****** Deployment Revision History ******"
+          helm history news-scraper
+
+          echo "****** Kubernetes Pod Status ******"
+          kubectl get pods -l app.kubernetes.io/instance=news-scraper
