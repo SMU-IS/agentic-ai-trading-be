@@ -3,12 +3,15 @@ import sys
 
 import praw
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+import threading
 
 from app.core.config import env_config
 from app.services.entity_watcher import EntityWatcherService
 from app.services.reddit_batch_ingestion import RedditBatchService
 from app.services.reddit_stream_ingestion import RedditStreamService
 from app.services.storage import RedisStreamStorage
+
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -45,10 +48,49 @@ def run_watcher_mode(redis_client):
     entity_watcher = EntityWatcherService(redis_client, hash_key)
     entity_watcher.run()
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    storage = RedisStreamStorage()
+    redis_client = storage.r
 
+    reddit = praw.Reddit(
+        client_id=env_config.reddit_client_id,
+        client_secret=env_config.reddit_client_secret,
+        user_agent=env_config.reddit_user_agent,
+    )
+
+    base_subreddits = [
+        "wallstreetbets",
+        "stocks",
+        "investing",
+        "options",
+        "stockmarket",
+    ]
+
+    threading.Thread(
+        target=run_stream_mode,
+        args=(reddit, storage, redis_client, base_subreddits),
+        daemon=True,
+    ).start()
+
+    threading.Thread(
+        target=run_batch_mode,
+        args=(reddit, storage, redis_client, base_subreddits),
+        daemon=True,
+    ).start()
+
+    threading.Thread(
+        target=run_watcher_mode,
+        args=(redis_client,),
+        daemon=True,
+    ).start()
+
+    yield
+    
 app = FastAPI(
     title="News Scraper Service",
     description="Scraps Reddit for news and stores in Redis",
+    lifespan=lifespan
 )
 
 
@@ -65,31 +107,4 @@ def healthcheck():
         return {"status": "News Scraper Service is unhealthy"}
 
 
-if __name__ == "__main__":
-    mode = sys.argv[1] if len(sys.argv) > 1 else "all"
 
-    storage = RedisStreamStorage()
-    redis_client = storage.r
-    reddit = praw.Reddit(
-        client_id=env_config.reddit_client_id,
-        client_secret=env_config.reddit_client_secret,
-        user_agent=env_config.reddit_user_agent,
-    )
-
-    base_subreddits = [
-        "wallstreetbets",
-        "stocks",
-        "investing",
-        "options",
-        "stockmarket",
-    ]
-
-    if mode == "stream":
-        run_stream_mode(reddit, storage, redis_client, base_subreddits)
-    elif mode == "batch":
-        run_batch_mode(reddit, storage, redis_client, base_subreddits)
-    elif mode == "watcher":
-        run_watcher_mode(redis_client)
-    else:
-        print(f"[!] Error")
-        sys.exit(1)
