@@ -1,4 +1,12 @@
-replicaCount: 3
+replicaCount: 1
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
 
 image:
   repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/news-analysis
