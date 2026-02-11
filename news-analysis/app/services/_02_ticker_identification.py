@@ -202,7 +202,7 @@ class TickerIdentificationService:
 
         # 1. NER + mapping
         for org in orgs:
-            print(f"org: {org}")
+            # print(f"org: {org}")
             norm_org = self._normalize_company(self._remove_suffix(org))
             ticker = None
             name_identified = ""
@@ -231,7 +231,7 @@ class TickerIdentificationService:
 
         # 2. Regex tickers
         for match in TICKER_PATTERN.findall(text):
-            print(f"match: {match}")
+            # print(f"match: {match}")
             ticker = match.replace("$", "").upper()
             if ticker in self.ticker_to_title:
                 if ticker not in ticker_metadata:
@@ -249,9 +249,8 @@ class TickerIdentificationService:
 
         # 3. LLM
         llm_result = self._extract_company_ticker_llm(text, orgs)
-        print("check if llm is executed")
         if llm_result:
-            print(f"llm results: {llm_result}")
+            # print(f"llm results: {llm_result}")
             for company in llm_result:
                 if company:
                     company_name = company.get("company_name")
