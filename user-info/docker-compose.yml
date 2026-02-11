@@ -1,12 +1,4 @@
 services:
-  redis:
-    image: redis:7-alpine
-    container_name: redis-cache-user-info
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-
   user-info-service:
     build: .
     env_file:
@@ -35,10 +27,4 @@ services:
       - X_SECRET=${X_SECRET}
       - X_CALL_BACK=${X_CALL_BACK}
       - X_REDIRECT_FRONTEND=${X_REDIRECT_FRONTEND}
-    depends_on:
-      redis:
-        condition: service_started
     restart: unless-stopped
-
-volumes:
-  redis_data:
