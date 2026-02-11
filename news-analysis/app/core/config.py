@@ -38,22 +38,35 @@ class EnvConfig(BaseSettings):
 
     # LLM
     # Gemini:
-    llm_provider_gemini: str = Field(default="gemini", validation_alias="LLM_PROVIDER_GEMINI")
+    llm_provider_gemini: str = Field(
+        default="gemini", validation_alias="LLM_PROVIDER_GEMINI"
+    )
     gemini_api_key: str = Field(..., validation_alias="GEMINI_API_KEY")
-    large_language_model_gemini: str = Field(default="gemini-2.5-flash-lite", validation_alias="LARGE_LANGUAGE_MODEL_GEMINI")
+    large_language_model_gemini: str = Field(
+        default="gemini-2.5-flash-lite", validation_alias="LARGE_LANGUAGE_MODEL_GEMINI"
+    )
 
     # Ollama:
-    ollama_base_url: Optional[str] = Field(default=None, validation_alias="OLLAMA_BASE_URL")
+    ollama_base_url: Optional[str] = Field(
+        default=None, validation_alias="OLLAMA_BASE_URL"
+    )
     llm_provider: str = Field(..., validation_alias="LLM_PROVIDER")
     large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
 
     # OpenAI:
-    open_ai_api_key: Optional[str] = Field(default=None, validation_alias="OPEN_AI_API_KEY")
-    text_embedding_model: str = Field(default="text-embedding-004", validation_alias="TEXT_EMBEDDING_MODEL")
-    max_completion_tokens: int = Field(default=1000, validation_alias="MAX_COMPLETION_TOKEN")
+    open_ai_api_key: Optional[str] = Field(
+        default=None, validation_alias="OPEN_AI_API_KEY"
+    )
+    text_embedding_model: str = Field(
+        default="text-embedding-004", validation_alias="TEXT_EMBEDDING_MODEL"
+    )
+    max_completion_tokens: int = Field(
+        default=1000, validation_alias="MAX_COMPLETION_TOKEN"
+    )
 
     # Vector Store
     storage_provider: StorageProviders = Field(..., validation_alias="STORAGE_PROVIDER")
+    qdrant_api_key: str = Field(..., validation_alias="QDRANT_API_KEY")
     qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
 
 
