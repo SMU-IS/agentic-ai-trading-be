@@ -1,24 +1,4 @@
 services:
-  # Local Redis - COMMENTED OUT (using Redis Cloud instead)
-  # redis-queue-news-analysis:
-  #   image: redis:7-alpine
-  #   container_name: redis-queue-news-analysis
-  #   ports:
-  #     - "6380:6379"
-  #   restart: unless-stopped
-
-  # Local Qdrant for vector storage
-  qdrant-db:
-    image: qdrant/qdrant:latest
-    container_name: qdrant-news-analysis
-    ports:
-      - "6333:6333"
-      - "6334:6334"
-    volumes:
-      - ./qdrant_storage:/qdrant/storage:z
-    restart: unless-stopped
-
-  # News Analysis Pipeline Service
   news-analysis-service:
     build: .
     env_file:
@@ -29,31 +9,17 @@ services:
     volumes:
       - .:/code
     environment:
-      # Qdrant - use container name for Docker networking
-      - QDRANT_URL=http://qdrant-db:6333
-      # Redis Cloud - loaded from .env
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-      # Gemini LLM
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - LARGE_LANGUAGE_MODEL=${LARGE_LANGUAGE_MODEL}
-    depends_on:
-      - qdrant-db
-    # Run the orchestration pipeline (not FastAPI server)
-    command: python -m app.services.orchestration
+      - LLM_PROVIDER=${LLM_PROVIDER}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - TEXT_EMBEDDING_MODEL=${TEXT_EMBEDDING_MODEL}
+    command: >
+      sh -c "python -m app.services.orchestration &
+            fastapi dev app/main.py --host 0.0.0.0 --port 5002"
     restart: unless-stopped
-
-  # Optional: Run FastAPI server separately for API endpoints
-  # news-analysis-api:
-  #   build: .
-  #   env_file:
-  #     - .env
-  #   container_name: news-analysis-api
-  #   ports:
-  #     - "5002:5002"
-  #   environment:
-  #     - QDRANT_URL=http://qdrant-db:6333
-  #   depends_on:
-  #     - qdrant-db
-  #   command: fastapi dev app/main.py --host 0.0.0.0 --port 5002
