@@ -1,47 +1,20 @@
 services:
   news-scraper-service:
     build: .
+    env_file:
+      - .env
     container_name: news-scraper
     ports:
       - "5005:5005"
     volumes:
       - .:/code
+    environment:
+      - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
+      - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}
+      - REDDIT_USER_AGENT=${REDDIT_USER_AGENT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_STREAM=${REDIS_STREAM}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: fastapi dev app/main.py --host 0.0.0.0 --port 5005
     restart: always
-
-# services:
-#   entity-watcher:
-#     build: .
-#     container_name: entity-watcher
-#     volumes:
-#       - .:/code
-#     env_file:
-#       - .env
-#     environment:
-#     - PYTHONUNBUFFERED=1
-#     command: python app/main.py watcher
-#     restart: always
-
-#   reddit-stream-service:
-#     build: .
-#     container_name: reddit-stream
-#     volumes:
-#       - .:/code
-#     env_file:
-#       - .env
-#     environment:
-#     - PYTHONUNBUFFERED=1
-#     command: python app/main.py stream
-#     restart: always
-
-#   reddit-batch-service:
-#     build: .
-#     container_name: reddit-batch
-#     volumes:
-#       - .:/code
-#     env_file:
-#       - .env
-#     environment:
-#     - PYTHONUNBUFFERED=1
-#     command: python app/main.py batch
-#     restart: always
