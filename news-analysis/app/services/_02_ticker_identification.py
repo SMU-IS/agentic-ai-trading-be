@@ -184,6 +184,17 @@ class TickerIdentificationService:
             self.new_alias_count += 1
             print(f"[Memory Update] Added alias mapping: {norm_alias} -> {canonical}")
 
+    def get_aliases(self, tickers: List[str]) -> Dict[str, Dict[str, List[str]]]:
+        output = {}
+        for ticker in tickers:
+            canonical = self.ticker_to_canonical.get(ticker)
+            output[ticker] = {
+                "OfficialName": self.ticker_to_title.get(ticker, ""),
+                "Aliases": self.canonical_to_aliases.get(canonical, []) if canonical else []
+            }
+
+        return output
+
     def extract_tickers(self, text: str) -> Dict[str, Dict[str, Union[str, List[str]]]]:
         ticker_metadata: Dict[str, Dict[str, Union[str, List[str]]]] = {}
         doc = self.nlp(text)
@@ -191,7 +202,7 @@ class TickerIdentificationService:
 
         # 1. NER + mapping
         for org in orgs:
-            print(f"org: {org}")
+            # print(f"org: {org}")
             norm_org = self._normalize_company(self._remove_suffix(org))
             ticker = None
             name_identified = ""
@@ -220,7 +231,7 @@ class TickerIdentificationService:
 
         # 2. Regex tickers
         for match in TICKER_PATTERN.findall(text):
-            print(f"match: {match}")
+            # print(f"match: {match}")
             ticker = match.replace("$", "").upper()
             if ticker in self.ticker_to_title:
                 if ticker not in ticker_metadata:
@@ -238,9 +249,8 @@ class TickerIdentificationService:
 
         # 3. LLM
         llm_result = self._extract_company_ticker_llm(text, orgs)
-        print("check if llm is executed")
         if llm_result:
-            print(f"llm results: {llm_result}")
+            # print(f"llm results: {llm_result}")
             for company in llm_result:
                 if company:
                     company_name = company.get("company_name")
