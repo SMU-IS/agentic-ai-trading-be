@@ -397,7 +397,7 @@ async def main():
         print(f"Test {i}: {text[:60]}...")
         result = await service.analyze(text)
 
-        print(f"  Combined:")
+        print("  Combined:")
         print(f"    Label: {result.sentiment_label}")
         print(f"    Score: {result.sentiment_score}")
         print(f"    Confidence: {result.confidence}")

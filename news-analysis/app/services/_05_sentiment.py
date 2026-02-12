@@ -8,7 +8,7 @@ IMPROVED VERSION with Adaptive Emoji Weighting
 import re
 import emoji
 import logging
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
 
@@ -21,7 +21,6 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from core.config import config
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -330,7 +329,6 @@ class SentimentAnalysisService:
             if abs(vader_compound) > 0.5:
                 models_used.append("VADER")
                 # Blend FinBERT with VADER for slang-heavy text
-                vader_boost = 0.3  # 30% VADER influence for slang
 
                 if vader_compound > 0:
                     finbert_scores['positive'] = (

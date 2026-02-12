@@ -61,6 +61,7 @@ secrets/
 credentials/
 *.key
 *.pem
+!global-bundle.pem
 *.crt
 
 # =========================

@@ -1,11 +1,10 @@
 # src/workflows/main_workflow.py
-from typing import Dict, List, Optional, TypedDict, Any
-from pydantic import BaseModel
+from typing import TypedDict
 from langgraph.graph import StateGraph, END
 from src.services.redis_service import RedisService
 from src.services.llm_service import LLMService
-from src.agents import NewsParser, ThresholdMonitor, DeepAnalyzer, lookup_qdrant
-from src.models.news import TickerTopic, DeepAnalysis, TradingSignal, NewsArticle, TickerSentiment
+from src.agents import ThresholdMonitor, DeepAnalyzer, lookup_qdrant
+from src.models.news import DeepAnalysis, TickerSentiment
 import os
 
 class AgentState(TypedDict):
