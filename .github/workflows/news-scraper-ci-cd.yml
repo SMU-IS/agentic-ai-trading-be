@@ -90,3 +90,7 @@ jobs:
 
           echo "****** Kubernetes Pod Status ******"
           kubectl get pods -l app.kubernetes.io/instance=news-scraper
+
+      - name: Apply Global Ingress Gateway
+        run: |
+          kubectl apply -f ./deploy/ingress.yaml
