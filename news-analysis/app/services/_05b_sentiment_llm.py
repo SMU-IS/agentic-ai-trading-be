@@ -7,10 +7,9 @@ Analyzes sentiment for each ticker mentioned in financial news/social media post
 """
 
 import asyncio
-import json
 import logging
-from typing import Dict, List, Optional
-from dataclasses import dataclass, field
+from typing import Dict, Optional
+from dataclasses import dataclass
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate

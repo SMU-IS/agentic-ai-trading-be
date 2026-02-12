@@ -183,7 +183,7 @@ async def test_neutral_sentiment():
         ticker_sentiments = sentiment_analysis.get('ticker_sentiments', {})
 
         tsla = ticker_sentiments.get('TSLA', {})
-        print(f"\nResults:")
+        print("\nResults:")
         print(f"  TSLA Score: {tsla.get('sentiment_score')}")
         print(f"  TSLA Label: {tsla.get('sentiment_label')}")
         print(f"  Reasoning: {tsla.get('reasoning')}")
@@ -235,7 +235,7 @@ async def test_strong_negative_sentiment():
         ticker_sentiments = sentiment_analysis.get('ticker_sentiments', {})
 
         xyz = ticker_sentiments.get('XYZ', {})
-        print(f"\nResults:")
+        print("\nResults:")
         print(f"  XYZ Score: {xyz.get('sentiment_score')}")
         print(f"  XYZ Label: {xyz.get('sentiment_label')}")
         print(f"  Confidence: {xyz.get('confidence')}")
@@ -287,7 +287,7 @@ async def test_reddit_slang():
         ticker_sentiments = sentiment_analysis.get('ticker_sentiments', {})
 
         gme = ticker_sentiments.get('GME', {})
-        print(f"\nResults:")
+        print("\nResults:")
         print(f"  GME Score: {gme.get('sentiment_score')}")
         print(f"  GME Label: {gme.get('sentiment_label')}")
         print(f"  Reasoning: {gme.get('reasoning')}")
@@ -363,7 +363,7 @@ async def test_pipeline_data_structure():
         print(f"  sentiment_reasoning: {enriched_ticker.get('sentiment_reasoning')}")
 
         sentiment_analysis = result.get('sentiment_analysis', {})
-        print(f"\nsentiment_analysis:")
+        print("\nsentiment_analysis:")
         print(f"  overall_sentiment_score: {sentiment_analysis.get('overall_sentiment_score')}")
         print(f"  overall_sentiment_label: {sentiment_analysis.get('overall_sentiment_label')}")
         print(f"  analysis_successful: {sentiment_analysis.get('analysis_successful')}")
@@ -503,7 +503,7 @@ async def test_cleaned_dummy_json(max_posts: int = 5):
                 enriched_result = await service.analyse(pipeline_item)
                 sentiment_analysis = enriched_result.get('sentiment_analysis', {})
 
-                print(f"\nSentiment Results:")
+                print("\nSentiment Results:")
                 print(f"  Overall: {sentiment_analysis.get('overall_sentiment_label')} "
                       f"({sentiment_analysis.get('overall_sentiment_score')})")
 
@@ -547,7 +547,7 @@ async def test_cleaned_dummy_json(max_posts: int = 5):
 
         # Show structure of first result
         if results:
-            print(f"\nOutput data structure (keys):")
+            print("\nOutput data structure (keys):")
             print(f"  Top-level: {list(results[0].keys())}")
             if 'ticker_metadata' in results[0]:
                 first_ticker = next(iter(results[0]['ticker_metadata'].keys()), None)
@@ -593,7 +593,7 @@ async def run_all_tests():
     print("=" * 80)
 
     passed = sum(1 for _, result in results if result)
-    failed = len(results) - passed
+    len(results) - passed
 
     for name, result in results:
         status = "✓ PASS" if result else "✗ FAIL"

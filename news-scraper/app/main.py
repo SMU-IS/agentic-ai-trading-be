@@ -1,17 +1,15 @@
 import logging
-import sys
+import threading
+from contextlib import asynccontextmanager
 
 import praw
 from fastapi import FastAPI
-from contextlib import asynccontextmanager
-import threading
 
 from app.core.config import env_config
 from app.services.entity_watcher import EntityWatcherService
 from app.services.reddit_batch_ingestion import RedditBatchService
 from app.services.reddit_stream_ingestion import RedditStreamService
 from app.services.storage import RedisStreamStorage
-
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -47,6 +45,7 @@ def run_watcher_mode(redis_client):
     hash_key = "all_identified_tickers"
     entity_watcher = EntityWatcherService(redis_client, hash_key)
     entity_watcher.run()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -85,16 +84,17 @@ async def lifespan(app: FastAPI):
             args=(redis_client,),
             daemon=True,
         ).start()
-        
+
     else:
         print("Auto scrape disabled")
 
     yield
-    
+
+
 app = FastAPI(
     title="News Scraper Service",
     description="Scraps Reddit for news and stores in Redis",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 
@@ -109,6 +109,3 @@ def healthcheck():
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return {"status": "News Scraper Service is unhealthy"}
-
-
-

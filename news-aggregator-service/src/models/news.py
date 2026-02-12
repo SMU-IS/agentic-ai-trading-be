@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Field
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-from enum import Enum
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
+from typing import List, Optional
+
+from pydantic import BaseModel, Field
+
 
 class NewsArticle(BaseModel):
     id: str
@@ -13,6 +14,7 @@ class NewsArticle(BaseModel):
     timestamp: datetime
     source: str
 
+
 class TickerTopic(BaseModel):
     ticker: str
     topic: str
@@ -20,19 +22,23 @@ class TickerTopic(BaseModel):
     volume: int = 0
     articles: List[str] = []
 
+
 class ResearchQuestion(BaseModel):
     question: str
     sources_needed: List[str]
 
+
 class Credibility(str, Enum):
     LOW = "Low"
-    MEDIUM = "Medium" 
+    MEDIUM = "Medium"
     HIGH = "High"
+
 
 class TradeSignal(str, Enum):
     BUY = "BUY"
     SHORT = "SHORT"
     NO_TRADE = "NO_TRADE"
+
 
 class DeepAnalysis(BaseModel):
     ticker: str = Field(..., description="Stock ticker")
@@ -47,6 +53,7 @@ class DeepAnalysis(BaseModel):
     stop_loss_pct: float = Field(..., description="8|10|12")
     target_pct: float = Field(..., description="20|30|50")
 
+
 class TradingSignal(BaseModel):
     ticker: str
     signal_type: str  # "BUY", "SELL", "HOLD", "ALERT"
@@ -60,8 +67,9 @@ class TradingSignal(BaseModel):
 
 class SentimentLabel(str, Enum):
     POSITIVE = "positive"
-    NEGATIVE = "negative" 
+    NEGATIVE = "negative"
     NEUTRAL = "neutral"
+
 
 @dataclass
 class TickerSentiment:
@@ -76,44 +84,45 @@ class TickerSentiment:
     sentiment_label: SentimentLabel = SentimentLabel.NEUTRAL
     sentiment_confidence: float = 0.0
     sentiment_reasoning: str = ""
-    
+
     # Optional metadata
     timestamp: Optional[datetime] = None
-    
+
     def __post_init__(self):
         if self.timestamp is None:
             self.timestamp = datetime.now()
         # Ensure ticker is in NameIdentified if empty
         if self.ticker and not self.NameIdentified:
             self.NameIdentified = [self.ticker]
-    
+
     def to_dict(self):
         """Convert to JSON-serializable dict"""
-        data = {k: v for k, v in self.__dict__.items() if not k.startswith('_')}
+        data = {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
         if self.timestamp:
-            data['timestamp'] = self.timestamp.isoformat()
+            data["timestamp"] = self.timestamp.isoformat()
         return data
-    
+
     @classmethod
     def from_dict(cls, data: dict, ticker: str = None):
         """Create from dict/JSON - extracts ticker from key or explicit param"""
         # Use explicit ticker or first NameIdentified
         if ticker:
-            data['ticker'] = ticker
-        elif data.get('NameIdentified') and data['NameIdentified']:
-            data['ticker'] = data['NameIdentified'][0]
+            data["ticker"] = ticker
+        elif data.get("NameIdentified") and data["NameIdentified"]:
+            data["ticker"] = data["NameIdentified"][0]
         else:
-            data['ticker'] = "UNKNOWN"
-        
+            data["ticker"] = "UNKNOWN"
+
         # Handle null strings
-        if data.get('event_proposal') in ('null', 'None', ''):
-            data['event_proposal'] = None
-        
+        if data.get("event_proposal") in ("null", "None", ""):
+            data["event_proposal"] = None
+
         # Convert timestamp
-        if 'timestamp' in data:
+        if "timestamp" in data:
             try:
-                data['timestamp'] = datetime.fromisoformat(data['timestamp'])
-            except:
-                data['timestamp'] = datetime.now()
-        
+                data["timestamp"] = datetime.fromisoformat(data["timestamp"])
+            except Exception as e:
+                data["timestamp"] = datetime.now()
+                print(e)
+
         return cls(**data)

@@ -1,6 +1,5 @@
 from src.services.qdrant import QdrantManager
 from qdrant_client.http.models import FieldCondition, Filter, MatchValue
-import asyncio  # Add this
 
 async def lookup_qdrant(ticker_symbol: str, limit: int = 10):
     """
