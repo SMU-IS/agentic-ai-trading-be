@@ -1,6 +1,8 @@
 import asyncio
 import json
 from datetime import datetime, timezone
+from pydantic import ValidationError
+
 
 import redis
 from redis import exceptions
@@ -203,6 +205,7 @@ async def run_pipeline():
             print("preprocessing done\n\n\n")
 
             # Step 2: Extract tickers
+            ticker_processed_count = 0
             ticker_last_id = ticker_checkpoint.load()
             preproc_entries = preprocessing_stream.read(
                 last_id=ticker_last_id, count=10, block_ms=5000
@@ -211,6 +214,12 @@ async def run_pipeline():
                 continue
             for _, messages in preproc_entries:
                 for msg_id, data in messages:
+                    # Rate limiting: add delay between API calls (for testing)
+                    if ENABLE_RATE_LIMITING and ticker_processed_count > 0:
+                        print(
+                            f"[Rate Limit] Waiting {SENTIMENT_API_DELAY_SECONDS}s before next API call..."
+                        )
+                        await asyncio.sleep(SENTIMENT_API_DELAY_SECONDS)
                     tickers_post = ticker_service.process_post(data)
                     if not tickers_post:
                         continue
@@ -224,6 +233,8 @@ async def run_pipeline():
                         continue
                     ticker_stream.save(tickers_post)
                     ticker_checkpoint.save(msg_id)
+                    preprocessing_stream.delete(msg_id)
+                    ticker_processed_count += 1
             print("ticker identification done\n\n\n")
 
             # Step 3: Add newly identified tickers to be consumed at scraping service
@@ -278,6 +289,7 @@ async def run_pipeline():
                         all_tickers.update(ticker_metadata.keys())
                         event_stream.save(event_data)
                         event_checkpoint.save(msg_id)
+                        ticker_stream.delete(msg_id)
             print("event identification done\n\n\n")
 
             # Step 5: Sentiment Analysis (LLM-based using Gemini)
@@ -289,7 +301,7 @@ async def run_pipeline():
             read_count = SENTIMENT_BATCH_SIZE if ENABLE_RATE_LIMITING else 10
 
             event_entries = event_stream.read(
-                last_id=sentiment_last_id, count=read_count, block_ms=5000
+                last_id=sentiment_last_id, count=10, block_ms=5000
             )
             if not event_entries:
                 continue
@@ -307,6 +319,7 @@ async def run_pipeline():
                     sentiment_result = await sentiment_service.analyse(data)
                     sentiment_stream.save(sentiment_result)
                     sentiment_checkpoint.save(msg_id)
+                    event_stream.delete(msg_id)
                     processed_count += 1
 
                     if ENABLE_RATE_LIMITING:
@@ -328,19 +341,29 @@ async def run_pipeline():
                 for _, messages in sentiment_entries:
                     for msg_id, data in messages:
                         try:
+                            payload_dict = {
+                                "id": msg_id,
+                                "fields": data  
+                            }
                             # Transform pipeline data to NewsAnalysisPayload
-                            payload = RedditSourcePayload(**data)
+                            payload = RedditSourcePayload(**payload_dict)
                             if payload:
                                 await vectorisation_service.get_sanitised_news_payload(
                                     payload
                                 )
                                 vectorisation_checkpoint.save(msg_id)
+                                sentiment_stream.delete(msg_id)
+
                             else:
                                 print(
                                     f"[Warning] Skipping message {msg_id}: transformation failed"
                                 )
+                        except ValidationError as e:
+                            # Print the post ID and missing fields
+                            missing_fields = [err['loc'] for err in e.errors()]
+                            print(f"[ValidationError] Post ID {data.get('id')} is missing fields: {missing_fields}")
                         except Exception as e:
-                            print(f"Error in Vectorisation Step: {e}")
+                            print(f"[Error] Unexpected error in Vectorisation Step for Post ID {data.get('id')}: {e}")
 
                 print("🎉 Saved to Qdrant")
 

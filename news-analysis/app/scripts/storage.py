@@ -293,3 +293,23 @@ class RedisStreamStorage:
             return True
         except redis.ResponseError:
             return False
+
+    def delete(self, *msg_ids: str) -> int:
+        """
+        Delete one or more messages from the stream by ID.
+
+        Args:
+            msg_ids: One or more Redis Stream message IDs to delete
+
+        Returns:
+            Number of messages deleted
+        """
+        if not msg_ids:
+            return 0
+        try:
+            deleted_count = self.r.xdel(self.stream_name, *msg_ids)
+            logger.info(f"Deleted {deleted_count} message(s) from stream '{self.stream_name}'")
+            return deleted_count
+        except redis.RedisError as e:
+            logger.error(f"Failed to delete messages {msg_ids} from stream '{self.stream_name}': {e}")
+            return 0

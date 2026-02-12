@@ -1,4 +1,5 @@
 import html
+import json
 import re
 import unicodedata
 from datetime import datetime
@@ -88,6 +89,7 @@ class PreprocessingService:
         
         clean_combined_withurl = f"{clean_title}{separator}{clean_body_withurl}".strip()
         clean_combined_withouturl = f"{clean_title}{separator}{clean_body_withouturl}".strip()
+        clean_combined_withouturl = emoji.demojize(clean_combined_withouturl)
         post["content"]["clean_title"] = clean_title
         post["content"]["clean_body"] = clean_body_withurl
         post["content"]["clean_combined_withurl"] = clean_combined_withurl
