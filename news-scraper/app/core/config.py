@@ -24,6 +24,9 @@ class EnvConfig(BaseSettings):
     reddit_client_secret: str = Field(..., validation_alias="REDDIT_CLIENT_SECRET")
     reddit_user_agent: str = Field(..., validation_alias="REDDIT_USER_AGENT")
 
+    # Scraper control
+    auto_scrape: bool = Field(True, validation_alias="AUTO_SCRAPE")
+
 
 env_config = EnvConfig()
 config = env_config 

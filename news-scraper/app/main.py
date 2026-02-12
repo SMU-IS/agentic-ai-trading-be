@@ -66,24 +66,28 @@ async def lifespan(app: FastAPI):
         "options",
         "stockmarket",
     ]
+    if env_config.auto_scrape:
+        print("Auto scrape is enabled")
+        threading.Thread(
+            target=run_stream_mode,
+            args=(reddit, storage, redis_client, base_subreddits),
+            daemon=True,
+        ).start()
 
-    threading.Thread(
-        target=run_stream_mode,
-        args=(reddit, storage, redis_client, base_subreddits),
-        daemon=True,
-    ).start()
+        threading.Thread(
+            target=run_batch_mode,
+            args=(reddit, storage, redis_client, base_subreddits),
+            daemon=True,
+        ).start()
 
-    threading.Thread(
-        target=run_batch_mode,
-        args=(reddit, storage, redis_client, base_subreddits),
-        daemon=True,
-    ).start()
-
-    threading.Thread(
-        target=run_watcher_mode,
-        args=(redis_client,),
-        daemon=True,
-    ).start()
+        threading.Thread(
+            target=run_watcher_mode,
+            args=(redis_client,),
+            daemon=True,
+        ).start()
+        
+    else:
+        print("Auto scrape disabled")
 
     yield
     
