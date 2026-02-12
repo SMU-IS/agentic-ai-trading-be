@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     hours_window: int = 1
     pplx_api_key: str = os.getenv("PPLX_API_KEY", "your-default-api-key")
     qdrant_url: str = os.getenv("QDRANT_URL", "http://localhost:6333")
+    qdrant_api_key: str = os.getenv("QDRANT_API_KEY", "your-default-qdrant-api-key")
+    qdrant_news_collection: str = os.getenv("QDRANT_NEWS_COLLECTION", "news_analysis_compiled")
     class Config:
         env_file = ".env"
 
