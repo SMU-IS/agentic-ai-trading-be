@@ -90,3 +90,7 @@ jobs:
           WORKSPACE: ${{ github.workspace }}
         run: |
           helm upgrade --install user-info ./infra -f ./deploy/values-user-info.yaml --set image.tag=${{ github.sha }}
+
+      - name: Apply Global Ingress Gateway
+        run: |
+          kubectl apply -f ./deploy/ingress.yaml

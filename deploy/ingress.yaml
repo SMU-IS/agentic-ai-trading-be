@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: main-kong-gateway
+  namespace: default
+  annotations:
+    konghq.com/publish-service: "kong/kong-gateway-proxy"
+    konghq.com/strip-path: "true"
+spec:
+  ingressClassName: kong
+  rules:
+    - http:
+        paths:
+          - path: /api/v1/rag
+            pathType: Prefix
+            backend:
+              service:
+                name: rag-chatbot-infra
+                port:
+                  number: 5001
+          - path: /api/v1/news-analysis
+            pathType: Prefix
+            backend:
+              service:
+                name: news-analysis-infra
+                port:
+                  number: 5002
+          - path: /api/v1/news-scraper
+            pathType: Prefix
+            backend:
+              service:
+                name: news-scraper-infra
+                port:
+                  number: 5003
+          - path: /api/v1/user/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: user-info-infra
+                port:
+                  number: 8080
