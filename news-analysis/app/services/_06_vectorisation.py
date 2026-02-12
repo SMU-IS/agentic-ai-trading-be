@@ -40,12 +40,16 @@ class VectorisationService:
         )
 
         transformed_tickers = {}
+
         for ticker, data in ticker_data.items():
-            transformed_tickers[ticker] = {
-                "event_type": data.event_type,
-                "sentiment_score": data.sentiment_score,
-                "sentiment_label": data.sentiment_label,
-            }
+            if data.event_type or data.event_proposal:
+                transformed_tickers[ticker] = {
+                    "event_type": data.event_type or (data.event_proposal.proposed_event_name if data.event_proposal else None),
+                    "sentiment_score": data.sentiment_score,
+                    "sentiment_label": data.sentiment_label,
+                }
+            else:
+                continue  
 
         url = fields.url
         try:
