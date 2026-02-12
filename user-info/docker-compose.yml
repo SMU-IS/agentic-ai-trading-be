@@ -1,58 +1,30 @@
 services:
-  user-postgres-db:
-    image: postgres:15-alpine
-    container_name: user-module-db
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:7-alpine
-    container_name: redis-cache-user-info
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-
   user-info-service:
     build: .
+    env_file:
+      - .env
+    volumes:
+      - ../certs:/certs
     container_name: user-module
     ports:
       - "8080:8080"
     environment:
-      - HOST=user-postgres-db
+      - HOST=${HOST}
       - DB_PORT=${DB_PORT}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
+      - DB_SSL_MODE=${DB_SSL_MODE}
+      - DB_SSL_ROOT_CERT=${DB_SSL_ROOT_CERT}
+      - DB_TIMEZONE=${DB_TIMEZONE}
       - REDIS_ADDR=${REDIS_ADDR}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - CACHE_EXPIRATION_HOURS=${CACHE_EXPIRATION_HOURS}
       - JWT_SECRET=${JWT_SECRET}
-      - PORT=8080
+      - PORT=${PORT}
       - JWT_EXPIRATION_HOURS=${JWT_EXPIRATION_HOURS}
       - X_KEY=${X_KEY}
       - X_SECRET=${X_SECRET}
       - X_CALL_BACK=${X_CALL_BACK}
       - X_REDIRECT_FRONTEND=${X_REDIRECT_FRONTEND}
-    depends_on:
-      user-postgres-db:
-        condition: service_healthy
-      redis:
-        condition: service_started
     restart: unless-stopped
-
-volumes:
-  postgres_data:
-  redis_data:
