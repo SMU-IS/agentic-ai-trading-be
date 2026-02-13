@@ -79,9 +79,9 @@ def get_broker() -> AlpacaBrokerClient:
 # ---------- Health ----------
 
 
-@router.get("/health")
+@router.get("/healthcheck")
 def health() -> Dict[str, str]:
-    return {"status": "ok"}
+    return {"status": "Alpacca service is healthy"}
 
 
 # ---------- Debugging / info ----------

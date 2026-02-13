@@ -61,4 +61,4 @@ spec:
               service:
                 name: trading-service-infra
                 port:
-                  number: 9000
+                  number: 5007

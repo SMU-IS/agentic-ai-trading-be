@@ -1,1 +1,1 @@
-# Trading Service Alpacca
+# Trading Service

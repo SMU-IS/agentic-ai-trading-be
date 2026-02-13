@@ -3,7 +3,7 @@ services:
     build: .
     container_name: alpaca-broker-service
     ports:
-      - "9000:9000"
+      - "5007:5007"
     environment:
       ALPACA_API_KEY: ${ALPACA_API_KEY}
       ALPACA_API_SECRET: ${ALPACA_API_SECRET}
