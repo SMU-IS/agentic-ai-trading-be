@@ -3,7 +3,7 @@ services:
     build: .
     container_name: trading-agent-m-container
     ports:
-      - "5003:5003"
+      - "5006:5006"
     volumes:
       - .:/code
     environment:
@@ -18,4 +18,4 @@ services:
       # - QDRANT_URL=${QDRANT_URL}
       - ALPACA_BASE_URL=${ALPACA_BASE_URL}
       - YAHOO_BASE_URL=${YAHOO_BASE_URL}
-    command: fastapi dev app/main.py --host 0.0.0.0 --port 5003
+    command: fastapi dev app/main.py --host 0.0.0.0 --port 5006

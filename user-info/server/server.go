@@ -11,7 +11,7 @@ func RunServer(router *gin.Engine) {
 	util.LoadEnv()
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "5005"
 	}
 	router.Run(":" + port)
 }
