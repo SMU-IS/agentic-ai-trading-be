@@ -5,30 +5,20 @@ image:
   tag: v1
   pullPolicy: Always
 
-volumeMounts:
-  - name: rds-cert-volume
-    mountPath: /certs
-    readOnly: true
-
-volumes:
-  - name: rds-cert-volume
-    configMap:
-      name: rds-certs
-
 service:
   type: ClusterIP
-  port: 9000
-  targetPort: 9000
+  port: 5007
+  targetPort: 5007
 
 livenessProbe:
   httpGet:
     path: /healthcheck
-    port: 9000
+    port: 5007
   initialDelaySeconds: 60
 readinessProbe:
   httpGet:
     path: /healthcheck
-    port: 9000
+    port: 5007
   initialDelaySeconds: 30
 
 secretName: trading-service-secrets

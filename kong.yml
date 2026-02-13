@@ -87,7 +87,7 @@ services:
 
   # === Trading Service Microservice ===
   - name: trading-service-entry
-    url: http://broker-service:9000
+    url: http://broker-service:5007
     routes:
       - name: trading-service-routes
         paths:
