@@ -4,7 +4,7 @@ from enum import Enum
 class APIPath(str, Enum):
     HEALTH_CHECK = "/healthcheck"
     PREPROCESS = "/preprocess"
-    ANALYSE = "/analysis" 
+    ANALYSE = "/analysis"
 
 
 class LLMProviders(str, Enum):
