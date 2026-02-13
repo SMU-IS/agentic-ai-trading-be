@@ -12,6 +12,7 @@ class TickerInsight(BaseModel):
 
 class NewsMetadata(BaseModel):
     article_id: str
+    tickers: list[str]
     tickers_metadata: Dict[str, TickerInsight] = Field(default_factory=dict)
     timestamp: datetime
     source_domain: str

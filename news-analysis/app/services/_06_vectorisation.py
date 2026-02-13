@@ -25,7 +25,7 @@ class VectorisationService:
         client = self.vector_store.client  # type: ignore
         client.create_payload_index(
             collection_name="news_analysis_compiled",
-            field_name="metadata.tickers_metadata",
+            field_name="metadata.tickers",
             field_schema=models.PayloadSchemaType.KEYWORD,
         )
 
@@ -44,12 +44,17 @@ class VectorisationService:
         for ticker, data in ticker_data.items():
             if data.event_type or data.event_proposal:
                 transformed_tickers[ticker] = {
-                    "event_type": data.event_type or (data.event_proposal.proposed_event_name if data.event_proposal else None),
+                    "event_type": data.event_type
+                    or (
+                        data.event_proposal.proposed_event_name
+                        if data.event_proposal
+                        else None
+                    ),
                     "sentiment_score": data.sentiment_score,
                     "sentiment_label": data.sentiment_label,
                 }
             else:
-                continue  
+                continue
 
         url = fields.url
         try:
@@ -64,6 +69,7 @@ class VectorisationService:
             "id": processed_source.id,
             "metadata": {
                 "article_id": processed_source.id,
+                "tickers": list(transformed_tickers.keys()),
                 "tickers_metadata": transformed_tickers,
                 "timestamp": timestamps,
                 "source_domain": domain,
@@ -105,7 +111,7 @@ class VectorisationService:
             search_filter = models.Filter(
                 must=[
                     models.FieldCondition(
-                        key="metadata.tickers_metadata",
+                        key="metadata.tickers",
                         match=models.MatchAny(any=payload.ticker_filter),
                     )
                 ]
