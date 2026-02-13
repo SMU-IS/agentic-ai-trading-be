@@ -94,7 +94,7 @@ class TradeSignal(str, Enum):
     NO_TRADE = "NO_TRADE"
     
 class DeepAnalysis(BaseModel):
-    id: str = Field(..., description="Signal ID")
+    id: Optional[str] = Field(None, description="Signal ID")
     ticker: str = Field(..., description="Stock ticker")
     rumor_summary: str = Field(..., description="1-sentence recap")
     credibility: Credibility = Field(..., description="Low|Medium|High")

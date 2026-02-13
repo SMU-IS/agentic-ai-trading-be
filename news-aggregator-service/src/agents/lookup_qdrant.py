@@ -1,11 +1,11 @@
 from src.services.qdrant import QdrantManager
-from qdrant_client.http.models import FieldCondition, Filter, MatchAny, PayloadField, PayloadSchemaType, MatchValue, Nested
+from qdrant_client.http.models import FieldCondition, Filter, MatchValue
 from src.config import settings
-from sentence_transformers import SentenceTransformer
+from typing import List
 
 def get_generic_ticker_filter(ticker_symbol: str) -> Filter:
     ticker_key = ticker_symbol.upper()
-    ticker_path = "tickers"
+    ticker_path = "metadata.tickers"
     
     print(f"   [🔍 Qdrant] Creating filter for ticker {ticker_key} at path {ticker_path}")
     
@@ -26,40 +26,23 @@ async def lookup_qdrant(query_vector_str: str, limit: int = 10):
     # print(f"   [🔍 Qdrant] Searching for historical context on {ticker_symbol}...")
 
     qdrant_client = QdrantManager.get_client()
-    # query_filter = get_generic_ticker_filter("AVAV")
-    model = SentenceTransformer("all-MiniLM-L6-v2")
+    query_filter = get_generic_ticker_filter("AVAV")
         
     collection_name = settings.qdrant_news_collection
-
-    # await qdrant_client.create_payload_index(
-    #     collection_name=collection_name, 
-    #     field_name="tickers",
-    #     field_schema=PayloadSchemaType.KEYWORD,
-    # )
         
     # ✅ CRITICAL: Add await!
-    # results = await qdrant_client.scroll(  # ← AWAIT HERE
-    #     collection_name=collection_name,
-    #     scroll_filter=query_filter,
-    #     limit=limit,
-    #     with_payload=True,
-    #     with_vectors=False,
-    # )
-    query_vector = model.encode(query_vector_str).tolist()
-    results = await qdrant_client.search(
+    results = await qdrant_client.scroll(  # ← AWAIT HERE
         collection_name=collection_name,
-        query_vector=query_vector,
-        limit=2
+        scroll_filter=query_filter,
+        limit=limit,
+        with_payload=True,
+        with_vectors=False,
     )
-    for hit in results:
-        print(f"Score: {hit.score:.3f} | Text: {hit.payload['text']}")
-
     # ✅ Now results is tuple (points, next_offset)
-    # points, next_offset = results
-    # print(f"   [🔍 Qdrant] Found {len(points)} points for {ticker_symbol}")
-
-    # payloads = [p.payload for p in points]
-    return results
+    points, next_offset = results
+    payloads = [p.payload for p in points]
+    print(payloads)
+    return payloads
 
 
 if __name__ == "__main__":

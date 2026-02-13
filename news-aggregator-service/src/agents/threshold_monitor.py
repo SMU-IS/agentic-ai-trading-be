@@ -2,7 +2,7 @@ from typing import List
 from src.services.redis_service import RedisService
 from src.config import settings
 from collections import defaultdict, Counter
-from src.models.news import TickerSentiment
+from src.models.state import TickerSentiment
 
 class ThresholdMonitor:
     def __init__(self, redis: RedisService):

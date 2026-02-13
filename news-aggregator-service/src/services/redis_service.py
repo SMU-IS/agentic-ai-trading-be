@@ -3,7 +3,7 @@ import json
 import aioredis
 from typing import AsyncGenerator, List
 from src.config import settings
-from src.models.news import TickerSentiment
+from src.models.state import TickerSentiment
 
 class RedisService:
     def __init__(self):
@@ -57,15 +57,28 @@ class RedisService:
 
     def _extract_tickers_from_message(self, raw_data: dict) -> List[TickerSentiment]:
         tickers = []
-        if isinstance(raw_data, dict) and len(raw_data) > 0:
-            for ticker_symbol, sentiment_data in raw_data.items():
-                ticker_sentiment = TickerSentiment.from_dict(sentiment_data, ticker=ticker_symbol)
-                tickers.append(ticker_sentiment)
-        return tickers or [TickerSentiment.from_dict(raw_data)]
     
-    async def publish_signal(self, signal: dict):
+        if isinstance(raw_data, dict) and len(raw_data) > 0:
+            # Case 1: Multi-ticker format (tickers are keys)
+            if any(key.isupper() and len(key) <= 5 for key in raw_data.keys()):  # heuristic for ticker symbols
+                for ticker_symbol, sentiment_data in raw_data.items():
+                    ticker_sentiment = TickerSentiment.from_dict(sentiment_data, ticker=ticker_symbol)
+                    tickers.append(ticker_sentiment)
+            # Case 2: Single-ticker stream format
+            else:
+                ticker_sentiment = TickerSentiment.from_stream_event(raw_data)
+                tickers.append(ticker_sentiment)
+        
+        # Fallback: treat as single ticker dict
+        if not tickers:
+            ticker_sentiment = TickerSentiment.from_dict(raw_data)
+            tickers.append(ticker_sentiment)
+        
+        return tickers
+    
+    async def publish_signal(self, signal: str):
         """Publish to trading agent queue"""
-        await self.redis.xadd(settings.signal_queue, {"signal": json.dumps(signal)})
+        await self.redis.xadd(settings.signal_queue, {"signal_id": signal})
     
     async def track_volume(self, ticker_event: str) -> int:
         """Track volume for ticker:event_type combo"""

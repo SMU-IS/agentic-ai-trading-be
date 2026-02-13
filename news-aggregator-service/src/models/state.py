@@ -28,15 +28,21 @@ class DeepAnalysis(BaseModel):
     stop_loss_pct: float = Field(..., description="8|10|12")
     target_pct: float = Field(..., description="20|30|50")
 
+class Signal(BaseModel):
+    ticker: str = Field(..., description="Stock ticker")
+    position_size_pct: float = Field(..., description="0.5|1|2")
+    stop_loss_pct: float = Field(..., description="8|10|12")
+    target_pct: float = Field(..., description="20|30|50")
+    trade_rationale: str = Field(..., description="Why this signal")
 
 class SentimentLabel(str, Enum):
-    POSITIVE = "positive"
-    NEGATIVE = "negative" 
-    NEUTRAL = "neutral"
+    BULLISH = "BULLISH"
+    BEARISH = "BEARISH"
+    NEUTRAL = "NEUTRAL"
 
 @dataclass
 class TickerSentiment:
-    ticker: str = ""  # ← EXPLICITLY SAVED TICKER SYMBOL
+    ticker: str = ""
     Type: str = "stock"
     OfficialName: str = ""
     NameIdentified: List[str] = field(default_factory=list)
@@ -47,24 +53,27 @@ class TickerSentiment:
     sentiment_label: SentimentLabel = SentimentLabel.NEUTRAL
     sentiment_confidence: float = 0.0
     sentiment_reasoning: str = ""
-    
+
     # Optional metadata
     timestamp: Optional[datetime] = None
-    
+
     def __post_init__(self):
         if self.timestamp is None:
             self.timestamp = datetime.now()
         # Ensure ticker is in NameIdentified if empty
         if self.ticker and not self.NameIdentified:
             self.NameIdentified = [self.ticker]
-    
+
     def to_dict(self):
         """Convert to JSON-serializable dict"""
         data = {k: v for k, v in self.__dict__.items() if not k.startswith('_')}
         if self.timestamp:
             data['timestamp'] = self.timestamp.isoformat()
+        # ensure enum is serialized as string
+        if isinstance(self.sentiment_label, SentimentLabel):
+            data['sentiment_label'] = self.sentiment_label.value
         return data
-    
+
     @classmethod
     def from_dict(cls, data: dict, ticker: str = None):
         """Create from dict/JSON - extracts ticker from key or explicit param"""
@@ -75,16 +84,64 @@ class TickerSentiment:
             data['ticker'] = data['NameIdentified'][0]
         else:
             data['ticker'] = "UNKNOWN"
-        
+
         # Handle null strings
         if data.get('event_proposal') in ('null', 'None', ''):
             data['event_proposal'] = None
-        
+
         # Convert timestamp
-        if 'timestamp' in data:
+        if 'timestamp' in data and isinstance(data['timestamp'], str):
             try:
                 data['timestamp'] = datetime.fromisoformat(data['timestamp'])
-            except:
+            except Exception:
                 data['timestamp'] = datetime.now()
-        
+
+        # Convert label string back to enum if needed
+        if isinstance(data.get('sentiment_label'), str):
+            try:
+                data['sentiment_label'] = SentimentLabel(data['sentiment_label'])
+            except ValueError:
+                data['sentiment_label'] = SentimentLabel.NEUTRAL
+
         return cls(**data)
+
+    @classmethod
+    def from_stream_event(cls, data: dict):
+        """
+        Adapter for stream-style payloads like:
+
+        {
+            "stream_event_type": "NEWS_UPDATE",
+            "id": "reddit:1r0tftt",
+            "ticker": "IBRX",
+            "ticker_event_type": "REGULATORY_APPROVAL",
+            "sentiment_score": 0.85,
+            "sentiment_confidence": 0.6145,
+            "event_description": "Saudi SFDA approval for ANKTIVA in NMIBC CIS",
+            "sentiment_reasoning": "..."
+        }
+        """
+        init: dict = {}
+
+        # direct mappings
+        init['ticker'] = data.get('ticker', '')
+        init['event_type'] = data.get('ticker_event_type', '')
+        init['event_description'] = data.get('event_description', '')
+        init['sentiment_score'] = float(data.get('sentiment_score', 0.0))
+        init['sentiment_confidence'] = float(data.get('sentiment_confidence', 0.0))
+        init['sentiment_reasoning'] = data.get('sentiment_reasoning', '')
+
+        # optional: use stream id as OfficialName or just ignore
+        # init['OfficialName'] = data.get('id', '')
+
+        # derive sentiment_label from score if not provided
+        score = init['sentiment_score']
+        if score > 0.15:
+            init['sentiment_label'] = SentimentLabel.BULLISH
+        elif score < -0.15:
+            init['sentiment_label'] = SentimentLabel.BEARISH
+        else:
+            init['sentiment_label'] = SentimentLabel.NEUTRAL
+
+        # let __post_init__ populate NameIdentified, timestamp, etc.
+        return cls(**init)

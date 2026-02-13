@@ -4,8 +4,9 @@ from pydantic import BaseModel
 from langgraph.graph import StateGraph, END
 from src.services.redis_service import RedisService
 from src.services.llm_service import LLMService
+from src.services.database import post_deepanalysis
 from src.agents import ThresholdMonitor, DeepAnalyzer, lookup_qdrant
-from src.models.news import DeepAnalysis, TickerSentiment
+from src.models.state import DeepAnalysis, TickerSentiment
 import os
 
 class AgentState(TypedDict):
@@ -13,8 +14,9 @@ class AgentState(TypedDict):
     topics: list
     triggered_topics: list
     deep_analysis: DeepAnalysis  # Now contains complete trading decisions!
-    signals: list
     qdrant_context: list[dict]
+    signal_id: str
+
 
 # Initialize services & build workflow
 class WorkflowManager:
@@ -23,12 +25,10 @@ class WorkflowManager:
         self.llm_service = None
         self.app = None
 
-    async def initialize(self):
+    async def initialize(self, redis_service: RedisService):
         """Initialize services and compile workflow"""
-        self.redis_service = RedisService()
+        self.redis_service = redis_service
         self.llm_service = LLMService()
-        
-        await self.redis_service.connect()
         
         # Build workflow
         self.app = self._build_workflow()
@@ -162,15 +162,52 @@ class WorkflowManager:
         analysis = await analyzer.analyze(news_content)
         analyzer.print_analysis(analysis)
         state["deep_analysis"] = analysis
+        
+        # Post the analysis
+        response = post_deepanalysis(analysis)
+
+        # Safe ID extraction with validation
+        if response and isinstance(response, dict):
+            if response.get("success") and "id" in response:
+                signal_id = response["id"]
+                print(f"🎯 Signal stored with ID: {signal_id}")
+                # Use the ID for next steps
+                state["signal_id"] = signal_id
+            else:
+                print(f"❌ API error: {response}")
+                signal_id = None
+        else:
+            print("❌ No response from API")
+            signal_id = None
+            
         return state
 
     async def generate_signals(self, state: AgentState) -> AgentState:
         """Convert analyses → Trading signals → Redis"""
         print("⚠️ Signal generation")
-        return {}  # Temporarily disable signal generation
+        
+        # Store DeepAnalysis if not already stored
+        signal_id = state.get("signal_id")
+        if not signal_id:
+            # Generate/post new signal
+            analysis = state["analysis"]  # DeepAnalysis from previous node
+            response = post_deepanalysis(analysis)
+            if response and response.get("success"):
+                signal_id = response["id"]
+                state["signal_id"] = signal_id
+                print(f"✅ New signal stored: {signal_id}")
+            else:
+                print("❌ Failed to store signal")
+                return state
+        
+        # Publish to Redis for real-time consumers
+        if signal_id:
+            await self.redis_service.publish_signal(signal_id)
+            print(f"📡 Signal published to Redis: {signal_id}")
+        return state
 
 # Global app instance
-async def setup_workflow():
+async def setup_workflow(redis_service: RedisService):
     workflow = WorkflowManager()
-    await workflow.initialize()
+    await workflow.initialize(redis_service)
     return workflow
