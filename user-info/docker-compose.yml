@@ -7,7 +7,7 @@ services:
       - ../certs:/certs
     container_name: user-module
     ports:
-      - "8080:8080"
+      - "5005:5005"
     environment:
       - HOST=${HOST}
       - DB_PORT=${DB_PORT}

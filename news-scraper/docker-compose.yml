@@ -5,7 +5,7 @@ services:
       - .env
     container_name: news-scraper
     ports:
-      - "5005:5005"
+      - "5003:5003"
     volumes:
       - .:/code
     environment:
@@ -16,5 +16,5 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_STREAM=${REDIS_STREAM}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-    command: fastapi dev app/main.py --host 0.0.0.0 --port 5005
+    command: fastapi dev app/main.py --host 0.0.0.0 --port 5003
     restart: always

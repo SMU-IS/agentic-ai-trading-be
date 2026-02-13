@@ -32,10 +32,10 @@ spec:
                 name: news-scraper-infra
                 port:
                   number: 5003
-          - path: /api/v1/user/auth
+          - path: /api/v1/user
             pathType: Prefix
             backend:
               service:
                 name: user-info-infra
                 port:
-                  number: 8080
+                  number: 5005
