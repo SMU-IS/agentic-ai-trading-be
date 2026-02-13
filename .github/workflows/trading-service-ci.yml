@@ -78,7 +78,7 @@ jobs:
         env:
           WORKSPACE: ${{ github.workspace }}
         run: |
-          helm upgrade --install trading-service ./infra -f ./deploy/values-chatbot.yaml --set image.tag=${{ github.sha }}
+          helm upgrade --install trading-service ./infra -f ./deploy/values-trading-service.yaml --set image.tag=${{ github.sha }}
 
       - name: Verify Health and Status
         if: always()
