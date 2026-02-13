@@ -1,3 +1,18 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: global-cors
+  namespace: default
+config:
+  origins:
+    - "http://localhost:3000"
+    - "https://main.d22zhvaaydu232.amplifyapp.com"
+  methods: ["GET", "POST", "OPTIONS"]
+  headers: ["Content-Type", "Authorization"]
+  credentials: true
+plugin: cors
+
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -6,6 +21,7 @@ metadata:
   annotations:
     konghq.com/publish-service: "kong/kong-gateway-proxy"
     konghq.com/strip-path: "true"
+    konghq.com/plugins: "global-cors"
 spec:
   ingressClassName: kong
   rules:
