@@ -17,18 +17,18 @@ volumes:
 
 service:
   type: ClusterIP
-  port: 8080
-  targetPort: 8080
+  port: 5005
+  targetPort: 5005
 
 livenessProbe:
   httpGet:
     path: /healthcheck
-    port: 8080
+    port: 5005
   initialDelaySeconds: 60
 readinessProbe:
   httpGet:
     path: /healthcheck
-    port: 8080
+    port: 5005
   initialDelaySeconds: 30
 
 secretName: user-info-secrets
