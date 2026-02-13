@@ -1,10 +1,9 @@
 import asyncio
 import json
 from datetime import datetime, timezone
-from pydantic import ValidationError
-
 
 import redis
+from pydantic import ValidationError
 from redis import exceptions
 
 from app.core.config import env_config
@@ -204,7 +203,6 @@ async def run_pipeline():
                     preproc_checkpoint.save(msg_id)
             print("preprocessing done\n\n\n")
 
-
             # Step 2: Extract tickers
             ticker_processed_count = 0
             ticker_last_id = ticker_checkpoint.load()
@@ -237,7 +235,6 @@ async def run_pipeline():
                     preprocessing_stream.delete(msg_id)
                     ticker_processed_count += 1
             print("ticker identification done\n\n\n")
-
 
             # Step 3: Event Identification
             event_last_id = event_checkpoint.load()
@@ -285,7 +282,6 @@ async def run_pipeline():
                         ticker_stream.delete(msg_id)
             print("event identification done\n\n\n")
 
-
             # Step 4: Add newly identified tickers to be consumed at scraping service (Only relevant tickers with event)
             if all_tickers:
                 aliases = ticker_service.get_aliases(list(all_tickers))
@@ -296,7 +292,6 @@ async def run_pipeline():
                     )
                 print("Successfully updated tickers list\n\n\n")
                 all_tickers.clear()
-
 
             # Step 5: Sentiment Analysis (LLM-based using Gemini)
             # Rate limiting: process fewer items with delays between calls for testing
@@ -347,10 +342,7 @@ async def run_pipeline():
                 for _, messages in sentiment_entries:
                     for msg_id, data in messages:
                         try:
-                            payload_dict = {
-                                "id": msg_id,
-                                "fields": data  
-                            }
+                            payload_dict = {"id": msg_id, "fields": data}
                             # Transform pipeline data to NewsAnalysisPayload
                             payload = RedditSourcePayload(**payload_dict)
                             if payload:
@@ -366,10 +358,14 @@ async def run_pipeline():
                                 )
                         except ValidationError as e:
                             # Print the post ID and missing fields
-                            missing_fields = [err['loc'] for err in e.errors()]
-                            print(f"[ValidationError] Post ID {data.get('id')} is missing fields: {missing_fields}")
+                            missing_fields = [err["loc"] for err in e.errors()]
+                            print(
+                                f"[ValidationError] Post ID {data.get('id')} is missing fields: {missing_fields}"
+                            )
                         except Exception as e:
-                            print(f"[Error] Unexpected error in Vectorisation Step for Post ID {data.get('id')}: {e}")
+                            print(
+                                f"[Error] Unexpected error in Vectorisation Step for Post ID {data.get('id')}: {e}"
+                            )
 
                 print("🎉 Saved to Qdrant")
 
