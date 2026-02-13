@@ -2,10 +2,12 @@
 Trading Database API Routes
 """
 from typing import List, Optional, Dict
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from app.core.trading_db_client import MongoDBClient
 from app.core.services import services
 from app.api.schemas import DeepAnalysis
+from bson import ObjectId
+
 router = APIRouter()
 
 # mongo_client = MongoDBClient(uri=os.getenv("MONGODB_URI", "mongodb://mongo:27017"), db_name="trading_db")
@@ -50,7 +52,7 @@ async def get_signals(
     docs = client.get_signals()
     return [DeepAnalysis.model_validate(doc) for doc in docs]
 
-@router.get("/signals/{ticker}", response_model=List[DeepAnalysis])
+@router.get("/signals/ticker/{ticker}", response_model=List[DeepAnalysis])
 async def get_signal_by_ticker(
     ticker: str,
     client: MongoDBClient = Depends(lambda: mongo_client)
@@ -60,3 +62,16 @@ async def get_signal_by_ticker(
     if not docs:
         raise HTTPException(status_code=404, detail=f"No signals for {ticker}")
     return [DeepAnalysis.model_validate(doc) for doc in docs]
+
+@router.get("/signals/{signal_id}", response_model=Optional[DeepAnalysis])
+async def get_signal_by_id(
+    signal_id: str = Path(..., description="MongoDB _id as hex string"),
+    client: MongoDBClient = Depends(lambda: mongo_client)
+):
+    """Get a single trading signal by MongoDB _id."""
+    if not ObjectId.is_valid(signal_id):
+        raise HTTPException(status_code=400, detail="Invalid MongoDB ObjectId")
+    doc = client.get_signal_by_id(signal_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Signal not found")
+    return DeepAnalysis.model_validate(doc)
