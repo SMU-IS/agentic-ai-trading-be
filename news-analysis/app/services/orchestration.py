@@ -204,6 +204,7 @@ async def run_pipeline():
                     preproc_checkpoint.save(msg_id)
             print("preprocessing done\n\n\n")
 
+
             # Step 2: Extract tickers
             ticker_processed_count = 0
             ticker_last_id = ticker_checkpoint.load()
@@ -237,16 +238,8 @@ async def run_pipeline():
                     ticker_processed_count += 1
             print("ticker identification done\n\n\n")
 
-            # Step 3: Add newly identified tickers to be consumed at scraping service
-            if all_tickers:
-                aliases = ticker_service.get_aliases(list(all_tickers))
 
-                for ticker, data in aliases.items():
-                    redis_client.hset(
-                        "all_identified_tickers", ticker, json.dumps(data)
-                    )
-
-            # Step 4: Event Identification
+            # Step 3: Event Identification
             event_last_id = event_checkpoint.load()
             ticker_entries = ticker_stream.read(
                 last_id=event_last_id, count=10, block_ms=5000
@@ -291,6 +284,19 @@ async def run_pipeline():
                         event_checkpoint.save(msg_id)
                         ticker_stream.delete(msg_id)
             print("event identification done\n\n\n")
+
+
+            # Step 4: Add newly identified tickers to be consumed at scraping service (Only relevant tickers with event)
+            if all_tickers:
+                aliases = ticker_service.get_aliases(list(all_tickers))
+
+                for ticker, data in aliases.items():
+                    redis_client.hset(
+                        "all_identified_tickers", ticker, json.dumps(data)
+                    )
+                print("Successfully updated tickers list\n\n\n")
+                all_tickers.clear()
+
 
             # Step 5: Sentiment Analysis (LLM-based using Gemini)
             # Rate limiting: process fewer items with delays between calls for testing
@@ -406,6 +412,17 @@ async def run_pipeline():
                     env_config.aws_bucket_cleaned_key,
                 )
                 print("Successfully updated cleaned ticker list\n\n\n")
+
+            if all_tickers:
+                aliases = ticker_service.get_aliases(list(all_tickers))
+
+                for ticker, data in aliases.items():
+                    redis_client.hset(
+                        "all_identified_tickers", ticker, json.dumps(data)
+                    )
+
+                print("Successfully updated tickers list\n\n\n")
+                all_tickers.clear()
 
         except Exception as e:
             print(f"[Error] Failed during cleanup: {e}")
