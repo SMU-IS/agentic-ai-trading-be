@@ -26,3 +26,72 @@ jobs:
           context: ./trading-service
           file: ./trading-service/Dockerfile
           push: false
+
+  deploy:
+    name: Continuous Deployment
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Ensure ECR Repository exists
+        run: |
+          aws ecr describe-repositories --repository-names trading-service || \
+          aws ecr create-repository --repository-name trading-service
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: trading-service
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+            -f ./trading-service/Dockerfile ./trading-service
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Update Kubeconfig
+        run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
+
+      - name: Create K8s Secret from TRADING_SERVICE_SECRETS
+        run: |
+          echo "${{ secrets.TRADING_SERVICE_SECRETS }}" > .env.tmp
+
+          kubectl create secret generic trading-service-secrets \
+            --from-env-file=.env.tmp \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+          rm .env.tmp
+
+      - name: Deploy to AWS EKS
+        env:
+          WORKSPACE: ${{ github.workspace }}
+        run: |
+          helm upgrade --install trading-service ./infra -f ./deploy/values-chatbot.yaml --set image.tag=${{ github.sha }}
+
+      - name: Verify Health and Status
+        if: always()
+        run: |
+          echo "****** Helm Release Status ******"
+          helm status trading-service
+
+          echo "****** Deployment Revision History ******"
+          helm history trading-service
+
+          echo "****** Kubernetes Pod Status ******"
+          kubectl get pods -l app.kubernetes.io/instance=trading-service
+
+      - name: Apply Global Ingress Gateway
+        run: |
+          kubectl apply -f ./deploy/ingress.yaml

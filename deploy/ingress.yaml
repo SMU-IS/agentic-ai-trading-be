@@ -55,3 +55,10 @@ spec:
                 name: user-info-infra
                 port:
                   number: 5005
+          - path: /api/v1/trading
+            pathType: Prefix
+            backend:
+              service:
+                name: trading-service-infra
+                port:
+                  number: 9000

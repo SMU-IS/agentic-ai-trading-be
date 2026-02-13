@@ -1,35 +1,13 @@
 services:
-  
   broker-service:
     build: .
     container_name: alpaca-broker-service
     ports:
       - "9000:9000"
     environment:
-      # Inject your Alpaca credentials here or via .env
       ALPACA_API_KEY: ${ALPACA_API_KEY}
       ALPACA_API_SECRET: ${ALPACA_API_SECRET}
       ALPACA_PAPER: ${ALPACA_PAPER:-true}
       FLASK_ENV: production
       MONGODB_URI: ${MONGODB_URI}
     restart: unless-stopped
-
-  mongo:
-      image: mongo:7.0
-      container_name: trading-mongo
-      ports:
-        - "27017:27017"
-      volumes:
-        - mongo-data:/data/db
-        - ./mongo-init/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-      environment:
-        MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-        MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      restart: unless-stopped
-      
-volumes:
-  mongo-data:
-
-networks:
-  trading-network:
-    driver: bridge
