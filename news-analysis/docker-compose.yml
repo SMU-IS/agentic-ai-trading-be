@@ -47,7 +47,8 @@ services:
       - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2}
       - LANGCHAIN_ENDPOINT=${LANGCHAIN_ENDPOINT}
       - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
-    command: >
-      sh -c "python -m app.services.orchestration &
-            fastapi dev app/main.py --host 0.0.0.0 --port 5002"
+    command: fastapi dev app/main.py --host 0.0.0.0 --port 5002
+    # command: >
+    # sh -c "python -m app.services.orchestration &
+    #       fastapi dev app/main.py --host 0.0.0.0 --port 5002"
     restart: unless-stopped

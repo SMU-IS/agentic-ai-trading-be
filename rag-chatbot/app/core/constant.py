@@ -16,3 +16,4 @@ class LangChainEvent(str, Enum):
 
 class LLMProviders(str, Enum):
     OLLAMA = "ollama"
+    GEMINI = "gemini"

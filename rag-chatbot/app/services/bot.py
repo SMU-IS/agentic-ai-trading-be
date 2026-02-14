@@ -58,7 +58,7 @@ class BotService:
                 kind = event["event"]
                 # 1. Detect when a tool is being called
                 if kind == LangChainEvent.TOOL_START:
-                    yield f"data: {json.dumps({'status': f'Calling {event['name']}...'})}\n\n"
+                    yield f"data: {json.dumps({'status': f'Searching {event['name']}...'})}\n\n"
 
                 # 2. Detect when a tool has finished
                 elif kind == LangChainEvent.TOOL_END:
@@ -76,9 +76,9 @@ class BotService:
 
                 # 2. Stream tokens, typing the final answer
                 elif kind == LangChainEvent.CHAT_MODEL_STREAM:
-                    chunk = event["data"]["chunk"]
-                    if chunk.content and not chunk.tool_call_chunks:
-                        yield f"data: {json.dumps({'token': chunk.content})}\n\n"
+                    content = event["data"]["chunk"].content  # type: ignore
+                    if content:
+                        yield f"data: {json.dumps({'token': content})}\n\n"
 
             if citations:
                 yield f"data: {json.dumps({'citations': citations})}\n\n"
