@@ -31,7 +31,8 @@ class VectorisationService:
 
     async def get_sanitised_news_payload(self, processed_source: RedditSourcePayload):
         fields = processed_source.fields
-        content, ticker_data, engagement, timestamps, author = (
+        topic_id, content, ticker_data, engagement, timestamps, author = (
+            fields.id,
             fields.content,
             fields.ticker_metadata,
             fields.engagement,
@@ -68,7 +69,7 @@ class VectorisationService:
         sanitised_news_payload = {
             "id": processed_source.id,
             "metadata": {
-                "article_id": processed_source.id,
+                "topic_id": topic_id,
                 "tickers": list(transformed_tickers.keys()),
                 "tickers_metadata": transformed_tickers,
                 "timestamp": timestamps,
@@ -101,37 +102,43 @@ class VectorisationService:
             print(f"❌ Error ingesting document: {str(e)}")
             raise RuntimeError(f"Failed to ingest document: {e}") from e
 
-    async def query_docs(self, payload: QueryDocsRequest) -> list[dict[str, Any]]:
+    async def retrieve_ticker_insights(
+        self, payload: QueryDocsRequest
+    ) -> list[dict[str, Any]]:
         """
-        Retrieves documents from Qdrant similar to the query.
+        Performs a semantic similarity search to identify and retrieve relevant context.
+
+        Args:
+            payload (QueryDocsRequest): An object containing:
+                - query (str): The search text.
+                - limit (int): Max number of results.
+                - tickers (list[str]): List of tickers to filter by.
+
+        Returns:
+            list[dict[str, Any]]: List of documents with metadata and similarity score.
         """
 
-        search_filter = None
-        if payload.ticker_filter:
-            search_filter = models.Filter(
-                must=[
-                    models.FieldCondition(
-                        key="metadata.tickers",
-                        match=models.MatchAny(any=payload.ticker_filter),
-                    )
-                ]
-            )
+        filter_by_tickers = models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="metadata.tickers",
+                    match=models.MatchAny(any=payload.tickers),
+                )
+            ]
+        )
 
         try:
             results = await self.vector_store.asimilarity_search_with_score(
-                query=payload.query, k=payload.limit, filter=search_filter
+                query=payload.query, k=payload.limit, filter=filter_by_tickers
             )
 
             formatted_results = []
             for doc, score in results:
                 formatted_results.append(
                     {
-                        "id": doc.metadata.get("article_id"),
-                        "headline": doc.metadata.get("headline"),
+                        "topic_id": doc.metadata.get("topic_id"),
                         "text_content": doc.metadata.get("text_content"),
                         "similarity_score": score,
-                        "content_preview": doc.page_content[:200],
-                        "metadata": doc.metadata,
                     }
                 )
 

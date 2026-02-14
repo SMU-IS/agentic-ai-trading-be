@@ -69,7 +69,7 @@ async def get_general_news_context_and_result(query: str, tickers: List[str]):
     payload = {
         "query": query,
         "limit": 5,
-        "ticker_filter": tickers if tickers is not None else [],
+        "tickers": tickers if tickers is not None else [],
     }
 
     async with httpx.AsyncClient() as client:
