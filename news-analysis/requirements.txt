@@ -60,6 +60,7 @@ langchain-classic==1.0.1
 langchain-community==0.4.1
 langchain-core==1.2.9
 langchain-google-genai==4.2.0
+langchain-groq>=0.3.0
 langchain-ollama==1.0.1
 langchain-qdrant==1.1.0
 langchain-text-splitters==1.1.0
