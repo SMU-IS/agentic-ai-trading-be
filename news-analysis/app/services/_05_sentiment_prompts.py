@@ -147,15 +147,15 @@ Tickers to Analyze:
 {tickers_info}
 
 Return ONLY valid JSON (no markdown, no backticks):
-{{{{
-    "ticker_sentiments": {{{{
-        "<TICKER_SYMBOL>": {{{{
+{{
+    "ticker_sentiments": {{
+        "<TICKER_SYMBOL>": {{
             "sentiment_score": <float from -1.0 to 1.0>,
             "sentiment_label": "<positive|negative|neutral>",
             "reasoning": "<1-2 sentence explanation of WHY this sentiment for THIS specific ticker>"
-        }}}}
-    }}}}
-}}}}
+        }}
+    }}
+}}
 
 Important Rules:
 1. Analyze sentiment for EACH ticker separately - they may differ
