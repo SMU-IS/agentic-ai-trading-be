@@ -2,16 +2,19 @@
 LLM-Based Sentiment Analysis Service
 File: news-analysis/app/services/_05b_sentiment_llm.py
 
-Uses Gemini LLM for per-ticker sentiment analysis with detailed reasoning.
+Uses Groq LLM (Llama 3.3 70B Versatile) for per-ticker sentiment analysis with detailed reasoning.
 Analyzes sentiment for each ticker mentioned in financial news/social media posts.
+Supports sarcasm detection, financial slang (Reddit/WSB), and emoji interpretation.
+Uses few-shot prompting from _05_sentiment_prompts.py.
 """
 
 import asyncio
+import json
 import logging
 from typing import Dict, Optional
 from dataclasses import dataclass
 
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 
@@ -20,6 +23,9 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from core.config import env_config
+
+# Import few-shot prompts (relative import to avoid circular import via __init__.py)
+from ._05_sentiment_prompts import build_sentiment_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -31,27 +37,26 @@ class TickerSentiment:
     official_name: str
     sentiment_score: float  # -1.0 to 1.0
     sentiment_label: str  # positive, negative, neutral
-    confidence: float  # 0.0 to 1.0
     reasoning: str
 
 
 @dataclass
 class LLMSentimentResult:
-    """Complete sentiment analysis result for a news item"""
+    """Complete sentiment analysis result for a news item (per-ticker only)"""
     ticker_sentiments: Dict[str, Dict]  # Per-ticker sentiment data
-    overall_sentiment_score: float  # Weighted average
-    overall_sentiment_label: str
     analysis_successful: bool = True
     error_message: Optional[str] = None
 
 
 class LLMSentimentService:
     """
-    Per-ticker sentiment analysis using Gemini LLM.
+    Per-ticker sentiment analysis using Groq LLM (Llama 3.3 70B) with few-shot prompting.
 
-    Analyzes financial news/social media content and generates sentiment scores
-    for each ticker mentioned. Designed to work with the news analysis pipeline
-    where ticker_metadata is passed from upstream ticker identification module.
+    Analyzes financial news/social media content (especially Reddit) and generates
+    sentiment scores for each ticker mentioned. Designed to handle sarcasm,
+    financial slang, and emojis common in Reddit/WSB posts.
+
+    Uses clean_combined_withurl and ticker_metadata from upstream pipeline.
     """
 
     _instance = None
@@ -64,7 +69,7 @@ class LLMSentimentService:
 
     def __init__(
         self,
-        model_name: str = env_config.large_language_model_gemini or "gemini-2.5-flash-lite",
+        model_name: str = env_config.large_language_model_llama or "llama-3.3-70b-versatile",
         temperature: float = 0.1
     ):
         if self._initialized:
@@ -75,92 +80,17 @@ class LLMSentimentService:
         self.model_name = model_name
 
         try:
-            self.llm = ChatGoogleGenerativeAI(
+            self.llm = ChatGroq(
                 model=model_name,
-                google_api_key=env_config.gemini_api_key,
+                api_key=env_config.groq_api_key,
                 temperature=temperature,
             )
             self.parser = JsonOutputParser()
-            logger.info(f"Gemini LLM initialized: {model_name}")
+            logger.info(f"Groq LLM initialized: {model_name}")
         except Exception as e:
-            logger.error(f"Failed to initialize Gemini LLM: {e}")
+            logger.error(f"Failed to initialize Groq LLM: {e}")
             self.llm = None
             self.parser = None
-
-        # Define the per-ticker sentiment analysis prompt
-        self.sentiment_prompt = ChatPromptTemplate.from_messages([
-            (
-                "system",
-                """You are an expert financial sentiment analyst specializing in stock market news and social media content analysis.
-                    Your task is to analyze the sentiment of financial content FOR EACH SPECIFIC TICKER mentioned. 
-                    Different tickers in the same news article may have different sentiments.
-
-                ## Sentiment Score Guidelines
-                - Score range: -1.0 (extremely bearish) to +1.0 (extremely bullish)
-                - Neutral zone: -0.1 to +0.1 (use only when sentiment is truly ambiguous or factual without opinion)
-                - Be decisive: Most financial content has clear directional sentiment
-
-                ## Score Interpretation
-                | Score Range | Label | Meaning |
-                |-------------|-------|---------|
-                | +0.7 to +1.0 | positive | Strongly bullish - major positive catalyst, exceptional news |
-                | +0.3 to +0.69 | positive | Moderately bullish - positive developments, optimistic outlook |
-                | +0.1 to +0.29 | positive | Slightly bullish - mild positive sentiment, cautious optimism |
-                | -0.1 to +0.1 | neutral | Neutral - factual reporting, no clear directional bias |
-                | -0.29 to -0.1 | negative | Slightly bearish - mild concerns, cautious pessimism |
-                | -0.69 to -0.3 | negative | Moderately bearish - negative developments, pessimistic outlook |
-                | -1.0 to -0.7 | negative | Strongly bearish - major negative catalyst, crisis/disaster |
-
-                ## Analysis Factors
-                1. **Direct Impact**: How does the news directly affect the company's fundamentals?
-                2. **Market Context**: Consider sector trends, competitive dynamics
-                3. **Language Tone**: Bullish terms (moon, rocket, buy, undervalued) vs bearish (dump, sell, overvalued, crash)
-                4. **Emojis**: 🚀📈💎🔥 = bullish; 📉💀🤡⚠️ = bearish
-                5. **Financial Slang**: Reddit/WSB terms (tendies, diamond hands = bullish; bagholding, rekt = bearish)
-                6. **Event Type**: Earnings beat/miss, M&A, FDA approval/rejection, legal issues, management changes
-                7. **Sarcasm Detection**: Common on Reddit - "great job losing money" is negative despite "great"
-
-                ## Confidence Score Guidelines
-                - 0.9-1.0: Very clear sentiment, unambiguous language, single ticker focus
-                - 0.7-0.89: Clear sentiment with some nuance or multiple factors
-                - 0.5-0.69: Mixed signals, requires interpretation
-                - 0.3-0.49: Ambiguous content, low certainty
-                - 0.0-0.29: Highly uncertain, conflicting information
-
-                Output ONLY valid JSON. No markdown, no explanations outside JSON."""
-            ),
-            (
-                "user",
-                """Analyze the sentiment of this financial content for EACH ticker listed.
-
-                ## News/Post Content
-                {text}
-
-                ## Tickers to Analyze
-                {tickers_info}
-
-                ## Required Output Format
-                Return a JSON object with sentiment analysis for each ticker:
-
-                {{
-                    "ticker_sentiments": {{
-                        "<TICKER_SYMBOL>": {{
-                            "sentiment_score": <float from -1.0 to 1.0>,
-                            "sentiment_label": "<positive|negative|neutral>",
-                            "confidence": <float from 0.0 to 1.0>,
-                            "reasoning": "<1-2 sentence explanation of WHY this sentiment for THIS specific ticker>"
-                        }}
-                    }}
-                }}
-
-                ## Important Rules
-                1. Analyze sentiment for EACH ticker separately - they may differ
-                2. The reasoning must explain why THIS ticker has THIS sentiment based on the content
-                3. Use the full score range - don't cluster around 0
-                4. Only use "neutral" (-0.1 to 0.1) when truly ambiguous
-                5. Confidence reflects how certain the model is about the sentiment assessment"""
-            )
-        ])
 
         self._initialized = True
         logger.info("LLM Sentiment Service initialized")
@@ -168,6 +98,9 @@ class LLMSentimentService:
     async def analyse(self, item: Dict) -> Dict:
         """
         Analyze sentiment for each ticker in the news item.
+
+        Uses clean_combined_withurl as the text input and ticker_metadata
+        from upstream ticker identification for per-ticker analysis.
 
         Args:
             item: Pipeline data with 'content' and 'ticker_metadata'
@@ -177,9 +110,7 @@ class LLMSentimentService:
         """
         # Extract text from nested structure
         content = item.get('content', {})
-        text = (
-            content.get('clean_combined_withouturl', '')
-        )
+        text = content.get('clean_combined_withurl', '')
 
         # Get ticker metadata from upstream ticker identification
         ticker_metadata = item.get('ticker_metadata', {})
@@ -208,14 +139,11 @@ class LLMSentimentService:
             if ticker in ticker_metadata:
                 ticker_metadata[ticker]['sentiment_score'] = sentiment_data['sentiment_score']
                 ticker_metadata[ticker]['sentiment_label'] = sentiment_data['sentiment_label']
-                ticker_metadata[ticker]['sentiment_confidence'] = sentiment_data['confidence']
                 ticker_metadata[ticker]['sentiment_reasoning'] = sentiment_data['reasoning']
 
-        # Update item with enriched data
+        # Update item with enriched data (per-ticker only, no overall)
         item['ticker_metadata'] = ticker_metadata
         item['sentiment_analysis'] = {
-            'overall_sentiment_score': result.overall_sentiment_score,
-            'overall_sentiment_label': result.overall_sentiment_label,
             'analysis_successful': result.analysis_successful,
             'ticker_sentiments': result.ticker_sentiments
         }
@@ -231,10 +159,10 @@ class LLMSentimentService:
         ticker_metadata: Dict
     ) -> LLMSentimentResult:
         """
-        Perform LLM-based sentiment analysis for all tickers.
+        Perform LLM-based sentiment analysis for all tickers using few-shot prompting.
 
         Args:
-            text: The news/post content
+            text: The news/post content (clean_combined_withurl)
             ticker_metadata: Dict of ticker -> metadata from ticker identification
 
         Returns:
@@ -244,8 +172,6 @@ class LLMSentimentService:
             logger.error("LLM not initialized")
             return LLMSentimentResult(
                 ticker_sentiments=self._create_fallback_sentiments(ticker_metadata),
-                overall_sentiment_score=0.0,
-                overall_sentiment_label="neutral",
                 analysis_successful=False,
                 error_message="LLM not initialized"
             )
@@ -259,22 +185,18 @@ class LLMSentimentService:
         tickers_info = self._format_tickers_for_prompt(ticker_metadata)
 
         try:
-            chain = self.sentiment_prompt | self.llm | self.parser
-            result = await chain.ainvoke({
-                "text": text,
-                "tickers_info": tickers_info
-            })
+            # Build few-shot prompt from external prompts file
+            prompt_messages = build_sentiment_prompt(text, tickers_info)
+            sentiment_prompt = ChatPromptTemplate.from_messages(prompt_messages)
 
-            # Parse and validate the response (pass text for confidence calibration)
+            chain = sentiment_prompt | self.llm | self.parser
+            result = await chain.ainvoke({})
+
+            # Parse and validate the response
             ticker_sentiments = self._parse_sentiment_response(result, ticker_metadata, text)
-
-            # Calculate overall sentiment (weighted average)
-            overall_score, overall_label = self._calculate_overall_sentiment(ticker_sentiments)
 
             return LLMSentimentResult(
                 ticker_sentiments=ticker_sentiments,
-                overall_sentiment_score=overall_score,
-                overall_sentiment_label=overall_label,
                 analysis_successful=True
             )
 
@@ -282,8 +204,6 @@ class LLMSentimentService:
             logger.error(f"LLM sentiment analysis failed: {e}")
             return LLMSentimentResult(
                 ticker_sentiments=self._create_fallback_sentiments(ticker_metadata),
-                overall_sentiment_score=0.0,
-                overall_sentiment_label="neutral",
                 analysis_successful=False,
                 error_message=f"Analysis error: {str(e)[:100]}"
             )
@@ -329,27 +249,12 @@ class LLMSentimentService:
                 # Determine label based on score thresholds
                 label = self._score_to_label(score)
 
-                # Parse raw confidence from LLM
-                raw_confidence = float(raw.get('confidence', 0.5))
-                raw_confidence = max(0.0, min(1.0, raw_confidence))
-
                 # Get reasoning
                 reasoning = raw.get('reasoning', 'No reasoning provided')
-
-                # Apply confidence calibration to address LLM overconfidence
-                calibrated_confidence = self._calibrate_confidence(
-                    raw_confidence=raw_confidence,
-                    sentiment_score=score,
-                    text=text,
-                    reasoning=reasoning,
-                    num_tickers=num_tickers
-                )
 
                 ticker_sentiments[ticker] = {
                     'sentiment_score': round(score, 4),
                     'sentiment_label': label,
-                    'confidence': round(calibrated_confidence, 4),
-                    'raw_llm_confidence': round(raw_confidence, 4),  # Keep original for debugging
                     'reasoning': reasoning,
                     'official_name': ticker_metadata[ticker].get('OfficialName', ticker)
                 }
@@ -362,84 +267,6 @@ class LLMSentimentService:
 
         return ticker_sentiments
 
-    def _calibrate_confidence(
-        self,
-        raw_confidence: float,
-        sentiment_score: float,
-        text: str,
-        reasoning: str,
-        num_tickers: int
-    ) -> float:
-        """
-        Calibrate LLM confidence to be more realistic for trading decisions.
-
-        LLMs tend to be overconfident (~90-95% always). This applies penalties based on:
-        1. Base dampening (LLMs are systematically overconfident)
-        2. Text length (shorter = less context = lower confidence)
-        3. Number of tickers (more tickers = split attention = lower confidence)
-        4. Sentiment extremity (extreme scores need more evidence)
-        5. Reasoning quality (short reasoning = lower confidence)
-
-        Returns:
-            Calibrated confidence score (0.0 to 1.0)
-        """
-        confidence = raw_confidence
-
-        # 1. Base dampening - LLMs are ~25-30% overconfident on average
-        # This is the most important adjustment
-        BASE_DAMPENING = 0.70  # Reduce all confidences by 30%
-        confidence *= BASE_DAMPENING
-
-        # 2. Text length penalty (less context = less certainty)
-        word_count = len(text.split()) if text else 0
-        if word_count < 15:
-            confidence *= 0.65  # Very short text (tweets, headlines)
-        elif word_count < 30:
-            confidence *= 0.75  # Short text
-        elif word_count < 50:
-            confidence *= 0.85  # Medium-short text
-        elif word_count > 150:
-            confidence *= 1.08  # Longer text slightly more reliable
-        # Cap at current value after potential boost
-        confidence = min(confidence, raw_confidence * BASE_DAMPENING * 1.1)
-
-        # 3. Multi-ticker penalty (attention split across tickers)
-        if num_tickers > 1:
-            # Each additional ticker reduces confidence
-            # 2 tickers: 90%, 3 tickers: 82%, 4 tickers: 74%, etc.
-            ticker_penalty = 1.0 - (0.10 * (num_tickers - 1))
-            ticker_penalty = max(ticker_penalty, 0.55)  # Floor at 55%
-            confidence *= ticker_penalty
-
-        # 4. Extreme sentiment penalty (extreme claims need strong evidence)
-        sentiment_extremity = abs(sentiment_score)
-        if sentiment_extremity > 0.85:
-            # Very extreme sentiments (>0.85 or <-0.85) should be rare
-            confidence *= 0.80
-        elif sentiment_extremity > 0.7:
-            confidence *= 0.88
-        elif sentiment_extremity > 0.5:
-            confidence *= 0.95
-
-        # 5. Reasoning quality check
-        reasoning_words = len(reasoning.split()) if reasoning else 0
-        if reasoning_words < 5:
-            confidence *= 0.65  # Very short/no reasoning
-        elif reasoning_words < 10:
-            confidence *= 0.80  # Short reasoning
-        elif reasoning_words > 25:
-            confidence *= 1.05  # Detailed reasoning is good
-
-        # 6. Neutral sentiment adjustment
-        # Neutral predictions are often "safe defaults" when model is uncertain
-        if abs(sentiment_score) < 0.1:
-            confidence *= 0.85
-
-        # Final bounds check
-        # Cap at 0.85 (never fully confident), floor at 0.15 (always some signal)
-        confidence = max(0.15, min(0.85, confidence))
-
-        return confidence
 
     def _score_to_label(self, score: float) -> str:
         """
@@ -452,38 +279,6 @@ class LLMSentimentService:
             return "negative"
         else:
             return "neutral"
-
-    def _calculate_overall_sentiment(
-        self,
-        ticker_sentiments: Dict[str, Dict]
-    ) -> tuple:
-        """
-        Calculate overall sentiment as weighted average.
-
-        Returns:
-            Tuple of (overall_score, overall_label)
-        """
-        if not ticker_sentiments:
-            return 0.0, "neutral"
-
-        # Weight by confidence
-        total_weight = 0.0
-        weighted_sum = 0.0
-
-        for sentiment_data in ticker_sentiments.values():
-            confidence = sentiment_data.get('confidence', 0.5)
-            score = sentiment_data.get('sentiment_score', 0.0)
-            weighted_sum += score * confidence
-            total_weight += confidence
-
-        if total_weight > 0:
-            overall_score = round(weighted_sum / total_weight, 4)
-        else:
-            overall_score = 0.0
-
-        overall_label = self._score_to_label(overall_score)
-
-        return overall_score, overall_label
 
     def _create_fallback_sentiments(self, ticker_metadata: Dict) -> Dict[str, Dict]:
         """Create fallback neutral sentiments for all tickers."""
@@ -504,7 +299,6 @@ class LLMSentimentService:
         return {
             'sentiment_score': 0.0,
             'sentiment_label': 'neutral',
-            'confidence': 0.0,
             'reasoning': 'Analysis failed - using neutral fallback',
             'official_name': official_name
         }
@@ -520,24 +314,28 @@ async def main():
     print("LLM SENTIMENT SERVICE TEST - Per-Ticker Analysis")
     print("=" * 80)
 
-    # Test case simulating pipeline data
+    # Test case: 3 tickers with Reddit-style content (sarcasm, slang, emojis)
     test_item = {
         'content': {
             'clean_combined_withurl': """
-            Apple just crushed earnings! Revenue up 15% YoY while Microsoft struggles
-            with cloud growth slowdown. AAPL is going to the moon 🚀🚀🚀
-            Meanwhile, MSFT looks bearish short-term. Diamond hands on Apple,
-            but I'm selling my Microsoft position.
+            Apple just crushed earnings! Revenue up 15% YoY, diamond hands on AAPL 🚀🚀🚀
+            Meanwhile MSFT cloud growth is slowing down, looks bearish short-term.
+            Oh and TSLA? Great job Elon, another recall. Really genius moves 🤡🤡
+            Bagholding TSLA at $300 avg, this is absolutely rekt.
             """
         },
         'ticker_metadata': {
             'AAPL': {
                 'OfficialName': 'Apple Inc.',
-                'event_type': 'Earnings Report'
+                'event_type': 'EARNINGS_REPORT'
             },
             'MSFT': {
                 'OfficialName': 'Microsoft Corporation',
-                'event_type': 'Earnings Report'
+                'event_type': 'EARNINGS_REPORT'
+            },
+            'TSLA': {
+                'OfficialName': 'Tesla Inc.',
+                'event_type': 'PRODUCT_RECALL'
             }
         }
     }
@@ -551,8 +349,6 @@ async def main():
     print("-" * 80)
 
     sentiment_analysis = result.get('sentiment_analysis', {})
-    print(f"Overall Score: {sentiment_analysis.get('overall_sentiment_score')}")
-    print(f"Overall Label: {sentiment_analysis.get('overall_sentiment_label')}")
     print(f"Analysis Successful: {sentiment_analysis.get('analysis_successful')}")
 
     print("\nPer-Ticker Sentiments:")
@@ -560,11 +356,7 @@ async def main():
         print(f"\n  {ticker} ({data.get('official_name')}):")
         print(f"    Score: {data.get('sentiment_score')}")
         print(f"    Label: {data.get('sentiment_label')}")
-        print(f"    Raw LLM Confidence: {data.get('raw_llm_confidence')} (before calibration)")
-        print(f"    Calibrated Confidence: {data.get('confidence')} (after calibration)")
         print(f"    Reasoning: {data.get('reasoning')}")
-
-    print("\n" + "=" * 80)
 
 
 if __name__ == "__main__":

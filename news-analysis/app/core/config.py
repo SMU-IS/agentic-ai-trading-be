@@ -46,6 +46,14 @@ class EnvConfig(BaseSettings):
         default="gemini-2.5-flash-lite", validation_alias="LARGE_LANGUAGE_MODEL_GEMINI"
     )
 
+    # Groq:
+    groq_api_key: Optional[str] = Field(
+        default=None, validation_alias="GROQ_API_KEY"
+    )
+    large_language_model_llama: str = Field(
+        default="llama-3.3-70b-versatile", validation_alias="LARGE_LANGUAGE_MODEL_LLAMA"
+    )
+
     # Ollama:
     ollama_base_url: Optional[str] = Field(
         default=None, validation_alias="OLLAMA_BASE_URL"

@@ -35,7 +35,6 @@ class TickerDetail(BaseModel):
     event_proposal: Optional[EventProposal] = None
     sentiment_score: float = Field(..., ge=-1, le=1)
     sentiment_label: str
-    sentiment_confidence: float = Field(..., ge=0, le=1)
     sentiment_reasoning: str
 
 class EventProposal(BaseModel):
