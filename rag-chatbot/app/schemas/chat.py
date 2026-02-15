@@ -1,6 +1,11 @@
 from pydantic import BaseModel, Field
 
 
+class ChatRequest(BaseModel):
+    query: str
+    order_id: str | None = None
+
+
 class GeneralNews(BaseModel):
     query: str = Field(
         ...,
