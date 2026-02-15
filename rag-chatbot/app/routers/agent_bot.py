@@ -3,7 +3,7 @@ from functools import lru_cache
 from app.core.config import env_config
 from app.core.constant import APIPath
 from app.providers.llm.registry import get_strategy
-from app.schemas.chat import GeneralNews, TradeHistory
+from app.schemas.chat import ChatRequest, GeneralNews, TradeHistory
 from app.services.agent_bot_service import AgentBotService
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
@@ -21,10 +21,10 @@ def get_agent_bot_service():
 
 @router.post(APIPath.CHAT)
 async def chat_stream(
-    request: GeneralNews | TradeHistory,
+    request: ChatRequest,
     agent_bot_service: AgentBotService = Depends(get_agent_bot_service),
 ):
     return StreamingResponse(
-        agent_bot_service.invoke_agent(request.query),
+        agent_bot_service.invoke_agent(request.query, request.order_id),
         media_type="text/event-stream",
     )

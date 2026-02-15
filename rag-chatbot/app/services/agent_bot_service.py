@@ -59,23 +59,26 @@ class AgentBotService:
         agent = create_agent(model=self.llm, tools=RAG_BOT_TOOLS, system_prompt=prompt)
         return agent
 
-    async def invoke_agent(self, query: str):
+    async def invoke_agent(self, query: str, order_id: str | None):
         """
         Invoke the agent with a given query.
 
         Args:
             query (str): The query to invoke the agent with.
+            order_id (str | None): The order ID for the query.
 
         Returns:
             str: The result of the agent invocation.
         """
 
+        context_query = f"Regarding Order {order_id}: {query}" if order_id else query
+
         try:
             agent = self._create_agent()
-            logger.info(f"Invoking agent with query: {query[:50]}...")
+            logger.info(f"Invoking agent with query: {context_query[:50]}...")
 
             results = agent.astream_events(
-                {"messages": [HumanMessage(content=query)]}, version="v2"
+                {"messages": [HumanMessage(content=context_query)]}, version="v2"
             )
 
             async for event in results:
