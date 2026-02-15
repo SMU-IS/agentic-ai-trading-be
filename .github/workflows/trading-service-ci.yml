@@ -1,14 +1,15 @@
 name: Trading Service CI
 
 on:
-  push:
-    branches: ["master"]
-    paths:
-      - "trading-service/**"
-  pull_request:
-    branches: ["master"]
-    paths:
-      - "trading-service/**"
+  workflow_dispatch:
+  # push:
+  #   branches: ["master"]
+  #   paths:
+  #     - "trading-service/**"
+  # pull_request:
+  #   branches: ["master"]
+  #   paths:
+  #     - "trading-service/**"
 
 jobs:
   build:
