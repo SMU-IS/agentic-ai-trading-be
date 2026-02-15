@@ -6,7 +6,7 @@ from langchain_core.documents import Document
 from qdrant_client.http import models
 
 from app.core.security import get_current_user
-from app.providers.vector.strategy import QdrantOllamaStrategy
+from app.providers.vector.strategy import QdrantGeminiStrategy
 from app.schemas.compiled_news_payload import NewsAnalysisPayload
 from app.schemas.query_docs_payload import QueryDocsRequest
 from app.schemas.raw_news_payload import RedditSourcePayload
@@ -18,7 +18,7 @@ class VectorisationService:
     def __init__(
         self,
     ):
-        strategy = QdrantOllamaStrategy()
+        strategy = QdrantGeminiStrategy()
         self.vector_store = strategy.get_vector_store()
 
     async def setup_indexing(self):
