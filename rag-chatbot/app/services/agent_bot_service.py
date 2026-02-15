@@ -1,19 +1,21 @@
 import json
-import logging
 
 from langchain.agents import create_agent
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import HumanMessage
+from rich.console import Console
+from rich.panel import Panel
+from rich.pretty import Pretty
 
 from app.core.config import env_config
 from app.core.constant import LangChainEvent
 from app.core.s3_config import S3ConfigService
 from app.services.tools import RAG_BOT_TOOLS
+from app.utils.logger import setup_logging
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+console = Console(force_terminal=True)
+
+logger = setup_logging()
 
 
 class AgentBotService:
@@ -92,7 +94,14 @@ class AgentBotService:
                         yield f"data: {json.dumps({'token': content})}\n\n"
 
                 if kind == LangChainEvent.CHAT_MODEL_END_STREAM:
-                    event["data"]["output"].pretty_print()  # type: ignore
+                    output = event["data"]["output"]
+                    console.print(
+                        Panel(
+                            Pretty(output),
+                            title="🧠 Thinking...",
+                            border_style="red",
+                        )
+                    )
 
         except Exception as e:
             logger.error(f"Streaming Error: {str(e)}", exc_info=True)
