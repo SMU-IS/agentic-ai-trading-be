@@ -86,7 +86,7 @@ class AgentBotService:
                 elif kind == LangChainEvent.CHAT_MODEL_STREAM:
                     content = event["data"]["chunk"].content  # type: ignore
                     if content:
-                        yield f"data: {json.dumps({'token': content})}"
+                        yield f"data: {json.dumps({'token': content})}\n\n"
 
                 if kind == LangChainEvent.CHAT_MODEL_END_STREAM:
                     event["data"]["output"].pretty_print()  # type: ignore
