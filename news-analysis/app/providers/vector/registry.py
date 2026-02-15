@@ -1,8 +1,9 @@
 from app.core.constant import StorageProviders
-from app.providers.vector.strategy import QdrantOllamaStrategy
+from app.providers.vector.strategy import QdrantGeminiStrategy, QdrantOllamaStrategy
 
 VECTOR_STRATEGIES = {
     StorageProviders.QDRANT_OLLAMA: QdrantOllamaStrategy(),
+    StorageProviders.QDRANT_GEMINI: QdrantGeminiStrategy(),
 }
 
 
