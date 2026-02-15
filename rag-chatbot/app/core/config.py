@@ -1,8 +1,8 @@
 import os
-from typing import Optional
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing_extensions import final
 
 from app.core.constant import LLMProviders
 
@@ -10,6 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 ENV_PATH = os.path.join(BASE_DIR, ".env")
 
 
+@final
 class EnvConfig(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=ENV_PATH, env_file_encoding="utf-8", extra="ignore"
@@ -21,11 +22,14 @@ class EnvConfig(BaseSettings):
     temperature: float = Field(..., validation_alias="TEMPERATURE")
 
     # Gemini
-    gemini_api_key: str = Field(..., validation_alias="GEMINI_API_KEY")
+    gemini_api_key: str | None = Field(None, validation_alias="GEMINI_API_KEY")
 
     # Ollama
-    ollama_base_url: Optional[str] = Field(None, validation_alias="OLLAMA_BASE_URL")
-    open_ai_api_key: Optional[str] = Field(None, validation_alias="OPEN_AI_API_KEY")
+    ollama_base_url: str | None = Field(None, validation_alias="OLLAMA_BASE_URL")
+    open_ai_api_key: str | None = Field(None, validation_alias="OPEN_AI_API_KEY")
+
+    # Groq
+    groq_api_key: str = Field(..., validation_alias="GROQ_API_KEY")
 
     # Qdrant News Analysis
     news_analysis_query_url: str = Field(

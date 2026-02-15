@@ -18,11 +18,11 @@ logger = logging.getLogger(__name__)
 
 class AgentBotService:
     def __init__(self, llm: BaseChatModel):
-        self.llm = llm
+        self.llm: BaseChatModel = llm
 
-        self.aws_config = S3ConfigService()
-        self.aws_s3_bucket_name = env_config.aws_bucket_name
-        self.aws_s3_file_name = env_config.aws_file_name
+        self.aws_config: S3ConfigService = S3ConfigService()
+        self.aws_s3_bucket_name: str = env_config.aws_bucket_name
+        self.aws_s3_file_name: str = env_config.aws_file_name
 
         self._prompt_cache = None
 

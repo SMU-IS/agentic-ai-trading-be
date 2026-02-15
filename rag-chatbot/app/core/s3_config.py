@@ -10,7 +10,7 @@ class S3ConfigService:
             "s3",
             aws_access_key_id=env_config.aws_access_key_id,
             aws_secret_access_key=env_config.aws_secret_access_key,
-        )
+        )  # type: ignore
 
     def get_file_content(self, bucket: str, key: str) -> str:
         try:

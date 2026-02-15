@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
+from typing import override
 
 from app.core.config import env_config
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_ollama import ChatOllama
+from pydantic import SecretStr
 
 
 class LLMStrategy(ABC):
@@ -12,8 +15,8 @@ class LLMStrategy(ABC):
         pass
 
 
-# Ollama
 class OllamaStrategy(LLMStrategy):
+    @override
     def create_model(self) -> BaseChatModel:
         return ChatOllama(
             model=env_config.large_language_model,
@@ -24,6 +27,7 @@ class OllamaStrategy(LLMStrategy):
 
 
 class GeminiStrategy(LLMStrategy):
+    @override
     def create_model(self) -> BaseChatModel:
         return ChatGoogleGenerativeAI(
             model=env_config.large_language_model,
@@ -32,4 +36,16 @@ class GeminiStrategy(LLMStrategy):
             max_output_tokens=env_config.max_completion_tokens,
             streaming=True,
             convert_system_message_to_human=True,
+        )
+
+
+class GroqStrategy(LLMStrategy):
+    @override
+    def create_model(self) -> BaseChatModel:
+        return ChatGroq(
+            model=env_config.large_language_model,
+            api_key=SecretStr(env_config.groq_api_key),
+            temperature=env_config.temperature,
+            max_tokens=env_config.max_completion_tokens,
+            streaming=True,
         )
