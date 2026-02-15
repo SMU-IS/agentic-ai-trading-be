@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import BaseModel, Field
 
 
@@ -8,7 +6,7 @@ class GeneralNews(BaseModel):
         ...,
         description="The specific topic, question, or search string to look for in the news. e.g 'What is the latest news on Apple?'",
     )
-    tickers: List[str] = Field(
+    tickers: list[str] = Field(
         default=[],
         description="A list of stock tickers (e.g. ['AAPL', 'TSLA']) to get news for",
     )

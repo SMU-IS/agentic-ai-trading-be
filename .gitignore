@@ -105,3 +105,5 @@ htmlcov/
 
 postgres_data/
 .claude/
+
+pyrightconfig.json
