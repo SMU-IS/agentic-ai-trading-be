@@ -1,7 +1,7 @@
 import json
 from difflib import SequenceMatcher
 from typing import Dict
-
+from langchain_ollama import ChatOllama
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -19,7 +19,7 @@ class EventIdentifierService:
     def __init__(
         self,
         event_list: dict,
-        model_name: str = env_config.large_language_model_gemini,
+        model_name: str = env_config.large_language_model_llama,
         base_url: str = env_config.ollama_base_url,
         similarity_threshold: float = 0.6,  # threshold to reject duplicate events
         testflag: bool = False,
@@ -45,9 +45,15 @@ class EventIdentifierService:
             self.event_category_map.setdefault(category, []).append(event_name)
 
     def _get_llm(self):
-        return GoogleGenerativeAIEmbeddings(
-            model=env_config.text_embedding_model,
-            google_api_key=env_config.gemini_api_key,
+        # return GoogleGenerativeAIEmbeddings(
+        #     model=env_config.large_language_model_qwen,
+        #     google_api_key=env_config.gemini_api_key,
+        # )
+        return ChatOllama(
+            model=self.model_name,
+            base_url=self.base_url,
+            temperature=0.1,
+            format="json",
         )
 
     def _propose_new_event_with_llm(self, text: str, ticker: str) -> dict:
@@ -114,7 +120,7 @@ class EventIdentifierService:
 
         tickers_json = json.dumps(ticker_metadata, indent=2)
         format_instructions = (
-            "You are analyzing a financial/social media post. "
+            "You are analyzing a financial/social media post. Do NOT speculate or infer events."
             "Return a valid JSON object with EXACTLY three fields:\n\n"
             "1. `global_category`: One of 'COMPANY_EVENT', 'EXTERNAL_EVENT', or 'INVESTOR_EVENT'. "
             "Determine this FIRST based on the dominant theme of the post.\n\n"
@@ -179,8 +185,8 @@ class EventIdentifierService:
 
         prompt = PromptTemplate(
             template=(
-                "You are a financial analyst AI.\n"
-                "Analyze the following text for investment events.\n\n"
+                "You are a financial event extraction engine.\n"
+                "Your task is to analyze the following text and extract structured investment events.\n\n"
                 "Tickers:\n{ticker_metadata_json}\n\n"
                 "Text:\n{input_text}\n\n"
                 "{format_instructions}"
