@@ -93,3 +93,12 @@ services:
         paths:
           - /api/v1/trading
         strip_path: true
+
+    # === News Aggregator Microservice ===
+  # - name: news-aggregator-service-entry
+  #   url: http://news-aggregator-service:5008
+  #   routes:
+  #     - name: news-aggregator-service-routes
+  #       paths:
+  #         - /api/v1/news-aggregator
+  #       strip_path: true

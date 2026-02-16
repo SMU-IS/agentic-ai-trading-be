@@ -33,19 +33,33 @@ async def get_general_news(query: str, tickers: List[str]):
         "tickers": tickers if tickers is not None else [],
     }
 
-    async with httpx.AsyncClient() as client:
-        response = await client.post(env_config.news_analysis_query_url, json=payload)
-        response.raise_for_status()
-        data = response.json()
-        results = data.get("results", [])
-
-        if not results:
-            context = "No relevant news found for the requested tickers."
-        else:
-            context = "\n\n".join(
-                [
-                    f"Headline: {d.get('headline', 'No headline')}\nContent: {d.get('content_preview', 'No content preview')}"
-                    for d in results
-                ]
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                env_config.news_analysis_query_url, json=payload
             )
-        return {"context": context, "results": results}
+            response.raise_for_status()
+            data = response.json()
+            results = data.get("results", [])
+
+            if not results:
+                context = "No relevant news found for the requested tickers."
+            else:
+                context = "\n\n".join(
+                    [
+                        f"Headline: {d.get('headline', 'No headline')}\nContent: {d.get('content_preview', 'No content preview')}"
+                        for d in results
+                    ]
+                )
+            return {"context": context, "results": results}
+
+    except httpx.HTTPStatusError as exc:
+        error_msg = f"API Error: {exc.response.status_code} while fetching news."
+        return {"context": error_msg, "results": []}
+
+    except httpx.RequestError as exc:
+        error_msg = f"Network Error: Could not reach the news service ({exc})."
+        return {"context": error_msg, "results": []}
+
+    except Exception as e:
+        return {"context": f"An unexpected error occurred: {str(e)}", "results": []}
