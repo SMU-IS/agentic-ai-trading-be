@@ -1,16 +1,10 @@
 services:
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-  
   news-aggregator:
     build: .
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn src.main:app --host 0.0.0.0 --port 5008 --reload
     ports:
-      - "8000:8000"
+      - "5008:5008"
     depends_on:
       - redis
     environment:
-      - REDIS_URL=redis://redis:6379
       - OPENAI_API_KEY=${OPENAI_API_KEY}

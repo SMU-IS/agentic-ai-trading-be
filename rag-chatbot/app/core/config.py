@@ -31,9 +31,12 @@ class EnvConfig(BaseSettings):
     # Groq
     groq_api_key: str = Field(..., validation_alias="GROQ_API_KEY")
 
-    # Qdrant News Analysis
+    # External APIs
     news_analysis_query_url: str = Field(
         ..., validation_alias="NEWS_ANALYSIS_QUERY_URL"
+    )
+    order_details_query_url: str = Field(
+        ..., validation_alias="ORDER_DETAILS_QUERY_URL"
     )
 
     # AWS
