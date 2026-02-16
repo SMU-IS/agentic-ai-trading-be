@@ -1,16 +1,15 @@
 import asyncio
-
 from dotenv import load_dotenv
-load_dotenv()
-
-import asyncio
 from src.services.redis_service import RedisService
 from src.workflows.main_workflow import setup_workflow
+
+load_dotenv()
+
 
 async def main():
 
     print("🚀 News Aggregator started...")
-    
+
     redis_service = RedisService()  # Global instance
     await redis_service.connect()
     

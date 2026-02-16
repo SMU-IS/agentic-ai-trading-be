@@ -31,7 +31,10 @@ The system operates on behalf of users to mitigate information overload and circ
 
 ## ⚙️ System Architecture
 
-<img width="1442" height="691" alt="Agent M" src="https://github.com/user-attachments/assets/b3e892eb-8d90-4acf-a1cd-13b767843ad1" />
+<img width="1442" height="691" alt="Agent M" src="https://github.com/user-attachments/assets/d4e42a75-0ea0-4020-9746-6925d36defa1" />
+
+## 🔄 CI/CD Pipeline & Deployment
+<img width="8192" height="2138" alt="CI_CD Workflow for AWS-2026-02-16-014537" src="https://github.com/user-attachments/assets/629bc777-bbff-4e38-93c6-401d594e8d1b" />
 
 ## 👨‍💻 Tech Stack
 

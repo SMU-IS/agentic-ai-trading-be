@@ -36,33 +36,6 @@ plugins:
       preflight_continue: false
 
 services:
-  # === News Scraper Microservice ===
-  - name: news-scraper-entry
-    url: http://news-scraper-service:5003
-    routes:
-      - name: news-scraper-routes
-        paths:
-          - /api/v1/news-scraper
-        strip_path: true
-
-  # === News Analysis Microservice ===
-  - name: news-analysis-entry
-    url: http://news-analysis-service:5002
-    routes:
-      - name: news-analysis-routes
-        paths:
-          - /api/v1/news-analysis
-        strip_path: true
-
-  # === User Info Microservice ===
-  - name: user-service-entry
-    url: http://user-info-service:8080
-    routes:
-      - name: user-routes
-        paths:
-          - /api/v1/user
-        strip_path: true
-
   # === RAG Chatbot Microservice ===
   - name: rag-chatbot-service-entry
     url: http://rag-chatbot-service:5001
@@ -74,9 +47,38 @@ services:
           - /api/v1/rag
         strip_path: true
 
+  # === News Analysis Microservice ===
+  - name: news-analysis-entry
+    url: http://news-analysis-service:5002
+    routes:
+      - name: news-analysis-routes
+        paths:
+          - /api/v1/news-analysis
+        strip_path: true
+
+  # === News Scraper Microservice ===
+  - name: news-scraper-entry
+    url: http://news-scraper-service:5003
+    routes:
+      - name: news-scraper-routes
+        paths:
+          - /api/v1/news-scraper
+        strip_path: true
+
+  # === Notification Microservice === (5004)
+
+  # === User Info Microservice ===
+  - name: user-service-entry
+    url: http://user-info-service:5005
+    routes:
+      - name: user-routes
+        paths:
+          - /api/v1/user
+        strip_path: true
+
   # === Trading Agent M Microservice ===
   - name: trading-agent-m-service-entry
-    url: http://trading-agent-m-service:5003
+    url: http://trading-agent-m-service:5006
     routes:
       - name: trading-agent-m
         paths:
@@ -85,7 +87,7 @@ services:
 
   # === Trading Service Microservice ===
   - name: trading-service-entry
-    url: http://broker-service:9000
+    url: http://broker-service:5007
     routes:
       - name: trading-service-routes
         paths:

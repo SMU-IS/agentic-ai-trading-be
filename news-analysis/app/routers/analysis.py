@@ -138,7 +138,7 @@ async def sentiment_health_check():
     """Health check for sentiment service"""
     try:
         # Quick test
-        test_result = sentiment_service.analyze_text("Test message")
+        sentiment_service.analyze_text("Test message")
         return {
             "status": "healthy",
             "service": "sentiment_analysis",

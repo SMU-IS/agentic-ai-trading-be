@@ -1,15 +1,27 @@
 services:
   rag-chatbot-service:
     build: .
+    env_file:
+      - .env
     container_name: rag-agentic-app
     ports:
       - "5001:5001"
     volumes:
       - .:/code
     environment:
-      - QDRANT_DB_NEWS_ANALYSIS=http://news-analysis-service:5002/query
+      - LLM_PROVIDER=${LLM_PROVIDER}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - LARGE_LANGUAGE_MODEL=${LARGE_LANGUAGE_MODEL}
+      - TEMPERATURE=${TEMPERATURE}
+      - STORAGE_PROVIDER=${STORAGE_PROVIDER}
+      - MAX_COMPLETION_TOKEN=${MAX_COMPLETION_TOKEN}
+      - NEWS_ANALYSIS_QUERY_URL=${NEWS_ANALYSIS_QUERY_URL}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
       - AWS_S3_FILE_NAME=${AWS_S3_FILE_NAME}
+
+      - FORCE_COLOR=true
+      - PYTHONUNBUFFERED=1
     command: fastapi dev app/main.py --host 0.0.0.0 --port 5001
+    restart: unless-stopped

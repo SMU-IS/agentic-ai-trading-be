@@ -12,14 +12,20 @@ from app.routers import query_docs
 from app.services.orchestration import run_pipeline
 
 
-async def news_worker():
-    print("👷🏻‍♂️ News Analysis Worker started")
+def separate_worker_thread():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(run_pipeline())
+    loop.close()
 
-    try:
-        await run_pipeline()
-    except Exception as e:
-        print(f"[!] Worker Error: {e}")
-        await asyncio.sleep(5)
+
+async def news_worker():
+    print("⏳ Worker waiting for server startup...")
+    await asyncio.sleep(60)
+    print("👷🏻‍♂️ News Analysis Worker started")
+    print("👷🏻‍♂️ Running pipeline in a separate thread...")
+    loop = asyncio.get_running_loop()
+    await loop.run_in_executor(None, separate_worker_thread)
 
 
 @asynccontextmanager

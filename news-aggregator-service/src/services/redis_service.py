@@ -1,10 +1,10 @@
 import asyncio
 import json
-import aioredis
 from typing import AsyncGenerator, List
+
+import aioredis
 from src.config import settings
 from src.models.state import TickerSentiment
-import orjson
 
 class RedisService:
     def __init__(self):
@@ -30,9 +30,9 @@ class RedisService:
         try:
             length = await self.redis.xlen(self.redis_aggregator_stream)
             print(f"📊 Stream length: {length}")
-        except:
-            print("📭 Stream empty (normal)")
-    
+        except Exception as e:
+            print(f"📭 ${e}")
+
     async def listen_news_stream(self) -> AsyncGenerator[TickerSentiment, None]:
         """✅ CORRECT aioredis xread syntax"""
         while True:
@@ -45,7 +45,7 @@ class RedisService:
                 
                 if not messages:
                     continue
-                    
+
                 for stream, msgs in messages:
                     for msg_id, fields in msgs:
                         decoded = {k.decode(): v.decode() for k, v in fields.items()}
@@ -54,7 +54,7 @@ class RedisService:
                         print(f"   Extracted {tickers} tickers from message ID {msg_id}"   )
                         for ticker_sentiment in tickers:
                             yield ticker_sentiment
-                        
+
                         # Ack message
                         await self.redis.xdel(self.redis_aggregator_stream, msg_id)
                         
@@ -98,7 +98,7 @@ class RedisService:
         count = await self.redis.incr(key)
         await self.redis.expire(key, settings.hours_window * 3600)
         return count
-    
+
     async def close(self):
         if self.redis:
             await self.redis.close()

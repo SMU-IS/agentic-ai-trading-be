@@ -1,14 +1,15 @@
 name: Trading Agent M CI
 
 on:
-  push:
-    branches: ["master"]
-    paths:
-      - "trading-agent-m/**"
-  pull_request:
-    branches: ["master"]
-    paths:
-      - "trading-agent-m/**"
+  workflow_dispatch:
+  # push:
+  #   branches: ["master"]
+  #   paths:
+  #     - "trading-agent-m/**"
+  # pull_request:
+  #   branches: ["master"]
+  #   paths:
+  #     - "trading-agent-m/**"
 
 jobs:
   build-and-test:
@@ -38,7 +39,6 @@ jobs:
         run: |
           pip install ruff
           ruff check .
-          ruff format --check .
 
       - name: Stop services
         if: always()

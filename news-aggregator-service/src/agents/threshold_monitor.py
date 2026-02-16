@@ -61,7 +61,6 @@ class ThresholdMonitor:
         
         # Check each sentiment
         for sentiment in sentiments:
-            triggered_sentiment = False
             
             # 1. Extreme sentiment trigger (|score| >= threshold)
             if abs(sentiment.sentiment_score) >= settings.sentiment_threshold:
