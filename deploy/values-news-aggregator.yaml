@@ -1,0 +1,34 @@
+replicaCount: 1
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/rag-chatbot
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 5008
+  targetPort: 5008
+
+startupProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5008
+  failureThreshold: 30
+  periodSeconds: 10
+
+livenessProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5008
+  initialDelaySeconds: 10
+  periodSeconds: 20
+
+readinessProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5008
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+secretName: news-aggregator-secrets
