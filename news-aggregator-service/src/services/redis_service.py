@@ -2,7 +2,7 @@ import asyncio
 import json
 from typing import AsyncGenerator, List
 
-import aioredis
+import redis.asyncio as aioredis
 from src.config import settings
 from src.models.state import TickerSentiment
 
