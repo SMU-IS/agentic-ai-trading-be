@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/rag-chatbot
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/notification-alert
   tag: v1
   pullPolicy: Always
 
