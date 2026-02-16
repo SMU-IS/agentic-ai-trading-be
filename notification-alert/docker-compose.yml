@@ -5,7 +5,7 @@ services:
     volumes:
       - .:/code
     ports:
-      - "8000:8000"
+      - "5004:5004"
     restart: unless-stopped
     environment:
       - REDIS_HOST=${REDIS_HOST}
