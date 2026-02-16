@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from datetime import datetime
 from enum import Enum
 from dataclasses import dataclass, field
@@ -27,6 +27,21 @@ class DeepAnalysis(BaseModel):
     position_size_pct: float = Field(..., description="0.5|1|2")
     stop_loss_pct: float = Field(..., description="8|10|12")
     target_pct: float = Field(..., description="20|30|50")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert DeepAnalysis to dictionary, recursively handling nested models."""
+        result = {}
+        for field_name, field_info in self.model_fields.items():
+            value = getattr(self, field_name)
+            if hasattr(value, 'to_dict'):  # Custom model with to_dict method
+                result[field_name] = value.to_dict()
+            elif hasattr(value, 'model_dump'):  # Pydantic BaseModel
+                result[field_name] = value.model_dump()
+            elif isinstance(value, (list, dict)):
+                result[field_name] = value  # Lists and dicts pass through
+            else:
+                result[field_name] = value
+        return result
 
 class Signal(BaseModel):
     ticker: str = Field(..., description="Stock ticker")
@@ -111,10 +126,10 @@ class TickerSentiment:
         Adapter for stream-style payloads like:
 
         {
-            "stream_event_type": "NEWS_UPDATE",
+            "event_type": "NEWS_UPDATE",
             "id": "reddit:1r0tftt",
             "ticker": "IBRX",
-            "ticker_event_type": "REGULATORY_APPROVAL",
+            "event_type_meta": "REGULATORY_APPROVAL",
             "sentiment_score": 0.85,
             "sentiment_confidence": 0.6145,
             "event_description": "Saudi SFDA approval for ANKTIVA in NMIBC CIS",
@@ -125,7 +140,7 @@ class TickerSentiment:
 
         # direct mappings
         init['ticker'] = data.get('ticker', '')
-        init['event_type'] = data.get('ticker_event_type', '')
+        init['event_type'] = data.get('event_type_meta', '')
         init['event_description'] = data.get('event_description', '')
         init['sentiment_score'] = float(data.get('sentiment_score', 0.0))
         init['sentiment_confidence'] = float(data.get('sentiment_confidence', 0.0))

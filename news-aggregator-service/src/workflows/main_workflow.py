@@ -16,6 +16,7 @@ class AgentState(TypedDict):
     deep_analysis: DeepAnalysis  # Now contains complete trading decisions!
     qdrant_context: list[dict]
     signal_id: str
+    signal_payload: dict
 
 
 # Initialize services & build workflow
@@ -50,9 +51,7 @@ class WorkflowManager:
         workflow.set_entry_point("parse")
         workflow.add_edge("parse", "monitor")
         workflow.add_edge("qdrant_lookup", "analyze")
-        workflow.add_edge("analyze", "gensignals")
-        workflow.add_edge("gensignals", END)
-        
+
         # Conditional edges
         workflow.add_conditional_edges(
             "monitor", 
@@ -62,8 +61,9 @@ class WorkflowManager:
         workflow.add_conditional_edges(
             "analyze", 
             self.has_trade_signal,
-            {True: "gensignals", False: END}
+            {True: "gensignals", False: "gensignals"}
         )
+        workflow.add_edge("gensignals", END)
         
         return workflow.compile()
     
@@ -173,33 +173,22 @@ class WorkflowManager:
                 print(f"🎯 Signal stored with ID: {signal_id}")
                 # Use the ID for next steps
                 state["signal_id"] = signal_id
+                
+                # Send news analysis to News notification stream
+                await self.redis_service.publish_news(signal_id)
+                print(f"📡 News published to Redis: {signal_id}")
             else:
                 print(f"❌ API error: {response}")
                 signal_id = None
         else:
             print("❌ No response from API")
             signal_id = None
-            
         return state
 
     async def generate_signals(self, state: AgentState) -> AgentState:
         """Convert analyses → Trading signals → Redis"""
         print("⚠️ Signal generation")
-        
-        # Store DeepAnalysis if not already stored
         signal_id = state.get("signal_id")
-        if not signal_id:
-            # Generate/post new signal
-            analysis = state["analysis"]  # DeepAnalysis from previous node
-            response = post_deepanalysis(analysis)
-            if response and response.get("success"):
-                signal_id = response["id"]
-                state["signal_id"] = signal_id
-                print(f"✅ New signal stored: {signal_id}")
-            else:
-                print("❌ Failed to store signal")
-                return state
-        
         # Publish to Redis for real-time consumers
         if signal_id:
             await self.redis_service.publish_signal(signal_id)
