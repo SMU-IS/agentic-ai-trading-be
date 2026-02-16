@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# test_trading_workflow_ollama.py
-#
 import asyncio
 
 from langchain_ollama import ChatOllama
@@ -37,14 +34,14 @@ async def main():
         )
         print("-" * 60)
 
-        # result = await workflow.run(input_data)
+        result = await workflow.run(input_data)
 
-        # print("📊 Final Result:")
-        # print(f"  Action: {result.get('action', 'N/A')}")
-        # print(f"  Should Execute: {result.get('should_execute', 'N/A')}")
-        # print(f"  Order Details: {result.get('order_details', 'N/A')}")
-        # print(f"  Reasoning: {result.get('reasoning', 'N/A')}")
-        # print("\n" + "=" * 60 + "\n")
+        print("📊 Final Result:")
+        print(f"  Action: {result.get('action', 'N/A')}")
+        print(f"  Should Execute: {result.get('should_execute', 'N/A')}")
+        print(f"  Order Details: {result.get('order_details', 'N/A')}")
+        print(f"  Reasoning: {result.get('reasoning', 'N/A')}")
+        print("\n" + "=" * 60 + "\n")
 
     print("🎉 All tests complete!")
     await asyncio.sleep(0.1)

@@ -1,12 +1,14 @@
 import pymongo
 from typing import List, Dict, Any, Optional
 from copy import deepcopy
+from bson import ObjectId
 
 class MongoDBClient:
     def __init__(self, uri: str = "mongodb://mongo:27017", db_name: str = "trading_db"):
         self.client = pymongo.MongoClient(uri, uuidRepresentation="standard")
         self.db = self.client[db_name]
         self.orders = self.db.orders
+        self.signals = self.db.signals 
         
     def store_orders_bulk(self, orders: List[Dict[str, Any]]) -> Dict[str, int]:
         """Store multiple orders (synchronous)"""
@@ -50,3 +52,32 @@ class MongoDBClient:
             result[order_id] = serialized_doc
         
         return result
+    
+    # Signals - From aggregator service
+    def store_signal(self, signal: Dict[str, Any]) -> Dict[str, Any]:
+        """Store single trading signal."""
+        signal_copy = deepcopy(signal)
+        result = self.signals.insert_one(signal_copy)
+        return {"success": bool(result.inserted_id), "id": str(result.inserted_id) if result.inserted_id else None}
+
+    def get_signals(self, ticker: str = None) -> List[Dict[str, Any]]:
+        """Retrieve signals, optionally filtered by ticker. Includes _id as string."""
+        query = {} if ticker is None else {"ticker": ticker}
+        docs = list(self.signals.find(query))  # Remove projection to include _id
+        
+        # Convert ObjectId to string in each doc
+        for doc in docs:
+            if "_id" in doc:
+                doc["id"] = str(doc["_id"])
+        
+        return docs
+    
+    def get_signal_by_id(self, signal_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieve a single signal by MongoDB _id (as hex string)."""
+        try:
+            doc = self.signals.find_one({"_id": ObjectId(signal_id)})
+            if doc:
+                doc["id"] = str(doc["_id"])  # Convert ObjectId to string for JSON
+            return doc
+        except Exception:
+            return None

@@ -1,4 +1,4 @@
-from src.models.news import DeepAnalysis
+from src.models.state import DeepAnalysis
 from src.services.llm_service import LLMService
 
 system_prompt = """
@@ -74,6 +74,7 @@ class DeepAnalyzer:
 
     def print_analysis(self,analysis: DeepAnalysis):
         """Print DeepAnalysis in trading terminal format"""
+        print(analysis)
         print("\n" + "="*80)
         print(f"📊 DEEP ANALYSIS REPORT - {analysis.ticker}")
         print("="*80)

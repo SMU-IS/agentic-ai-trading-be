@@ -1,14 +1,15 @@
 name: Trading Agent M CI
 
 on:
-  push:
-    branches: ["master"]
-    paths:
-      - "trading-agent-m/**"
-  pull_request:
-    branches: ["master"]
-    paths:
-      - "trading-agent-m/**"
+  workflow_dispatch:
+  # push:
+  #   branches: ["master"]
+  #   paths:
+  #     - "trading-agent-m/**"
+  # pull_request:
+  #   branches: ["master"]
+  #   paths:
+  #     - "trading-agent-m/**"
 
 jobs:
   build-and-test:

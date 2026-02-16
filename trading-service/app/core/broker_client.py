@@ -1,33 +1,36 @@
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, List, Dict, Any
-
-from alpaca.trading.client import TradingClient
-from alpaca.trading.enums import (
-    OrderSide,
-    TimeInForce,
-    OrderType,
-    QueryOrderStatus,
-    OrderClass,
-)
-from alpaca.trading.requests import (
-    MarketOrderRequest,
-    LimitOrderRequest,
-    StopOrderRequest,
-    StopLimitOrderRequest,
-    ClosePositionRequest,
-    GetOrdersRequest,
-    TakeProfitRequest,
-    StopLossRequest
-)
-
-
-from alpaca.trading.models import Order, Position  # type hints only
+from typing import Any, Dict, List, Optional
 
 from alpaca.data.historical import StockHistoricalDataClient
-from alpaca.data.requests import StockBarsRequest, StockLatestTradeRequest, StockLatestQuoteRequest
-from alpaca.data.timeframe import TimeFrame  # TimeFrame.from_string for "1Day" etc. [web:19][web:166]
+from alpaca.data.requests import (
+    StockBarsRequest,
+    StockLatestQuoteRequest,
+    StockLatestTradeRequest,
+)
+from alpaca.data.timeframe import (
+    TimeFrame,  # TimeFrame.from_string for "1Day" etc. [web:19][web:166]
+)
+from alpaca.trading.client import TradingClient
+from alpaca.trading.enums import (
+    OrderClass,
+    OrderSide,
+    QueryOrderStatus,
+    TimeInForce,
+)
+from alpaca.trading.models import Order, Position  # type hints only
+from alpaca.trading.requests import (
+    ClosePositionRequest,
+    GetOrdersRequest,
+    LimitOrderRequest,
+    MarketOrderRequest,
+    StopLimitOrderRequest,
+    StopLossRequest,
+    StopOrderRequest,
+    TakeProfitRequest,
+)
+
 
 @dataclass
 class BrokerConfig:
@@ -42,7 +45,9 @@ def _load_config_from_env() -> BrokerConfig:
     paper_flag = os.getenv("ALPACA_PAPER", "true").lower() == "true"
 
     if not api_key or not api_secret:
-        raise RuntimeError("Missing ALPACA_API_KEY or ALPACA_API_SECRET in environment.")
+        raise RuntimeError(
+            "Missing ALPACA_API_KEY or ALPACA_API_SECRET in environment."
+        )
 
     return BrokerConfig(
         api_key=api_key,
@@ -167,7 +172,7 @@ class AlpacaBrokerClient:
             qty=qty,
             notional=notional,
             side=self._side_from_str(side),
-            time_in_force=self._tif_from_str(time_in_force)
+            time_in_force=self._tif_from_str(time_in_force),
         )
         order = self.client.submit_order(order_data=order_req)
         return order.__dict__
@@ -304,7 +309,9 @@ class AlpacaBrokerClient:
         if qty is not None:
             close_req.qty = qty
 
-        order = self.client.close_position(symbol_or_asset_id=symbol, close_options=close_req)
+        order = self.client.close_position(
+            symbol_or_asset_id=symbol, close_options=close_req
+        )
         return order.__dict__
 
     def close_all_positions(self, cancel_orders: bool = True) -> List[Dict[str, Any]]:
@@ -312,19 +319,17 @@ class AlpacaBrokerClient:
         if isinstance(res, dict):
             return [res]
         return [r for r in res]
-    
+
     def cancel_orders(
-        self,
-        order_ids: Optional[List[str]] = None,
-        cancel_all: bool = False
+        self, order_ids: Optional[List[str]] = None, cancel_all: bool = False
     ) -> Dict[str, Any]:
         """
         Cancel one or more open orders by ID, or cancel all open orders.
-        
+
         Args:
             order_ids: List of order IDs to cancel (e.g., ["abc-123", "def-456"])
             cancel_all: If True, cancels ALL open orders (ignores order_ids)
-        
+
         Returns:
             Dict with success/failure results for each order
         """
@@ -336,40 +341,32 @@ class AlpacaBrokerClient:
                     "status": "success",
                     "message": "All open orders cancelled",
                     "cancelled_count": len(cancelled) if cancelled else 0,
-                    "details": [order.__dict__ for order in cancelled] if cancelled else []
+                    "details": [order.__dict__ for order in cancelled]
+                    if cancelled
+                    else [],
                 }
             except Exception as e:
                 return {
                     "status": "error",
-                    "message": f"Failed to cancel all orders: {str(e)}"
+                    "message": f"Failed to cancel all orders: {str(e)}",
                 }
-        
+
         if not order_ids:
             raise ValueError("Must provide order_ids or set cancel_all=True")
-        
+
         # Cancel specific orders
-        results = {
-            "success": [],
-            "failed": [],
-            "total": len(order_ids)
-        }
-        
+        results = {"success": [], "failed": [], "total": len(order_ids)}
+
         for order_id in order_ids:
             try:
                 self.client.cancel_order_by_id(order_id)
-                results["success"].append({
-                    "order_id": order_id,
-                    "status": "cancelled"
-                })
+                results["success"].append({"order_id": order_id, "status": "cancelled"})
             except Exception as e:
-                results["failed"].append({
-                    "order_id": order_id,
-                    "error": str(e)
-                })
-        
+                results["failed"].append({"order_id": order_id, "error": str(e)})
+
         results["success_count"] = len(results["success"])
         results["failed_count"] = len(results["failed"])
-        
+
         return results
 
     # --------- Convenience helpers ---------
@@ -406,10 +403,14 @@ class AlpacaBrokerClient:
             end=end,
             limit=limit,
         )
-        bars = self.data_client.get_stock_bars(req)  # returns data mapping symbol -> Bars. [web:158]
+        bars = self.data_client.get_stock_bars(
+            req
+        )  # returns data mapping symbol -> Bars. [web:158]
 
         if symbol in bars:
-            bar_list = bars[symbol].to_dicts()  # list[dict] with timestamp, open, high, low, close, volume
+            bar_list = bars[
+                symbol
+            ].to_dicts()  # list[dict] with timestamp, open, high, low, close, volume
         else:
             bar_list = []
 
@@ -418,7 +419,7 @@ class AlpacaBrokerClient:
             "timeframe": timeframe,
             "bars": bar_list,
         }
-    
+
     def get_latest_trade(self, symbol: str) -> Dict[str, Any]:
         """
         Get the most recent trade for a single symbol.
@@ -426,10 +427,10 @@ class AlpacaBrokerClient:
         try:
             request = StockLatestTradeRequest(symbol_or_symbols=symbol)
             trades = self.data_client.get_stock_latest_trade(request)
-            
+
             if symbol not in trades:
                 return {"error": f"No trade data for {symbol}"}
-            
+
             trade = trades[symbol]
             return {
                 "symbol": symbol,
@@ -439,11 +440,11 @@ class AlpacaBrokerClient:
                 "conditions": trade.conditions,
                 "timestamp": trade.timestamp.isoformat() if trade.timestamp else None,
                 "id": str(trade.id),
-                "tape": str(trade.tape) if trade.tape else None
+                "tape": str(trade.tape) if trade.tape else None,
             }
         except Exception as e:
             return {"error": str(e)}
-        
+
     def get_latest_quote(self, symbol: str) -> Dict[str, Any]:
         """
         Get the most recent quote for a single symbol.
@@ -451,10 +452,10 @@ class AlpacaBrokerClient:
         try:
             request = StockLatestQuoteRequest(symbol_or_symbols=symbol)
             quotes = self.data_client.get_stock_latest_quote(request)
-            
+
             if symbol not in quotes:
                 return {"error": f"No quote data for {symbol}"}
-            
+
             quote = quotes[symbol]
             return {
                 "symbol": symbol,
@@ -464,11 +465,11 @@ class AlpacaBrokerClient:
                 "ask_size": int(quote.ask_size),
                 "timestamp": quote.timestamp.isoformat() if quote.timestamp else None,
                 "conditions": quote.conditions,
-                "tape": quote.tape
+                "tape": quote.tape,
             }
         except Exception as e:
             return {"error": str(e)}
-        
+
     # --------- Portfolio history ---------
     def get_portfolio_history(
         self,
@@ -478,29 +479,27 @@ class AlpacaBrokerClient:
         """
         try:
             history = self.client.get_portfolio_history()
-            
+
             historical = []
             for i, ts in enumerate(history.timestamp):
-                historical.append({
-                    "date": datetime.fromtimestamp(ts).isoformat() + "Z" if isinstance(ts, (int, float)) else f"{ts}Z",
-                    "value": float(history.equity[i])  # Use equity as main value
-                })
-            
-            return {
-                "historical": historical
-            }
+                historical.append(
+                    {
+                        "date": datetime.fromtimestamp(ts).isoformat() + "Z"
+                        if isinstance(ts, (int, float))
+                        else f"{ts}Z",
+                        "value": float(history.equity[i]),  # Use equity as main value
+                    }
+                )
+
+            return {"historical": historical}
 
         except Exception as e:
             return {"error": f"Portfolio history failed: {str(e)}"}
 
-
     # Check for conflicting positions
     # ---------------------------------
     def check_conflicting_positions(
-        self,
-        symbol: str,
-        intended_side: str,
-        intended_qty: float
+        self, symbol: str, intended_side: str, intended_qty: float
     ) -> Dict[str, Any]:
         """
         Check for conflicting positions and orders that need cleanup.
@@ -512,14 +511,13 @@ class AlpacaBrokerClient:
                 current_position = self.client.get_open_position(symbol)
             except Exception:
                 pass  # No position exists
-            
+
             # ✅ FIXED: Use GetOrdersRequest object
             order_filter = GetOrdersRequest(
-                status=QueryOrderStatus.OPEN,
-                symbols=[symbol]
+                status=QueryOrderStatus.OPEN, symbols=[symbol]
             )
             open_orders = self.client.get_orders(filter=order_filter)
-            
+
             conflicts = {
                 "has_conflict": False,
                 "symbol": symbol,
@@ -527,33 +525,36 @@ class AlpacaBrokerClient:
                 "intended_qty": intended_qty,
                 "current_position": None,
                 "conflicting_orders": [],
-                "actions_required": []
+                "actions_required": [],
             }
-            
+
             # Check position conflict
             if current_position:
                 position_qty = float(current_position.qty)
                 position_side = "long" if position_qty > 0 else "short"
-                
+
                 conflicts["current_position"] = {
                     "qty": position_qty,
                     "side": position_side,
                     "avg_entry_price": float(current_position.avg_entry_price),
                     "market_value": float(current_position.market_value),
-                    "unrealized_pl": float(current_position.unrealized_pl)
+                    "unrealized_pl": float(current_position.unrealized_pl),
                 }
-                
+
                 # Conflict: trying to SELL when LONG or BUY when SHORT
-                if (intended_side.lower() == "sell" and position_qty > 0) or \
-                (intended_side.lower() == "buy" and position_qty < 0):
+                if (intended_side.lower() == "sell" and position_qty > 0) or (
+                    intended_side.lower() == "buy" and position_qty < 0
+                ):
                     conflicts["has_conflict"] = True
-                    conflicts["actions_required"].append({
-                        "action": "close_position",
-                        "symbol": symbol,
-                        "current_qty": position_qty,
-                        "reason": f"Cannot {intended_side.upper()} while holding {position_side.upper()} position"
-                    })
-            
+                    conflicts["actions_required"].append(
+                        {
+                            "action": "close_position",
+                            "symbol": symbol,
+                            "current_qty": position_qty,
+                            "reason": f"Cannot {intended_side.upper()} while holding {position_side.upper()} position",
+                        }
+                    )
+
             # Check conflicting orders
             if open_orders:
                 for order in open_orders:
@@ -563,26 +564,27 @@ class AlpacaBrokerClient:
                         "qty": float(order.qty) if order.qty else None,
                         "order_type": order.order_type.value,
                         "status": order.status.value,
-                        "order_class": order.order_class.value if order.order_class else None
+                        "order_class": order.order_class.value
+                        if order.order_class
+                        else None,
                     }
                     conflicts["conflicting_orders"].append(order_dict)
-                
+
                 conflicts["has_conflict"] = True
-                conflicts["actions_required"].append({
-                    "action": "cancel_orders",
-                    "order_ids": [str(order.id) for order in open_orders],
-                    "count": len(open_orders),
-                    "reason": f"Cancel {len(open_orders)} pending orders for {symbol}"
-                })
-            
+                conflicts["actions_required"].append(
+                    {
+                        "action": "cancel_orders",
+                        "order_ids": [str(order.id) for order in open_orders],
+                        "count": len(open_orders),
+                        "reason": f"Cancel {len(open_orders)} pending orders for {symbol}",
+                    }
+                )
+
             return conflicts
-            
+
         except Exception as e:
-            return {
-                "error": str(e),
-                "symbol": symbol
-            }
-            
+            return {"error": str(e), "symbol": symbol}
+
     # Resolve conflicts by closing positions and cancelling orders
     # -----------------------------------------------------------------
     def resolve_conflicts(
@@ -590,84 +592,97 @@ class AlpacaBrokerClient:
         symbol: str,
         intended_side: str,
         intended_qty: float,
-        auto_resolve: bool = True
+        auto_resolve: bool = True,
     ) -> Dict[str, Any]:
         """
         Resolve conflicts: CANCEL ORDERS FIRST → CLOSE POSITION → Clean slate.
         """
         # Step 1: Check conflicts
-        conflicts = self.check_conflicting_positions(symbol, intended_side, intended_qty)
-        
+        conflicts = self.check_conflicting_positions(
+            symbol, intended_side, intended_qty
+        )
+
         if not conflicts.get("has_conflict"):
             return {
                 "status": "no_conflict",
                 "symbol": symbol,
-                "message": "No conflicts found - ready to trade"
+                "message": "No conflicts found - ready to trade",
             }
-        
+
         if not auto_resolve:
             return {
                 "status": "conflict_detected",
                 "conflicts": conflicts,
-                "message": "Conflicts found but auto_resolve=False"
+                "message": "Conflicts found but auto_resolve=False",
             }
-        
+
         # Step 2: Auto-resolve (ORDERS FIRST → POSITION)
         resolution_results = {
             "status": "resolved",
             "symbol": symbol,
             "actions_taken": [],
-            "conflicts_detected": conflicts
+            "conflicts_detected": conflicts,
         }
-        
+
         # ✅ ORDER 1: Cancel pending orders FIRST
         for action in conflicts.get("actions_required", []):
             if action["action"] == "cancel_orders":
                 try:
                     cancel_result = self.cancel_orders(order_ids=action["order_ids"])
-                    resolution_results["actions_taken"].append({
-                        "action": "cancelled_orders",
-                        "order_ids": action["order_ids"],
-                        "count": cancel_result.get("success_count", 0),
-                        "status": "success"
-                    })
-                    print(f"   [✅ CANCELLED] {cancel_result.get('success_count', 0)} orders for {symbol}")
+                    resolution_results["actions_taken"].append(
+                        {
+                            "action": "cancelled_orders",
+                            "order_ids": action["order_ids"],
+                            "count": cancel_result.get("success_count", 0),
+                            "status": "success",
+                        }
+                    )
+                    print(
+                        f"   [✅ CANCELLED] {cancel_result.get('success_count', 0)} orders for {symbol}"
+                    )
                 except Exception as e:
-                    resolution_results["actions_taken"].append({
-                        "action": "cancel_orders_failed",
-                        "order_ids": action["order_ids"],
-                        "error": str(e)
-                    })
+                    resolution_results["actions_taken"].append(
+                        {
+                            "action": "cancel_orders_failed",
+                            "order_ids": action["order_ids"],
+                            "error": str(e),
+                        }
+                    )
                     print(f"   [❌ CANCEL FAILED] {str(e)}")
-        
+
         # ✅ ORDER 2: Close position SECOND (after orders cancelled)
         for action in conflicts.get("actions_required", []):
             if action["action"] == "close_position":
                 try:
                     close_result = self.client.close_position(symbol)
-                    resolution_results["actions_taken"].append({
-                        "action": "closed_position",
-                        "symbol": symbol,
-                        "qty_closed": action["current_qty"],
-                        "order_id": str(close_result.id) if close_result else None,
-                        "status": "success"
-                    })
-                    print(f"   [✅ CLOSED] {symbol} position ({action['current_qty']} shares)")
+                    resolution_results["actions_taken"].append(
+                        {
+                            "action": "closed_position",
+                            "symbol": symbol,
+                            "qty_closed": action["current_qty"],
+                            "order_id": str(close_result.id) if close_result else None,
+                            "status": "success",
+                        }
+                    )
+                    print(
+                        f"   [✅ CLOSED] {symbol} position ({action['current_qty']} shares)"
+                    )
                 except Exception as e:
-                    resolution_results["actions_taken"].append({
-                        "action": "close_position_failed",
-                        "symbol": symbol,
-                        "qty_closed": action["current_qty"],
-                        "error": str(e)
-                    })
+                    resolution_results["actions_taken"].append(
+                        {
+                            "action": "close_position_failed",
+                            "symbol": symbol,
+                            "qty_closed": action["current_qty"],
+                            "error": str(e),
+                        }
+                    )
                     print(f"   [❌ CLOSE FAILED] {str(e)}")
-        
+
         # Step 3: Verify clean slate
         verification = self.verify_clean_slate(symbol)
         resolution_results["verification"] = verification
-        
-        return resolution_results
 
+        return resolution_results
 
     def verify_clean_slate(self, symbol: str) -> Dict[str, Any]:
         """
@@ -678,22 +693,22 @@ class AlpacaBrokerClient:
             try:
                 self.client.get_open_position(symbol)
                 position_status = "position_exists"
-            except:
-                position_status = "no_position"
-            
-            # Check orders  
+            except Exception as e:
+                position_status = f"no_position {e}"
+
+            # Check orders
             order_filter = GetOrdersRequest(
-                status=QueryOrderStatus.OPEN,
-                symbols=[symbol]
+                status=QueryOrderStatus.OPEN, symbols=[symbol]
             )
             open_orders = self.client.get_orders(filter=order_filter)
             orders_status = "orders_exist" if open_orders else "no_orders"
-            
+
             return {
                 "symbol": symbol,
                 "position_status": position_status,
                 "orders_status": orders_status,
-                "ready_to_trade": position_status == "no_position" and orders_status == "no_orders"
+                "ready_to_trade": position_status == "no_position"
+                and orders_status == "no_orders",
             }
         except Exception as e:
             return {"error": str(e), "symbol": symbol}

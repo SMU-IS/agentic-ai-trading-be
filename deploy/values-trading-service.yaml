@@ -1,0 +1,24 @@
+replicaCount: 3
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/trading-service
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 5007
+  targetPort: 5007
+
+livenessProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5007
+  initialDelaySeconds: 60
+readinessProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5007
+  initialDelaySeconds: 30
+
+secretName: trading-service-secrets

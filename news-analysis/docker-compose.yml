@@ -21,9 +21,9 @@ services:
       - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}
       - REDDIT_USER_AGENT=${REDDIT_USER_AGENT}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - LARGE_LANGUAGE_MODEL=${LARGE_LANGUAGE_MODEL}
-      - LLM_PROVIDER=${LLM_PROVIDER}
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - LARGE_LANGUAGE_MODEL_GEMINI=${LARGE_LANGUAGE_MODEL_GEMINI}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - LARGE_LANGUAGE_MODEL_LLAMA=${LARGE_LANGUAGE_MODEL_LLAMA}
       - TEXT_EMBEDDING_MODEL=${TEXT_EMBEDDING_MODEL}
       - AWS_BUCKET_ACCESS_KEY=${AWS_BUCKET_ACCESS_KEY}
       - AWS_BUCKET_SECRET=${AWS_BUCKET_SECRET}
@@ -41,7 +41,11 @@ services:
       - REMOVED_KEY=${REMOVED_KEY}
       - TEMPERATURE=${TEMPERATURE}
       - MAX_COMPLETION_TOKEN=${MAX_COMPLETION_TOKEN}
-    command: >
-      sh -c "python -m app.services.orchestration &
-            fastapi dev app/main.py --host 0.0.0.0 --port 5002"
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2}
+      - LANGCHAIN_ENDPOINT=${LANGCHAIN_ENDPOINT}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+    command: fastapi dev app/main.py --host 0.0.0.0 --port 5002
+    # command: >
+    # sh -c "python -m app.services.orchestration &
+    #       fastapi dev app/main.py --host 0.0.0.0 --port 5002"
     restart: unless-stopped

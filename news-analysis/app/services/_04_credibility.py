@@ -6,14 +6,12 @@ Uses both heuristic scoring AND Ollama LLM for credibility analysis.
 """
 
 import asyncio
-import json
 import re
 import logging
 from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from urllib.parse import urlparse
 
 from langchain.chat_models import init_chat_model
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -731,7 +729,7 @@ async def main():
 
         if item.get('llm_credibility_analysis'):
             llm = item['llm_credibility_analysis']
-            print(f"LLM Analysis:")
+            print("LLM Analysis:")
             print(f"  - Reasoning: {llm.get('reasoning', 'N/A')}")
             print(f"  - Manipulation Risk: {llm.get('manipulation_risk', 'N/A')}")
             if llm.get('red_flags'):

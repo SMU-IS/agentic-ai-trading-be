@@ -1,14 +1,15 @@
 name: User Info Service CI
 
 on:
-  push:
-    branches: ["master"]
-    paths:
-      - "user-info/**"
-  pull_request:
-    branches: ["master"]
-    paths:
-      - "user-info/**"
+  workflow_dispatch:
+  # push:
+  #   branches: ["master"]
+  #   paths:
+  #     - "user-info/**"
+  # pull_request:
+  #   branches: ["master"]
+  #   paths:
+  #     - "user-info/**"
 
 jobs:
   go-tests:
@@ -90,3 +91,7 @@ jobs:
           WORKSPACE: ${{ github.workspace }}
         run: |
           helm upgrade --install user-info ./infra -f ./deploy/values-user-info.yaml --set image.tag=${{ github.sha }}
+
+      - name: Apply Global Ingress Gateway
+        run: |
+          kubectl apply -f ./deploy/ingress.yaml
