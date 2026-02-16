@@ -60,7 +60,7 @@ class WorkflowManager:
         workflow.add_conditional_edges(
             "analyze", 
             self.has_trade_signal,
-            {True: "gensignals", False: "gensignals"}
+            {True: "gensignals", False: END}
         )
         workflow.add_edge("gensignals", END)
         
@@ -159,11 +159,13 @@ class WorkflowManager:
         news_content_compile = [a["metadata"]["text_content"] for a in state["qdrant_context"]]
         news_content = "\n".join(news_content_compile)
         analysis = await analyzer.analyze(news_content)
-        analyzer.print_analysis(analysis)
+        # analyzer.print_analysis(analysis)
         state["deep_analysis"] = analysis
         
+        print("POSTING DATA")
         # Post the analysis
         response = post_deepanalysis(analysis)
+        print("POSTING PASS")
 
         # Safe ID extraction with validation
         if response and isinstance(response, dict):
