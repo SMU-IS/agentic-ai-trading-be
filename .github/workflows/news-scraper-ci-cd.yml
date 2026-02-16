@@ -1,14 +1,15 @@
 name: News Scraper CI
 
 on:
-  push:
-    branches: ["master"]
-    paths:
-      - "news-scraper/**"
-  pull_request:
-    branches: ["master"]
-    paths:
-      - "news-scraper/**"
+  workflow_dispatch:
+  # push:
+  #   branches: ["master"]
+  #   paths:
+  #     - "news-scraper/**"
+  # pull_request:
+  #   branches: ["master"]
+  #   paths:
+  #     - "news-scraper/**"
 
 jobs:
   build:
@@ -90,3 +91,7 @@ jobs:
 
           echo "****** Kubernetes Pod Status ******"
           kubectl get pods -l app.kubernetes.io/instance=news-scraper
+
+      - name: Apply Global Ingress Gateway
+        run: |
+          kubectl apply -f ./deploy/ingress.yaml

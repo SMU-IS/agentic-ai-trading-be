@@ -1,9 +1,10 @@
 from app.core.constant import LLMProviders
-from app.providers.llm.strategy import OllamaStrategy
+from app.providers.llm.strategy import GeminiStrategy, GroqStrategy, OllamaStrategy
 
 LLM_STRATEGIES = {
     LLMProviders.OLLAMA: OllamaStrategy(),
-    # "LLMProviders.GEMINI": GeminiStrategy(),
+    LLMProviders.GEMINI: GeminiStrategy(),
+    LLMProviders.GROQ: GroqStrategy(),
 }
 
 

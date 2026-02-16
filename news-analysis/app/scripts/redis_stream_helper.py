@@ -8,9 +8,11 @@ Usage:
 
 import argparse
 import json
-import redis
 import sys
 from pathlib import Path
+
+import redis
+from redis.exceptions import RedisError
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from app.core.config import env_config
@@ -63,17 +65,21 @@ def check_streams(client):
                 # Preview latest item
                 if last:
                     data = last[0][1]
-                    if 'data' in data:
+                    if "data" in data:
                         try:
-                            parsed = json.loads(data['data']) if isinstance(data['data'], str) else data['data']
-                            title = parsed.get('Title', parsed.get('title', 'N/A'))[:50]
+                            parsed = (
+                                json.loads(data["data"])
+                                if isinstance(data["data"], str)
+                                else data["data"]
+                            )
+                            title = parsed.get("Title", parsed.get("title", "N/A"))[:50]
                             print(f"  Latest title: {title}...")
-                        except:
-                            print(f"  Latest data keys: {list(data.keys())}")
-        except redis.exceptions.ResponseError as e:
+                        except Exception as e:
+                            print(f"  Latest data keys: {list(data.keys())} {e}")
+        except RedisError:
             print(f"\n{name}:")
             print(f"  Key: {stream_key}")
-            print(f"  Status: Does not exist or empty")
+            print("  Status: Does not exist or empty")
 
     print("\n" + "=" * 60)
 
@@ -90,7 +96,7 @@ def push_sample_data(client, count=3):
             "URL": "https://reddit.com/r/wallstreetbets/sample_001",
             "subreddit": "wallstreetbets",
             "Upvotes": 1500,
-            "Comments": 234
+            "Comments": 234,
         },
         {
             "Post_ID": "sample_002",
@@ -101,7 +107,7 @@ def push_sample_data(client, count=3):
             "URL": "https://reddit.com/r/stocks/sample_002",
             "subreddit": "stocks",
             "Upvotes": 890,
-            "Comments": 156
+            "Comments": 156,
         },
         {
             "Post_ID": "sample_003",
@@ -112,7 +118,7 @@ def push_sample_data(client, count=3):
             "URL": "https://reddit.com/r/investing/sample_003",
             "subreddit": "investing",
             "Upvotes": 567,
-            "Comments": 89
+            "Comments": 89,
         },
         {
             "Post_ID": "sample_004",
@@ -123,7 +129,7 @@ def push_sample_data(client, count=3):
             "URL": "https://reddit.com/r/wallstreetbets/sample_004",
             "subreddit": "wallstreetbets",
             "Upvotes": 1200,
-            "Comments": 345
+            "Comments": 345,
         },
         {
             "Post_ID": "sample_005",
@@ -134,7 +140,7 @@ def push_sample_data(client, count=3):
             "URL": "https://reddit.com/r/stocks/sample_005",
             "subreddit": "stocks",
             "Upvotes": 678,
-            "Comments": 123
+            "Comments": 123,
         },
     ]
 
@@ -145,7 +151,7 @@ def push_sample_data(client, count=3):
     for i, post in enumerate(sample_posts[:count]):
         # Redis streams expect string values
         msg_id = client.xadd(stream_key, {"data": json.dumps(post)})
-        print(f"  [{i+1}] Pushed: {post['Title'][:40]}...")
+        print(f"  [{i + 1}] Pushed: {post['Title'][:40]}...")
         print(f"      ID: {msg_id}")
 
     print("-" * 40)
@@ -161,13 +167,17 @@ def read_latest(client, stream_key, count=3):
     items = client.xrevrange(stream_key, count=count)
     for msg_id, data in items:
         print(f"\nID: {msg_id}")
-        if 'data' in data:
+        if "data" in data:
             try:
-                parsed = json.loads(data['data']) if isinstance(data['data'], str) else data['data']
+                parsed = (
+                    json.loads(data["data"])
+                    if isinstance(data["data"], str)
+                    else data["data"]
+                )
                 print(f"  Title: {parsed.get('Title', parsed.get('title', 'N/A'))}")
                 print(f"  Subreddit: {parsed.get('subreddit', 'N/A')}")
-            except:
-                print(f"  Data: {str(data)[:100]}...")
+            except Exception as e:
+                print(f"  Data: {str(data)[:100]} Error ${e}...")
         else:
             print(f"  Keys: {list(data.keys())}")
 
@@ -176,7 +186,9 @@ def main():
     parser = argparse.ArgumentParser(description="Redis Stream Helper")
     parser.add_argument("--check", action="store_true", help="Check stream status")
     parser.add_argument("--push", action="store_true", help="Push sample data")
-    parser.add_argument("--count", type=int, default=3, help="Number of items to push (default: 3)")
+    parser.add_argument(
+        "--count", type=int, default=3, help="Number of items to push (default: 3)"
+    )
     parser.add_argument("--read", type=str, help="Read latest from specific stream key")
 
     args = parser.parse_args()
@@ -195,7 +207,7 @@ def main():
             check_streams(client)
 
     except redis.exceptions.ConnectionError as e:
-        print(f"ERROR: Could not connect to Redis Cloud")
+        print("ERROR: Could not connect to Redis Cloud")
         print(f"  Host: {env_config.redis_host}")
         print(f"  Port: {env_config.redis_port}")
         print(f"  Error: {e}")

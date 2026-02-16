@@ -10,12 +10,8 @@ async def search_news(
     payload: QueryDocsRequest,
     service: VectorisationService = Depends(VectorisationService),
 ):
-    """
-    Search for articles in Qdrant based on semantic similarity.
-    """
-
     try:
-        results = await service.query_docs(payload)
+        results = await service.retrieve_ticker_insights(payload)
         if not results:
             return {"message": "No relevant documents found.", "results": []}
 

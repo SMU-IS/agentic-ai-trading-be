@@ -1,11 +1,11 @@
 # src/workflows/main_workflow.py
-from typing import Dict, List, Optional, TypedDict, Any
-from pydantic import BaseModel
+from typing import TypedDict
 from langgraph.graph import StateGraph, END
 from src.services.redis_service import RedisService
 from src.services.llm_service import LLMService
-from src.agents import NewsParser, ThresholdMonitor, DeepAnalyzer, lookup_qdrant
-from src.models.news import TickerTopic, DeepAnalysis, TradingSignal, NewsArticle, TickerSentiment
+from src.services.database import post_deepanalysis
+from src.agents import ThresholdMonitor, DeepAnalyzer, lookup_qdrant
+from src.models.state import DeepAnalysis, TickerSentiment
 import os
 
 class AgentState(TypedDict):
@@ -13,8 +13,10 @@ class AgentState(TypedDict):
     topics: list
     triggered_topics: list
     deep_analysis: DeepAnalysis  # Now contains complete trading decisions!
-    signals: list
     qdrant_context: list[dict]
+    signal_id: str
+    signal_payload: dict
+
 
 # Initialize services & build workflow
 class WorkflowManager:
@@ -23,12 +25,10 @@ class WorkflowManager:
         self.llm_service = None
         self.app = None
 
-    async def initialize(self):
+    async def initialize(self, redis_service: RedisService):
         """Initialize services and compile workflow"""
-        self.redis_service = RedisService()
+        self.redis_service = redis_service
         self.llm_service = LLMService()
-        
-        await self.redis_service.connect()
         
         # Build workflow
         self.app = self._build_workflow()
@@ -50,9 +50,7 @@ class WorkflowManager:
         workflow.set_entry_point("parse")
         workflow.add_edge("parse", "monitor")
         workflow.add_edge("qdrant_lookup", "analyze")
-        workflow.add_edge("analyze", "gensignals")
-        workflow.add_edge("gensignals", END)
-        
+
         # Conditional edges
         workflow.add_conditional_edges(
             "monitor", 
@@ -64,6 +62,7 @@ class WorkflowManager:
             self.has_trade_signal,
             {True: "gensignals", False: END}
         )
+        workflow.add_edge("gensignals", END)
         
         return workflow.compile()
     
@@ -160,17 +159,45 @@ class WorkflowManager:
         news_content_compile = [a["metadata"]["text_content"] for a in state["qdrant_context"]]
         news_content = "\n".join(news_content_compile)
         analysis = await analyzer.analyze(news_content)
-        analyzer.print_analysis(analysis)
+        # analyzer.print_analysis(analysis)
         state["deep_analysis"] = analysis
+        
+        print("POSTING DATA")
+        # Post the analysis
+        response = post_deepanalysis(analysis)
+        print("POSTING PASS")
+
+        # Safe ID extraction with validation
+        if response and isinstance(response, dict):
+            if response.get("success") and "id" in response:
+                signal_id = response["id"]
+                print(f"🎯 Signal stored with ID: {signal_id}")
+                # Use the ID for next steps
+                state["signal_id"] = signal_id
+                
+                # Send news analysis to News notification stream
+                await self.redis_service.publish_news(signal_id)
+                print(f"📡 News published to Redis: {signal_id}")
+            else:
+                print(f"❌ API error: {response}")
+                signal_id = None
+        else:
+            print("❌ No response from API")
+            signal_id = None
         return state
 
     async def generate_signals(self, state: AgentState) -> AgentState:
         """Convert analyses → Trading signals → Redis"""
         print("⚠️ Signal generation")
-        return {}  # Temporarily disable signal generation
+        signal_id = state.get("signal_id")
+        # Publish to Redis for real-time consumers
+        if signal_id:
+            await self.redis_service.publish_signal(signal_id)
+            print(f"📡 Signal published to Redis: {signal_id}")
+        return state
 
 # Global app instance
-async def setup_workflow():
+async def setup_workflow(redis_service: RedisService):
     workflow = WorkflowManager()
-    await workflow.initialize()
+    await workflow.initialize(redis_service)
     return workflow

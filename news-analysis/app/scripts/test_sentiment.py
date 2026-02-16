@@ -153,7 +153,7 @@ def test_with_actual_json():
         sample = data[:10] if len(data) > 10 else data
         results = sentiment_service.process_batch(sample)
         
-        print(f"\nSample Results (first 5):\n")
+        print("\nSample Results (first 5):\n")
         for item in results[:5]:
             print(f"Post ID: {item.get('Post_ID', 'unknown')}")
             print(f"Sentiment: {item['sentiment_label'].upper()} ({item['sentiment_score']:.4f})")

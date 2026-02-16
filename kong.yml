@@ -12,7 +12,7 @@ plugins:
   - name: cors
     config:
       origins:
-        - http://localhost:3000 # TODO: Add in production url
+        - http://localhost:3000
         - https://main.d22zhvaaydu232.amplifyapp.com
       methods:
         - GET
@@ -36,34 +36,7 @@ plugins:
       preflight_continue: false
 
 services:
-  # === News Scraper Microservice ===
-  - name: news-scraper-entry
-    url: http://news-scraper-service:5003
-    routes:
-      - name: news-scraper-routes
-        paths:
-          - /api/v1/news-scraper
-        strip_path: true
-
-  # === News Analysis Microservice ===
-  - name: news-analysis-entry
-    url: http://news-analysis-service:5002
-    routes:
-      - name: news-analysis-routes
-        paths:
-          - /api/v1/news-analysis
-        strip_path: true
-
-  # === User Info Microservice ===
-  - name: user-service-entry
-    url: http://user-info-service:8080
-    routes:
-      - name: user-routes
-        paths:
-          - /api/v1/user
-        strip_path: true
-
-  # === RAG Chatbot Microservice ===
+  # === RAG Chatbot Microservice 5001 ===
   - name: rag-chatbot-service-entry
     url: http://rag-chatbot-service:5001
     # plugins:
@@ -74,20 +47,65 @@ services:
           - /api/v1/rag
         strip_path: true
 
-  # === Trading Agent M Microservice ===
+  # === News Analysis Microservice 5002 ===
+  - name: news-analysis-entry
+    url: http://news-analysis-service:5002
+    routes:
+      - name: news-analysis-routes
+        paths:
+          - /api/v1/news-analysis
+        strip_path: true
+
+  # === News Scraper Microservice 5003 ===
+  - name: news-scraper-entry
+    url: http://news-scraper-service:5003
+    routes:
+      - name: news-scraper-routes
+        paths:
+          - /api/v1/news-scraper
+        strip_path: true
+
+  # === Notification Microservice 5004 ===
+  # - name: notification-entry
+  #   url: http://notification-service:5004
+  #   routes:
+  #     - name: notification-routes
+  #       paths:
+  #         - /api/v1/notification
+  #       strip_path: true
+
+  # === User Info Microservice 5005 ===
+  - name: user-service-entry
+    url: http://user-info-service:5005
+    routes:
+      - name: user-routes
+        paths:
+          - /api/v1/user
+        strip_path: true
+
+  # === Trading Agent M Microservice 5006 ===
   - name: trading-agent-m-service-entry
-    url: http://trading-agent-m-service:5003
+    url: http://trading-agent-m-service:5006
     routes:
       - name: trading-agent-m
         paths:
           - /api/v1/agent-m
         strip_path: true
 
-  # === Trading Service Microservice ===
+  # === Trading Service Microservice 5007 ===
   - name: trading-service-entry
-    url: http://broker-service:9000
+    url: http://broker-service:5007
     routes:
       - name: trading-service-routes
         paths:
           - /api/v1/trading
+        strip_path: true
+
+    # === News Aggregator Microservice 5008 ===
+  - name: news-aggregator-entry
+    url: http://news-aggregator:5008
+    routes:
+      - name: news-aggregator-routes
+        paths:
+          - /api/v1/news-aggregator
         strip_path: true
