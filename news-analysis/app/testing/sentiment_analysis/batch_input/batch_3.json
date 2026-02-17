@@ -1,0 +1,1316 @@
+[
+  {
+    "id": "reddit:1qyotyi",
+    "content_type": "post",
+    "native_id": "1qyotyi",
+    "source": "reddit_batch",
+    "author": "Consistent_Tower5508",
+    "url": "https://www.reddit.com/r/stocks/comments/1qyotyi/rddt_ceo_doing_short_seller_job/",
+    "timestamps": "2026-02-07T20:42:53+00:00",
+    "content": {
+      "title": "RDDT - CEO doing short seller job",
+      "body": "Anyone else watching RDDT and wondering what the CEO is thinking? Steve Hoffman is selling like crazy like there is no other day. Between the messaging, timing, and overall optics, it feels like management is actively undermining confidence instead of defending shareholder value.\n\nShort sellers couldn’t ask for better help. Am I missing something here, or is this self-inflicted damage?\n\nCurious to hear other takes.\n\nif I could attach a screenshot here, it would have been great to show the CEO is selling throughout last year and starting beginning this year even before the ending as well",
+      "clean_title": "RDDT - CEO doing short seller job",
+      "clean_body": "Anyone else watching RDDT and wondering what the CEO is thinking? Steve Hoffman is selling like crazy like there is no other day. Between the messaging, timing, and overall optics, it feels like management is actively undermining confidence instead of defending shareholder value. Short sellers couldn't ask for better help. Am I missing something here, or is this self-inflicted damage? Curious to hear other takes. if I could attach a screenshot here, it would have been great to show the CEO is selling throughout last year and starting beginning this year even before the ending as well",
+      "clean_combined_withurl": "RDDT - CEO doing short seller job. Anyone else watching RDDT and wondering what the CEO is thinking? Steve Hoffman is selling like crazy like there is no other day. Between the messaging, timing, and overall optics, it feels like management is actively undermining confidence instead of defending shareholder value. Short sellers couldn't ask for better help. Am I missing something here, or is this self-inflicted damage? Curious to hear other takes. if I could attach a screenshot here, it would have been great to show the CEO is selling throughout last year and starting beginning this year even before the ending as well",
+      "clean_combined_withouturl": "RDDT - CEO doing short seller job. Anyone else watching RDDT and wondering what the CEO is thinking? Steve Hoffman is selling like crazy like there is no other day. Between the messaging, timing, and overall optics, it feels like management is actively undermining confidence instead of defending shareholder value. Short sellers couldn't ask for better help. Am I missing something here, or is this self-inflicted damage? Curious to hear other takes. if I could attach a screenshot here, it would have been great to show the CEO is selling throughout last year and starting beginning this year even before the ending as well"
+    },
+    "engagement": {
+      "total_comments": 71,
+      "score": 74,
+      "upvote_ratio": 0.65
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "RDDT": {
+        "type": "stock",
+        "official_name": "Reddit, Inc.",
+        "name_identified": [
+          "RDDT"
+        ],
+        "event_type": "INSIDER_SELLING",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qs4qt6",
+    "content_type": "post",
+    "native_id": "1qs4qt6",
+    "source": "reddit_batch",
+    "author": "Cincy23PMP",
+    "url": "https://www.reddit.com/r/stocks/comments/1qs4qt6/3_fund_etf_portfolio_set_up/",
+    "timestamps": "2026-01-31T15:08:26+00:00",
+    "content": {
+      "title": "3 fund ETF portfolio set up",
+      "body": "I've been allocating 40% schg, 40% qqqm and 20% schd in my taxable brokerage account. Is this a good set it and forget it set up?\n\nIn my roth I have vti/vxus \nHSA, 401k both are voo.\n\nI wanted to change it up in my taxable brokerage and not be so reliant on the s&p 500.",
+      "clean_title": "3 fund ETF portfolio set up",
+      "clean_body": "I've been allocating 40% schg, 40% qqqm and 20% schd in my taxable brokerage account. Is this a good set it and forget it set up? In my roth I have vti/vxus HSA, 401k both are voo. I wanted to change it up in my taxable brokerage and not be so reliant on the s&p 500.",
+      "clean_combined_withurl": "3 fund ETF portfolio set up. I've been allocating 40% schg, 40% qqqm and 20% schd in my taxable brokerage account. Is this a good set it and forget it set up? In my roth I have vti/vxus HSA, 401k both are voo. I wanted to change it up in my taxable brokerage and not be so reliant on the s&p 500.",
+      "clean_combined_withouturl": "3 fund ETF portfolio set up. I've been allocating 40% schg, 40% qqqm and 20% schd in my taxable brokerage account. Is this a good set it and forget it set up? In my roth I have vti/vxus HSA, 401k both are voo. I wanted to change it up in my taxable brokerage and not be so reliant on the s&p 500."
+    },
+    "engagement": {
+      "total_comments": 5,
+      "score": 1,
+      "upvote_ratio": 0.67
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "SCHG": {
+        "type": "stock",
+        "official_name": "SCHG",
+        "name_identified": [
+          "SCHG"
+        ],
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null
+      },
+      "QQQM": {
+        "type": "stock",
+        "official_name": "QQQM",
+        "name_identified": [
+          "QQQM"
+        ],
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null
+      },
+      "SCHD": {
+        "type": "stock",
+        "official_name": "SCHD",
+        "name_identified": [
+          "SCHD"
+        ],
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null
+      },
+      "VTI": {
+        "type": "stock",
+        "official_name": "VTI",
+        "name_identified": [
+          "VTI"
+        ],
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null
+      },
+      "VXUS": {
+        "type": "stock",
+        "official_name": "VXUS",
+        "name_identified": [
+          "VXUS"
+        ],
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null
+      },
+      "VOO": {
+        "type": "stock",
+        "official_name": "VOO",
+        "name_identified": [
+          "VOO"
+        ],
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qqlgp9",
+    "content_type": "post",
+    "native_id": "1qqlgp9",
+    "source": "reddit_batch",
+    "author": "National-Theory1218",
+    "url": "https://www.reddit.com/r/investing/comments/1qqlgp9/amazon_could_invest_up_to_50b_in_openai_thought/",
+    "timestamps": "2026-01-29T21:21:02+00:00",
+    "content": {
+      "title": "Amazon could invest up to $50B in OpenAI. Thought? 🤔",
+      "body": "Amazon reportedly in talks to invest up to $50B in OpenAI. \n\nIf this happens, it would mark one of the largest strategic AI investments ever. Potentially reshaping the competitive landscape against Microsoft, Google and Meta. Do you see this as a smart long-term bet by Amazon, or a sign that the AI arms race is reaching unsustainable levels?\n\nCurious to hear thoughts from both investors and tech folks. \n\nSource: CNBC & Blossom Social ",
+      "clean_title": "Amazon could invest up to $50B in OpenAI. Thought? 🤔",
+      "clean_body": "Amazon reportedly in talks to invest up to $50B in OpenAI. If this happens, it would mark one of the largest strategic AI investments ever. Potentially reshaping the competitive landscape against Microsoft, Google and Meta. Do you see this as a smart long-term bet by Amazon, or a sign that the AI arms race is reaching unsustainable levels? Curious to hear thoughts from both investors and tech folks. Source: CNBC & Blossom Social",
+      "clean_combined_withurl": "Amazon could invest up to $50B in OpenAI. Thought? 🤔. Amazon reportedly in talks to invest up to $50B in OpenAI. If this happens, it would mark one of the largest strategic AI investments ever. Potentially reshaping the competitive landscape against Microsoft, Google and Meta. Do you see this as a smart long-term bet by Amazon, or a sign that the AI arms race is reaching unsustainable levels? Curious to hear thoughts from both investors and tech folks. Source: CNBC & Blossom Social",
+      "clean_combined_withouturl": "Amazon could invest up to $50B in OpenAI. Thought? :thinking_face:. Amazon reportedly in talks to invest up to $50B in OpenAI. If this happens, it would mark one of the largest strategic AI investments ever. Potentially reshaping the competitive landscape against Microsoft, Google and Meta. Do you see this as a smart long-term bet by Amazon, or a sign that the AI arms race is reaching unsustainable levels? Curious to hear thoughts from both investors and tech folks. Source: CNBC & Blossom Social"
+    },
+    "engagement": {
+      "total_comments": 155,
+      "score": 145,
+      "upvote_ratio": 0.77
+    },
+    "metadata": {
+      "subreddit": "investing",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "AMZN": {
+        "type": "stock",
+        "official_name": "AMAZON COM INC",
+        "name_identified": [
+          "AMZN"
+        ],
+        "event_type": "STRATEGIC_PARTNERSHIP",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qwymfm",
+    "content_type": "post",
+    "native_id": "1qwymfm",
+    "source": "reddit_batch",
+    "author": "StockBrokenUSA",
+    "url": "https://www.reddit.com/r/stocks/comments/1qwymfm/costo_stock_price_flat_for_years/",
+    "timestamps": "2026-02-05T21:42:45+00:00",
+    "content": {
+      "title": "Costo Stock Price flat for years",
+      "body": "Did a complete model of Costco operations. I gave them a generous growth rate on their revenue drivers and maintained cost controls for their store expansion of 23/yr. \n\nmy math coves out to $256 Billion, $310 Billion and $278 Billion for their valuations in  scenarios where I played around with their drivers and capex led by store growth. \n\nin my base case, their share value should be at $631. I think their current trading at a high P/E of 52-53x compared to their 10-year average around 30-33x backs up what I’ve uncovered. \n\n\n\nlong story short, the market has Costco incorrectly priced, and without correction, I expect them to trade flat for a few years until earnings and growth story normalize to their market cap. \n\nyou can shame me, say “what about this?!” And point to their stock continuing to go higher, but at these valuations, their price will get hit the hardest on even a slight earnings miss.\n\n  \n",
+      "clean_title": "Costo Stock Price flat for years",
+      "clean_body": "Did a complete model of Costco operations. I gave them a generous growth rate on their revenue drivers and maintained cost controls for their store expansion of 23/yr. my math coves out to $256 Billion, $310 Billion and $278 Billion for their valuations in scenarios where I played around with their drivers and capex led by store growth. in my base case, their share value should be at $631. I think their current trading at a high P/E of 52-53x compared to their 10-year average around 30-33x backs up what I've uncovered. long story short, the market has Costco incorrectly priced, and without correction, I expect them to trade flat for a few years until earnings and growth story normalize to their market cap. you can shame me, say \"what about this?!\" And point to their stock continuing to go higher, but at these valuations, their price will get hit the hardest on even a slight earnings miss.",
+      "clean_combined_withurl": "Costo Stock Price flat for years. Did a complete model of Costco operations. I gave them a generous growth rate on their revenue drivers and maintained cost controls for their store expansion of 23/yr. my math coves out to $256 Billion, $310 Billion and $278 Billion for their valuations in scenarios where I played around with their drivers and capex led by store growth. in my base case, their share value should be at $631. I think their current trading at a high P/E of 52-53x compared to their 10-year average around 30-33x backs up what I've uncovered. long story short, the market has Costco incorrectly priced, and without correction, I expect them to trade flat for a few years until earnings and growth story normalize to their market cap. you can shame me, say \"what about this?!\" And point to their stock continuing to go higher, but at these valuations, their price will get hit the hardest on even a slight earnings miss.",
+      "clean_combined_withouturl": "Costo Stock Price flat for years. Did a complete model of Costco operations. I gave them a generous growth rate on their revenue drivers and maintained cost controls for their store expansion of 23/yr. my math coves out to $256 Billion, $310 Billion and $278 Billion for their valuations in scenarios where I played around with their drivers and capex led by store growth. in my base case, their share value should be at $631. I think their current trading at a high P/E of 52-53x compared to their 10-year average around 30-33x backs up what I've uncovered. long story short, the market has Costco incorrectly priced, and without correction, I expect them to trade flat for a few years until earnings and growth story normalize to their market cap. you can shame me, say \"what about this?!\" And point to their stock continuing to go higher, but at these valuations, their price will get hit the hardest on even a slight earnings miss."
+    },
+    "engagement": {
+      "total_comments": 34,
+      "score": 35,
+      "upvote_ratio": 0.78
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "COST": {
+        "type": "stock",
+        "official_name": "COSTCO WHOLESALE CORP /NEW",
+        "name_identified": [
+          "COST"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1r09sny",
+    "content_type": "post",
+    "native_id": "1r09sny",
+    "source": "reddit_batch",
+    "author": "Particular_Salad3723",
+    "url": "https://www.reddit.com/r/stocks/comments/1r09sny/i_just_did_a_spotify_dcf_valuation/",
+    "timestamps": "2026-02-09T17:04:35+00:00",
+    "content": {
+      "title": "I Just Did A Spotify DCF Valuation",
+      "body": "Hey, here is my DCF (for base case) anyone want to discuss it, if you agree with my predicitons and if you have another opinion feel free to share it! Thanks for your time. Share your thought  \n[https://ujchmura-my.sharepoint.com/:x:/g/personal/kamil\\_wator\\_student\\_uj\\_edu\\_pl/IQCozH9hh1pDR7oQigSZDUrbAUQxCwxguxZyUBWpaafEyj0?e=d56RH8](https://ujchmura-my.sharepoint.com/:x:/g/personal/kamil_wator_student_uj_edu_pl/IQCozH9hh1pDR7oQigSZDUrbAUQxCwxguxZyUBWpaafEyj0?e=d56RH8)",
+      "clean_title": "I Just Did A Spotify DCF Valuation",
+      "clean_body": "Hey, here is my DCF (for base case) anyone want to discuss it, if you agree with my predicitons and if you have another opinion feel free to share it! Thanks for your time. Share your thought https://ujchmura-my.sharepoint.com/:x:/g/personal/kamil_wator_student_uj_edu_pl/IQCozH9hh1pDR7oQigSZDUrbAUQxCwxguxZyUBWpaafEyj0?e=d56RH8: https://ujchmura-my.sharepoint.com/:x:/g/personal/kamil_wator_student_uj_edu_pl/IQCozH9hh1pDR7oQigSZDUrbAUQxCwxguxZyUBWpaafEyj0?e=d56RH8",
+      "clean_combined_withurl": "I Just Did A Spotify DCF Valuation. Hey, here is my DCF (for base case) anyone want to discuss it, if you agree with my predicitons and if you have another opinion feel free to share it! Thanks for your time. Share your thought https://ujchmura-my.sharepoint.com/:x:/g/personal/kamil_wator_student_uj_edu_pl/IQCozH9hh1pDR7oQigSZDUrbAUQxCwxguxZyUBWpaafEyj0?e=d56RH8: https://ujchmura-my.sharepoint.com/:x:/g/personal/kamil_wator_student_uj_edu_pl/IQCozH9hh1pDR7oQigSZDUrbAUQxCwxguxZyUBWpaafEyj0?e=d56RH8",
+      "clean_combined_withouturl": "I Just Did A Spotify DCF Valuation. Hey, here is my DCF (for base case) anyone want to discuss it, if you agree with my predicitons and if you have another opinion feel free to share it! Thanks for your time. Share your thought"
+    },
+    "engagement": {
+      "total_comments": 24,
+      "score": 0,
+      "upvote_ratio": 0.36
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [
+      "https://ujchmura-my.sharepoint.com/:x:/g/personal/kamil\\_wator\\_student\\_uj\\_edu\\_pl/IQCozH9hh1pDR7oQigSZDUrbAUQxCwxguxZyUBWpaafEyj0?e=d56RH8](https://ujchmura-my.sharepoint.com/:x:/g/personal/kamil_wator_student_uj_edu_pl/IQCozH9hh1pDR7oQigSZDUrbAUQxCwxguxZyUBWpaafEyj0?e=d56RH8"
+    ],
+    "ticker_metadata": {
+      "SPOT": {
+        "type": "stock",
+        "official_name": "Spotify Technology S.A.",
+        "name_identified": [
+          "SPOT"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qy1703",
+    "content_type": "post",
+    "native_id": "1qy1703",
+    "source": "reddit_batch",
+    "author": "Not69Batman",
+    "url": "https://www.reddit.com/r/stocks/comments/1qy1703/2026_hyperscalers_growth_capex_and_backlog_nvda/",
+    "timestamps": "2026-02-07T02:07:45+00:00",
+    "content": {
+      "title": "2026 Hyperscalers Growth, Capex and Backlog / NVDA mentions in earnings calls / AI Supply Chain beneficiaries",
+      "body": "**Hyperscalers Quarterly Growth**\n\n* AMZN: Cloud revenue $35.6 billion (up 23.6% YoY) and Ads revenue $21.3 billion (up 23.1% YoY). AWS had the highest quarterly YoY growth in the last 13 x quarters.\n\n* MSFT: Intelligent Cloud revenue $32.9 billion (up 29% YoY). Azure specific growth 39%.\n\n* GOOGL: Cloud revenue $17.7 billion (up 47.5% YoY) and Ads revenue $82.3 billion (up 13.5% YoY). GCP had the highest quarterly YoY growth ever.\n\n* META: Ads revenue $58.1 billion (up 24.1% YoY). Driven by AI enhanced targeting.\n\n---------\n\n**2026 CapEx Forecast**\n\n* AMZN: $200+ billion (*\"as we build out the physical data center capacity required for the generative AI era\"*)\n\n* GOOGL: $175 to $185 billion (*\"The risk of under-investing in AI infrastructure is far greater than the risk of over-investing\"*)\n\n* META: $115 to $135 billion (*\"to accelerate our AI research and product development\"*)\n\n* MSFT: Undisclosed, $100+ billion estimated (*\"Demand for AI services continues to outpace our available capacity. We are investing heavily to close that gap\"*)\n\n------------\n\n**Revenue Backlog**\n\n* MSFT: $625 billion (up 110% YoY). $281 billion (up 969% YoY) from OpenAI and $344 billion (up 28% YoY) from other customers.\n\n* AMZN: $244 billion (up 40% YoY)\n\n* GOOGL: $240 billion (up 151% YoY)\n\n-------------\n\n**NVDA mentions in the latest earnings calls by hyperscalers' CEOs**\n\nGOOGL: \"Our ongoing partnership with Nvidia remains a cornerstone of our AI strategy. We are pleased to announce that Google Cloud will be among the first to offer instances powered by the Vera Rubin platform later this year.\"\n\nMETA: \"We are currently standing up some of the largest compute clusters in the world. By the end of this year, our infrastructure will include the equivalent of over 600,000 H100s, and we are actively transitioning our roadmap to incorporate Blackwell and beyond.\"\n\nMSFT: \"Our strategy is to provide the world's most comprehensive AI infrastructure. This includes our partnership with Nvidia to bring their latest innovations to Azure, alongside our own Maia 200 silicon which is now entering volume production.\"\n\nAMZN: \"While we are seeing fantastic momentum with our own Trainium2 chips, we continue to work closely with external silicon providers \\[Nvidia\\] to ensure our AWS customers have access to the broadest range of GPU instances.\"\n\n---------------\n\n**AI CapEx Supply Chain Beneficiaries**\n\n* Nvidia: Designs GPUs (H200, Blackwell Ultra and Rubin), CPUs (Grace and Vera) and Networking (NVLink, Ethernet-X and BlueField).\n\n* Broadcom: Designs Custom AI ASICs for Google (TPU) and Meta (MTIA).\n\n* Marvell: Designs Amazon Trainium and Inferentia.\n\n* TSMC: Manufactures all the logic chips from Nvidia, Google, Meta, Amazon and Microsoft as well as the Nvidia networking equipment.\n\n* Samsung, SKHynix and Micron: Design and manufacture memory chips.\n\n* ​Vertiv, Schneider Electric and Eaton: Power and cooling.\n\n----------\n\nLong positions: NVDA, GOOGL, META, MSFT, AMZN, TSM and MU. Not financial advice.",
+      "clean_title": "2026 Hyperscalers Growth, Capex and Backlog / NVDA mentions in earnings calls / AI Supply Chain beneficiaries",
+      "clean_body": "Hyperscalers Quarterly Growth AMZN: Cloud revenue $35.6 billion (up 23.6% YoY) and Ads revenue $21.3 billion (up 23.1% YoY). AWS had the highest quarterly YoY growth in the last 13 x quarters. MSFT: Intelligent Cloud revenue $32.9 billion (up 29% YoY). Azure specific growth 39%. GOOGL: Cloud revenue $17.7 billion (up 47.5% YoY) and Ads revenue $82.3 billion (up 13.5% YoY). GCP had the highest quarterly YoY growth ever. META: Ads revenue $58.1 billion (up 24.1% YoY). Driven by AI enhanced targeting. 2026 CapEx Forecast AMZN: $200+ billion (\"as we build out the physical data center capacity required for the generative AI era\") GOOGL: $175 to $185 billion (\"The risk of under-investing in AI infrastructure is far greater than the risk of over-investing\") META: $115 to $135 billion (\"to accelerate our AI research and product development\") MSFT: Undisclosed, $100+ billion estimated (\"Demand for AI services continues to outpace our available capacity. We are investing heavily to close that gap\") Revenue Backlog MSFT: $625 billion (up 110% YoY). $281 billion (up 969% YoY) from OpenAI and $344 billion (up 28% YoY) from other customers. AMZN: $244 billion (up 40% YoY) GOOGL: $240 billion (up 151% YoY) NVDA mentions in the latest earnings calls by hyperscalers' CEOs GOOGL: \"Our ongoing partnership with Nvidia remains a cornerstone of our AI strategy. We are pleased to announce that Google Cloud will be among the first to offer instances powered by the Vera Rubin platform later this year.\" META: \"We are currently standing up some of the largest compute clusters in the world. By the end of this year, our infrastructure will include the equivalent of over 600,000 H100s, and we are actively transitioning our roadmap to incorporate Blackwell and beyond.\" MSFT: \"Our strategy is to provide the world's most comprehensive AI infrastructure. This includes our partnership with Nvidia to bring their latest innovations to Azure, alongside our own Maia 200 silicon which is now entering volume production.\" AMZN: \"While we are seeing fantastic momentum with our own Trainium2 chips, we continue to work closely with external silicon providers [Nvidia] to ensure our AWS customers have access to the broadest range of GPU instances.\" AI CapEx Supply Chain Beneficiaries Nvidia: Designs GPUs (H200, Blackwell Ultra and Rubin), CPUs (Grace and Vera) and Networking (NVLink, Ethernet-X and BlueField). Broadcom: Designs Custom AI ASICs for Google (TPU) and Meta (MTIA). Marvell: Designs Amazon Trainium and Inferentia. TSMC: Manufactures all the logic chips from Nvidia, Google, Meta, Amazon and Microsoft as well as the Nvidia networking equipment. Samsung, SKHynix and Micron: Design and manufacture memory chips. ​Vertiv, Schneider Electric and Eaton: Power and cooling. Long positions: NVDA, GOOGL, META, MSFT, AMZN, TSM and MU. Not financial advice.",
+      "clean_combined_withurl": "2026 Hyperscalers Growth, Capex and Backlog / NVDA mentions in earnings calls / AI Supply Chain beneficiaries. Hyperscalers Quarterly Growth AMZN: Cloud revenue $35.6 billion (up 23.6% YoY) and Ads revenue $21.3 billion (up 23.1% YoY). AWS had the highest quarterly YoY growth in the last 13 x quarters. MSFT: Intelligent Cloud revenue $32.9 billion (up 29% YoY). Azure specific growth 39%. GOOGL: Cloud revenue $17.7 billion (up 47.5% YoY) and Ads revenue $82.3 billion (up 13.5% YoY). GCP had the highest quarterly YoY growth ever. META: Ads revenue $58.1 billion (up 24.1% YoY). Driven by AI enhanced targeting. 2026 CapEx Forecast AMZN: $200+ billion (\"as we build out the physical data center capacity required for the generative AI era\") GOOGL: $175 to $185 billion (\"The risk of under-investing in AI infrastructure is far greater than the risk of over-investing\") META: $115 to $135 billion (\"to accelerate our AI research and product development\") MSFT: Undisclosed, $100+ billion estimated (\"Demand for AI services continues to outpace our available capacity. We are investing heavily to close that gap\") Revenue Backlog MSFT: $625 billion (up 110% YoY). $281 billion (up 969% YoY) from OpenAI and $344 billion (up 28% YoY) from other customers. AMZN: $244 billion (up 40% YoY) GOOGL: $240 billion (up 151% YoY) NVDA mentions in the latest earnings calls by hyperscalers' CEOs GOOGL: \"Our ongoing partnership with Nvidia remains a cornerstone of our AI strategy. We are pleased to announce that Google Cloud will be among the first to offer instances powered by the Vera Rubin platform later this year.\" META: \"We are currently standing up some of the largest compute clusters in the world. By the end of this year, our infrastructure will include the equivalent of over 600,000 H100s, and we are actively transitioning our roadmap to incorporate Blackwell and beyond.\" MSFT: \"Our strategy is to provide the world's most comprehensive AI infrastructure. This includes our partnership with Nvidia to bring their latest innovations to Azure, alongside our own Maia 200 silicon which is now entering volume production.\" AMZN: \"While we are seeing fantastic momentum with our own Trainium2 chips, we continue to work closely with external silicon providers [Nvidia] to ensure our AWS customers have access to the broadest range of GPU instances.\" AI CapEx Supply Chain Beneficiaries Nvidia: Designs GPUs (H200, Blackwell Ultra and Rubin), CPUs (Grace and Vera) and Networking (NVLink, Ethernet-X and BlueField). Broadcom: Designs Custom AI ASICs for Google (TPU) and Meta (MTIA). Marvell: Designs Amazon Trainium and Inferentia. TSMC: Manufactures all the logic chips from Nvidia, Google, Meta, Amazon and Microsoft as well as the Nvidia networking equipment. Samsung, SKHynix and Micron: Design and manufacture memory chips. ​Vertiv, Schneider Electric and Eaton: Power and cooling. Long positions: NVDA, GOOGL, META, MSFT, AMZN, TSM and MU. Not financial advice.",
+      "clean_combined_withouturl": "2026 Hyperscalers Growth, Capex and Backlog / NVDA mentions in earnings calls / AI Supply Chain beneficiaries. Hyperscalers Quarterly Growth AMZN: Cloud revenue $35.6 billion (up 23.6% YoY) and Ads revenue $21.3 billion (up 23.1% YoY). AWS had the highest quarterly YoY growth in the last 13 x quarters. MSFT: Intelligent Cloud revenue $32.9 billion (up 29% YoY). Azure specific growth 39%. GOOGL: Cloud revenue $17.7 billion (up 47.5% YoY) and Ads revenue $82.3 billion (up 13.5% YoY). GCP had the highest quarterly YoY growth ever. META: Ads revenue $58.1 billion (up 24.1% YoY). Driven by AI enhanced targeting. 2026 CapEx Forecast AMZN: $200+ billion (\"as we build out the physical data center capacity required for the generative AI era\") GOOGL: $175 to $185 billion (\"The risk of under-investing in AI infrastructure is far greater than the risk of over-investing\") META: $115 to $135 billion (\"to accelerate our AI research and product development\") MSFT: Undisclosed, $100+ billion estimated (\"Demand for AI services continues to outpace our available capacity. We are investing heavily to close that gap\") Revenue Backlog MSFT: $625 billion (up 110% YoY). $281 billion (up 969% YoY) from OpenAI and $344 billion (up 28% YoY) from other customers. AMZN: $244 billion (up 40% YoY) GOOGL: $240 billion (up 151% YoY) NVDA mentions in the latest earnings calls by hyperscalers' CEOs GOOGL: \"Our ongoing partnership with Nvidia remains a cornerstone of our AI strategy. We are pleased to announce that Google Cloud will be among the first to offer instances powered by the Vera Rubin platform later this year.\" META: \"We are currently standing up some of the largest compute clusters in the world. By the end of this year, our infrastructure will include the equivalent of over 600,000 H100s, and we are actively transitioning our roadmap to incorporate Blackwell and beyond.\" MSFT: \"Our strategy is to provide the world's most comprehensive AI infrastructure. This includes our partnership with Nvidia to bring their latest innovations to Azure, alongside our own Maia 200 silicon which is now entering volume production.\" AMZN: \"While we are seeing fantastic momentum with our own Trainium2 chips, we continue to work closely with external silicon providers [Nvidia] to ensure our AWS customers have access to the broadest range of GPU instances.\" AI CapEx Supply Chain Beneficiaries Nvidia: Designs GPUs (H200, Blackwell Ultra and Rubin), CPUs (Grace and Vera) and Networking (NVLink, Ethernet-X and BlueField). Broadcom: Designs Custom AI ASICs for Google (TPU) and Meta (MTIA). Marvell: Designs Amazon Trainium and Inferentia. TSMC: Manufactures all the logic chips from Nvidia, Google, Meta, Amazon and Microsoft as well as the Nvidia networking equipment. Samsung, SKHynix and Micron: Design and manufacture memory chips. ​Vertiv, Schneider Electric and Eaton: Power and cooling. Long positions: NVDA, GOOGL, META, MSFT, AMZN, TSM and MU. Not financial advice."
+    },
+    "engagement": {
+      "total_comments": 15,
+      "score": 31,
+      "upvote_ratio": 0.87
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "NVDA": {
+        "type": "stock",
+        "official_name": "NVIDIA CORP",
+        "name_identified": [
+          "NVDA"
+        ],
+        "event_type": "EARNINGS_CALL",
+        "event_proposal": null
+      },
+      "AMZN": {
+        "type": "stock",
+        "official_name": "AMAZON COM INC",
+        "name_identified": [
+          "AMZN"
+        ],
+        "event_type": "EARNINGS_BEAT",
+        "event_proposal": null
+      },
+      "MSFT": {
+        "type": "stock",
+        "official_name": "MICROSOFT CORP",
+        "name_identified": [
+          "MSFT"
+        ],
+        "event_type": "EARNINGS_BEAT",
+        "event_proposal": null
+      },
+      "GOOGL": {
+        "type": "stock",
+        "official_name": "Alphabet Inc.",
+        "name_identified": [
+          "GOOGL"
+        ],
+        "event_type": "EARNINGS_BEAT",
+        "event_proposal": null
+      },
+      "META": {
+        "type": "stock",
+        "official_name": "Meta Platforms, Inc.",
+        "name_identified": [
+          "META"
+        ],
+        "event_type": "EARNINGS_BEAT",
+        "event_proposal": null
+      },
+      "TSM": {
+        "type": "stock",
+        "official_name": "TAIWAN SEMICONDUCTOR MANUFACTURING CO LTD",
+        "name_identified": [
+          "TSM"
+        ],
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null
+      },
+      "MU": {
+        "type": "stock",
+        "official_name": "MICRON TECHNOLOGY INC",
+        "name_identified": [
+          "MU"
+        ],
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null
+      },
+      "SNDR": {
+        "type": "stock",
+        "official_name": "Schneider National, Inc.",
+        "name_identified": [
+          "SNDR"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "VRT": {
+        "type": "stock",
+        "official_name": "Vertiv Holdings Co",
+        "name_identified": [
+          "VRT"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "ETN": {
+        "type": "stock",
+        "official_name": "Eaton Corp plc",
+        "name_identified": [
+          "ETN"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qtkiqh",
+    "content_type": "post",
+    "native_id": "1qtkiqh",
+    "source": "reddit_batch",
+    "author": "WifiAX",
+    "url": "https://www.reddit.com/r/stocks/comments/1qtkiqh/a_gut_feeling/",
+    "timestamps": "2026-02-02T03:55:47+00:00",
+    "content": {
+      "title": "A gut feeling...",
+      "body": "I am strongly thinking about selling my 53 shares of Nvidia and use that money to buy physical gold. All the news are on how other countries are hoarding  precious metals, dumping US debt. How the great tech companies are moving billions of dollars around between themselves to make it seem there is grown and investment. All this AI momentum seems like a fever dream, lacking infrastructure and most of all, the power to run it. Just recently one of this big tech CEOs admitted they have the hardware but not the power. Under this confession, it is clear why they are so desperate to reignite old nuclear plants and create small \"portable\" nuclear ones that are easier to build and transport. This things not only take time, they take gigantic sumes of money and resources. Big tech won't publicly say they are struggling, instead, they will lay off personnel to cover their losses and stay afloat. In January alone we had 26k tech jobs lay offs. I'm afraid this trend will continue through the year. \nAll this to say, I want to preserve my gains before the next stock crash event and physical gold seemsto be a safe place for it, specially if it's money I do not have a need to use in a few years from now. There is also the crypto option, but I would prefer a more tangible investment. \nI guess what I want advice is, should I wait a bit longer and see if global events trigger a final grow or cut the cord, transform the gains in gold to preserve the wealth and wait for a market crash to jump again and buy low. Thank you in advance. ",
+      "clean_title": "A gut feeling...",
+      "clean_body": "I am strongly thinking about selling my 53 shares of Nvidia and use that money to buy physical gold. All the news are on how other countries are hoarding precious metals, dumping US debt. How the great tech companies are moving billions of dollars around between themselves to make it seem there is grown and investment. All this AI momentum seems like a fever dream, lacking infrastructure and most of all, the power to run it. Just recently one of this big tech CEOs admitted they have the hardware but not the power. Under this confession, it is clear why they are so desperate to reignite old nuclear plants and create small \"portable\" nuclear ones that are easier to build and transport. This things not only take time, they take gigantic sumes of money and resources. Big tech won't publicly say they are struggling, instead, they will lay off personnel to cover their losses and stay afloat. In January alone we had 26k tech jobs lay offs. I'm afraid this trend will continue through the year. All this to say, I want to preserve my gains before the next stock crash event and physical gold seemsto be a safe place for it, specially if it's money I do not have a need to use in a few years from now. There is also the crypto option, but I would prefer a more tangible investment. I guess what I want advice is, should I wait a bit longer and see if global events trigger a final grow or cut the cord, transform the gains in gold to preserve the wealth and wait for a market crash to jump again and buy low. Thank you in advance.",
+      "clean_combined_withurl": "A gut feeling... I am strongly thinking about selling my 53 shares of Nvidia and use that money to buy physical gold. All the news are on how other countries are hoarding precious metals, dumping US debt. How the great tech companies are moving billions of dollars around between themselves to make it seem there is grown and investment. All this AI momentum seems like a fever dream, lacking infrastructure and most of all, the power to run it. Just recently one of this big tech CEOs admitted they have the hardware but not the power. Under this confession, it is clear why they are so desperate to reignite old nuclear plants and create small \"portable\" nuclear ones that are easier to build and transport. This things not only take time, they take gigantic sumes of money and resources. Big tech won't publicly say they are struggling, instead, they will lay off personnel to cover their losses and stay afloat. In January alone we had 26k tech jobs lay offs. I'm afraid this trend will continue through the year. All this to say, I want to preserve my gains before the next stock crash event and physical gold seemsto be a safe place for it, specially if it's money I do not have a need to use in a few years from now. There is also the crypto option, but I would prefer a more tangible investment. I guess what I want advice is, should I wait a bit longer and see if global events trigger a final grow or cut the cord, transform the gains in gold to preserve the wealth and wait for a market crash to jump again and buy low. Thank you in advance.",
+      "clean_combined_withouturl": "A gut feeling... I am strongly thinking about selling my 53 shares of Nvidia and use that money to buy physical gold. All the news are on how other countries are hoarding precious metals, dumping US debt. How the great tech companies are moving billions of dollars around between themselves to make it seem there is grown and investment. All this AI momentum seems like a fever dream, lacking infrastructure and most of all, the power to run it. Just recently one of this big tech CEOs admitted they have the hardware but not the power. Under this confession, it is clear why they are so desperate to reignite old nuclear plants and create small \"portable\" nuclear ones that are easier to build and transport. This things not only take time, they take gigantic sumes of money and resources. Big tech won't publicly say they are struggling, instead, they will lay off personnel to cover their losses and stay afloat. In January alone we had 26k tech jobs lay offs. I'm afraid this trend will continue through the year. All this to say, I want to preserve my gains before the next stock crash event and physical gold seemsto be a safe place for it, specially if it's money I do not have a need to use in a few years from now. There is also the crypto option, but I would prefer a more tangible investment. I guess what I want advice is, should I wait a bit longer and see if global events trigger a final grow or cut the cord, transform the gains in gold to preserve the wealth and wait for a market crash to jump again and buy low. Thank you in advance."
+    },
+    "engagement": {
+      "total_comments": 40,
+      "score": 0,
+      "upvote_ratio": 0.37
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "NVDA": {
+        "type": "stock",
+        "official_name": "NVIDIA CORP",
+        "name_identified": [
+          "NVDA"
+        ],
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qrrvrw",
+    "content_type": "post",
+    "native_id": "1qrrvrw",
+    "source": "reddit_batch",
+    "author": "AquaticMonk",
+    "url": "https://www.reddit.com/r/stocks/comments/1qrrvrw/axon_comeback/",
+    "timestamps": "2026-01-31T03:58:21+00:00",
+    "content": {
+      "title": "Axon comeback?",
+      "body": "With what’s going on with ICE / BP, I think there’s a decent chance there will be a push for the agents to start wearing body cams. This might finally be the turning point $AXON needs to reverse their downward spiral. ",
+      "clean_title": "Axon comeback?",
+      "clean_body": "With what's going on with ICE / BP, I think there's a decent chance there will be a push for the agents to start wearing body cams. This might finally be the turning point $AXON needs to reverse their downward spiral.",
+      "clean_combined_withurl": "Axon comeback? With what's going on with ICE / BP, I think there's a decent chance there will be a push for the agents to start wearing body cams. This might finally be the turning point $AXON needs to reverse their downward spiral.",
+      "clean_combined_withouturl": "Axon comeback? With what's going on with ICE / BP, I think there's a decent chance there will be a push for the agents to start wearing body cams. This might finally be the turning point $AXON needs to reverse their downward spiral."
+    },
+    "engagement": {
+      "total_comments": 26,
+      "score": 3,
+      "upvote_ratio": 0.57
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "AXON": {
+        "type": "stock",
+        "official_name": "AXON ENTERPRISE, INC.",
+        "name_identified": [
+          "AXON"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qukyp0",
+    "content_type": "post",
+    "native_id": "1qukyp0",
+    "source": "reddit_batch",
+    "author": "PHREXT1",
+    "url": "https://www.reddit.com/r/stocks/comments/1qukyp0/bought_a_lot_of_slv_i_think_silver_outperforms/",
+    "timestamps": "2026-02-03T06:52:01+00:00",
+    "content": {
+      "title": "Bought a lot of $SLV, I think silver outperforms into 2026",
+      "body": "The main reason is simple: silver is lagging hard while the setup keeps improving.\n\nHistorically, when gold starts moving and holds higher levels, silver follows with leverage. We haven’t really seen that move yet. The gold/silver ratio is still stretched, and every time that starts to normalize, silver ends up outperforming by a lot.\n\nOn top of that, silver isn’t just a \"store of value\" metal. It’s tied directly to real demand. Solar, electronics, EVs, data centers, all of it needs silver. That demand doesn’t care about rates or narratives.\n\nSupply is the other side of this. New silver supply isn’t growing meaningfully, and a lot of silver comes as a byproduct from other mining. You don’t just flip a switch and get more.\n\nMacro wise, the backdrop going into 2025–2026 looks supportive. Debt keeps growing, currencies keep getting diluted, and geopolitical risk isn’t exactly fading. In those environments, metals usually start moving quietly before everyone notices.\n\nTo me, that’s why $SLV makes sense here. It’s still cheap relative to gold, demand is real, supply is tight, and if risk spikes, silver tends to catch up fast.\n\nMarkets rotate, they don’t move evenly. If money flows out of crowded trades and into metals, silver usually gets the most aggressive move because it’s still underowned. That’s why I think a 3–4x move isn’t unrealistic short term if rotation accelerates.\n\nEdit: Interesting how bearish most people are on $SLV I’m not here to argue but let’s just revisit this post in a month and see how it played out.",
+      "clean_title": "Bought a lot of $SLV, I think silver outperforms into 2026",
+      "clean_body": "The main reason is simple: silver is lagging hard while the setup keeps improving. Historically, when gold starts moving and holds higher levels, silver follows with leverage. We haven't really seen that move yet. The gold/silver ratio is still stretched, and every time that starts to normalize, silver ends up outperforming by a lot. On top of that, silver isn't just a \"store of value\" metal. It's tied directly to real demand. Solar, electronics, EVs, data centers, all of it needs silver. That demand doesn't care about rates or narratives. Supply is the other side of this. New silver supply isn't growing meaningfully, and a lot of silver comes as a byproduct from other mining. You don't just flip a switch and get more. Macro wise, the backdrop going into 2025-2026 looks supportive. Debt keeps growing, currencies keep getting diluted, and geopolitical risk isn't exactly fading. In those environments, metals usually start moving quietly before everyone notices. To me, that's why $SLV makes sense here. It's still cheap relative to gold, demand is real, supply is tight, and if risk spikes, silver tends to catch up fast. Markets rotate, they don't move evenly. If money flows out of crowded trades and into metals, silver usually gets the most aggressive move because it's still underowned. That's why I think a 3-4x move isn't unrealistic short term if rotation accelerates. Edit: Interesting how bearish most people are on $SLV I'm not here to argue but let's just revisit this post in a month and see how it played out.",
+      "clean_combined_withurl": "Bought a lot of $SLV, I think silver outperforms into 2026. The main reason is simple: silver is lagging hard while the setup keeps improving. Historically, when gold starts moving and holds higher levels, silver follows with leverage. We haven't really seen that move yet. The gold/silver ratio is still stretched, and every time that starts to normalize, silver ends up outperforming by a lot. On top of that, silver isn't just a \"store of value\" metal. It's tied directly to real demand. Solar, electronics, EVs, data centers, all of it needs silver. That demand doesn't care about rates or narratives. Supply is the other side of this. New silver supply isn't growing meaningfully, and a lot of silver comes as a byproduct from other mining. You don't just flip a switch and get more. Macro wise, the backdrop going into 2025-2026 looks supportive. Debt keeps growing, currencies keep getting diluted, and geopolitical risk isn't exactly fading. In those environments, metals usually start moving quietly before everyone notices. To me, that's why $SLV makes sense here. It's still cheap relative to gold, demand is real, supply is tight, and if risk spikes, silver tends to catch up fast. Markets rotate, they don't move evenly. If money flows out of crowded trades and into metals, silver usually gets the most aggressive move because it's still underowned. That's why I think a 3-4x move isn't unrealistic short term if rotation accelerates. Edit: Interesting how bearish most people are on $SLV I'm not here to argue but let's just revisit this post in a month and see how it played out.",
+      "clean_combined_withouturl": "Bought a lot of $SLV, I think silver outperforms into 2026. The main reason is simple: silver is lagging hard while the setup keeps improving. Historically, when gold starts moving and holds higher levels, silver follows with leverage. We haven't really seen that move yet. The gold/silver ratio is still stretched, and every time that starts to normalize, silver ends up outperforming by a lot. On top of that, silver isn't just a \"store of value\" metal. It's tied directly to real demand. Solar, electronics, EVs, data centers, all of it needs silver. That demand doesn't care about rates or narratives. Supply is the other side of this. New silver supply isn't growing meaningfully, and a lot of silver comes as a byproduct from other mining. You don't just flip a switch and get more. Macro wise, the backdrop going into 2025-2026 looks supportive. Debt keeps growing, currencies keep getting diluted, and geopolitical risk isn't exactly fading. In those environments, metals usually start moving quietly before everyone notices. To me, that's why $SLV makes sense here. It's still cheap relative to gold, demand is real, supply is tight, and if risk spikes, silver tends to catch up fast. Markets rotate, they don't move evenly. If money flows out of crowded trades and into metals, silver usually gets the most aggressive move because it's still underowned. That's why I think a 3-4x move isn't unrealistic short term if rotation accelerates. Edit: Interesting how bearish most people are on $SLV I'm not here to argue but let's just revisit this post in a month and see how it played out."
+    },
+    "engagement": {
+      "total_comments": 90,
+      "score": 2,
+      "upvote_ratio": 0.51
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "SLV": {
+        "type": "stock",
+        "official_name": "iShares Silver Trust",
+        "name_identified": [
+          "SLV"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qskqni",
+    "content_type": "post",
+    "native_id": "1qskqni",
+    "source": "reddit_batch",
+    "author": "Senior-Preference678",
+    "url": "https://www.reddit.com/r/investing/comments/1qskqni/anyone_else_concerned_about_nus_stock_trading/",
+    "timestamps": "2026-02-01T01:33:20+00:00",
+    "content": {
+      "title": "Anyone else concerned about Nu’s stock trading experience in Brazil?",
+      "body": "Hey everyone,\nI’m a Nu holder and wanted to share an experience from a close friend in Brazil who recently decided to use Nu’s app to buy stocks instead of a traditional broker.\nHonestly, the experience sounds pretty rough.\nSome of the main issues he ran into:\n- You can only buy full shares (no fractional shares at all);\n- He placed a sell order during market hours, but the cash from the sale didn’t show up immediately in his account;\n- No live stock prices, you can’t really track price movements in real time;\n- Very limited information on the stocks (no depth, no proper charts, no context);\n- App navigation is Portuguese-only, no language flexibility;\n- The app feels cluttered with ads pushing credit products and services; \n- Buying and selling stocks doesn’t feel smooth or intuitive at all.\nThis made me wonder:\nIs Nu treating stock investing as a serious long-term product, or just a secondary feature to cross-sell credit and banking services?\nAs investors, we often focus on: user growth, engagement, ecosystem expansion.\nBut product quality matters, especially if Nu wants to keep users inside its platform instead of losing them to real brokers.\n\nFor those in Brazil actually using Nu Invest:\nHas this been your experience too?\nHas it improved recently?\nDo you still use it, or did you move to another platform?\nCurious to hear real user feedback, especially from locals.",
+      "clean_title": "Anyone else concerned about Nu's stock trading experience in Brazil?",
+      "clean_body": "Hey everyone, I'm a Nu holder and wanted to share an experience from a close friend in Brazil who recently decided to use Nu's app to buy stocks instead of a traditional broker. Honestly, the experience sounds pretty rough. Some of the main issues he ran into: - You can only buy full shares (no fractional shares at all); - He placed a sell order during market hours, but the cash from the sale didn't show up immediately in his account; - No live stock prices, you can't really track price movements in real time; - Very limited information on the stocks (no depth, no proper charts, no context); - App navigation is Portuguese-only, no language flexibility; - The app feels cluttered with ads pushing credit products and services; - Buying and selling stocks doesn't feel smooth or intuitive at all. This made me wonder: Is Nu treating stock investing as a serious long-term product, or just a secondary feature to cross-sell credit and banking services? As investors, we often focus on: user growth, engagement, ecosystem expansion. But product quality matters, especially if Nu wants to keep users inside its platform instead of losing them to real brokers. For those in Brazil actually using Nu Invest: Has this been your experience too? Has it improved recently? Do you still use it, or did you move to another platform? Curious to hear real user feedback, especially from locals.",
+      "clean_combined_withurl": "Anyone else concerned about Nu's stock trading experience in Brazil? Hey everyone, I'm a Nu holder and wanted to share an experience from a close friend in Brazil who recently decided to use Nu's app to buy stocks instead of a traditional broker. Honestly, the experience sounds pretty rough. Some of the main issues he ran into: - You can only buy full shares (no fractional shares at all); - He placed a sell order during market hours, but the cash from the sale didn't show up immediately in his account; - No live stock prices, you can't really track price movements in real time; - Very limited information on the stocks (no depth, no proper charts, no context); - App navigation is Portuguese-only, no language flexibility; - The app feels cluttered with ads pushing credit products and services; - Buying and selling stocks doesn't feel smooth or intuitive at all. This made me wonder: Is Nu treating stock investing as a serious long-term product, or just a secondary feature to cross-sell credit and banking services? As investors, we often focus on: user growth, engagement, ecosystem expansion. But product quality matters, especially if Nu wants to keep users inside its platform instead of losing them to real brokers. For those in Brazil actually using Nu Invest: Has this been your experience too? Has it improved recently? Do you still use it, or did you move to another platform? Curious to hear real user feedback, especially from locals.",
+      "clean_combined_withouturl": "Anyone else concerned about Nu's stock trading experience in Brazil? Hey everyone, I'm a Nu holder and wanted to share an experience from a close friend in Brazil who recently decided to use Nu's app to buy stocks instead of a traditional broker. Honestly, the experience sounds pretty rough. Some of the main issues he ran into: - You can only buy full shares (no fractional shares at all); - He placed a sell order during market hours, but the cash from the sale didn't show up immediately in his account; - No live stock prices, you can't really track price movements in real time; - Very limited information on the stocks (no depth, no proper charts, no context); - App navigation is Portuguese-only, no language flexibility; - The app feels cluttered with ads pushing credit products and services; - Buying and selling stocks doesn't feel smooth or intuitive at all. This made me wonder: Is Nu treating stock investing as a serious long-term product, or just a secondary feature to cross-sell credit and banking services? As investors, we often focus on: user growth, engagement, ecosystem expansion. But product quality matters, especially if Nu wants to keep users inside its platform instead of losing them to real brokers. For those in Brazil actually using Nu Invest: Has this been your experience too? Has it improved recently? Do you still use it, or did you move to another platform? Curious to hear real user feedback, especially from locals."
+    },
+    "engagement": {
+      "total_comments": 1,
+      "score": 0,
+      "upvote_ratio": 0.5
+    },
+    "metadata": {
+      "subreddit": "investing",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "NU": {
+        "type": "stock",
+        "official_name": "Nu Holdings Ltd.",
+        "name_identified": [
+          "NU"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qs1hwo",
+    "content_type": "post",
+    "native_id": "1qs1hwo",
+    "source": "reddit_batch",
+    "author": "TraditionalMango58",
+    "url": "https://www.reddit.com/r/stocks/comments/1qs1hwo/nvidia_to_join_openals_current_funding_round/",
+    "timestamps": "2026-01-31T12:48:24+00:00",
+    "content": {
+      "title": "Nvidia to Join OpenAl's Current Funding Round (Bloomberg)",
+      "body": " Nvidia Corp. will \"absolutely' be involved in OpenAl's current funding round, likely marking the company's largest-ever investment, Chief Executive Jensen Huang said. He was speaking to reporters in Taipei.\n\nhttps://www.bloomberg.com/news/articles/2026-01-31/nvidia-to-join-openai-s-current-funding-round-huang-says\n\n\n\n",
+      "clean_title": "Nvidia to Join OpenAl's Current Funding Round (Bloomberg)",
+      "clean_body": "Nvidia Corp. will \"absolutely' be involved in OpenAl's current funding round, likely marking the company's largest-ever investment, Chief Executive Jensen Huang said. He was speaking to reporters in Taipei. https://www.bloomberg.com/news/articles/2026-01-31/nvidia-to-join-openai-s-current-funding-round-huang-says",
+      "clean_combined_withurl": "Nvidia to Join OpenAl's Current Funding Round (Bloomberg) Nvidia Corp. will \"absolutely' be involved in OpenAl's current funding round, likely marking the company's largest-ever investment, Chief Executive Jensen Huang said. He was speaking to reporters in Taipei. https://www.bloomberg.com/news/articles/2026-01-31/nvidia-to-join-openai-s-current-funding-round-huang-says",
+      "clean_combined_withouturl": "Nvidia to Join OpenAl's Current Funding Round (Bloomberg) Nvidia Corp. will \"absolutely' be involved in OpenAl's current funding round, likely marking the company's largest-ever investment, Chief Executive Jensen Huang said. He was speaking to reporters in Taipei."
+    },
+    "engagement": {
+      "total_comments": 63,
+      "score": 257,
+      "upvote_ratio": 0.95
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [
+      "https://www.bloomberg.com/news/articles/2026-01-31/nvidia-to-join-openai-s-current-funding-round-huang-says"
+    ],
+    "ticker_metadata": {
+      "NVDA": {
+        "type": "stock",
+        "official_name": "NVIDIA CORP",
+        "name_identified": [
+          "NVDA"
+        ],
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qu9khr",
+    "content_type": "post",
+    "native_id": "1qu9khr",
+    "source": "reddit_batch",
+    "author": "Wolverine-7509",
+    "url": "https://www.reddit.com/r/stocks/comments/1qu9khr/iot_samsara_rally_and_undervalued/",
+    "timestamps": "2026-02-02T22:15:45+00:00",
+    "content": {
+      "title": "$IOT Samsara - Rally and Undervalued?",
+      "body": "Samsara is off a ton over the last few months, 50 day simple moving average of $36.33 and a 200-day simple moving average of $37.11. The firm has a market cap of $15.57 billion, a PE ratio of -338.58 and a beta of 1.61.\n\nCurrently parked at $26.41\n\nThe chart has a marked spike at every earnings, and the next one is March 5. \n\nSamsara issued Q3 2026 earnings on December 4, 2025, reporting an EPS of **$0.01**, which missed the consensus estimate of **$0.12** by **$0.11**. Quarterly revenue rose  *29.2%* year-over-year to **$415.98 million**, above the consensus estimate of **$398.92 million**. With a trailing EPS of *-$0.08*, Samsara's earnings are expected to remain at **($0.30)** per share in the coming year.\n\nWHAT IS HAPPENING?!?!\n\n  \nI am confused, hoping for a rally.",
+      "clean_title": "$IOT Samsara - Rally and Undervalued?",
+      "clean_body": "Samsara is off a ton over the last few months, 50 day simple moving average of $36.33 and a 200-day simple moving average of $37.11. The firm has a market cap of $15.57 billion, a PE ratio of -338.58 and a beta of 1.61. Currently parked at $26.41 The chart has a marked spike at every earnings, and the next one is March 5. Samsara issued Q3 2026 earnings on December 4, 2025, reporting an EPS of $0.01, which missed the consensus estimate of $0.12 by $0.11. Quarterly revenue rose 29.2% year-over-year to $415.98 million, above the consensus estimate of $398.92 million. With a trailing EPS of -$0.08, Samsara's earnings are expected to remain at ($0.30) per share in the coming year. WHAT IS HAPPENING?!?! I am confused, hoping for a rally.",
+      "clean_combined_withurl": "$IOT Samsara - Rally and Undervalued? Samsara is off a ton over the last few months, 50 day simple moving average of $36.33 and a 200-day simple moving average of $37.11. The firm has a market cap of $15.57 billion, a PE ratio of -338.58 and a beta of 1.61. Currently parked at $26.41 The chart has a marked spike at every earnings, and the next one is March 5. Samsara issued Q3 2026 earnings on December 4, 2025, reporting an EPS of $0.01, which missed the consensus estimate of $0.12 by $0.11. Quarterly revenue rose 29.2% year-over-year to $415.98 million, above the consensus estimate of $398.92 million. With a trailing EPS of -$0.08, Samsara's earnings are expected to remain at ($0.30) per share in the coming year. WHAT IS HAPPENING?!?! I am confused, hoping for a rally.",
+      "clean_combined_withouturl": "$IOT Samsara - Rally and Undervalued? Samsara is off a ton over the last few months, 50 day simple moving average of $36.33 and a 200-day simple moving average of $37.11. The firm has a market cap of $15.57 billion, a PE ratio of -338.58 and a beta of 1.61. Currently parked at $26.41 The chart has a marked spike at every earnings, and the next one is March 5. Samsara issued Q3 2026 earnings on December 4, 2025, reporting an EPS of $0.01, which missed the consensus estimate of $0.12 by $0.11. Quarterly revenue rose 29.2% year-over-year to $415.98 million, above the consensus estimate of $398.92 million. With a trailing EPS of -$0.08, Samsara's earnings are expected to remain at ($0.30) per share in the coming year. WHAT IS HAPPENING?!?! I am confused, hoping for a rally."
+    },
+    "engagement": {
+      "total_comments": 8,
+      "score": 10,
+      "upvote_ratio": 0.74
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "IOT": {
+        "type": "stock",
+        "official_name": "Samsara Inc.",
+        "name_identified": [
+          "IOT"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qrnzun",
+    "content_type": "post",
+    "native_id": "1qrnzun",
+    "source": "reddit_batch",
+    "author": "ILoveTheAtomicBomb",
+    "url": "https://www.reddit.com/r/stocks/comments/1qrnzun/nvidias_plan_to_invest_up_to_100_billion_in/",
+    "timestamps": "2026-01-31T01:02:16+00:00",
+    "content": {
+      "title": "Nvidia's plan to invest up to $100 billion in OpenAI has stalled, WSJ reports",
+      "body": "Nvidia CEO Jensen Huang has privately emphasized to industry associates in recent months that the original $100 billion agreement was non-binding and not finalized, the report said.\n\nHuang has also privately criticized what he has described as a lack of discipline in OpenAI's business approach and expressed concern about the competition it faces from the likes of Alphabet's (GOOGL.O),  Google and Anthropic, the WSJ added.\n\nhttps://www.reuters.com/business/nvidias-plan-invest-up-100-billion-openai-has-stalled-wsj-reports-2026-01-31/\n\nTrouble in paradise?",
+      "clean_title": "Nvidia's plan to invest up to $100 billion in OpenAI has stalled, WSJ reports",
+      "clean_body": "Nvidia CEO Jensen Huang has privately emphasized to industry associates in recent months that the original $100 billion agreement was non-binding and not finalized, the report said. Huang has also privately criticized what he has described as a lack of discipline in OpenAI's business approach and expressed concern about the competition it faces from the likes of Alphabet's (GOOGL.O), Google and Anthropic, the WSJ added. https://www.reuters.com/business/nvidias-plan-invest-up-100-billion-openai-has-stalled-wsj-reports-2026-01-31/ Trouble in paradise?",
+      "clean_combined_withurl": "Nvidia's plan to invest up to $100 billion in OpenAI has stalled, WSJ reports. Nvidia CEO Jensen Huang has privately emphasized to industry associates in recent months that the original $100 billion agreement was non-binding and not finalized, the report said. Huang has also privately criticized what he has described as a lack of discipline in OpenAI's business approach and expressed concern about the competition it faces from the likes of Alphabet's (GOOGL.O), Google and Anthropic, the WSJ added. https://www.reuters.com/business/nvidias-plan-invest-up-100-billion-openai-has-stalled-wsj-reports-2026-01-31/ Trouble in paradise?",
+      "clean_combined_withouturl": "Nvidia's plan to invest up to $100 billion in OpenAI has stalled, WSJ reports. Nvidia CEO Jensen Huang has privately emphasized to industry associates in recent months that the original $100 billion agreement was non-binding and not finalized, the report said. Huang has also privately criticized what he has described as a lack of discipline in OpenAI's business approach and expressed concern about the competition it faces from the likes of Alphabet's (GOOGL.O), Google and Anthropic, the WSJ added. Trouble in paradise?"
+    },
+    "engagement": {
+      "total_comments": 232,
+      "score": 1602,
+      "upvote_ratio": 0.98
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [
+      "https://www.reuters.com/business/nvidias-plan-invest-up-100-billion-openai-has-stalled-wsj-reports-2026-01-31/"
+    ],
+    "ticker_metadata": {
+      "NVDA": {
+        "type": "stock",
+        "official_name": "NVIDIA CORP",
+        "name_identified": [
+          "NVDA"
+        ],
+        "event_type": null,
+        "event_proposal": "INVESTMENT_DEAL_STALL"
+      }
+    }
+  },
+  {
+    "id": "reddit:1qqeev6",
+    "content_type": "post",
+    "native_id": "1qqeev6",
+    "source": "reddit_batch",
+    "author": "National-Theory1218",
+    "url": "https://www.reddit.com/r/investing/comments/1qqeev6/wow_earnings_drop_sends_microsoft_into_a_slide/",
+    "timestamps": "2026-01-29T17:07:41+00:00",
+    "content": {
+      "title": "Wow! Earnings drop sends Microsoft into a slide. Market overreacting?",
+      "body": "$MSFT is dragging down markets after earnings, yet fundamentals look strong. Revenue growth, cloud dominance, and massive cash reserves are still there. It’s still a $3 trillion company. Are investors overreacting, or is this a real red flag? Thoughts?\n\nSource: Blossom Social ",
+      "clean_title": "Wow! Earnings drop sends Microsoft into a slide. Market overreacting?",
+      "clean_body": "$MSFT is dragging down markets after earnings, yet fundamentals look strong. Revenue growth, cloud dominance, and massive cash reserves are still there. It's still a $3 trillion company. Are investors overreacting, or is this a real red flag? Thoughts? Source: Blossom Social",
+      "clean_combined_withurl": "Wow! Earnings drop sends Microsoft into a slide. Market overreacting? $MSFT is dragging down markets after earnings, yet fundamentals look strong. Revenue growth, cloud dominance, and massive cash reserves are still there. It's still a $3 trillion company. Are investors overreacting, or is this a real red flag? Thoughts? Source: Blossom Social",
+      "clean_combined_withouturl": "Wow! Earnings drop sends Microsoft into a slide. Market overreacting? $MSFT is dragging down markets after earnings, yet fundamentals look strong. Revenue growth, cloud dominance, and massive cash reserves are still there. It's still a $3 trillion company. Are investors overreacting, or is this a real red flag? Thoughts? Source: Blossom Social"
+    },
+    "engagement": {
+      "total_comments": 114,
+      "score": 221,
+      "upvote_ratio": 0.87
+    },
+    "metadata": {
+      "subreddit": "investing",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "MSFT": {
+        "type": "stock",
+        "official_name": "MICROSOFT CORP",
+        "name_identified": [
+          "MSFT"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qrl5np",
+    "content_type": "post",
+    "native_id": "1qrl5np",
+    "source": "reddit_batch",
+    "author": "MinuteDistribution31",
+    "url": "https://www.reddit.com/r/investing/comments/1qrl5np/the_current_msft_stock_risks/",
+    "timestamps": "2026-01-30T23:05:08+00:00",
+    "content": {
+      "title": "The current MSFT stock risks",
+      "body": "Been digging into Microsoft's financials beyond the usual revenue and EPS numbers, and wanted to share some observations that caught my attention from a value perspective. I used \\[thefinbase\\](https://thefinbase.com)  to pull together this data for my risk analysis before I buy this stock and \\[tradingview\\](https://tradingview.com) for financial information it has the best UI . No affiliation with these two just revealing my sources.  \n\nNow let’s get going: \n\nBalance Sheet Shifting Toward Less Flexible Assets\n\nProperty, plant, and equipment increased nearly 50% in a single year (from \\\\\\~$155B to \\\\\\~$230B). That's a massive tilt toward long duration, non liquid assets. Meanwhile, depreciation jumped from $22B to $34B. In a sector where hardware can become obsolete quickly, this concentration in physical infrastructure creates impairment exposure if tech refresh cycles accelerate.\n\nSome Interesting Liability Movement\n\n\"Other Current Liabilities\" increased 45% year over year. Without detailed disclosure, this likely includes unearned cloud billings and similar obligations. Worth monitoring because rapid buildup in prepayment dependency can distort cash flow timing if customer behavior shifts.\n\nThe Segment Concentration Factor\n\nIntelligent Cloud now drives roughly 40% of revenue with 29% growth, while More Personal Computing actually declined 3%. This isn't necessarily bad, but it does mean any cloud cyclicality hits the overall business harder than it would have five years ago.\n\nThe Sentiment Disconnect\n\nDespite record profits, shares declined after strong Q2 results. When markets sell the news on beat and raise quarters, it often signals expectations have gotten ahead of near term reality.\n\nNone of this means the investment thesis is broken. \n\nMicrosoft remains a dominant business. But as value investors, we're supposed to see what others miss and understand what we're actually paying for at current multiples.\n\nEven with these risks I still think it's a good stock to buy, especially in its role as the AI boom continues. \n\nWhat do you think ? ",
+      "clean_title": "The current MSFT stock risks",
+      "clean_body": "Been digging into Microsoft's financials beyond the usual revenue and EPS numbers, and wanted to share some observations that caught my attention from a value perspective. I used \\thefinbase\\: https://thefinbase.com to pull together this data for my risk analysis before I buy this stock and \\tradingview\\: https://tradingview.com for financial information it has the best UI . No affiliation with these two just revealing my sources. Now let's get going: Balance Sheet Shifting Toward Less Flexible Assets Property, plant, and equipment increased nearly 50% in a single year (from \\\\~$155B to \\\\~$230B). That's a massive tilt toward long duration, non liquid assets. Meanwhile, depreciation jumped from $22B to $34B. In a sector where hardware can become obsolete quickly, this concentration in physical infrastructure creates impairment exposure if tech refresh cycles accelerate. Some Interesting Liability Movement \"Other Current Liabilities\" increased 45% year over year. Without detailed disclosure, this likely includes unearned cloud billings and similar obligations. Worth monitoring because rapid buildup in prepayment dependency can distort cash flow timing if customer behavior shifts. The Segment Concentration Factor Intelligent Cloud now drives roughly 40% of revenue with 29% growth, while More Personal Computing actually declined 3%. This isn't necessarily bad, but it does mean any cloud cyclicality hits the overall business harder than it would have five years ago. The Sentiment Disconnect Despite record profits, shares declined after strong Q2 results. When markets sell the news on beat and raise quarters, it often signals expectations have gotten ahead of near term reality. None of this means the investment thesis is broken. Microsoft remains a dominant business. But as value investors, we're supposed to see what others miss and understand what we're actually paying for at current multiples. Even with these risks I still think it's a good stock to buy, especially in its role as the AI boom continues. What do you think ?",
+      "clean_combined_withurl": "The current MSFT stock risks. Been digging into Microsoft's financials beyond the usual revenue and EPS numbers, and wanted to share some observations that caught my attention from a value perspective. I used \\thefinbase\\: https://thefinbase.com to pull together this data for my risk analysis before I buy this stock and \\tradingview\\: https://tradingview.com for financial information it has the best UI . No affiliation with these two just revealing my sources. Now let's get going: Balance Sheet Shifting Toward Less Flexible Assets Property, plant, and equipment increased nearly 50% in a single year (from \\\\~$155B to \\\\~$230B). That's a massive tilt toward long duration, non liquid assets. Meanwhile, depreciation jumped from $22B to $34B. In a sector where hardware can become obsolete quickly, this concentration in physical infrastructure creates impairment exposure if tech refresh cycles accelerate. Some Interesting Liability Movement \"Other Current Liabilities\" increased 45% year over year. Without detailed disclosure, this likely includes unearned cloud billings and similar obligations. Worth monitoring because rapid buildup in prepayment dependency can distort cash flow timing if customer behavior shifts. The Segment Concentration Factor Intelligent Cloud now drives roughly 40% of revenue with 29% growth, while More Personal Computing actually declined 3%. This isn't necessarily bad, but it does mean any cloud cyclicality hits the overall business harder than it would have five years ago. The Sentiment Disconnect Despite record profits, shares declined after strong Q2 results. When markets sell the news on beat and raise quarters, it often signals expectations have gotten ahead of near term reality. None of this means the investment thesis is broken. Microsoft remains a dominant business. But as value investors, we're supposed to see what others miss and understand what we're actually paying for at current multiples. Even with these risks I still think it's a good stock to buy, especially in its role as the AI boom continues. What do you think ?",
+      "clean_combined_withouturl": "The current MSFT stock risks. Been digging into Microsoft's financials beyond the usual revenue and EPS numbers, and wanted to share some observations that caught my attention from a value perspective. I used \\ to pull together this data for my risk analysis before I buy this stock and \\ for financial information it has the best UI . No affiliation with these two just revealing my sources. Now let's get going: Balance Sheet Shifting Toward Less Flexible Assets Property, plant, and equipment increased nearly 50% in a single year (from \\\\~$155B to \\\\~$230B). That's a massive tilt toward long duration, non liquid assets. Meanwhile, depreciation jumped from $22B to $34B. In a sector where hardware can become obsolete quickly, this concentration in physical infrastructure creates impairment exposure if tech refresh cycles accelerate. Some Interesting Liability Movement \"Other Current Liabilities\" increased 45% year over year. Without detailed disclosure, this likely includes unearned cloud billings and similar obligations. Worth monitoring because rapid buildup in prepayment dependency can distort cash flow timing if customer behavior shifts. The Segment Concentration Factor Intelligent Cloud now drives roughly 40% of revenue with 29% growth, while More Personal Computing actually declined 3%. This isn't necessarily bad, but it does mean any cloud cyclicality hits the overall business harder than it would have five years ago. The Sentiment Disconnect Despite record profits, shares declined after strong Q2 results. When markets sell the news on beat and raise quarters, it often signals expectations have gotten ahead of near term reality. None of this means the investment thesis is broken. Microsoft remains a dominant business. But as value investors, we're supposed to see what others miss and understand what we're actually paying for at current multiples. Even with these risks I still think it's a good stock to buy, especially in its role as the AI boom continues. What do you think ?"
+    },
+    "engagement": {
+      "total_comments": 17,
+      "score": 33,
+      "upvote_ratio": 0.78
+    },
+    "metadata": {
+      "subreddit": "investing",
+      "category": null
+    },
+    "images": [],
+    "links": [
+      "https://thefinbase.com",
+      "https://tradingview.com"
+    ],
+    "ticker_metadata": {
+      "MSFT": {
+        "type": "stock",
+        "official_name": "MICROSOFT CORP",
+        "name_identified": [
+          "MSFT"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qyqjq4",
+    "content_type": "post",
+    "native_id": "1qyqjq4",
+    "source": "reddit_batch",
+    "author": "WickedSensitiveCrew",
+    "url": "https://www.reddit.com/r/stocks/comments/1qyqjq4/trump_administration_equity_stakes_pose_risks_to/",
+    "timestamps": "2026-02-07T21:50:49+00:00",
+    "content": {
+      "title": "Trump administration equity stakes pose risks to U.S. companies and markets",
+      "body": "https://www.cnbc.com/2026/02/07/trump-equity-stakes-pose-these-risks-to-us-companies-and-markets.html\n\n> The Trump administration’s portfolio of equity stakes in U.S. companies has reached a scale that is unprecedented outside economic crisis or wartime. The administration has taken stakes or has agreements to do so with at least 10 companies, most of which are publicly traded. The government announced its latest investment, USA Rare Earth, at the end of January.\n\n> “It is an invisible barrier to startups and new market entrants,” said Scott Lincicome, an international trade lawyer affiliated with Cato Institute. “Why would you ever want to enter a market that you know your chief competitor is backed by the U.S. government?” Many of the investments are in smaller critical mineral companies, like USA Rare Earth and MP Materials, but they also include big industrial and tech companies such as U.S. Steel and Intel.\n\n> Historically, the U.S. has taken equity stakes in companies in the context of bailouts with the understanding that the investments were temporary and the government would exit its position when the company was financially viable again, said Peter Harrell, who served as the senior director for international economics under President Joe Biden. But the Trump administration appears to be taking open-ended ownership interest that the U.S. government is unlikely to exit, Lincicome said.\n\n> The Trump administration’s approach creates political, legal and business risks for the companies involved, including potential conflicts of interest, capital misallocation, and the politicization of business decisions. “Big companies could decide to do business with the government-backed firms to curry favor with the administration,” Lincicome said. MP Materials warned investors that its deal faces “the risk of litigation” and is vulnerable to “changes in federal administration and related executive and legislative priorities.”\n\n> Top executives have voiced virtually no public criticism of the Trump administration taking stakes, though some quietly oppose it. Citadel CEO Ken Griffin said, “When the U.S. government starts to engage in corporate America in a way that tastes of favoritism, I know for most CEOs that I’m friends with, they find it incredibly distasteful.” The number of government equity stakes is likely to grow, with Trump indicating he “will not permit” defense companies to issue dividends or stock buybacks until production accelerates, signaling continued government intervention in private enterprise.",
+      "clean_title": "Trump administration equity stakes pose risks to U.S. companies and markets",
+      "clean_body": "https://www.cnbc.com/2026/02/07/trump-equity-stakes-pose-these-risks-to-us-companies-and-markets.html The Trump administration's portfolio of equity stakes in U.S. companies has reached a scale that is unprecedented outside economic crisis or wartime. The administration has taken stakes or has agreements to do so with at least 10 companies, most of which are publicly traded. The government announced its latest investment, USA Rare Earth, at the end of January. \"It is an invisible barrier to startups and new market entrants,\" said Scott Lincicome, an international trade lawyer affiliated with Cato Institute. \"Why would you ever want to enter a market that you know your chief competitor is backed by the U.S. government?\" Many of the investments are in smaller critical mineral companies, like USA Rare Earth and MP Materials, but they also include big industrial and tech companies such as U.S. Steel and Intel. Historically, the U.S. has taken equity stakes in companies in the context of bailouts with the understanding that the investments were temporary and the government would exit its position when the company was financially viable again, said Peter Harrell, who served as the senior director for international economics under President Joe Biden. But the Trump administration appears to be taking open-ended ownership interest that the U.S. government is unlikely to exit, Lincicome said. The Trump administration's approach creates political, legal and business risks for the companies involved, including potential conflicts of interest, capital misallocation, and the politicization of business decisions. \"Big companies could decide to do business with the government-backed firms to curry favor with the administration,\" Lincicome said. MP Materials warned investors that its deal faces \"the risk of litigation\" and is vulnerable to \"changes in federal administration and related executive and legislative priorities.\" Top executives have voiced virtually no public criticism of the Trump administration taking stakes, though some quietly oppose it. Citadel CEO Ken Griffin said, \"When the U.S. government starts to engage in corporate America in a way that tastes of favoritism, I know for most CEOs that I'm friends with, they find it incredibly distasteful.\" The number of government equity stakes is likely to grow, with Trump indicating he \"will not permit\" defense companies to issue dividends or stock buybacks until production accelerates, signaling continued government intervention in private enterprise.",
+      "clean_combined_withurl": "Trump administration equity stakes pose risks to U.S. companies and markets. https://www.cnbc.com/2026/02/07/trump-equity-stakes-pose-these-risks-to-us-companies-and-markets.html The Trump administration's portfolio of equity stakes in U.S. companies has reached a scale that is unprecedented outside economic crisis or wartime. The administration has taken stakes or has agreements to do so with at least 10 companies, most of which are publicly traded. The government announced its latest investment, USA Rare Earth, at the end of January. \"It is an invisible barrier to startups and new market entrants,\" said Scott Lincicome, an international trade lawyer affiliated with Cato Institute. \"Why would you ever want to enter a market that you know your chief competitor is backed by the U.S. government?\" Many of the investments are in smaller critical mineral companies, like USA Rare Earth and MP Materials, but they also include big industrial and tech companies such as U.S. Steel and Intel. Historically, the U.S. has taken equity stakes in companies in the context of bailouts with the understanding that the investments were temporary and the government would exit its position when the company was financially viable again, said Peter Harrell, who served as the senior director for international economics under President Joe Biden. But the Trump administration appears to be taking open-ended ownership interest that the U.S. government is unlikely to exit, Lincicome said. The Trump administration's approach creates political, legal and business risks for the companies involved, including potential conflicts of interest, capital misallocation, and the politicization of business decisions. \"Big companies could decide to do business with the government-backed firms to curry favor with the administration,\" Lincicome said. MP Materials warned investors that its deal faces \"the risk of litigation\" and is vulnerable to \"changes in federal administration and related executive and legislative priorities.\" Top executives have voiced virtually no public criticism of the Trump administration taking stakes, though some quietly oppose it. Citadel CEO Ken Griffin said, \"When the U.S. government starts to engage in corporate America in a way that tastes of favoritism, I know for most CEOs that I'm friends with, they find it incredibly distasteful.\" The number of government equity stakes is likely to grow, with Trump indicating he \"will not permit\" defense companies to issue dividends or stock buybacks until production accelerates, signaling continued government intervention in private enterprise.",
+      "clean_combined_withouturl": "Trump administration equity stakes pose risks to U.S. companies and markets. The Trump administration's portfolio of equity stakes in U.S. companies has reached a scale that is unprecedented outside economic crisis or wartime. The administration has taken stakes or has agreements to do so with at least 10 companies, most of which are publicly traded. The government announced its latest investment, USA Rare Earth, at the end of January. \"It is an invisible barrier to startups and new market entrants,\" said Scott Lincicome, an international trade lawyer affiliated with Cato Institute. \"Why would you ever want to enter a market that you know your chief competitor is backed by the U.S. government?\" Many of the investments are in smaller critical mineral companies, like USA Rare Earth and MP Materials, but they also include big industrial and tech companies such as U.S. Steel and Intel. Historically, the U.S. has taken equity stakes in companies in the context of bailouts with the understanding that the investments were temporary and the government would exit its position when the company was financially viable again, said Peter Harrell, who served as the senior director for international economics under President Joe Biden. But the Trump administration appears to be taking open-ended ownership interest that the U.S. government is unlikely to exit, Lincicome said. The Trump administration's approach creates political, legal and business risks for the companies involved, including potential conflicts of interest, capital misallocation, and the politicization of business decisions. \"Big companies could decide to do business with the government-backed firms to curry favor with the administration,\" Lincicome said. MP Materials warned investors that its deal faces \"the risk of litigation\" and is vulnerable to \"changes in federal administration and related executive and legislative priorities.\" Top executives have voiced virtually no public criticism of the Trump administration taking stakes, though some quietly oppose it. Citadel CEO Ken Griffin said, \"When the U.S. government starts to engage in corporate America in a way that tastes of favoritism, I know for most CEOs that I'm friends with, they find it incredibly distasteful.\" The number of government equity stakes is likely to grow, with Trump indicating he \"will not permit\" defense companies to issue dividends or stock buybacks until production accelerates, signaling continued government intervention in private enterprise."
+    },
+    "engagement": {
+      "total_comments": 149,
+      "score": 603,
+      "upvote_ratio": 0.95
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [
+      "https://www.cnbc.com/2026/02/07/trump-equity-stakes-pose-these-risks-to-us-companies-and-markets.html"
+    ],
+    "ticker_metadata": {
+      "USAR": {
+        "type": "stock",
+        "official_name": "USA Rare Earth, Inc.",
+        "name_identified": [
+          "USAR"
+        ],
+        "event_type": "GOVERNMENT_INVESTMENT",
+        "event_proposal": null
+      },
+      "INTC": {
+        "type": "stock",
+        "official_name": "INTEL CORP",
+        "name_identified": [
+          "INTC"
+        ],
+        "event_type": "GOVERNMENT_INVESTMENT",
+        "event_proposal": null
+      },
+      "MP": {
+        "type": "stock",
+        "official_name": "MP Materials Corp. / DE",
+        "name_identified": [
+          "MP"
+        ],
+        "event_type": "GOVERNMENT_INVESTMENT",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qyd6ov",
+    "content_type": "post",
+    "native_id": "1qyd6ov",
+    "source": "reddit_batch",
+    "author": "LongjumpingAd4283",
+    "url": "https://www.reddit.com/r/stocks/comments/1qyd6ov/probabality_of_netflix_and_wbd_merger_going/",
+    "timestamps": "2026-02-07T13:00:03+00:00",
+    "content": {
+      "title": "Probabality of Netflix and WBD merger going through?",
+      "body": "* Nvidia–Arm (abandoned): Scrapped after U.S., UK, and EU enforcers argued Nvidia could use control of Arm’s neutral chip IP to disadvantage rival chipmakers and harm innovation.\n* Penguin Random House–Simon & Schuster (blocked): U.S. DOJ convinced a court the deal would give the combined publisher monopsony power over authors, reducing advances and competition to acquire manuscripts.\n* Illumina–Grail (blocked/unwound in EU): EU authorities found that letting Illumina, a dominant sequencing supplier, buy Grail would let it foreclose rival test developers in early cancer detection\n* AT&T–Time Warner (approved): DOJ lost in court; the judge found insufficient proof that integrating content (HBO, Turner) with AT&T’s distribution would significantly raise rivals’ costs or consumer prices.\n* Tapestry–Capri (abandoned): U.S. lawsuit argued it would overly concentrate “accessible luxury” handbags (Coach/Kate Spade with Michael Kors/Versace), risking higher prices and less choice, so the parties walked away.\n* JetBlue–Spirit (blocked): A federal judge agreed with DOJ that removing Spirit as an ultra‑low‑cost competitor would reduce fare competition, leading to higher prices for budget travelers.\n* Amazon–iRobot (abandoned): Dropped after U.S. and EU scrutiny over Amazon potentially using smart‑home and retail power to disadvantage rival robot‑vacuum makers and entrench its ecosystem.\n* Netflix–Warner Bros Discovery (pending): Now under DOJ review; concerns center on Netflix potentially cementing dominance in streaming, reducing content and talent competition, and raising rivals’ costs by controlling WBD’s library and HBO Max.",
+      "clean_title": "Probabality of Netflix and WBD merger going through?",
+      "clean_body": "Nvidia-Arm (abandoned): Scrapped after U.S., UK, and EU enforcers argued Nvidia could use control of Arm's neutral chip IP to disadvantage rival chipmakers and harm innovation. Penguin Random House-Simon & Schuster (blocked): U.S. DOJ convinced a court the deal would give the combined publisher monopsony power over authors, reducing advances and competition to acquire manuscripts. Illumina-Grail (blocked/unwound in EU): EU authorities found that letting Illumina, a dominant sequencing supplier, buy Grail would let it foreclose rival test developers in early cancer detection AT&T-Time Warner (approved): DOJ lost in court; the judge found insufficient proof that integrating content (HBO, Turner) with AT&T's distribution would significantly raise rivals' costs or consumer prices. Tapestry-Capri (abandoned): U.S. lawsuit argued it would overly concentrate \"accessible luxury\" handbags (Coach/Kate Spade with Michael Kors/Versace), risking higher prices and less choice, so the parties walked away. JetBlue-Spirit (blocked): A federal judge agreed with DOJ that removing Spirit as an ultra‐low‐cost competitor would reduce fare competition, leading to higher prices for budget travelers. Amazon-iRobot (abandoned): Dropped after U.S. and EU scrutiny over Amazon potentially using smart‐home and retail power to disadvantage rival robot‐vacuum makers and entrench its ecosystem. Netflix-Warner Bros Discovery (pending): Now under DOJ review; concerns center on Netflix potentially cementing dominance in streaming, reducing content and talent competition, and raising rivals' costs by controlling WBD's library and HBO Max.",
+      "clean_combined_withurl": "Probabality of Netflix and WBD merger going through? Nvidia-Arm (abandoned): Scrapped after U.S., UK, and EU enforcers argued Nvidia could use control of Arm's neutral chip IP to disadvantage rival chipmakers and harm innovation. Penguin Random House-Simon & Schuster (blocked): U.S. DOJ convinced a court the deal would give the combined publisher monopsony power over authors, reducing advances and competition to acquire manuscripts. Illumina-Grail (blocked/unwound in EU): EU authorities found that letting Illumina, a dominant sequencing supplier, buy Grail would let it foreclose rival test developers in early cancer detection AT&T-Time Warner (approved): DOJ lost in court; the judge found insufficient proof that integrating content (HBO, Turner) with AT&T's distribution would significantly raise rivals' costs or consumer prices. Tapestry-Capri (abandoned): U.S. lawsuit argued it would overly concentrate \"accessible luxury\" handbags (Coach/Kate Spade with Michael Kors/Versace), risking higher prices and less choice, so the parties walked away. JetBlue-Spirit (blocked): A federal judge agreed with DOJ that removing Spirit as an ultra‐low‐cost competitor would reduce fare competition, leading to higher prices for budget travelers. Amazon-iRobot (abandoned): Dropped after U.S. and EU scrutiny over Amazon potentially using smart‐home and retail power to disadvantage rival robot‐vacuum makers and entrench its ecosystem. Netflix-Warner Bros Discovery (pending): Now under DOJ review; concerns center on Netflix potentially cementing dominance in streaming, reducing content and talent competition, and raising rivals' costs by controlling WBD's library and HBO Max.",
+      "clean_combined_withouturl": "Probabality of Netflix and WBD merger going through? Nvidia-Arm (abandoned): Scrapped after U.S., UK, and EU enforcers argued Nvidia could use control of Arm's neutral chip IP to disadvantage rival chipmakers and harm innovation. Penguin Random House-Simon & Schuster (blocked): U.S. DOJ convinced a court the deal would give the combined publisher monopsony power over authors, reducing advances and competition to acquire manuscripts. Illumina-Grail (blocked/unwound in EU): EU authorities found that letting Illumina, a dominant sequencing supplier, buy Grail would let it foreclose rival test developers in early cancer detection AT&T-Time Warner (approved): DOJ lost in court; the judge found insufficient proof that integrating content (HBO, Turner) with AT&T's distribution would significantly raise rivals' costs or consumer prices. Tapestry-Capri (abandoned): U.S. lawsuit argued it would overly concentrate \"accessible luxury\" handbags (Coach/Kate Spade with Michael Kors/Versace), risking higher prices and less choice, so the parties walked away. JetBlue-Spirit (blocked): A federal judge agreed with DOJ that removing Spirit as an ultra‐low‐cost competitor would reduce fare competition, leading to higher prices for budget travelers. Amazon-iRobot (abandoned): Dropped after U.S. and EU scrutiny over Amazon potentially using smart‐home and retail power to disadvantage rival robot‐vacuum makers and entrench its ecosystem. Netflix-Warner Bros Discovery (pending): Now under DOJ review; concerns center on Netflix potentially cementing dominance in streaming, reducing content and talent competition, and raising rivals' costs by controlling WBD's library and HBO Max."
+    },
+    "engagement": {
+      "total_comments": 43,
+      "score": 88,
+      "upvote_ratio": 0.9
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "NVDA": {
+        "type": "stock",
+        "official_name": "NVIDIA CORP",
+        "name_identified": [
+          "NVDA"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "ARM": {
+        "type": "stock",
+        "official_name": "ARM HOLDINGS PLC /UK",
+        "name_identified": [
+          "ARM"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "T": {
+        "type": "stock",
+        "official_name": "AT&T INC.",
+        "name_identified": [
+          "T"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "NFLX": {
+        "type": "stock",
+        "official_name": "NETFLIX INC",
+        "name_identified": [
+          "NFLX"
+        ],
+        "event_type": "MERGER",
+        "event_proposal": null
+      },
+      "WBD": {
+        "type": "stock",
+        "official_name": "Warner Bros. Discovery, Inc.",
+        "name_identified": [
+          "WBD"
+        ],
+        "event_type": "MERGER",
+        "event_proposal": null
+      },
+      "AMZN": {
+        "type": "stock",
+        "official_name": "AMAZON COM INC",
+        "name_identified": [
+          "AMZN"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "IRBTQ": {
+        "type": "stock",
+        "official_name": "IROBOT CORP",
+        "name_identified": [
+          "IRBTQ"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "TPR": {
+        "type": "stock",
+        "official_name": "TAPESTRY, INC.",
+        "name_identified": [
+          "TPR"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "CPRI": {
+        "type": "stock",
+        "official_name": "Capri Holdings Ltd",
+        "name_identified": [
+          "CPRI"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "JBLU": {
+        "type": "stock",
+        "official_name": "JETBLUE AIRWAYS CORP",
+        "name_identified": [
+          "JBLU"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "ILMN": {
+        "type": "stock",
+        "official_name": "ILLUMINA, INC.",
+        "name_identified": [
+          "ILMN"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "GRAIL": {
+        "type": "stock",
+        "official_name": "GRAIL",
+        "name_identified": [
+          "GRAIL"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qvt8g1",
+    "content_type": "post",
+    "native_id": "1qvt8g1",
+    "source": "reddit_batch",
+    "author": "artvandalaythrowaway",
+    "url": "https://www.reddit.com/r/stocks/comments/1qvt8g1/anybody_have_thoughts_on_rklbs_recent_plunge/",
+    "timestamps": "2026-02-04T16:30:34+00:00",
+    "content": {
+      "title": "Anybody have thoughts on RKLB’s recent plunge?",
+      "body": "Down 5% on the month, 18% last 10 days, and big drop today. Sure lots of pullback in the market but haven’t seen any bad news specifically for the company or the sector; in the contrary seems like nothing but positive developments. People taking profits? Market correction? Are you buying the dip because of long term faith or is there reason for caution? ",
+      "clean_title": "Anybody have thoughts on RKLB's recent plunge?",
+      "clean_body": "Down 5% on the month, 18% last 10 days, and big drop today. Sure lots of pullback in the market but haven't seen any bad news specifically for the company or the sector; in the contrary seems like nothing but positive developments. People taking profits? Market correction? Are you buying the dip because of long term faith or is there reason for caution?",
+      "clean_combined_withurl": "Anybody have thoughts on RKLB's recent plunge? Down 5% on the month, 18% last 10 days, and big drop today. Sure lots of pullback in the market but haven't seen any bad news specifically for the company or the sector; in the contrary seems like nothing but positive developments. People taking profits? Market correction? Are you buying the dip because of long term faith or is there reason for caution?",
+      "clean_combined_withouturl": "Anybody have thoughts on RKLB's recent plunge? Down 5% on the month, 18% last 10 days, and big drop today. Sure lots of pullback in the market but haven't seen any bad news specifically for the company or the sector; in the contrary seems like nothing but positive developments. People taking profits? Market correction? Are you buying the dip because of long term faith or is there reason for caution?"
+    },
+    "engagement": {
+      "total_comments": 144,
+      "score": 28,
+      "upvote_ratio": 0.61
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "RKLB": {
+        "type": "stock",
+        "official_name": "Rocket Lab Corp",
+        "name_identified": [
+          "RKLB"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qx23j6",
+    "content_type": "post",
+    "native_id": "1qx23j6",
+    "source": "reddit_batch",
+    "author": "Sleep18hoursaday",
+    "url": "https://www.reddit.com/r/stocks/comments/1qx23j6/whos_the_enron_and_mci_worldcom_of_this_generation/",
+    "timestamps": "2026-02-06T00:02:35+00:00",
+    "content": {
+      "title": "Who’s the Enron and MCI Worldcom of this generation?",
+      "body": "This latest turmoil feels different from April, November, last month pick a month during Trump’s 2nd term. \n\nWith that said two poster companies for fraud a generation ago was Enron and MCI worldcom. Something tells we will see a company in the near future have its comeuppance similar to though de two. People have mentioned SMCI, CVNA, MSTR even NVDA and PLTR.\n\nDo you have a favorite to have a Netflix documentary in 2028 after they have a spectacular fall from grace? ",
+      "clean_title": "Who's the Enron and MCI Worldcom of this generation?",
+      "clean_body": "This latest turmoil feels different from April, November, last month pick a month during Trump's 2nd term. With that said two poster companies for fraud a generation ago was Enron and MCI worldcom. Something tells we will see a company in the near future have its comeuppance similar to though de two. People have mentioned SMCI, CVNA, MSTR even NVDA and PLTR. Do you have a favorite to have a Netflix documentary in 2028 after they have a spectacular fall from grace?",
+      "clean_combined_withurl": "Who's the Enron and MCI Worldcom of this generation? This latest turmoil feels different from April, November, last month pick a month during Trump's 2nd term. With that said two poster companies for fraud a generation ago was Enron and MCI worldcom. Something tells we will see a company in the near future have its comeuppance similar to though de two. People have mentioned SMCI, CVNA, MSTR even NVDA and PLTR. Do you have a favorite to have a Netflix documentary in 2028 after they have a spectacular fall from grace?",
+      "clean_combined_withouturl": "Who's the Enron and MCI Worldcom of this generation? This latest turmoil feels different from April, November, last month pick a month during Trump's 2nd term. With that said two poster companies for fraud a generation ago was Enron and MCI worldcom. Something tells we will see a company in the near future have its comeuppance similar to though de two. People have mentioned SMCI, CVNA, MSTR even NVDA and PLTR. Do you have a favorite to have a Netflix documentary in 2028 after they have a spectacular fall from grace?"
+    },
+    "engagement": {
+      "total_comments": 68,
+      "score": 19,
+      "upvote_ratio": 0.77
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "SMCI": {
+        "type": "stock",
+        "official_name": "Super Micro Computer, Inc.",
+        "name_identified": [
+          "SMCI"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      },
+      "CVNA": {
+        "type": "stock",
+        "official_name": "CARVANA CO.",
+        "name_identified": [
+          "CVNA"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      },
+      "MSTR": {
+        "type": "stock",
+        "official_name": "Strategy Inc",
+        "name_identified": [
+          "MSTR"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      },
+      "NVDA": {
+        "type": "stock",
+        "official_name": "NVIDIA CORP",
+        "name_identified": [
+          "NVDA"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      },
+      "PLTR": {
+        "type": "stock",
+        "official_name": "Palantir Technologies Inc.",
+        "name_identified": [
+          "PLTR"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qygve7",
+    "content_type": "post",
+    "native_id": "1qygve7",
+    "source": "reddit_batch",
+    "author": "Malimalata",
+    "url": "https://www.reddit.com/r/stocks/comments/1qygve7/bmbl_navigating_growth_headwinds_while_aiming_for/",
+    "timestamps": "2026-02-07T15:36:36+00:00",
+    "content": {
+      "title": "BMBL navigating growth headwinds while aiming for operational stability",
+      "body": "Bumble Inc (BMBL) continues to trade around $3.55–$3.60, levels not seen in several years. While the stock sits near multiyear lows, the underlying story is less about collapse and more about a company working through structural challenges in the online dating space.\n\nRecent quarters show that revenue has dipped slightly Q3 2025 reported $246.2 million, down roughly 10% year-over-year, and paying users have edged lower. Yet, Bumble is not standing still. Product updates, algorithm improvements, and renewed focus on engagement quality suggest management is trying to create sustainable growth rather than chasing short-term spikes.\n\nCost management has been a major lever. The company reduced around 30% of its workforce earlier this year, aiming for $40 million in annualized savings. Additionally, a tax receivable obligation was settled at a substantial discount, providing further financial flexibility. These moves signal discipline, even if market reaction has been muted.\n\nLeadership shifts may also influence execution. CEO Whitney Wolfe Herd returned to steer the company, while the departure of the Chief Product Officer aligns with a move toward centralized product oversight. This could help streamline decision-making, but execution risks remain.\n\nFrom a trading standpoint, the stock is volatile around earnings, with support near $3.50 and resistance between $4.50–$5.00. Investor activity has been cautious, reflecting uncertainty about whether Bumble can reverse user trends quickly enough to drive meaningful revenue growth.\n\nIn the bigger picture, Bumble is a brand with lasting recognition and embedded user loyalty. The challenge lies in converting that into consistent paying users and monetization improvements. Execution on retention strategies, advertising, and premium subscription offerings will likely determine whether the company emerges stronger or remains in a holding pattern.\n\nNot financial advice. This summary is based on recent filings and publicly available news.\n\nDo you think Bumble’s focus on operational efficiency and product updates is enough to stabilize revenue, or are the current market concerns justified?",
+      "clean_title": "BMBL navigating growth headwinds while aiming for operational stability",
+      "clean_body": "Bumble Inc (BMBL) continues to trade around $3.55-$3.60, levels not seen in several years. While the stock sits near multiyear lows, the underlying story is less about collapse and more about a company working through structural challenges in the online dating space. Recent quarters show that revenue has dipped slightly Q3 2025 reported $246.2 million, down roughly 10% year-over-year, and paying users have edged lower. Yet, Bumble is not standing still. Product updates, algorithm improvements, and renewed focus on engagement quality suggest management is trying to create sustainable growth rather than chasing short-term spikes. Cost management has been a major lever. The company reduced around 30% of its workforce earlier this year, aiming for $40 million in annualized savings. Additionally, a tax receivable obligation was settled at a substantial discount, providing further financial flexibility. These moves signal discipline, even if market reaction has been muted. Leadership shifts may also influence execution. CEO Whitney Wolfe Herd returned to steer the company, while the departure of the Chief Product Officer aligns with a move toward centralized product oversight. This could help streamline decision-making, but execution risks remain. From a trading standpoint, the stock is volatile around earnings, with support near $3.50 and resistance between $4.50-$5.00. Investor activity has been cautious, reflecting uncertainty about whether Bumble can reverse user trends quickly enough to drive meaningful revenue growth. In the bigger picture, Bumble is a brand with lasting recognition and embedded user loyalty. The challenge lies in converting that into consistent paying users and monetization improvements. Execution on retention strategies, advertising, and premium subscription offerings will likely determine whether the company emerges stronger or remains in a holding pattern. Not financial advice. This summary is based on recent filings and publicly available news. Do you think Bumble's focus on operational efficiency and product updates is enough to stabilize revenue, or are the current market concerns justified?",
+      "clean_combined_withurl": "BMBL navigating growth headwinds while aiming for operational stability. Bumble Inc (BMBL) continues to trade around $3.55-$3.60, levels not seen in several years. While the stock sits near multiyear lows, the underlying story is less about collapse and more about a company working through structural challenges in the online dating space. Recent quarters show that revenue has dipped slightly Q3 2025 reported $246.2 million, down roughly 10% year-over-year, and paying users have edged lower. Yet, Bumble is not standing still. Product updates, algorithm improvements, and renewed focus on engagement quality suggest management is trying to create sustainable growth rather than chasing short-term spikes. Cost management has been a major lever. The company reduced around 30% of its workforce earlier this year, aiming for $40 million in annualized savings. Additionally, a tax receivable obligation was settled at a substantial discount, providing further financial flexibility. These moves signal discipline, even if market reaction has been muted. Leadership shifts may also influence execution. CEO Whitney Wolfe Herd returned to steer the company, while the departure of the Chief Product Officer aligns with a move toward centralized product oversight. This could help streamline decision-making, but execution risks remain. From a trading standpoint, the stock is volatile around earnings, with support near $3.50 and resistance between $4.50-$5.00. Investor activity has been cautious, reflecting uncertainty about whether Bumble can reverse user trends quickly enough to drive meaningful revenue growth. In the bigger picture, Bumble is a brand with lasting recognition and embedded user loyalty. The challenge lies in converting that into consistent paying users and monetization improvements. Execution on retention strategies, advertising, and premium subscription offerings will likely determine whether the company emerges stronger or remains in a holding pattern. Not financial advice. This summary is based on recent filings and publicly available news. Do you think Bumble's focus on operational efficiency and product updates is enough to stabilize revenue, or are the current market concerns justified?",
+      "clean_combined_withouturl": "BMBL navigating growth headwinds while aiming for operational stability. Bumble Inc (BMBL) continues to trade around $3.55-$3.60, levels not seen in several years. While the stock sits near multiyear lows, the underlying story is less about collapse and more about a company working through structural challenges in the online dating space. Recent quarters show that revenue has dipped slightly Q3 2025 reported $246.2 million, down roughly 10% year-over-year, and paying users have edged lower. Yet, Bumble is not standing still. Product updates, algorithm improvements, and renewed focus on engagement quality suggest management is trying to create sustainable growth rather than chasing short-term spikes. Cost management has been a major lever. The company reduced around 30% of its workforce earlier this year, aiming for $40 million in annualized savings. Additionally, a tax receivable obligation was settled at a substantial discount, providing further financial flexibility. These moves signal discipline, even if market reaction has been muted. Leadership shifts may also influence execution. CEO Whitney Wolfe Herd returned to steer the company, while the departure of the Chief Product Officer aligns with a move toward centralized product oversight. This could help streamline decision-making, but execution risks remain. From a trading standpoint, the stock is volatile around earnings, with support near $3.50 and resistance between $4.50-$5.00. Investor activity has been cautious, reflecting uncertainty about whether Bumble can reverse user trends quickly enough to drive meaningful revenue growth. In the bigger picture, Bumble is a brand with lasting recognition and embedded user loyalty. The challenge lies in converting that into consistent paying users and monetization improvements. Execution on retention strategies, advertising, and premium subscription offerings will likely determine whether the company emerges stronger or remains in a holding pattern. Not financial advice. This summary is based on recent filings and publicly available news. Do you think Bumble's focus on operational efficiency and product updates is enough to stabilize revenue, or are the current market concerns justified?"
+    },
+    "engagement": {
+      "total_comments": 1,
+      "score": 5,
+      "upvote_ratio": 0.69
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "BMBL": {
+        "type": "stock",
+        "official_name": "Bumble Inc.",
+        "name_identified": [
+          "BMBL"
+        ],
+        "event_type": "INVESTOR_ANALYSIS",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qppi4k",
+    "content_type": "post",
+    "native_id": "1qppi4k",
+    "source": "reddit_batch",
+    "author": "LGHFB",
+    "url": "https://www.reddit.com/r/investing/comments/1qppi4k/celestica_q4_revenue_and_adjusted_eps_above_the/",
+    "timestamps": "2026-01-28T22:02:18+00:00",
+    "content": {
+      "title": "Celestica Q4 revenue and adjusted EPS* above the high end of guidance range.  \nRaises 2026 annual outlook.",
+      "body": "This bodes well for further AI growth. Celestica is a picks and shovels play here and the Hyperscalers are in an AI arms race. No sign of anything slowing down as they crushed Q4 and raise guidance for the year. \n\n[https://finance.yahoo.com/news/celestica-announces-fourth-quarter-fy-211500190.html](https://finance.yahoo.com/news/celestica-announces-fourth-quarter-fy-211500190.html)",
+      "clean_title": "Celestica Q4 revenue and adjusted EPS* above the high end of guidance range. Raises 2026 annual outlook.",
+      "clean_body": "This bodes well for further AI growth. Celestica is a picks and shovels play here and the Hyperscalers are in an AI arms race. No sign of anything slowing down as they crushed Q4 and raise guidance for the year. https://finance.yahoo.com/news/celestica-announces-fourth-quarter-fy-211500190.html: https://finance.yahoo.com/news/celestica-announces-fourth-quarter-fy-211500190.html",
+      "clean_combined_withurl": "Celestica Q4 revenue and adjusted EPS* above the high end of guidance range. Raises 2026 annual outlook. This bodes well for further AI growth. Celestica is a picks and shovels play here and the Hyperscalers are in an AI arms race. No sign of anything slowing down as they crushed Q4 and raise guidance for the year. https://finance.yahoo.com/news/celestica-announces-fourth-quarter-fy-211500190.html: https://finance.yahoo.com/news/celestica-announces-fourth-quarter-fy-211500190.html",
+      "clean_combined_withouturl": "Celestica Q4 revenue and adjusted EPS* above the high end of guidance range. Raises 2026 annual outlook. This bodes well for further AI growth. Celestica is a picks and shovels play here and the Hyperscalers are in an AI arms race. No sign of anything slowing down as they crushed Q4 and raise guidance for the year."
+    },
+    "engagement": {
+      "total_comments": 2,
+      "score": 4,
+      "upvote_ratio": 0.7
+    },
+    "metadata": {
+      "subreddit": "investing",
+      "category": null
+    },
+    "images": [],
+    "links": [
+      "https://finance.yahoo.com/news/celestica-announces-fourth-quarter-fy-211500190.html](https://finance.yahoo.com/news/celestica-announces-fourth-quarter-fy-211500190.html"
+    ],
+    "ticker_metadata": {
+      "CLS": {
+        "type": "stock",
+        "official_name": "CELESTICA INC",
+        "name_identified": [
+          "CLS"
+        ],
+        "event_type": "EARNINGS_BEAT",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qto8ot",
+    "content_type": "post",
+    "native_id": "1qto8ot",
+    "source": "reddit_batch",
+    "author": "barclaybw123",
+    "url": "https://www.reddit.com/r/stocks/comments/1qto8ot/slv_when_is_the_bottom/",
+    "timestamps": "2026-02-02T07:10:36+00:00",
+    "content": {
+      "title": "SLV When is the bottom",
+      "body": "What is actually going on with the market manipulation\n\n With the SLV Stock? It’s now down about 35% since last last traded hours., \n\nAny insight? Is this his the monster of all crashes, everyone needs to sell, why is everyone panicking, what exactly has changed in the last 3 days. Everyone was so high on it and now suddenly it’s the opposite. ",
+      "clean_title": "SLV When is the bottom",
+      "clean_body": "What is actually going on with the market manipulation With the SLV Stock? It's now down about 35% since last last traded hours., Any insight? Is this his the monster of all crashes, everyone needs to sell, why is everyone panicking, what exactly has changed in the last 3 days. Everyone was so high on it and now suddenly it's the opposite.",
+      "clean_combined_withurl": "SLV When is the bottom. What is actually going on with the market manipulation With the SLV Stock? It's now down about 35% since last last traded hours., Any insight? Is this his the monster of all crashes, everyone needs to sell, why is everyone panicking, what exactly has changed in the last 3 days. Everyone was so high on it and now suddenly it's the opposite.",
+      "clean_combined_withouturl": "SLV When is the bottom. What is actually going on with the market manipulation With the SLV Stock? It's now down about 35% since last last traded hours., Any insight? Is this his the monster of all crashes, everyone needs to sell, why is everyone panicking, what exactly has changed in the last 3 days. Everyone was so high on it and now suddenly it's the opposite."
+    },
+    "engagement": {
+      "total_comments": 63,
+      "score": 0,
+      "upvote_ratio": 0.36
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "SLV": {
+        "type": "stock",
+        "official_name": "iShares Silver Trust",
+        "name_identified": [
+          "SLV"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qruhj5",
+    "content_type": "post",
+    "native_id": "1qruhj5",
+    "source": "reddit_batch",
+    "author": "ICameSawAbstained",
+    "url": "https://www.reddit.com/r/stocks/comments/1qruhj5/macro_crisis_the_panic_at_the_disco_thesolution/",
+    "timestamps": "2026-01-31T06:07:11+00:00",
+    "content": {
+      "title": "Macro Crisis, The Panic (at the disco), The...Solution? $USD, $YEN, crypto, GOLD (and precious metals $SLV, etc)",
+      "body": "*I've been following with keen interest the recent events and wanted to provide some commentary on the liquidity cliff, safe haven dumps, and pending tightrope course the global economics need to navigate in order to execute a smooth transition without a mass financial disaster unfolding.*\n\n*Needless to say, it's been fascinating, and this has left me putting my driveway that needs a clean, and organising a structural engineer for my house on the \"next week\" backburner.*\n\nSo what's new?\n\n**Key points:**\n\n\\- Fed Chairman Warsh appointment: President Trump nominated Kevin Warsh on Friday. He is a known hawk; his appointment signals a loss of the Fed as a buyer of last resort, tending toward short-term interest rate drops while maintaining long-term raised rates and strong Dollar rhetoric.\n\n\\- Treasury Secretary Bessent provided verbiage on Wednesday, January 28, stating the U.S. is not planning to intervene, indicating a significantly reduced likelihood of U.S. support in the USDYEN crisis.\n\n\\- The Yen reached a critical low point this week, testing the 158-159 range (closing Friday at 154.73). Any further drops become an un-ignorable domestic cost of living issue, and intervention becomes practically mandatory past 160.\n\n\\- Tokyo inflation CPI released on Friday proved cooler than usual at 1.5% (down from 2.0%), virtually ruling out interest rate hikes and Yen strengthening via Bank of Japan (BoJ) rate intervention, as rates remain pinned at 0.75%.\n\n\\- US Bond yields are skirting the dangerous 5.0% line (the 30-year ended Friday at 4.87%), a threshold past which mortgages and the market suffer immense stress and collapse.\n\n\\- Quarterly Bond issuance is imminent; the U.S. Treasury will release its financing requirements on Monday, February 2, with auctions to follow.\n\n**The crossroads?**\n\nThe carry trade needs to unwind, as the path of least resistance for the Yen is upward, whilst the path of least resistance for the USD is downward. However this needs to occur in an orderly fashion to prevent financial system collapse.\n\n**Avenues?**\n\nA. The Fed could print USD to buy Yen, however Warsh as an appointee reduces this likelihood, with White House rhetoric indicating nil intervention and placing the burden back on the Japanese.\n\nB. The Japanese could raise rates to strengthen the Yen, however recent economic figures (1.5% CPI) rule this out as a short-term possibility, and raising rates would trigger a more violent unwind.\n\nC. The Japanese can directly intervene in the currency, via deploying USD cash reserves of \\~$160.4 Billion (held as deposits at the Fed), or selling T-bills/notes/bonds from their $1.003 Trillion stockpile to buy back Yen.\n\nAs far as we can see options A and B appear largely off the table for now, leaving the most viable being option C.\n\nHowever the three various methods there have their advantages and disadvantages.\n\nA T-bill (short-term), T-note and bond (long term) sell off by the Ministry of Finance would cause diplomatic rows, and send US Bond yields soaring, sparking a severe risk of US economic collapse, particular in longer term treasuries. Whilst this provides Japan with a surefire way out of the Yen concerns it would ultimately result in ruin of the US markets, spark a deep recession and sever economic and diplomatic ties and create a rift in the G7 alliance.\n\nThis is the current risk being priced into the markets as hedge funds, banks and other financial institutions derisk their holdings, crypto typically first, high risk stocks, and then precious metals (as seen in Friday's sharp gold sell-off).\n\nAs I may have previously commented hedging into a parabolic, even for gold and silver, is seldom a good bet. Institutions bought early and have dumped it onto retail, as cash (USD/EUR/YEN) currently rules king as the default margin loan repayment vehicle. I suspect metals will find a floor, however commodities are not my turf so I'll let others do the deeper commentary there.\n\n**The remaining option?**\n\nThere is a tightrope to be walked where everyone walks out unscathed and the market recover.\n\nThe sell off of USD cash reserves by the Japanese MoF, strengthening the Yen, triggering a short squeeze and liquidation cascade of short positions, and returning the Yen to a place of value where domestic interests are aligned, whilst also not crushing the carry trade.\n\nHere the US yields remain minimally perturbed, the carry trade is not crushed and can slowly unwind, and global stock markets grind on higher.\n\nHowever what happens next remains to be seen, and the massive risk of anything other than this balanced tightrope is currently being priced in as institutions move to cash to mitigate margin calls.\n\n\\---\n\nBest of luck to everyone navigating this dumpster fire\n\n🍀",
+      "clean_title": "Macro Crisis, The Panic (at the disco), The...Solution? $USD, $YEN, crypto, GOLD (and precious metals $SLV, etc)",
+      "clean_body": "I've been following with keen interest the recent events and wanted to provide some commentary on the liquidity cliff, safe haven dumps, and pending tightrope course the global economics need to navigate in order to execute a smooth transition without a mass financial disaster unfolding. Needless to say, it's been fascinating, and this has left me putting my driveway that needs a clean, and organising a structural engineer for my house on the \"next week\" backburner. So what's new? Key points: - Fed Chairman Warsh appointment: President Trump nominated Kevin Warsh on Friday. He is a known hawk; his appointment signals a loss of the Fed as a buyer of last resort, tending toward short-term interest rate drops while maintaining long-term raised rates and strong Dollar rhetoric. - Treasury Secretary Bessent provided verbiage on Wednesday, January 28, stating the U.S. is not planning to intervene, indicating a significantly reduced likelihood of U.S. support in the USDYEN crisis. - The Yen reached a critical low point this week, testing the 158-159 range (closing Friday at 154.73). Any further drops become an un-ignorable domestic cost of living issue, and intervention becomes practically mandatory past 160. - Tokyo inflation CPI released on Friday proved cooler than usual at 1.5% (down from 2.0%), virtually ruling out interest rate hikes and Yen strengthening via Bank of Japan (BoJ) rate intervention, as rates remain pinned at 0.75%. - US Bond yields are skirting the dangerous 5.0% line (the 30-year ended Friday at 4.87%), a threshold past which mortgages and the market suffer immense stress and collapse. - Quarterly Bond issuance is imminent; the U.S. Treasury will release its financing requirements on Monday, February 2, with auctions to follow. The crossroads? The carry trade needs to unwind, as the path of least resistance for the Yen is upward, whilst the path of least resistance for the USD is downward. However this needs to occur in an orderly fashion to prevent financial system collapse. Avenues? A. The Fed could print USD to buy Yen, however Warsh as an appointee reduces this likelihood, with White House rhetoric indicating nil intervention and placing the burden back on the Japanese. B. The Japanese could raise rates to strengthen the Yen, however recent economic figures (1.5% CPI) rule this out as a short-term possibility, and raising rates would trigger a more violent unwind. C. The Japanese can directly intervene in the currency, via deploying USD cash reserves of \\~$160.4 Billion (held as deposits at the Fed), or selling T-bills/notes/bonds from their $1.003 Trillion stockpile to buy back Yen. As far as we can see options A and B appear largely off the table for now, leaving the most viable being option C. However the three various methods there have their advantages and disadvantages. A T-bill (short-term), T-note and bond (long term) sell off by the Ministry of Finance would cause diplomatic rows, and send US Bond yields soaring, sparking a severe risk of US economic collapse, particular in longer term treasuries. Whilst this provides Japan with a surefire way out of the Yen concerns it would ultimately result in ruin of the US markets, spark a deep recession and sever economic and diplomatic ties and create a rift in the G7 alliance. This is the current risk being priced into the markets as hedge funds, banks and other financial institutions derisk their holdings, crypto typically first, high risk stocks, and then precious metals (as seen in Friday's sharp gold sell-off). As I may have previously commented hedging into a parabolic, even for gold and silver, is seldom a good bet. Institutions bought early and have dumped it onto retail, as cash (USD/EUR/YEN) currently rules king as the default margin loan repayment vehicle. I suspect metals will find a floor, however commodities are not my turf so I'll let others do the deeper commentary there. The remaining option? There is a tightrope to be walked where everyone walks out unscathed and the market recover. The sell off of USD cash reserves by the Japanese MoF, strengthening the Yen, triggering a short squeeze and liquidation cascade of short positions, and returning the Yen to a place of value where domestic interests are aligned, whilst also not crushing the carry trade. Here the US yields remain minimally perturbed, the carry trade is not crushed and can slowly unwind, and global stock markets grind on higher. However what happens next remains to be seen, and the massive risk of anything other than this balanced tightrope is currently being priced in as institutions move to cash to mitigate margin calls. --- Best of luck to everyone navigating this dumpster fire 🍀",
+      "clean_combined_withurl": "Macro Crisis, The Panic (at the disco), The...Solution? $USD, $YEN, crypto, GOLD (and precious metals $SLV, etc) I've been following with keen interest the recent events and wanted to provide some commentary on the liquidity cliff, safe haven dumps, and pending tightrope course the global economics need to navigate in order to execute a smooth transition without a mass financial disaster unfolding. Needless to say, it's been fascinating, and this has left me putting my driveway that needs a clean, and organising a structural engineer for my house on the \"next week\" backburner. So what's new? Key points: - Fed Chairman Warsh appointment: President Trump nominated Kevin Warsh on Friday. He is a known hawk; his appointment signals a loss of the Fed as a buyer of last resort, tending toward short-term interest rate drops while maintaining long-term raised rates and strong Dollar rhetoric. - Treasury Secretary Bessent provided verbiage on Wednesday, January 28, stating the U.S. is not planning to intervene, indicating a significantly reduced likelihood of U.S. support in the USDYEN crisis. - The Yen reached a critical low point this week, testing the 158-159 range (closing Friday at 154.73). Any further drops become an un-ignorable domestic cost of living issue, and intervention becomes practically mandatory past 160. - Tokyo inflation CPI released on Friday proved cooler than usual at 1.5% (down from 2.0%), virtually ruling out interest rate hikes and Yen strengthening via Bank of Japan (BoJ) rate intervention, as rates remain pinned at 0.75%. - US Bond yields are skirting the dangerous 5.0% line (the 30-year ended Friday at 4.87%), a threshold past which mortgages and the market suffer immense stress and collapse. - Quarterly Bond issuance is imminent; the U.S. Treasury will release its financing requirements on Monday, February 2, with auctions to follow. The crossroads? The carry trade needs to unwind, as the path of least resistance for the Yen is upward, whilst the path of least resistance for the USD is downward. However this needs to occur in an orderly fashion to prevent financial system collapse. Avenues? A. The Fed could print USD to buy Yen, however Warsh as an appointee reduces this likelihood, with White House rhetoric indicating nil intervention and placing the burden back on the Japanese. B. The Japanese could raise rates to strengthen the Yen, however recent economic figures (1.5% CPI) rule this out as a short-term possibility, and raising rates would trigger a more violent unwind. C. The Japanese can directly intervene in the currency, via deploying USD cash reserves of \\~$160.4 Billion (held as deposits at the Fed), or selling T-bills/notes/bonds from their $1.003 Trillion stockpile to buy back Yen. As far as we can see options A and B appear largely off the table for now, leaving the most viable being option C. However the three various methods there have their advantages and disadvantages. A T-bill (short-term), T-note and bond (long term) sell off by the Ministry of Finance would cause diplomatic rows, and send US Bond yields soaring, sparking a severe risk of US economic collapse, particular in longer term treasuries. Whilst this provides Japan with a surefire way out of the Yen concerns it would ultimately result in ruin of the US markets, spark a deep recession and sever economic and diplomatic ties and create a rift in the G7 alliance. This is the current risk being priced into the markets as hedge funds, banks and other financial institutions derisk their holdings, crypto typically first, high risk stocks, and then precious metals (as seen in Friday's sharp gold sell-off). As I may have previously commented hedging into a parabolic, even for gold and silver, is seldom a good bet. Institutions bought early and have dumped it onto retail, as cash (USD/EUR/YEN) currently rules king as the default margin loan repayment vehicle. I suspect metals will find a floor, however commodities are not my turf so I'll let others do the deeper commentary there. The remaining option? There is a tightrope to be walked where everyone walks out unscathed and the market recover. The sell off of USD cash reserves by the Japanese MoF, strengthening the Yen, triggering a short squeeze and liquidation cascade of short positions, and returning the Yen to a place of value where domestic interests are aligned, whilst also not crushing the carry trade. Here the US yields remain minimally perturbed, the carry trade is not crushed and can slowly unwind, and global stock markets grind on higher. However what happens next remains to be seen, and the massive risk of anything other than this balanced tightrope is currently being priced in as institutions move to cash to mitigate margin calls. --- Best of luck to everyone navigating this dumpster fire 🍀",
+      "clean_combined_withouturl": "Macro Crisis, The Panic (at the disco), The...Solution? $USD, $YEN, crypto, GOLD (and precious metals $SLV, etc) I've been following with keen interest the recent events and wanted to provide some commentary on the liquidity cliff, safe haven dumps, and pending tightrope course the global economics need to navigate in order to execute a smooth transition without a mass financial disaster unfolding. Needless to say, it's been fascinating, and this has left me putting my driveway that needs a clean, and organising a structural engineer for my house on the \"next week\" backburner. So what's new? Key points: - Fed Chairman Warsh appointment: President Trump nominated Kevin Warsh on Friday. He is a known hawk; his appointment signals a loss of the Fed as a buyer of last resort, tending toward short-term interest rate drops while maintaining long-term raised rates and strong Dollar rhetoric. - Treasury Secretary Bessent provided verbiage on Wednesday, January 28, stating the U.S. is not planning to intervene, indicating a significantly reduced likelihood of U.S. support in the USDYEN crisis. - The Yen reached a critical low point this week, testing the 158-159 range (closing Friday at 154.73). Any further drops become an un-ignorable domestic cost of living issue, and intervention becomes practically mandatory past 160. - Tokyo inflation CPI released on Friday proved cooler than usual at 1.5% (down from 2.0%), virtually ruling out interest rate hikes and Yen strengthening via Bank of Japan (BoJ) rate intervention, as rates remain pinned at 0.75%. - US Bond yields are skirting the dangerous 5.0% line (the 30-year ended Friday at 4.87%), a threshold past which mortgages and the market suffer immense stress and collapse. - Quarterly Bond issuance is imminent; the U.S. Treasury will release its financing requirements on Monday, February 2, with auctions to follow. The crossroads? The carry trade needs to unwind, as the path of least resistance for the Yen is upward, whilst the path of least resistance for the USD is downward. However this needs to occur in an orderly fashion to prevent financial system collapse. Avenues? A. The Fed could print USD to buy Yen, however Warsh as an appointee reduces this likelihood, with White House rhetoric indicating nil intervention and placing the burden back on the Japanese. B. The Japanese could raise rates to strengthen the Yen, however recent economic figures (1.5% CPI) rule this out as a short-term possibility, and raising rates would trigger a more violent unwind. C. The Japanese can directly intervene in the currency, via deploying USD cash reserves of \\~$160.4 Billion (held as deposits at the Fed), or selling T-bills/notes/bonds from their $1.003 Trillion stockpile to buy back Yen. As far as we can see options A and B appear largely off the table for now, leaving the most viable being option C. However the three various methods there have their advantages and disadvantages. A T-bill (short-term), T-note and bond (long term) sell off by the Ministry of Finance would cause diplomatic rows, and send US Bond yields soaring, sparking a severe risk of US economic collapse, particular in longer term treasuries. Whilst this provides Japan with a surefire way out of the Yen concerns it would ultimately result in ruin of the US markets, spark a deep recession and sever economic and diplomatic ties and create a rift in the G7 alliance. This is the current risk being priced into the markets as hedge funds, banks and other financial institutions derisk their holdings, crypto typically first, high risk stocks, and then precious metals (as seen in Friday's sharp gold sell-off). As I may have previously commented hedging into a parabolic, even for gold and silver, is seldom a good bet. Institutions bought early and have dumped it onto retail, as cash (USD/EUR/YEN) currently rules king as the default margin loan repayment vehicle. I suspect metals will find a floor, however commodities are not my turf so I'll let others do the deeper commentary there. The remaining option? There is a tightrope to be walked where everyone walks out unscathed and the market recover. The sell off of USD cash reserves by the Japanese MoF, strengthening the Yen, triggering a short squeeze and liquidation cascade of short positions, and returning the Yen to a place of value where domestic interests are aligned, whilst also not crushing the carry trade. Here the US yields remain minimally perturbed, the carry trade is not crushed and can slowly unwind, and global stock markets grind on higher. However what happens next remains to be seen, and the massive risk of anything other than this balanced tightrope is currently being priced in as institutions move to cash to mitigate margin calls. --- Best of luck to everyone navigating this dumpster fire :four_leaf_clover:"
+    },
+    "engagement": {
+      "total_comments": 22,
+      "score": 149,
+      "upvote_ratio": 0.86
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "SLV": {
+        "type": "stock",
+        "official_name": "iShares Silver Trust",
+        "name_identified": [
+          "SLV"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qxrvun",
+    "content_type": "post",
+    "native_id": "1qxrvun",
+    "source": "reddit_batch",
+    "author": "LovingVancouver87",
+    "url": "https://www.reddit.com/r/stocks/comments/1qxrvun/why_has_amzn_been_the_most_underperforming_mag7/",
+    "timestamps": "2026-02-06T19:49:17+00:00",
+    "content": {
+      "title": "Why has AMZN been the most underperforming MAG7 stock in past 5 years?",
+      "body": "I was looking at the charts of Mag7 and AMZN has only grown 23.73% in the past 5 years. For comparison, here are the other Mag7 based on percentage increase from highest to lowest.\n\n* **NVDA** - 1258%\n* **GOOG** - 208%\n* **META** - 145%\n* **S&P 500** - 77%\n* **MSFT** - 64%\n* **TSLA** - 45% (Not sure why this stock is included in MAG7 though)\n\nEven with impressive revenue yesterday, I think the upcoming 200 Billion CAPEX has spooked everybody. Do you think a rebound like GOOG is possible or has it become more like a value, boring stock which increases like single digit every year.",
+      "clean_title": "Why has AMZN been the most underperforming MAG7 stock in past 5 years?",
+      "clean_body": "I was looking at the charts of Mag7 and AMZN has only grown 23.73% in the past 5 years. For comparison, here are the other Mag7 based on percentage increase from highest to lowest. NVDA - 1258% GOOG - 208% META - 145% S&P 500 - 77% MSFT - 64% TSLA - 45% (Not sure why this stock is included in MAG7 though) Even with impressive revenue yesterday, I think the upcoming 200 Billion CAPEX has spooked everybody. Do you think a rebound like GOOG is possible or has it become more like a value, boring stock which increases like single digit every year.",
+      "clean_combined_withurl": "Why has AMZN been the most underperforming MAG7 stock in past 5 years? I was looking at the charts of Mag7 and AMZN has only grown 23.73% in the past 5 years. For comparison, here are the other Mag7 based on percentage increase from highest to lowest. NVDA - 1258% GOOG - 208% META - 145% S&P 500 - 77% MSFT - 64% TSLA - 45% (Not sure why this stock is included in MAG7 though) Even with impressive revenue yesterday, I think the upcoming 200 Billion CAPEX has spooked everybody. Do you think a rebound like GOOG is possible or has it become more like a value, boring stock which increases like single digit every year.",
+      "clean_combined_withouturl": "Why has AMZN been the most underperforming MAG7 stock in past 5 years? I was looking at the charts of Mag7 and AMZN has only grown 23.73% in the past 5 years. For comparison, here are the other Mag7 based on percentage increase from highest to lowest. NVDA - 1258% GOOG - 208% META - 145% S&P 500 - 77% MSFT - 64% TSLA - 45% (Not sure why this stock is included in MAG7 though) Even with impressive revenue yesterday, I think the upcoming 200 Billion CAPEX has spooked everybody. Do you think a rebound like GOOG is possible or has it become more like a value, boring stock which increases like single digit every year."
+    },
+    "engagement": {
+      "total_comments": 187,
+      "score": 415,
+      "upvote_ratio": 0.92
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "AMZN": {
+        "type": "stock",
+        "official_name": "AMAZON COM INC",
+        "name_identified": [
+          "AMZN"
+        ],
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      },
+      "NVDA": {
+        "type": "stock",
+        "official_name": "NVIDIA CORP",
+        "name_identified": [
+          "NVDA"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "GOOG": {
+        "type": "stock",
+        "official_name": "GOOG",
+        "name_identified": [
+          "GOOG"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "META": {
+        "type": "stock",
+        "official_name": "Meta Platforms, Inc.",
+        "name_identified": [
+          "META"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "MSFT": {
+        "type": "stock",
+        "official_name": "MICROSOFT CORP",
+        "name_identified": [
+          "MSFT"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "TSLA": {
+        "type": "stock",
+        "official_name": "Tesla, Inc.",
+        "name_identified": [
+          "TSLA"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qr4di1",
+    "content_type": "post",
+    "native_id": "1qr4di1",
+    "source": "reddit_batch",
+    "author": "Progress_8",
+    "url": "https://www.reddit.com/r/stocks/comments/1qr4di1/sofis_firstbillion_dollar_quarter_and_the_first/",
+    "timestamps": "2026-01-30T12:40:47+00:00",
+    "content": {
+      "title": "SoFi's \"First-Billion Dollar Quarter\", and the first quarter that reached the 1 Million New members threshold. EPS of 13 cents",
+      "body": "This is SoFi's \"First-Billion Dollar Quarter\" ($1.01 Billion), and the first quarter that reached the 1 Million New members threshold. Anthony Noto called the results \"Exceptional.\"\n\n\"Adjusted Net Revenue up 37% to a record $1.0 billion\n\nAdjusted EBITDA up 60% to a record $318 million\n\nFee-based Revenue up 53% to a record $443 million\n\nMember growth up 35% to a record 13.7 million members\n\nProduct growth up 37% to a record 20.2 million products\n\nManagement announces 2026 guidance and medium term outlook\"\n\nEPS of 13 cents vs. the estimated EPS of 11 to 12 cents.\n\n\"Guidance and Outlook\n\nLooking forward to 2026, for the full year, management expects to increase total members by at least 30% yearover-year. Management expects to deliver adjusted net revenue of approximately $4.655 billion which implies approximately 30% annual revenue growth. Management expects adjusted EBITDA of approximately $1.6 billion, which equates to an annual EBITDA margin of approximately 34%. Management expects adjusted net income of approximately $825 million, which equates to a margin of approximately 18%. Lastly, management expects adjusted EPS of approximately 60 cents per share.\n\nIn the first quarter of 2026, management expects to deliver adjusted net revenue of approximately $1.04 billion, adjusted EBITDA of approximately $300 million, adjusted net income of approximately $160 million, and adjusted EPS of approximately 12 cents per share.\n\nOver the medium term, management expects to deliver compounded annual growth in adjusted net revenue of at least 30% from 2025 to 2028. Additionally, management expects to deliver compounded annual growth in adjusted earnings per share of 38% to 42% from 2025 to 2028. This guidance assumes there are no meaningful changes in the macroeconomic environment and no significant new business launches or acquisitions. Management will further address guidance on the quarterly earnings conference call.\n\nManagement has not reconciled forward-looking non-GAAP measures to their most directly comparable GAAP measures. This is because the company cannot predict with reasonable certainty and without unreasonable efforts the ultimate outcome of certain GAAP components of such reconciliations due to market-related assumptions that are not within our control as well as certain legal or advisory costs, tax costs or other costs that may arise. For these reasons, management is unable to assess the probable significance of the unavailable information, which could materially impact the amount of the future directly comparable GAAP measures.\"\n\n[https://s27.q4cdn.com/749715820/files/doc\\_financials/2025/q4/2025-Q4-Earnings-Release.pdf](https://s27.q4cdn.com/749715820/files/doc_financials/2025/q4/2025-Q4-Earnings-Release.pdf)",
+      "clean_title": "SoFi's \"First-Billion Dollar Quarter\", and the first quarter that reached the 1 Million New members threshold. EPS of 13 cents",
+      "clean_body": "This is SoFi's \"First-Billion Dollar Quarter\" ($1.01 Billion), and the first quarter that reached the 1 Million New members threshold. Anthony Noto called the results \"Exceptional.\" \"Adjusted Net Revenue up 37% to a record $1.0 billion Adjusted EBITDA up 60% to a record $318 million Fee-based Revenue up 53% to a record $443 million Member growth up 35% to a record 13.7 million members Product growth up 37% to a record 20.2 million products Management announces 2026 guidance and medium term outlook\" EPS of 13 cents vs. the estimated EPS of 11 to 12 cents. \"Guidance and Outlook Looking forward to 2026, for the full year, management expects to increase total members by at least 30% yearover-year. Management expects to deliver adjusted net revenue of approximately $4.655 billion which implies approximately 30% annual revenue growth. Management expects adjusted EBITDA of approximately $1.6 billion, which equates to an annual EBITDA margin of approximately 34%. Management expects adjusted net income of approximately $825 million, which equates to a margin of approximately 18%. Lastly, management expects adjusted EPS of approximately 60 cents per share. In the first quarter of 2026, management expects to deliver adjusted net revenue of approximately $1.04 billion, adjusted EBITDA of approximately $300 million, adjusted net income of approximately $160 million, and adjusted EPS of approximately 12 cents per share. Over the medium term, management expects to deliver compounded annual growth in adjusted net revenue of at least 30% from 2025 to 2028. Additionally, management expects to deliver compounded annual growth in adjusted earnings per share of 38% to 42% from 2025 to 2028. This guidance assumes there are no meaningful changes in the macroeconomic environment and no significant new business launches or acquisitions. Management will further address guidance on the quarterly earnings conference call. Management has not reconciled forward-looking non-GAAP measures to their most directly comparable GAAP measures. This is because the company cannot predict with reasonable certainty and without unreasonable efforts the ultimate outcome of certain GAAP components of such reconciliations due to market-related assumptions that are not within our control as well as certain legal or advisory costs, tax costs or other costs that may arise. For these reasons, management is unable to assess the probable significance of the unavailable information, which could materially impact the amount of the future directly comparable GAAP measures.\" https://s27.q4cdn.com/749715820/files/doc_financials/2025/q4/2025-Q4-Earnings-Release.pdf: https://s27.q4cdn.com/749715820/files/doc_financials/2025/q4/2025-Q4-Earnings-Release.pdf",
+      "clean_combined_withurl": "SoFi's \"First-Billion Dollar Quarter\", and the first quarter that reached the 1 Million New members threshold. EPS of 13 cents. This is SoFi's \"First-Billion Dollar Quarter\" ($1.01 Billion), and the first quarter that reached the 1 Million New members threshold. Anthony Noto called the results \"Exceptional.\" \"Adjusted Net Revenue up 37% to a record $1.0 billion Adjusted EBITDA up 60% to a record $318 million Fee-based Revenue up 53% to a record $443 million Member growth up 35% to a record 13.7 million members Product growth up 37% to a record 20.2 million products Management announces 2026 guidance and medium term outlook\" EPS of 13 cents vs. the estimated EPS of 11 to 12 cents. \"Guidance and Outlook Looking forward to 2026, for the full year, management expects to increase total members by at least 30% yearover-year. Management expects to deliver adjusted net revenue of approximately $4.655 billion which implies approximately 30% annual revenue growth. Management expects adjusted EBITDA of approximately $1.6 billion, which equates to an annual EBITDA margin of approximately 34%. Management expects adjusted net income of approximately $825 million, which equates to a margin of approximately 18%. Lastly, management expects adjusted EPS of approximately 60 cents per share. In the first quarter of 2026, management expects to deliver adjusted net revenue of approximately $1.04 billion, adjusted EBITDA of approximately $300 million, adjusted net income of approximately $160 million, and adjusted EPS of approximately 12 cents per share. Over the medium term, management expects to deliver compounded annual growth in adjusted net revenue of at least 30% from 2025 to 2028. Additionally, management expects to deliver compounded annual growth in adjusted earnings per share of 38% to 42% from 2025 to 2028. This guidance assumes there are no meaningful changes in the macroeconomic environment and no significant new business launches or acquisitions. Management will further address guidance on the quarterly earnings conference call. Management has not reconciled forward-looking non-GAAP measures to their most directly comparable GAAP measures. This is because the company cannot predict with reasonable certainty and without unreasonable efforts the ultimate outcome of certain GAAP components of such reconciliations due to market-related assumptions that are not within our control as well as certain legal or advisory costs, tax costs or other costs that may arise. For these reasons, management is unable to assess the probable significance of the unavailable information, which could materially impact the amount of the future directly comparable GAAP measures.\" https://s27.q4cdn.com/749715820/files/doc_financials/2025/q4/2025-Q4-Earnings-Release.pdf: https://s27.q4cdn.com/749715820/files/doc_financials/2025/q4/2025-Q4-Earnings-Release.pdf",
+      "clean_combined_withouturl": "SoFi's \"First-Billion Dollar Quarter\", and the first quarter that reached the 1 Million New members threshold. EPS of 13 cents. This is SoFi's \"First-Billion Dollar Quarter\" ($1.01 Billion), and the first quarter that reached the 1 Million New members threshold. Anthony Noto called the results \"Exceptional.\" \"Adjusted Net Revenue up 37% to a record $1.0 billion Adjusted EBITDA up 60% to a record $318 million Fee-based Revenue up 53% to a record $443 million Member growth up 35% to a record 13.7 million members Product growth up 37% to a record 20.2 million products Management announces 2026 guidance and medium term outlook\" EPS of 13 cents vs. the estimated EPS of 11 to 12 cents. \"Guidance and Outlook Looking forward to 2026, for the full year, management expects to increase total members by at least 30% yearover-year. Management expects to deliver adjusted net revenue of approximately $4.655 billion which implies approximately 30% annual revenue growth. Management expects adjusted EBITDA of approximately $1.6 billion, which equates to an annual EBITDA margin of approximately 34%. Management expects adjusted net income of approximately $825 million, which equates to a margin of approximately 18%. Lastly, management expects adjusted EPS of approximately 60 cents per share. In the first quarter of 2026, management expects to deliver adjusted net revenue of approximately $1.04 billion, adjusted EBITDA of approximately $300 million, adjusted net income of approximately $160 million, and adjusted EPS of approximately 12 cents per share. Over the medium term, management expects to deliver compounded annual growth in adjusted net revenue of at least 30% from 2025 to 2028. Additionally, management expects to deliver compounded annual growth in adjusted earnings per share of 38% to 42% from 2025 to 2028. This guidance assumes there are no meaningful changes in the macroeconomic environment and no significant new business launches or acquisitions. Management will further address guidance on the quarterly earnings conference call. Management has not reconciled forward-looking non-GAAP measures to their most directly comparable GAAP measures. This is because the company cannot predict with reasonable certainty and without unreasonable efforts the ultimate outcome of certain GAAP components of such reconciliations due to market-related assumptions that are not within our control as well as certain legal or advisory costs, tax costs or other costs that may arise. For these reasons, management is unable to assess the probable significance of the unavailable information, which could materially impact the amount of the future directly comparable GAAP measures.\""
+    },
+    "engagement": {
+      "total_comments": 28,
+      "score": 119,
+      "upvote_ratio": 0.92
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [
+      "https://s27.q4cdn.com/749715820/files/doc\\_financials/2025/q4/2025-Q4-Earnings-Release.pdf](https://s27.q4cdn.com/749715820/files/doc_financials/2025/q4/2025-Q4-Earnings-Release.pdf"
+    ],
+    "ticker_metadata": {
+      "SOFI": {
+        "type": "stock",
+        "official_name": "SoFi Technologies, Inc.",
+        "name_identified": [
+          "SOFI"
+        ],
+        "event_type": "EARNINGS_BEAT",
+        "event_proposal": null
+      }
+    }
+  }
+]
