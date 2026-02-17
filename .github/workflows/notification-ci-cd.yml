@@ -2,14 +2,14 @@ name: Notification Alert CI
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: ["master"]
-  #   paths:
-  #     - "notification-alert/**"
-  # pull_request:
-  #   branches: ["master"]
-  #   paths:
-  #     - "notification-alert/**"
+  push:
+    branches: ["master"]
+    paths:
+      - "notification-alert/**"
+  pull_request:
+    branches: ["master"]
+    paths:
+      - "notification-alert/**"
 
 jobs:
   python-tests:
