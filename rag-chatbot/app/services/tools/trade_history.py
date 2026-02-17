@@ -35,16 +35,16 @@ async def get_order_details(order_id: str):
             f"HTTP error {exc.response.status_code} for order {order_id}: {exc.response.text}"
         )
         error_msg = f"API Error: {exc.response.status_code} while fetching news."
-        return {"context": error_msg, "results": []}
+        raise Exception(error_msg)
 
     except httpx.RequestError as exc:
         logger.warning(f"Timeout reaching order service for ID: {order_id}")
         error_msg = f"Network Error: Could not reach the news service ({exc})."
-        return {"error": error_msg, "results": []}
+        raise Exception(error_msg)
 
     except Exception as e:
         logger.exception(f"Unexpected error fetching order {order_id}")
-        return {"error": f"An unexpected error occurred: {str(e)}", "results": []}
+        raise Exception(f"An unexpected error occurred: {str(e)}")
 
 
 @tool(args_schema=TradeHistory)
@@ -72,14 +72,20 @@ async def get_trade_history_details(query: str, order_id: str) -> OrderDetailsRe
 
     logger.info(f"User query: {query}. Analysing history for order {order_id}")
 
-    (
-        ticker,
-        avg_price,
-        action,
-        risk_eval,
-        risk_adj,
-        trading_agent_reasoning,
-    ) = await get_order_details(order_id)
+    try:
+        (
+            ticker,
+            avg_price,
+            action,
+            _,
+            _,
+            trading_agent_reasoning,
+        ) = await get_order_details(order_id)
+    except Exception as e:
+        logger.error(f"Failed to fetch order details for {order_id}: {e}")
+        raise Exception(
+            f"Could not retrieve trade history for order {order_id}: {str(e)}"
+        )
 
     # TODO: KIV for Shawn
     return OrderDetailsResponse(
