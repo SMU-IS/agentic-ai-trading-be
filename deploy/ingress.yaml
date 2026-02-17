@@ -62,3 +62,10 @@ spec:
                 name: trading-service-infra
                 port:
                   number: 5007
+          - path: /api/v1/news-aggregator
+            pathType: Prefix
+            backend:
+              service:
+                name: news-aggregator-infra
+                port:
+                  number: 5008
