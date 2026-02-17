@@ -29,11 +29,7 @@
       "https://youtu.be/aRDyqswYUOY?si=EtTPOkGwHzuTDqIr&t=797](https://youtu.be/aRDyqswYUOY?si=EtTPOkGwHzuTDqIr&t=797"
     ],
     "correct_metadata": {
-      "IBRX": {
-        "event_type": "REGULATORY_APPROVAL",
-        "event_proposal": null,
-        "sentiment_label": "positive"
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -68,11 +64,7 @@
       "https://oncbrothers.com/anktiva-2026"
     ],
     "correct_metadata": {
-      "IBRX": {
-        "event_type": null,
-        "event_proposal": null,
-        "sentiment_label": null
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -642,11 +634,6 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "SLV": {
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null,
-        "sentiment_label": "negative"
-      },
       "SPPP": {
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
@@ -741,6 +728,11 @@
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "negative"
+      },
+      "NFLX": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -821,6 +813,11 @@
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "positive"
+      },
+      "SCHW": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -886,7 +883,23 @@
     },
     "images": [],
     "links": [],
-    "correct_metadata": {}
+    "correct_metadata": {
+      "SCWO": {
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null,
+        "sentiment_label": "negative"
+      },
+      "ATCH": {
+        "event_type": "INVESTOR_ACTION",
+        "event_proposal": null,
+        "sentiment_label": "negative"
+      },
+      "HOOD": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      }
+    }
   },
   {
     "id": "reddit:1qwufqv",
@@ -951,10 +964,15 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "NVDA": {
-        "event_type": "EARNINGS_BEAT",
+      "ZM": {
+        "event_type": null,
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": null
+      },
+      "MSFT": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -990,6 +1008,11 @@
         "event_type": "LITIGATION",
         "event_proposal": null,
         "sentiment_label": "negative"
+      },
+      "MGM": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -1024,17 +1047,17 @@
       "AFRM": {
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "positive"
       },
       "QS": {
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "positive"
       },
       "SOFI": {
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "positive"
       }
     }
   },
@@ -1066,11 +1089,7 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "VGT": {
-        "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_label": "positive"
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -1211,11 +1230,7 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "QQQ": {
-        "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -1801,11 +1816,7 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "SLV": {
-        "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_label": "positive"
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -2077,6 +2088,11 @@
         "event_type": null,
         "event_proposal": null,
         "sentiment_label": null
+      },
+      "WMT": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -2340,11 +2356,7 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "SPY": {
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -2447,11 +2459,7 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "SLV": {
-        "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_label": "negative"
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -2646,6 +2654,16 @@
         "sentiment_label": null
       },
       "NVDA": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "C": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "GS": {
         "event_type": null,
         "event_proposal": null,
         "sentiment_label": null
@@ -2885,16 +2903,16 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "SLV": {
-        "event_type": "INVESTOR_OPINION",
+      "JPM": {
+        "event_type": null,
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": null
       },
-      "GLD": {
-        "event_type": "INVESTOR_OPINION",
+      "CME": {
+        "event_type": null,
         "event_proposal": null,
-        "sentiment_label": "neutral"
-      }
+        "sentiment_label": null
+      }    
     }
   },
   {
@@ -2935,10 +2953,140 @@
         "event_proposal": null,
         "sentiment_label": "neutral"
       },
+      "NET": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "neutral"
+      },
       "NOW": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "positive"
+      },
+      "SNOW": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "DAVA": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "neutral"
+      },
+      "NOTV": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "ADBE": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "FIG": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "TOST": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "LSPD": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "AMPL": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "SMWB": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "RDDT": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "ETSY": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "PINS": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "AMZN": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "META": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "ROOT": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "negative"
+      },
+      "RZLV": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "UPWK": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "RIME": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "WKSP": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "negative"
+      },
+     "ARAI": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "neutral"
+      },  
+      "DUOL": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },     
+      "PATH": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "neutral"
+      },       
+      "RVSN": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "neutral"
+      },   
+      "DGNX": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },   
+      "JTAI": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "negative"
       }
     }
   },
@@ -2970,11 +3118,7 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "VXUS": {
-        "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -3014,6 +3158,11 @@
         "event_type": null,
         "event_proposal": "DISRUPTIVE_TECHNOLOGY_THREAT",
         "sentiment_label": "negative"
+      },
+      "GOOGL": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -3045,36 +3194,7 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "SCHG": {
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      },
-      "QQQM": {
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      },
-      "SCHD": {
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      },
-      "VTI": {
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      },
-      "VXUS": {
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      },
-      "VOO": {
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -3181,12 +3301,12 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "VOO": {
-        "event_type": "INVESTOR_ACTION",
+      "HOOD": {
+        "event_type": null,
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": null
       },
-      "GOOG": {
+      "GOOGL": {
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
         "sentiment_label": "neutral"
@@ -3236,11 +3356,11 @@
       "https://www.reddit.com/r/stocks/search?q=author%3Aautomoderator+title%3Afundamentals&restrict_sr=on&include_over_18=on&sort=new&t=all"
     ],
     "correct_metadata": {
-      "SPY": {
+      "GOOGL": {
         "event_type": null,
         "event_proposal": null,
         "sentiment_label": null
-      }
+      }    
     }
   },
   {
@@ -3271,11 +3391,7 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "SLV": {
-        "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -3307,9 +3423,19 @@
     "links": [],
     "correct_metadata": {
       "AXON": {
-        "event_type": "INVESTOR_OPINION",
+        "event_type": "INVESTOR_OPINION", 
         "event_proposal": null,
         "sentiment_label": "positive"
+      },
+      "BP": {
+        "event_type": null, 
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "ICE": {
+        "event_type": null, 
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -3347,6 +3473,11 @@
         "event_type": null,
         "event_proposal": "INVESTMENT_DEAL_STALL",
         "sentiment_label": "negative"
+      },
+      "GOOGL": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -3420,6 +3551,16 @@
         "event_type": null,
         "event_proposal": "GOVERNMENT_CONTRACT_WIN",
         "sentiment_label": "positive"
+      },
+      "MSFT": {
+        "event_type": "EARNINGS_BEAT",
+        "event_proposal": null,
+        "sentiment_label": "positive"
+      },
+      "IHG": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -3451,11 +3592,7 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "SPY": {
-        "event_type": null,
-        "event_proposal": null,
-        "sentiment_label": null
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -3530,6 +3667,11 @@
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
         "sentiment_label": "negative"
+      },
+      "HLF": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -3596,11 +3738,7 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "GLD": {
-        "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -3631,16 +3769,7 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "VTI": {
-        "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
-      },
-      "VXUS": {
-        "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_label": "positive"
-      }
+      "removed_reason": "No ticker identified"
     }
   },
   {
@@ -3675,10 +3804,25 @@
       "https://blog.google/innovation-and-ai/models-and-research/google-deepmind/project-genie/](https://blog.google/innovation-and-ai/models-and-research/google-deepmind/project-genie/"
     ],
     "correct_metadata": {
-      "GOOG": {
+      "GOOGL": {
         "event_type": "PRODUCT_LAUNCH",
         "event_proposal": null,
         "sentiment_label": "neutral"
+      },
+      "U": {
+        "event_type": "COMPETITOR_ANNOUNCEMENT",
+        "event_proposal": null,
+        "sentiment_label": "negative"
+      },
+      "TTWO": {
+        "event_type": "COMPETITOR_ANNOUNCEMENT",
+        "event_proposal": null,
+        "sentiment_label": "negative"
+      },
+      "RBLX": {
+        "event_type": "COMPETITOR_ANNOUNCEMENT",
+        "event_proposal": null,
+        "sentiment_label": "negative"
       }
     }
   },
@@ -3831,6 +3975,21 @@
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "neutral"
+      },
+      "RKLB": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "ASTS": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "SPCE": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -3938,11 +4097,6 @@
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
         "sentiment_label": "positive"
-      },
-      "SLV": {
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null,
-        "sentiment_label": "neutral"
       }
     }
   },
@@ -4172,6 +4326,11 @@
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "negative"
+      },
+      "BMNR": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "negative"
       }
     }
   },
@@ -4320,6 +4479,16 @@
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "positive"
+      },
+      "MAR": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "HLT": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -4492,9 +4661,24 @@
     "links": [],
     "correct_metadata": {
       "AMZN": {
-        "event_type": "STRATEGIC_PARTNERSHIP",
+        "event_type": "COMPANY_INVESTMENT",
         "event_proposal": null,
         "sentiment_label": "neutral"
+      },
+      "MSFT": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "GOOGL": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "META": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -4617,6 +4801,11 @@
         "event_type": "EARNINGS_BEAT",
         "event_proposal": null,
         "sentiment_label": "positive"
+      },
+      "MSFT": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -4824,6 +5013,11 @@
         "event_type": null,
         "event_proposal": null,
         "sentiment_label": null
+      },
+      "SCHW": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -4945,20 +5139,20 @@
       "https://ibb.co/1f76phVb](https://ibb.co/1f76phVb"
     ],
     "correct_metadata": {
-      "QQQ": {
-        "event_type": "INVESTOR_OPINION",
+      "AMZN": {
+        "event_type": null,
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": null
       },
-      "XLY": {
-        "event_type": "INVESTOR_OPINION",
+      "TSLA": {
+        "event_type": null,
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": null
       },
-      "XLP": {
-        "event_type": "INVESTOR_OPINION",
+      "HD": {
+        "event_type": null,
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": null
       }
     }
   },
@@ -4996,6 +5190,11 @@
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "neutral"
+      },
+      "WBD": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -5034,7 +5233,7 @@
         "event_proposal": null,
         "sentiment_label": "neutral"
       },
-      "BYD": {
+      "BYDDF": {
         "event_type": null,
         "event_proposal": "MARKET_LEADERSHIP",
         "sentiment_label": "positive"
@@ -5481,10 +5680,25 @@
     "links": [],
     "correct_metadata": {
       "RDDT": {
-        "event_type": "INVESTOR_ANALYSIS",
+        "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "neutral"
-      }
+      },
+      "META": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "neutral"
+      },
+      "SNAP": {
+        "event_type": "INVESTOR_OPINION",
+        "event_proposal": null,
+        "sentiment_label": "neutral"
+      },
+      "GOOGL": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      }    
     }
   },
   {
@@ -5591,7 +5805,7 @@
     "links": [],
     "correct_metadata": {
       "BMBL": {
-        "event_type": "INVESTOR_ANALYSIS",
+        "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "neutral"
       }
@@ -5628,12 +5842,12 @@
     ],
     "correct_metadata": {
       "NVDA": {
-        "event_type": "INVESTOR_ANALYSIS",
+        "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "neutral"
       },
       "IBM": {
-        "event_type": "INVESTOR_ANALYSIS",
+        "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "neutral"
       }
@@ -5762,7 +5976,7 @@
         "event_proposal": null,
         "sentiment_label": "positive"
       },
-      "GOOG": {
+      "GOOGL": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
         "sentiment_label": "neutral"
@@ -6052,7 +6266,7 @@
         "event_proposal": null,
         "sentiment_label": null
       },
-      "GOOG": {
+      "GOOGL": {
         "event_type": null,
         "event_proposal": null,
         "sentiment_label": null
@@ -6486,6 +6700,16 @@
         "event_type": "EARNINGS_CALL",
         "event_proposal": null,
         "sentiment_label": "positive"
+      },
+      "MCD": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
+      "RDDT": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
       }
     }
   },
@@ -6592,6 +6816,11 @@
     "images": [],
     "links": [],
     "correct_metadata": {
+      "DKNG": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      },
       "TSLA": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
@@ -7767,7 +7996,11 @@
     "images": [],
     "links": [],
     "correct_metadata": {
-      "removed_reason": "No ticker identified"
+      "JBLU": {
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_label": null
+      }    
     }
   },
   {
