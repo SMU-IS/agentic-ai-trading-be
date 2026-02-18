@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 
 from fastapi import APIRouter, Depends
@@ -7,6 +8,7 @@ from app.core.security import get_current_user
 from app.providers.vector.strategy import QdrantGeminiStrategy
 from app.schemas.query_docs_payload import QueryDocsRequest
 
+logger = logging.getLogger(__name__)
 router = APIRouter(
     tags=["Query Qdrant Documents"], dependencies=[Depends(get_current_user)]
 )
@@ -66,59 +68,110 @@ class QueryQdrant:
             print(f"❌ Error during retrieval: {str(e)}")
             raise RuntimeError(f"Failed to retrieve documents: {e}") from e
 
-    # def _build_ticker_event_filter(self, ticker: str, event_type: str) -> models.Filter:
-    #     return models.Filter(
-    #         must=[
-    #             models.NestedCondition(
-    #                 path="metadata.market_events",
-    #                 filter=models.Filter(
-    #                     must=[
-    #                         models.FieldCondition(
-    #                             key="ticker", match=models.MatchValue(value=ticker)
-    #                         ),
-    #                         models.FieldCondition(
-    #                             key="event_type",
-    #                             match=models.MatchValue(value=event_type),
-    #                         ),
-    #                     ]
-    #                 ),
-    #             )
-    #         ]
-    #     )
+    def _build_ticker_event_filter(self, ticker: str, event_type: str) -> models.Filter:
+        return models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="metadata.tickers_metadata[].ticker",
+                    match=models.MatchValue(value=ticker.upper()),
+                ),
+                models.FieldCondition(
+                    key="metadata.tickers_metadata[].event_type",
+                    match=models.MatchValue(value=event_type.upper()),
+                ),
+            ]
+        )
 
-    # async def retrieved_filtered_ticker_events(
-    #     self, ticker: str, event_type: str
-    # ) -> list[dict[str, Any]]:
-    #     condition = self._build_ticker_event_filter(ticker, event_type)
-    #     try:
-    #         results = await self.vector_store.client.scroll(
-    #             collection_name="news_analysis_compiled",
-    #             query_vector=None,
-    #             limit=10,
-    #             scroll_filter=condition,
-    #             with_payload=True,
-    #             with_vectors=False,
-    #         )
+    def retrieved_filtered_ticker_events(
+        self, ticker: str, event_type: str, limit: int = 10
+    ) -> list[dict[str, Any]]:
+        """Retrieve ticker events with fallback to ticker-only search if not enough results."""
 
-    #         formatted_results = []
-    #         for res in results:
-    #             doc = res.payload
-    #             formatted_results.append(
-    #                 {
-    #                     "topic_id": doc.payload.get("metadata", {}).get("topic_id"),
-    #                     "text_content": doc.payload.get("page_content"),
-    #                     "event_details": {
-    #                         "ticker": ticker,
-    #                         "event_type": event_type,
-    #                     },
-    #                 }
-    #             )
+        exact_results = self._scroll_by_ticker_and_event_type(ticker, event_type, limit)
+        formatted_results = self._format_results(exact_results, ticker, event_type)
 
-    #         print(
-    #             f"✅ Found {len(formatted_results)} documents for ticker: '{ticker}' and event type: '{event_type}'"
-    #         )
-    #         return formatted_results
+        if len(formatted_results) < limit:
+            remaining_count = limit - len(formatted_results)
+            fallback_results = self._scroll_by_ticker_only(
+                ticker,
+                remaining_count,
+                seen_topic_ids={r["topic_id"] for r in formatted_results},
+            )
+            for fallback in fallback_results:
+                formatted_results.append(
+                    {
+                        "topic_id": fallback["topic_id"],
+                        "text_content": fallback["text_content"],
+                        "event_details": {
+                            "ticker": ticker,
+                            "event_type": event_type,
+                        },
+                    }
+                )
 
-    #     except Exception as e:
-    #         print(f"❌ Error during filtered retrieval: {str(e)}")
-    #         raise RuntimeError(f"Failed to retrieve filtered documents: {e}") from e
+        logger.info(
+            f"✅ Found {len(formatted_results)} documents for ticker: '{ticker}' and event type: '{event_type}'"
+        )
+        return formatted_results
+
+    def _scroll_by_ticker_and_event_type(
+        self, ticker: str, event_type: str, limit: int
+    ) -> list:
+        """Scroll Qdrant with both ticker and event type filter."""
+
+        condition = self._build_ticker_event_filter(ticker, event_type)
+        results, _ = self.vector_store.client.scroll(
+            collection_name="news_analysis_compiled",
+            scroll_filter=condition,
+            limit=limit,
+            with_payload=True,
+            with_vectors=False,
+        )
+        return results
+
+    def _scroll_by_ticker_only(
+        self, ticker: str, limit: int, seen_topic_ids: set
+    ) -> list:
+        """Scroll Qdrant with ticker filter only, excluding seen topic_ids."""
+
+        condition = models.Filter(
+            must=[
+                models.FieldCondition(
+                    key="metadata.tickers_metadata[].ticker",
+                    match=models.MatchValue(value=ticker.upper()),
+                ),
+            ]
+        )
+        results, _ = self.vector_store.client.scroll(
+            collection_name="news_analysis_compiled",
+            scroll_filter=condition,
+            limit=limit,
+            with_payload=True,
+            with_vectors=False,
+        )
+
+        return [
+            r
+            for r in results
+            if r.payload.get("metadata", {}).get("topic_id") not in seen_topic_ids
+        ]
+
+    def _format_results(
+        self, results: list, ticker: str, event_type: str
+    ) -> list[dict[str, Any]]:
+        """Format raw Qdrant results into the response structure."""
+
+        formatted = []
+        for result in results:
+            payload = result.payload
+            formatted.append(
+                {
+                    "topic_id": payload.get("metadata", {}).get("topic_id"),
+                    "text_content": payload.get("page_content"),
+                    "event_details": {
+                        "ticker": ticker,
+                        "event_type": event_type,
+                    },
+                }
+            )
+        return formatted
