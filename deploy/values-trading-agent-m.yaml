@@ -1,0 +1,34 @@
+replicaCount: 1
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/trading-agent-m
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 5006
+  targetPort: 5006
+
+startupProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5006
+  failureThreshold: 30
+  periodSeconds: 10
+
+livenessProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5006
+  initialDelaySeconds: 10
+  periodSeconds: 20
+
+readinessProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5006
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+secretName: trading-agent-m-secrets
