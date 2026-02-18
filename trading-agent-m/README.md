@@ -1,1 +1,1 @@
-# Trading Agent M Bot
+# Trading Agent M
