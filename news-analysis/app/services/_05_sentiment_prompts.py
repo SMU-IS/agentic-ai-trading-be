@@ -17,78 +17,12 @@ CRITICAL RULES FOR NEUTRAL:
 4. If states INVESTOR_ACTION (holding/buying) without opinion → NEUTRAL
 
 Examples:
-
-Example 1 - NEUTRAL (Question without stance):
-Post: "I heard there is a copper supply shortage. When will this officially happen and which companies will win? SCCO FCX TECK"
-Event: SUPPLY_CHAIN_DISRUPTION
-Ticker: SCCO
-Sentiment: NEUTRAL
-Reasoning: Post asks questions ("when will this happen", "which companies") without providing directional opinion or stance.
-
-Example 2 - NEUTRAL (Volatility, both sides):
-Post: "AAPL is very volatile right now. Could go up after earnings or crash if they miss. Hard to say."
-Event: EARNINGS_REPORT
-Ticker: AAPL
-Sentiment: NEUTRAL
-Reasoning: Explicitly mentions both upside ("go up") and downside ("crash"), presents no clear direction.
-
-Example 3 - NEUTRAL (INVESTOR_ACTION - factual):
-Post: "I'm holding TSLA long term. Added more shares at $200."
-Event: INVESTOR_ACTION
-Ticker: TSLA
-Sentiment: NEUTRAL
-Reasoning: This is a FACTUAL statement of position (holding, buying), not an OPINION about TSLA's prospects.
-
-Example 4 - POSITIVE (Clear positive with data):
-Post: "NVDA crushed earnings! Revenue up 50% YoY, margins expanding. Bullish on AI chips."
-Event: EARNINGS_REPORT
-Ticker: NVDA
-Sentiment: POSITIVE
-Reasoning: Strong positive language ("crushed"), concrete positive data (50% growth), explicit bullish stance.
-
-Example 5 - NEGATIVE (Clear negative):
-Post: "UBER losing market share to Lyft. Terrible quarter, revenue missed estimates badly."
-Event: EARNINGS_REPORT
-Ticker: UBER
-Sentiment: NEGATIVE
-Reasoning: Negative outcomes (losing share, missed estimates), critical language ("terrible").
-
-Example 6 - NEUTRAL (INVESTOR_OPINION but speculative):
-Post: "I think GOOGL might do well OR might struggle with AI competition. Too early to tell."
-Event: INVESTOR_OPINION
-Ticker: GOOGL
-Sentiment: NEUTRAL
-Reasoning: Even though it's labeled OPINION, the post hedges both ways ("might do well OR might struggle"), no clear position.
-
-Example 7 - POSITIVE (Clear despite event type):
-Post: "I'm extremely bullish on MSFT. Cloud growth is unstoppable, buying more shares."
-Event: INVESTOR_OPINION
-Ticker: MSFT
-Sentiment: POSITIVE
-Reasoning: Clear positive opinion ("extremely bullish", "unstoppable"), actionable stance (buying).
-
-Example 8 - POSITIVE (Reddit slang / sarcasm):
-Post: "NVDA to the moon 🚀🚀🚀 diamond hands baby! Tendies incoming! This ape isn't selling."
-Event: INVESTOR_OPINION
-Ticker: NVDA
-Sentiment: POSITIVE
-Reasoning: Reddit/WSB bullish slang ("to the moon", "diamond hands", "tendies"), rocket emojis, strong conviction language.
-
-Example 9 - NEGATIVE (Sarcasm detection):
-Post: "Oh great, BABA management doing a fantastic job losing shareholder value. Really genius moves. 🤡🤡"
-Event: CORPORATE_GOVERNANCE
-Ticker: BABA
-Sentiment: NEGATIVE
-Reasoning: Sarcastic use of positive words ("great", "fantastic", "genius") with negative context (losing value), clown emojis confirm negative intent.
-
-Example 10 - NEGATIVE (Reddit slang bearish):
-Post: "Bagholding WISH at $10 avg, this stock is absolutely rekt. GG my portfolio 💀"
-Event: INVESTOR_ACTION
-Ticker: WISH
-Sentiment: NEGATIVE
-Reasoning: Bearish Reddit slang ("bagholding", "rekt", "GG"), skull emoji, implies significant unrealized losses.
+Examples:
+1) NEUTRAL: "Copper shortage coming? Which stocks win? SCCO FCX" → Question, no stance.
+2) POSITIVE: "NVDA crushed earnings, revenue +50%. Bullish on AI chips 🚀" → Strong data + bullish language.
+3) NEGATIVE: "Oh great, BABA losing shareholder value. Genius moves 🤡" → Sarcasm (positive words, negative context).
+4) NEGATIVE: "Bagholding WISH at $10, absolutely rekt 💀" → Bearish slang + loss.
 """
-
 
 SYSTEM_PROMPT = """You are an expert financial sentiment analyst specializing in stock market news and social media content analysis (especially Reddit posts).
 Your task is to analyze the sentiment of financial content FOR EACH SPECIFIC TICKER mentioned.
@@ -168,63 +102,3 @@ Important Rules:
         ("system", SYSTEM_PROMPT),
         ("user", user_prompt),
     ]
-
-
-# Structured examples for programmatic access
-NEUTRAL_EXAMPLES = [
-    {
-        "post": "Copper shortage coming? Which stocks will benefit? SCCO FCX",
-        "ticker": "SCCO",
-        "event": "SUPPLY_CHAIN_DISRUPTION",
-        "label": "neutral",
-        "reason": "Asks question without stance"
-    },
-    {
-        "post": "AAPL volatile, could go up or down after earnings",
-        "ticker": "AAPL",
-        "event": "EARNINGS_REPORT",
-        "label": "neutral",
-        "reason": "Presents both upside and downside"
-    },
-    {
-        "post": "I'm holding TSLA long term",
-        "ticker": "TSLA",
-        "event": "INVESTOR_ACTION",
-        "label": "neutral",
-        "reason": "Factual position statement, not opinion"
-    }
-]
-
-POSITIVE_EXAMPLES = [
-    {
-        "post": "NVDA crushed earnings! Revenue up 50%, very bullish",
-        "ticker": "NVDA",
-        "event": "EARNINGS_REPORT",
-        "label": "positive",
-        "reason": "Strong positive data and language"
-    },
-    {
-        "post": "NVDA to the moon diamond hands baby! Tendies incoming!",
-        "ticker": "NVDA",
-        "event": "INVESTOR_OPINION",
-        "label": "positive",
-        "reason": "Reddit bullish slang and rocket emojis"
-    }
-]
-
-NEGATIVE_EXAMPLES = [
-    {
-        "post": "UBER terrible quarter, revenue missed badly",
-        "ticker": "UBER",
-        "event": "EARNINGS_REPORT",
-        "label": "negative",
-        "reason": "Negative outcomes and critical language"
-    },
-    {
-        "post": "Oh great, BABA management doing a fantastic job losing shareholder value. Really genius moves.",
-        "ticker": "BABA",
-        "event": "CORPORATE_GOVERNANCE",
-        "label": "negative",
-        "reason": "Sarcastic positive words with negative context"
-    }
-]
