@@ -90,9 +90,9 @@ jobs:
         - name: Update Kubeconfig
           run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
 
-        - name: Create K8s Secret from TRADING_AGENT_M
+        - name: Create K8s Secret from TRADING_AGENT_M_SECRETS
           run: |
-            echo "${{ secrets.TRADING_AGENT_M }}" > .env.tmp
+            echo "${{ secrets.TRADING_AGENT_M_SECRETS }}" > .env.tmp
 
             kubectl create secret generic trading-agent-m-secrets \
               --from-env-file=.env.tmp \
