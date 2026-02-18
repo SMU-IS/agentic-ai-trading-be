@@ -15,7 +15,7 @@ class RedisService:
         self.redis_aggregator_stream = None
 
     async def connect(self):
-
+        redis_con = f"redis://:{settings.redis_password}@{settings.redis_host}:{settings.redis_port}"
         self.redis = await aioredis.from_url(redis_con)
 
         self.redis_signal_stream = settings.redis_signal_stream
