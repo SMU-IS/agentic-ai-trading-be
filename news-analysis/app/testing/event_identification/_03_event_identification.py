@@ -1,7 +1,9 @@
 from typing import Dict
 import json
+import re
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnableLambda
 from langchain_ollama import ChatOllama
 
 import sys
@@ -9,6 +11,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import env_config
 from difflib import SequenceMatcher
+
+
+def _strip_thinking_from_message(message):
+    """Strip <think>...</think> blocks from thinking model outputs (Qwen3, DeepSeek R1)."""
+    if hasattr(message, "content"):
+        message.content = re.sub(r"<think>.*?</think>\s*", "", message.content, flags=re.DOTALL).strip()
+    return message
 
 
 class EventIdentifierService:
@@ -92,7 +101,8 @@ class EventIdentifierService:
             partial_variables={"format_instructions": format_instructions},
         )
 
-        chain = prompt | llm | parser
+        strip_thinking = RunnableLambda(_strip_thinking_from_message)
+        chain = prompt | llm | strip_thinking | parser
 
         try:
             result = chain.invoke({"text": text, "ticker": ticker})
@@ -205,7 +215,8 @@ class EventIdentifierService:
             },
         )
 
-        chain = prompt | llm | parser
+        strip_thinking = RunnableLambda(_strip_thinking_from_message)
+        chain = prompt | llm | strip_thinking | parser
 
         # Initialize defaults
         for data in ticker_metadata.values():

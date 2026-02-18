@@ -61,25 +61,56 @@ CLEANED_TICKERS_PATH = os.path.join(TESTING_DIR, "ticker_identification", "clean
 BATCH_SIZE = 25
 RANDOM_SEED = 42
 
-RATE_LIMIT_DELAY = {
-    "gemini": 4.0,
-    "llama": 5.0,
-    "deepseek": 3.0,
-    "qwen": 5.0,
+# RPM (requests per minute) limits per provider - used to calculate spacing
+RPM_LIMITS = {
+    "gemini": 10,      # conservative for free tier
+    "llama": 5,       # Groq free tier
+    "deepseek": 20,    # OpenRouter
+    "qwen": 5,         # Groq free tier: 6K TPM, ~2K tokens/req = ~3 req/min
 }
 
 # Retry config for rate limit (429) and transient errors
 MAX_RETRIES = 3
-RETRY_BACKOFF = [10, 30, 60]  # seconds to wait per retry attempt
+RETRY_BACKOFF = [10, 20, 40]  # exponential: 10s, 20s, 40s
 
-# Gemini fallback: switch to flash when pro hits rate limit
-GEMINI_FALLBACK_MODEL = "gemini-2.5-flash"
+# Extra pause every N requests to avoid burst limits
+BURST_PAUSE_EVERY = 20
+BURST_PAUSE_SECONDS = 15
+
+# Gemini fallback: switch to flash-lite when flash hits rate limit
+GEMINI_FALLBACK_MODEL = "gemini-2.5-flash-lite"
+
+
+class RateLimiter:
+    """Enforces proper spacing between API requests to avoid burst limits."""
+
+    def __init__(self, llm_key: str):
+        rpm = RPM_LIMITS.get(llm_key, 15)
+        self.request_interval = 60.0 / rpm
+        self.last_request_time = 0.0
+        self.request_count = 0
+        self.llm_key = llm_key
+        logger.info(f"  RateLimiter: {llm_key} @ {rpm} RPM ({self.request_interval:.1f}s between requests)")
+
+    def wait(self):
+        """Wait the appropriate time before making the next request."""
+        elapsed = time.time() - self.last_request_time
+        if elapsed < self.request_interval:
+            sleep_time = self.request_interval - elapsed
+            time.sleep(sleep_time)
+        self.last_request_time = time.time()
+        self.request_count += 1
+
+        # Extra pause every N requests to avoid burst limits
+        if self.request_count % BURST_PAUSE_EVERY == 0:
+            logger.info(f"    Completed {self.request_count} requests. Resting {BURST_PAUSE_SECONDS}s to avoid burst limits...")
+            time.sleep(BURST_PAUSE_SECONDS)
 
 LLM_CONFIGS = {
     "gemini": {
-        "display_name": "Gemini 2.5 Pro",
+        "display_name": "Gemini 2.5 Flash",
         "folder_name": "Gemini",
-        "model_name": "gemini-2.5-pro",
+        "model_name": "gemini-2.5-flash",
         "provider": "gemini",
     },
     "llama": {
@@ -337,6 +368,24 @@ def prepare_datasets():
 
 
 # =============================================================================
+# THINKING MODEL SUPPORT (Qwen3, DeepSeek R1, etc.)
+# =============================================================================
+
+import re
+
+def _strip_thinking_tags(text: str) -> str:
+    """Strip <think>...</think> blocks from thinking model outputs (Qwen3, DeepSeek R1)."""
+    return re.sub(r"<think>.*?</think>\s*", "", text, flags=re.DOTALL).strip()
+
+
+def _strip_thinking_from_message(message):
+    """Strip thinking tags from a LangChain AI message content."""
+    if hasattr(message, "content"):
+        message.content = _strip_thinking_tags(message.content)
+    return message
+
+
+# =============================================================================
 # LLM FACTORY
 # =============================================================================
 
@@ -446,23 +495,54 @@ class EvalSentimentService:
         if len(text) > 3000:
             text = text[:3000] + "..."
 
-        tickers_info_lines = []
+        # Split tickers: only analyze those with an event identified
+        tickers_with_event = {}
+        tickers_no_event = {}
         for ticker, info in ticker_metadata.items():
+            event_type = info.get("event_type")
+            if event_type and event_type not in ("None", "null", "Unknown"):
+                tickers_with_event[ticker] = info
+            else:
+                tickers_no_event[ticker] = info
+
+        # Set null for tickers without events (skip LLM call for these)
+        for ticker in tickers_no_event:
+            ticker_metadata[ticker]["sentiment_score"] = None
+            ticker_metadata[ticker]["sentiment_label"] = None
+            ticker_metadata[ticker]["sentiment_reasoning"] = "No event identified - skipped"
+
+        # Only call LLM for tickers with events
+        if not tickers_with_event:
+            item["ticker_metadata"] = ticker_metadata
+            return item
+
+        tickers_info_lines = []
+        for ticker, info in tickers_with_event.items():
             official_name = info.get("official_name", ticker)
             event_type = info.get("event_type", "Unknown")
             tickers_info_lines.append(f"- {ticker} ({official_name}) - Event: {event_type}")
         tickers_info = "\n".join(tickers_info_lines)
 
         try:
-            from langchain_core.prompts import ChatPromptTemplate
+            from langchain_core.messages import SystemMessage, HumanMessage
 
             prompt_messages = self.build_sentiment_prompt(text, tickers_info)
-            sentiment_prompt = ChatPromptTemplate.from_messages(prompt_messages)
-            chain = sentiment_prompt | self.llm | self.parser
-            result = await chain.ainvoke({})
+            # Use Message objects directly to avoid ChatPromptTemplate
+            # re-parsing curly braces in JSON examples as template variables
+            messages = []
+            for role, content in prompt_messages:
+                if role == "system":
+                    messages.append(SystemMessage(content=content))
+                else:
+                    messages.append(HumanMessage(content=content))
+
+            from langchain_core.runnables import RunnableLambda
+            strip_thinking = RunnableLambda(_strip_thinking_from_message)
+            chain = self.llm | strip_thinking | self.parser
+            result = await chain.ainvoke(messages)
 
             raw_sentiments = result.get("ticker_sentiments", {})
-            for ticker in ticker_metadata:
+            for ticker in tickers_with_event:
                 if ticker in raw_sentiments:
                     raw = raw_sentiments[ticker]
                     score = float(raw.get("sentiment_score", 0.0))
@@ -484,8 +564,11 @@ class EvalSentimentService:
             item["ticker_metadata"] = ticker_metadata
 
         except Exception as e:
-            logger.error(f"Sentiment analysis failed: {e}")
-            for ticker in ticker_metadata:
+            # Re-raise rate limit errors so the outer retry loop can handle them
+            if _is_retryable_error(e):
+                raise
+            logger.error(f"Sentiment analysis failed (non-retryable): {e}")
+            for ticker in tickers_with_event:
                 ticker_metadata[ticker]["sentiment_score"] = 0.0
                 ticker_metadata[ticker]["sentiment_label"] = "neutral"
                 ticker_metadata[ticker]["sentiment_reasoning"] = f"Error: {str(e)[:100]}"
@@ -516,6 +599,28 @@ def _is_rate_limit_error(error: Exception) -> bool:
     return any(code in error_str for code in ["429", "rate limit", "Rate limit", "Resource has been exhausted"])
 
 
+def _parse_retry_after(error: Exception) -> Optional[int]:
+    """
+    Parse the suggested wait time from rate limit error messages.
+    E.g. 'Please try again in 8m35.808s' -> 516 seconds.
+    Returns None if not parseable.
+    """
+    import re
+    error_str = str(error)
+    # Match patterns like "8m35.808s", "11m15.648s", "45.5s", "2m30s"
+    match = re.search(r'try again in (\d+m)?(\d+(?:\.\d+)?s)', error_str)
+    if match:
+        minutes = 0
+        seconds = 0
+        if match.group(1):
+            minutes = int(match.group(1).rstrip('m'))
+        if match.group(2):
+            seconds = float(match.group(2).rstrip('s'))
+        total = int(minutes * 60 + seconds) + 5  # add 5s buffer
+        return total
+    return None
+
+
 def _swap_gemini_to_fallback(svc, provider: str, current_model: str) -> str:
     """
     If provider is gemini and we haven't already switched, swap to the fallback model.
@@ -542,7 +647,7 @@ def _swap_gemini_to_fallback(svc, provider: str, current_model: str) -> str:
 # SERVICE RUNNERS
 # =============================================================================
 
-def run_ticker_test(posts: List[Dict], llm_key: str, ticker_service: EvalTickerService, delay: float) -> List[Dict]:
+def run_ticker_test(posts: List[Dict], llm_key: str, ticker_service: EvalTickerService, rate_limiter: RateLimiter) -> List[Dict]:
     """Run ticker identification on posts and return results."""
     config = LLM_CONFIGS[llm_key]
     provider = config["provider"]
@@ -556,16 +661,16 @@ def run_ticker_test(posts: List[Dict], llm_key: str, ticker_service: EvalTickerS
 
         for attempt in range(MAX_RETRIES + 1):
             try:
+                rate_limiter.wait()
                 working_post = ticker_service.process_post(working_post)
-                time.sleep(delay)
                 break
             except Exception as e:
                 if attempt < MAX_RETRIES and _is_retryable_error(e):
-                    # Try Gemini fallback on rate limit before waiting
                     if _is_rate_limit_error(e):
                         current_model = _swap_gemini_to_fallback(ticker_service, provider, current_model)
-                    wait = RETRY_BACKOFF[attempt]
-                    logger.warning(f"    Retry {attempt+1}/{MAX_RETRIES} for {post_id} in {wait}s: {str(e)[:80]}")
+                    # Use server-suggested wait time if available, else use backoff
+                    wait = _parse_retry_after(e) or RETRY_BACKOFF[attempt]
+                    logger.warning(f"    Retry {attempt+1}/{MAX_RETRIES} for {post_id} in {wait}s: {str(e)[:100]}")
                     time.sleep(wait)
                     working_post = copy.deepcopy(post)  # reset before retry
                 else:
@@ -589,7 +694,7 @@ def run_ticker_test(posts: List[Dict], llm_key: str, ticker_service: EvalTickerS
     return results
 
 
-def run_event_test(posts: List[Dict], llm_key: str, event_service: EvalEventService, delay: float) -> List[Dict]:
+def run_event_test(posts: List[Dict], llm_key: str, event_service: EvalEventService, rate_limiter: RateLimiter) -> List[Dict]:
     """Run event identification on posts (with pre-populated ticker_metadata)."""
     config = LLM_CONFIGS[llm_key]
     provider = config["provider"]
@@ -603,15 +708,15 @@ def run_event_test(posts: List[Dict], llm_key: str, event_service: EvalEventServ
 
         for attempt in range(MAX_RETRIES + 1):
             try:
+                rate_limiter.wait()
                 working_post = event_service.analyse_event(working_post)
-                time.sleep(delay)
                 break
             except Exception as e:
                 if attempt < MAX_RETRIES and _is_retryable_error(e):
                     if _is_rate_limit_error(e):
                         current_model = _swap_gemini_to_fallback(event_service, provider, current_model)
-                    wait = RETRY_BACKOFF[attempt]
-                    logger.warning(f"    Retry {attempt+1}/{MAX_RETRIES} for {post_id} in {wait}s: {str(e)[:80]}")
+                    wait = _parse_retry_after(e) or RETRY_BACKOFF[attempt]
+                    logger.warning(f"    Retry {attempt+1}/{MAX_RETRIES} for {post_id} in {wait}s: {str(e)[:100]}")
                     time.sleep(wait)
                     working_post = copy.deepcopy(post)
                 else:
@@ -630,7 +735,7 @@ def run_event_test(posts: List[Dict], llm_key: str, event_service: EvalEventServ
     return results
 
 
-async def run_sentiment_test(posts: List[Dict], llm_key: str, sentiment_service: EvalSentimentService, delay: float) -> List[Dict]:
+async def run_sentiment_test(posts: List[Dict], llm_key: str, sentiment_service: EvalSentimentService, rate_limiter: RateLimiter) -> List[Dict]:
     """Run sentiment analysis on posts (with pre-populated ticker_metadata + events)."""
     config = LLM_CONFIGS[llm_key]
     provider = config["provider"]
@@ -644,15 +749,15 @@ async def run_sentiment_test(posts: List[Dict], llm_key: str, sentiment_service:
 
         for attempt in range(MAX_RETRIES + 1):
             try:
+                rate_limiter.wait()
                 working_post = await sentiment_service.analyse(working_post)
-                time.sleep(delay)
                 break
             except Exception as e:
                 if attempt < MAX_RETRIES and _is_retryable_error(e):
                     if _is_rate_limit_error(e):
                         current_model = _swap_gemini_to_fallback(sentiment_service, provider, current_model)
-                    wait = RETRY_BACKOFF[attempt]
-                    logger.warning(f"    Retry {attempt+1}/{MAX_RETRIES} for {post_id} in {wait}s: {str(e)[:80]}")
+                    wait = _parse_retry_after(e) or RETRY_BACKOFF[attempt]
+                    logger.warning(f"    Retry {attempt+1}/{MAX_RETRIES} for {post_id} in {wait}s: {str(e)[:100]}")
                     time.sleep(wait)
                     working_post = copy.deepcopy(post)
                 else:
@@ -682,7 +787,6 @@ async def run_service_evaluation(service: str, llm_key: str):
     provider = config["provider"]
     model_name = config["model_name"]
     folder_name = config["folder_name"]
-    delay = RATE_LIMIT_DELAY.get(llm_key, 2.0)
 
     input_dir = get_batch_input_dir(service)
     output_dir = get_batch_output_dir(service, llm_key)
@@ -697,11 +801,15 @@ async def run_service_evaluation(service: str, llm_key: str):
         print(f"ERROR: No batch files found in {input_dir}. Run --prepare first.")
         return
 
+    rpm = RPM_LIMITS.get(llm_key, 15)
     print(f"\n{'#' * 70}")
     print(f"  Service: {SERVICE_DIRS[service]}")
     print(f"  LLM: {config['display_name']} ({model_name})")
-    print(f"  Batches: {len(batch_files)} | Rate limit delay: {delay}s")
+    print(f"  Batches: {len(batch_files)} | RPM limit: {rpm} ({60.0/rpm:.1f}s between requests)")
     print(f"{'#' * 70}")
+
+    # Create rate limiter for this LLM
+    rate_limiter = RateLimiter(llm_key)
 
     # Load data from local files (fresh copy per LLM run for fairness)
     print("  Loading pipeline data from local files...")
@@ -731,11 +839,11 @@ async def run_service_evaluation(service: str, llm_key: str):
 
         # Run the appropriate service
         if service == "ticker":
-            batch_results = run_ticker_test(batch_posts, llm_key, svc, delay)
+            batch_results = run_ticker_test(batch_posts, llm_key, svc, rate_limiter)
         elif service == "event":
-            batch_results = run_event_test(batch_posts, llm_key, svc, delay)
+            batch_results = run_event_test(batch_posts, llm_key, svc, rate_limiter)
         elif service == "sentiment":
-            batch_results = await run_sentiment_test(batch_posts, llm_key, svc, delay)
+            batch_results = await run_sentiment_test(batch_posts, llm_key, svc, rate_limiter)
 
         # Save batch output
         out_file = os.path.join(output_dir, f"{service}_{folder_name}_batch_{batch_num}.json")
@@ -1014,13 +1122,23 @@ def evaluate_sentiment(llm_key: str, golden_posts: List[Dict]) -> Dict:
                 continue
             gt_sentiment = correct[ticker].get("sentiment_label")
             gen_sentiment = generated[ticker].get("sentiment_label")
+
+            # Skip tickers where either side has no sentiment (no event identified)
+            if not gt_sentiment or not gen_sentiment:
+                details.append({
+                    "ticker": ticker,
+                    "generated": gen_sentiment,
+                    "correct": gt_sentiment,
+                    "match": "skipped",
+                })
+                continue
+
             match = gt_sentiment == gen_sentiment
             if match:
                 correct_count += 1
             total += 1
-            if gt_sentiment and gen_sentiment:
-                labels_actual.append(gt_sentiment)
-                labels_pred.append(gen_sentiment)
+            labels_actual.append(gt_sentiment)
+            labels_pred.append(gen_sentiment)
             details.append({
                 "ticker": ticker,
                 "generated": gen_sentiment,
@@ -1043,6 +1161,9 @@ def evaluate_sentiment(llm_key: str, golden_posts: List[Dict]) -> Dict:
     else:
         macro_precision = macro_recall = macro_f1 = 0.0
 
+    # Extract mismatches for manual analysis (ground truth vs model error)
+    _extract_sentiment_mismatches(llm_key, results, golden_map)
+
     return {
         "llm": LLM_CONFIGS[llm_key]["display_name"],
         "model": LLM_CONFIGS[llm_key]["model_name"],
@@ -1058,6 +1179,56 @@ def evaluate_sentiment(llm_key: str, golden_posts: List[Dict]) -> Dict:
         "confusion_matrix": confusion,
         "post_details": post_details,
     }
+
+
+def _extract_sentiment_mismatches(llm_key: str, results: List[Dict], golden_map: Dict):
+    """
+    Extract posts where sentiment labels don't match ground truth.
+    Saves to sentiment_<LLM>_mismatches.json for manual analysis
+    to determine if it's a ground truth error or model error.
+    """
+    output_dir = get_batch_output_dir("sentiment", llm_key)
+    folder_name = LLM_CONFIGS[llm_key]["folder_name"]
+    mismatches = []
+
+    for post in results:
+        post_id = post.get("id")
+        correct = golden_map.get(post_id, {})
+        generated = post.get("generated_metadata", {})
+        post_text = post.get("content", {}).get("clean_combined_withurl", "")
+
+        post_mismatches = []
+        for ticker in set(correct.keys()) & set(generated.keys()):
+            if ticker == "removed_reason":
+                continue
+            gt_label = correct[ticker].get("sentiment_label")
+            gen_label = generated[ticker].get("sentiment_label")
+            gen_score = generated[ticker].get("sentiment_score")
+            gen_reasoning = generated[ticker].get("sentiment_reasoning", "")
+
+            if gt_label != gen_label:
+                post_mismatches.append({
+                    "ticker": ticker,
+                    "ground_truth_label": gt_label,
+                    "generated_label": gen_label,
+                    "generated_score": gen_score,
+                    "generated_reasoning": gen_reasoning,
+                })
+
+        if post_mismatches:
+            mismatches.append({
+                "id": post_id,
+                "post_text": post_text[:500],
+                "ticker_mismatches": post_mismatches,
+            })
+
+    mismatch_path = os.path.join(output_dir, f"sentiment_{folder_name}_mismatches.json")
+    with open(mismatch_path, "w", encoding="utf-8") as f:
+        json.dump(mismatches, f, indent=2, ensure_ascii=False)
+
+    total_ticker_mismatches = sum(len(m["ticker_mismatches"]) for m in mismatches)
+    print(f"  [{folder_name}] Sentiment mismatches: {len(mismatches)} posts, {total_ticker_mismatches} ticker-level mismatches")
+    print(f"  Saved to: {mismatch_path}")
 
 
 def generate_results(service: str):

@@ -1,0 +1,56 @@
+{
+  "service": "sentiment_analysis",
+  "golden_dataset": "curated_dataset_200.json",
+  "qwen": {
+    "llm": "Qwen3 32B (Groq)",
+    "model": "qwen/qwen3-32b",
+    "total_posts": 160,
+    "total_tickers_compared": 307,
+    "correct": 197,
+    "metrics": {
+      "accuracy": 0.6417,
+      "macro_precision": 0.7786,
+      "macro_recall": 0.7972,
+      "macro_f1": 0.7838
+    },
+    "confusion_matrix": {
+      "matrix": {
+        "positive": {
+          "positive": 83,
+          "negative": 3,
+          "neutral": 12
+        },
+        "negative": {
+          "positive": 1,
+          "negative": 48,
+          "neutral": 7
+        },
+        "neutral": {
+          "positive": 11,
+          "negative": 19,
+          "neutral": 66
+        }
+      },
+      "per_class": {
+        "positive": {
+          "precision": 0.8737,
+          "recall": 0.8469,
+          "f1": 0.8601,
+          "support": 98
+        },
+        "negative": {
+          "precision": 0.6857,
+          "recall": 0.8571,
+          "f1": 0.7619,
+          "support": 56
+        },
+        "neutral": {
+          "precision": 0.7765,
+          "recall": 0.6875,
+          "f1": 0.7293,
+          "support": 96
+        }
+      }
+    }
+  }
+}

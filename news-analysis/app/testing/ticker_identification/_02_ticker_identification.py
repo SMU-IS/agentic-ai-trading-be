@@ -10,7 +10,16 @@ from config import env_config
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnableLambda
 import yfinance as yf
+import re
+
+
+def _strip_thinking_from_message(message):
+    """Strip <think>...</think> blocks from thinking model outputs (Qwen3, DeepSeek R1)."""
+    if hasattr(message, "content"):
+        message.content = re.sub(r"<think>.*?</think>\s*", "", message.content, flags=re.DOTALL).strip()
+    return message
 
 STOP_SUFFIXES = [
     "inc", "corp", "corporation", "ltd", "llc", "co", "&co", ",inc", ",inc.", "/new", "/de/", "/mn"
@@ -135,7 +144,8 @@ class TickerIdentificationService:
             partial_variables={"format_instructions": format_instructions},
         )
 
-        chain = prompt | llm | parser
+        strip_thinking = RunnableLambda(_strip_thinking_from_message)
+        chain = prompt | llm | strip_thinking | parser
 
         try:
             result = chain.invoke({"input_text": text, "org_hints": org_hint_text})
