@@ -1,14 +1,10 @@
-from app.agents.state import AgentState, db_trade_decision
+import dataclasses
+from app.agents.state import AgentState, RiskAssessment, RiskMetrics, TradeAction, YahooData, closed_position, db_trade_decision, TradingDecision, MarketData
 from typing import Dict, Any, List
 import httpx
-
 import asyncio
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-ALPACA_BASE_URL = os.getenv("ALPACA_BASE_URL", "http://localhost:8000/api/v1/trading")
+from app.core.config import env_config
+ALPACA_BASE_URL = env_config.trading_service_url
 
 # Tunables for your bot
 MAX_RISK_PCT = 0.01  # 1% of equity per trade
@@ -17,48 +13,56 @@ MAX_NOTIONAL_PCT = 0.20  # Max 20% of equity in any one trade
 
 
 async def node_risk_adjust_trade_logic(state: AgentState) -> AgentState:
+    order_details: TradingDecision = state.get("order_details")
 
-    order_details = state.get("order_details", {})
-    action = order_details.get("action", "").upper()
+    market_data: MarketData = state.get("market_data", MarketData(
+        alpaca=None,
+        yahoo=None,
+        timestamp=0.0
+    ))
 
-    market_data = state.get("market_data", {})
-    yahoo_data = market_data.get("yahoo", {})
+    yahoo_data = market_data.yahoo if market_data.yahoo else {}
 
     print("   [🛡️ Risk Layer] Evaluating trade risk...")
     account_fetch_task = fetch_buying_power()
     account_bp = await asyncio.gather(account_fetch_task)
+    
     print(f"   [💰 Buying Power] {account_bp[0]}")
 
     # Risk evaluation metrics
-    evaluation_result = risk_evaluation_metrics(
+    evaluation_result: RiskAssessment = risk_evaluation_metrics(
         order_details, yahoo_data, account_bp[0]
     )
-    print_risk_evaluation(evaluation_result)
-
-    state["order_details"] = evaluation_result.get("adjusted_trade", order_details)
-    order_details = state.get("order_details", {})
-
-    conflict_resolve_task = resolve_conflicting_position(
-        order_details.get("ticker"), action.lower(), order_details.get("qty", 0)
+    print(f"   [🛡️ Risk Layer] Risk score {evaluation_result.risk_score}/1.50")
+    # print_risk_evaluation(evaluation_result)
+    order_details = evaluation_result.adjusted_trade
+    
+    conflict_resolve_summary = await resolve_conflicting_position(
+        order_details.ticker, order_details.action.value, order_details.qty, state.get("signal_id", "")
     )
-    conflict_resolve_summary = await asyncio.gather(conflict_resolve_task)
-
-    if conflict_resolve_summary[0].get("has_conflict", False):
-        state["conflict_resolution"] = conflict_resolve_summary[0].get(
+    # [DEBUG]: Print conflict resolution summary
+    print(f"   [🛡️ Risk Layer] Conflict Resolution status: {conflict_resolve_summary.get('status', 'No Conflict Detected')}")
+    # print(conflict_resolve_summary)
+    should_execute = True
+    if conflict_resolve_summary.get("has_conflict", False):
+        state["conflict_resolution"] = conflict_resolve_summary.get(
             "conflict_resolution", {}
         )
+        # print(f"   [🛡️ Risk Layer] Conflict Resolution: {state['conflict_resolution']}")
 
-        print(f"   [🛡️ Risk Layer] Conflict Resolution: {state['conflict_resolution']}")
+        # If no current position, we want to execute a new order
+        if conflict_resolve_summary.get("current_position", None) is not None:
+            should_execute = False
+            
+    # should_execute = not conflict_resolve_summary.get("has_conflict", False) and evaluation_result.risk_status == "APPROVED"
+    # should_execute = not conflict_resolve_summary.get("has_conflict", False)
 
-    # If no conflicting order or position, proceed with original order
-    print(
-        "   [🛡️ Risk Layer] Should Execute? ",
-        not conflict_resolve_summary[0].get("has_conflict", False),
-    )
-
-    state["should_execute"] = not conflict_resolve_summary[0].get("has_conflict", False)
-    state["adjusted_order_details"] = evaluation_result
-    state["risk_evaluation"] = evaluation_result.get("metrics", {})
+    print ("   [🛡️ Risk Layer] Should Execute? ", should_execute)
+    
+    # state["conflict_resolution"] = conflict_resolve_summary.get("conflict_resolution", {})
+    state["should_execute"] = should_execute
+    state["adjusted_order_details"] = evaluation_result.adjusted_trade
+    state["risk_evaluation"] = evaluation_result
     return state
 
 
@@ -90,19 +94,10 @@ async def resolve_conflicting_position(
     symbol: str,
     side: str,
     qty: float,
+    signal_id: str = ""
 ) -> Dict[str, Any]:
     """
     Determine if a new order conflicts with existing position.
-
-    Returns:
-    {
-      "has_conflict": bool,
-      "current_side": "long" | "short" | "flat",
-      "current_qty": float,
-      "required_close_qty": float,   # how much must be closed first
-      "effective_new_side": "long" | "short" | "flat",
-      "effective_new_qty": float     # remaining qty after close
-    }
     """
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
@@ -110,7 +105,7 @@ async def resolve_conflicting_position(
                 f"{ALPACA_BASE_URL}/orders/resolve-conflicts",
                 json={
                     "symbol": symbol,
-                    "intended_side": side,
+                    "intended_side": side.lower(),
                     "intended_qty": qty,
                     "auto_resolve": True,
                 },
@@ -118,15 +113,22 @@ async def resolve_conflicting_position(
 
             # Extract key info you want
             result = resp.json()
+            result_conflict_detected = result.get("conflicts_detected", {})
+            # [DEBUG]: Print raw conflict resolution result
             print("[🛡️ RISK LAYER RESULT]", result)
             print()
+
+            if result.get("status") == "no_conflict":
+                print(f"   [🛡️ Risk Layer] No conflicts detected for {symbol}.")
+                return {"has_conflict": False}
+            
             # 1. CONFLICT STATUS
-            has_conflict = result["conflicts_detected"]["has_conflict"]
+            has_conflict = result_conflict_detected["has_conflict"]
             print(f"🎯 CONFLICT: {has_conflict}")
 
             # 2. CURRENT POSITION (before resolution)
-            if "current_position" in result["conflicts_detected"]:
-                current_pos = result["conflicts_detected"]["current_position"]
+            if result_conflict_detected.get("current_position", None) is not None:
+                current_pos = result_conflict_detected["current_position"]
                 print("🛡️ RISK LAYER")
                 print(f"  📊 Current qty:     {current_pos['qty']}")
                 print(f"  🔄 Current side:    {current_pos['side']}")
@@ -139,17 +141,28 @@ async def resolve_conflicting_position(
             print("📋 ALL ACTIONS SUMMARY")
             actions_summary = handle_actions_taken(result)
             print(actions_summary)
+
             conflict_resolution: List[db_trade_decision] = []
 
             for act in actions_summary:
                 action_type = act["action"]
-
+                print(f"   [🛡️ Conflict Resolution] Action: {act}")
                 if action_type == "closed_position":
+                    current_position = result_conflict_detected.get("current_position", {})
+
                     vars_dict = db_trade_decision(
                         order_id=act["order_id"],
                         symbol=symbol,
                         action=action_type,
-                        reasonings=f"[Trade Conflict] Closed {act['qty_closed']:.1f} share(s) of {symbol}",
+                        reasonings=f"[Trade Conflict] Closed {act['qty']:.1f} share(s) of {symbol}",
+                        closed_position=closed_position(
+                            qty=current_position.get("qty", 0),
+                            side=current_position.get("side", ""),
+                            market_value=current_position.get("market_value", 0),
+                            avg_entry_price=current_position.get("avg_entry_price", 0),
+                            pnl=current_position.get("unrealized_pl", 0),
+                        ),
+                        signal_id=signal_id
                     )
                 elif action_type == "cancelled_orders":
                     vars_dict = db_trade_decision(
@@ -157,31 +170,10 @@ async def resolve_conflicting_position(
                         symbol=symbol,
                         action=action_type,
                         reasonings=f"[Trade Conflict] Cancelled {act['count']} pending order(s) for {symbol}",
+                        signal_id=signal_id
                     )
 
                 conflict_resolution.append(vars_dict)
-
-            # 🖥️ CLEAN OUTPUT
-            print("⚡ ACTIONS TAKEN")
-            for i, act in enumerate(actions_summary, 1):
-                print(f"  {i}. ✅ {act['action'].replace('_', ' ').title()}")
-                print(f"     Status: {act['status']}")
-
-                if act["action"] == "closed_position":
-                    print(f"     Qty: {act['qty']:.1f} | Side: {act['side']}")
-                    print(f"     Order: {act['order_id']}")
-                    if act.get("reason"):
-                        print(f"     Reason: {act['reason']}")
-                elif act["action"] == "cancelled_orders":
-                    print(f"     Count: {act['count']} orders")
-                    print(f"     Orders: {', '.join(act['order_ids'][:2])}")
-                    if act["details"]:
-                        print(
-                            f"     Details: {act['details']['qty']} {act['details']['side']} {act['details']['order_type']}"
-                        )
-                    if act.get("reason"):
-                        print(f"     Reason: {act['reason']}")
-                print()
 
             # SUMMARY OBJECT (for your agent)
             summary = {
@@ -274,20 +266,18 @@ def handle_actions_taken(result):
     return actions_summary
 
 
-def risk_evaluation_metrics(trade_decision, yahoo_data, account_bp) -> Dict[str, Any]:
-    trade = trade_decision
-    yahoo = yahoo_data
-    account_bp = float(account_bp)  # Ensure float
+def risk_evaluation_metrics(trade: TradingDecision, yahoo_data: YahooData, account_bp: str) -> RiskAssessment:
+    account_bp = float(account_bp)
 
-    current_price = float(trade["current_stock_price"])
-    atr = float(yahoo["indicators"]["atr14"])
-    resistance = float(yahoo["indicators"]["resistance"])
-    support = float(yahoo["indicators"]["support"])
-    entry_price = float(trade["entry_price"])
+    current_price = yahoo_data.price
+    atr = yahoo_data.atr14
+    resistance = yahoo_data.resistance
+    support = yahoo_data.support
+    entry_price = trade.entry_price
 
     # 1. 🚨 DIRECTIONAL VALIDATION & AUTO-FIX
     issues = []
-    adjusted_trade = trade.copy()
+    adjusted_trade: TradingDecision = dataclasses.replace(trade)
 
     price_diff_pct = abs(entry_price - current_price) / current_price * 100
 
@@ -302,18 +292,18 @@ def risk_evaluation_metrics(trade_decision, yahoo_data, account_bp) -> Dict[str,
             }
         )
 
-    adjusted_trade["entry_price"] = entry_price
+    adjusted_trade.entry_price = entry_price
 
-    if trade["action"] == "BUY":
+    if trade.action == TradeAction.BUY:
         # BUY: SL must be BELOW entry, TP must be ABOVE entry
-        original_sl = trade.get("stop_loss")
-        original_tp = trade.get("take_profit")
+        original_sl = trade.stop_loss
+        original_tp = trade.take_profit
 
         new_sl = max(support, entry_price - atr)
         new_tp = min(resistance, entry_price + (atr * 2))
 
-        adjusted_trade["stop_loss"] = new_sl
-        adjusted_trade["take_profit"] = new_tp
+        adjusted_trade.stop_loss = new_sl
+        adjusted_trade.take_profit = new_tp
 
         if original_sl is not None and new_sl != original_sl:
             issues.append(
@@ -332,16 +322,16 @@ def risk_evaluation_metrics(trade_decision, yahoo_data, account_bp) -> Dict[str,
                 }
             )
 
-    elif trade["action"] == "SELL":
+    elif trade.action == TradeAction.SELL:
         # SELL: SL must be ABOVE entry, TP must be BELOW entry
-        original_sl = trade.get("stop_loss")
-        original_tp = trade.get("take_profit")
+        original_sl = trade.stop_loss
+        original_tp = trade.take_profit
 
         new_tp = max(support, entry_price - (atr * 2))
         new_sl = min(resistance, entry_price + atr)
 
-        adjusted_trade["take_profit"] = new_tp
-        adjusted_trade["stop_loss"] = new_sl
+        adjusted_trade.take_profit = new_tp
+        adjusted_trade.stop_loss = new_sl
 
         if original_sl is not None and new_sl != original_sl:
             issues.append(
@@ -359,103 +349,102 @@ def risk_evaluation_metrics(trade_decision, yahoo_data, account_bp) -> Dict[str,
                     "adjustment": f"Moved TP from {original_tp} to {new_tp} to sit below entry and near support 2×ATR.",
                 }
             )
-
     # 2. 📊 RISK CALCULATIONS - ALL FLOATS
     risk_per_share = abs(
-        float(adjusted_trade["entry_price"]) - float(adjusted_trade["stop_loss"])
+        float(adjusted_trade.entry_price) - float(adjusted_trade.stop_loss)
     )
     reward_per_share = abs(
-        float(adjusted_trade["take_profit"]) - float(adjusted_trade["entry_price"])
+        float(adjusted_trade.take_profit) - float(adjusted_trade.entry_price)
     )
-    actual_rr = reward_per_share / risk_per_share
+    actual_rr = reward_per_share / risk_per_share if risk_per_share > 0 else 0
 
-    max_risk_pct = 0.05 if float(trade["confidence"]) >= 0.8 else 0.03
+    max_risk_pct = 0.05 if float(adjusted_trade.confidence) >= 0.8 else 0.03
     max_risk_dollars = account_bp * max_risk_pct
     suggested_qty = max_risk_dollars // current_price
-    adjusted_trade["qty"] = suggested_qty  # Use suggested qty for 5% risk
+    adjusted_trade.qty = suggested_qty  # Use suggested qty for 5% risk
 
     total_risk_dollars = suggested_qty * risk_per_share  # ✅ Now float * float
     risk_pct_account = (total_risk_dollars / account_bp) * 100
-
+    
     # 3. 🎯 SCORING
-    risk_score = float(trade["confidence"])
+    risk_score = float(adjusted_trade.confidence)
     near_resistance = abs(current_price - resistance) < atr
     risk_score += 0.2 if near_resistance else 0.0
     risk_score += 0.1 if atr > 5.0 else 0.0
     risk_score += 0.15 if actual_rr >= 1.5 else -0.1
     risk_score += 0.1 if risk_pct_account >= 2.0 else 0.0
 
-    return {
-        "risk_status": "APPROVED" if risk_score >= 0.9 else "REVIEW",
-        "risk_score": round(min(risk_score, 1.5), 2),
-        "adjusted_trade": adjusted_trade,
-        "metrics": {
-            "risk_score": round(min(risk_score, 1.5), 2),
-            "risk_per_share": f"${risk_per_share:.2f}",
-            "reward_per_share": f"${reward_per_share:.2f}",
-            "actual_rr": f"{actual_rr:.1f}:1",
-            "total_risk": f"${total_risk_dollars:.0f} ({risk_pct_account:.1f}%)",
-            "suggested_qty": f"{suggested_qty:.0f}",
-            "near_resistance": near_resistance,
-            "atr_distance": f"{atr:.1f}",
-            "max_risk_5pct": f"${max_risk_dollars:.0f}",
-        },
-        "issues": issues,
-    }
+    risk_metric = RiskMetrics(
+        risk_score=round(min(risk_score, 1.5), 2),
+        risk_per_share=f"${risk_per_share:.2f}",
+        reward_per_share=f"${reward_per_share:.2f}",
+        actual_rr=f"{actual_rr:.1f}:1",
+        total_risk=f"${total_risk_dollars:.0f} ({risk_pct_account:.1f}%)",
+        suggested_qty=f"{suggested_qty:.0f}",
+        near_resistance=near_resistance,
+        atr_distance=f"{atr:.1f}",
+        max_risk_5pct=f"${max_risk_dollars:.0f}",
+    )
+
+    risk_assessment = RiskAssessment(
+        risk_status="APPROVED" if risk_score >= 0.9 else "REVIEW",
+        risk_score=round(min(risk_score, 1.5), 2),
+        adjusted_trade=adjusted_trade,
+        metrics=risk_metric,
+        issues=issues,
+    )
+
+    return risk_assessment
 
 
 ## Printing helper
-def print_risk_evaluation(evaluation_result):
+def print_risk_evaluation(evaluation_result: RiskAssessment):
     """Pretty print risk evaluation results"""
-
-    result = evaluation_result
-    print(result)
-    trade = result["adjusted_trade"]
-    metrics = result["metrics"]
-
     # Header
     print("\n" + "=" * 60)
     print("🎯 RISK EVALUATION REPORT")
     print("=" * 60)
 
-    # Status
-    status_emoji = "✅" if result["risk_status"] == "APPROVED" else "⚠️"
-    print(f"\n{status_emoji} STATUS: {result['risk_status']}")
-    print(f"📊 RISK SCORE: {result['risk_score']:.2f}/1.50")
+    # Status  
+    status_emoji = "✅" if evaluation_result.risk_status == "APPROVED" else "⚠️"
+    print(f"\n{status_emoji} STATUS: {evaluation_result.risk_status}")
+    print(f"📊 RISK SCORE: {evaluation_result.risk_score:.2f}/1.50")
 
     # Trade Details
+    trade = evaluation_result.adjusted_trade
     print("\n📋 TRADE SETUP")
-    print(f"  Action:        {trade['action']}")
-    print(f"  Symbol:        {trade.get('ticker', 'N/A')}")
-    print(f"  Confidence:    {trade['confidence'] * 100:.0f}%")
-    print(f"  Entry:         ${trade['entry_price']:.2f}")
-    print(f"  Stop Loss:     ${trade['stop_loss']:.2f}")
-    print(f"  Take Profit:   ${trade['take_profit']:.2f}")
-    print(f"  Quantity:      {trade['qty']} shares")
+    print(f"  Action:        {trade.action.value}")
+    print(f"  Symbol:        {trade.ticker if hasattr(trade, 'ticker') else 'N/A'}")
+    print(f"  Confidence:    {trade.confidence * 100:.0f}%")
+    print(f"  Entry:         ${trade.entry_price:.2f}")
+    print(f"  Stop Loss:     ${trade.stop_loss:.2f}")
+    print(f"  Take Profit:   ${trade.take_profit:.2f}")
+    print(f"  Quantity:      {trade.qty} shares")
 
     # Risk Metrics
+    metrics = evaluation_result.metrics
     print("\n💰 RISK METRICS")
-    print(f"  Risk/Share:    {metrics['risk_per_share']}")
-    print(f"  Reward/Share:  {metrics['reward_per_share']}")
-    print(f"  Actual R:R:    {metrics['actual_rr']}")
-    print(f"  Total Risk:    {metrics['total_risk']}")
+    print(f"  Risk/Share:    {metrics.risk_per_share}")
+    print(f"  Reward/Share:  {metrics.reward_per_share}")
+    print(f"  Actual R:R:    {metrics.actual_rr}")
+    print(f"  Total Risk:    {metrics.total_risk}")
 
     # Position Sizing
     print("\n📐 POSITION SIZING")
-    print(f"  Current Qty:   {trade['qty']} shares")
-    print(f"  Suggested Qty: {metrics['suggested_qty']} shares (5% risk)")
-    print(f"  Max Risk (5%): {metrics['max_risk_5pct']}")
+    print(f"  Current Qty:   {trade.qty} shares")
+    print(f"  Suggested Qty: {metrics.suggested_qty} shares (5% risk)")
+    print(f"  Max Risk (5%): {metrics.max_risk_5pct}")
 
     # Technical Context
     print("\n📈 TECHNICAL CONTEXT")
-    print(f"  Near Resistance: {'Yes ✅' if metrics['near_resistance'] else 'No'}")
-    print(f"  ATR Distance:    {metrics['atr_distance']}")
+    print(f"  Near Resistance: {'Yes ✅' if metrics.near_resistance else 'No'}")
+    print(f"  ATR Distance:    {metrics.atr_distance}")
 
     # Thesis
-    if "thesis" in trade:
+    if hasattr(trade, 'thesis') and trade.thesis:
         print("\n💡 THESIS")
         # Wrap thesis text
-        thesis = trade["thesis"]
+        thesis = trade.thesis
         max_width = 56
         words = thesis.split()
         lines = []
@@ -473,9 +462,9 @@ def print_risk_evaluation(evaluation_result):
         print("\n".join(lines))
 
     # Issues/Warnings
-    if result["issues"]:
+    if evaluation_result.issues:
         print("\n⚠️ ADJUSTMENTS MADE")
-        for issue in result["issues"]:
+        for issue in evaluation_result.issues:
             print(f"  • {issue}")
     else:
         print("\n✅ NO ADJUSTMENTS NEEDED")

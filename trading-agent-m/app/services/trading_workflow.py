@@ -6,10 +6,10 @@ from langgraph.graph import END, START, StateGraph
 from app.agents.nodes import (
     node_decide_trade,
     node_execute_trade,
-    node_lookup_qdrant,
     node_fetch_market_data,
     node_risk_adjust_trade,
     node_trade_logging,
+    node_fetch_signal_data
 )
 from app.agents.state import AgentState
 
@@ -25,7 +25,7 @@ class TradingWorkflow:
         reasoning_with_llm = partial(node_decide_trade, self.llm)
 
         # 1. Nodes
-        graph.add_node("lookup_context", node_lookup_qdrant)
+        graph.add_node("lookup_context", node_fetch_signal_data)
         graph.add_node("fetch_market_data", node_fetch_market_data)
         graph.add_node("reasoning", reasoning_with_llm)
         graph.add_node("node_risk_adjust_trade", node_risk_adjust_trade)
@@ -36,10 +36,9 @@ class TradingWorkflow:
         graph.add_edge(START, "lookup_context")
         graph.add_edge("lookup_context", "fetch_market_data")
         graph.add_edge("fetch_market_data", "reasoning")
-        graph.add_edge("reasoning", "node_risk_adjust_trade")
         graph.add_edge("execute", "trade_logging")
 
-        # Conditional: Only trade if the brain says so
+        # # Conditional: Only trade if the brain says so
         graph.add_conditional_edges(
             "reasoning",
             self.edge_has_trade_opportunity,
@@ -65,7 +64,7 @@ class TradingWorkflow:
 
     # ###### Public Runner ######
     async def run(self, input_data: dict):
-        result = await self.graph.ainvoke(input_data)  # type: ignore
+        result = await self.graph.ainvoke(input_data)
         return result
 
     def export_graph(self):

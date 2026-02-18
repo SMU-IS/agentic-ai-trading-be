@@ -1,18 +1,26 @@
 import asyncio
 
-from langchain_ollama import ChatOllama
+# from langchain_ollama import ChatOllama
 
 from app.services.trading_workflow import TradingWorkflow
+from app.core.config import env_config
+from app.services.trading_workflow import TradingWorkflow
+from langchain_perplexity import ChatPerplexity  # Requires: pip install langchain-perplexity
 
 
 async def main():
-    ollama = ChatOllama(
-        model="llama3.1:latest",
-        temperature=0.1,
-        base_url="http://localhost:11434",
+    # ollama = ChatOllama(
+    #     model="llama3.1:latest",
+    #     temperature=0.1,
+    #     base_url="http://localhost:11434",
+    # )
+    llm = ChatPerplexity(
+        pplx_api_key=env_config.perplexity_api_key,  # PPLX_API_KEY env var [web:11]
+        model=env_config.perplexity_model,  # Search-enabled model for trading/news [web:19][web:21]
+        temperature=env_config.perplexity_temperature or 0.2,
     )
 
-    workflow = TradingWorkflow(llm_client=ollama)
+    workflow = TradingWorkflow(llm_client=llm)
 
     # Test cases
     test_cases = [
