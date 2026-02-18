@@ -49,4 +49,4 @@ services:
     command: >
       sh -c "python -m app.services.orchestration &
             fastapi dev app/main.py --host 0.0.0.0 --port 5002"
-      restart: unless-stopped
+    restart: unless-stopped
