@@ -37,7 +37,6 @@ async def lifespan(app: FastAPI):
                 await workflow.run(signal)
             except Exception as e:
                 print(f"❌ Workflow error for {signal.signal_id}: {e}")
-            return
 
     
     signal_task = asyncio.create_task(process_signals())

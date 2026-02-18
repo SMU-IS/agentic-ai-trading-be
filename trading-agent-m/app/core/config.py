@@ -12,11 +12,6 @@ class EnvConfig(BaseSettings):
         env_file=ENV_PATH, env_file_encoding="utf-8", extra="ignore"
     )
 
-    # Ollama
-    # ollama_base_url: str = Field(..., validation_alias="OLLAMA_BASE_URL")
-    # ollama_temperature: float = Field(..., validation_alias="TEMPERATURE")
-    # large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
-
     # Redis Stream
     redis_host: str = os.getenv("REDIS_HOST", "localhost:6379")
     redis_port: str = os.getenv("REDIS_PORT", "17989")

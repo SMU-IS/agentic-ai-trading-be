@@ -1,13 +1,10 @@
 import httpx
-import os
 from typing import Dict, Any, List
-from app.agents.state import AgentState, MarketData, RiskAssessment, RiskMetrics, TradingDecision
-import json
+from app.agents.state import AgentState, RiskAssessment, RiskMetrics, TradingDecision
 import dataclasses
+from app.core.config import env_config
 
-TRADING_DB_BASE_URL = os.getenv(
-    "TRADING_DB_BASE_URL", "http://localhost:8000/api/v1/trading/decisions"
-)
+TRADING_DB_BASE_URL = f"{env_config.trading_service_url}/decisions"
 
 def to_serializable(obj: Any) -> Any:
     """Convert dataclasses/enums to JSON-serializable format"""
