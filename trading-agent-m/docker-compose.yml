@@ -1,6 +1,8 @@
 services:
   trading-agent-m-service:
     build: .
+    env_file:
+      - .env
     container_name: trading-agent-m-container
     ports:
       - "5006:5006"
@@ -8,17 +10,17 @@ services:
       - .:/code
     environment:
         # Redis
-        - REDIS_HOST=${REDIS_HOST:-localhost}
-        - REDIS_PORT=${REDIS_PORT:-17989}
-        - REDIS_PASSWORD=${REDIS_PASSWORD:-password}
-        - REDIS_SIGNAL_STREAM=${REDIS_SIGNAL_STREAM:-trading_signals}
+        - REDIS_HOST=${REDIS_HOST}
+        - REDIS_PORT=${REDIS_PORT}
+        - REDIS_PASSWORD=${REDIS_PASSWORD}
+        - REDIS_SIGNAL_STREAM=${REDIS_SIGNAL_STREAM}
         
         # Perplexity (NEW)
         - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
-        - PERPLEXITY_MODEL=${PERPLEXITY_MODEL:-sonar}
-        - PERPLEXITY_TEMPERATURE=${PERPLEXITY_TEMPERATURE:-0.2}
+        - PERPLEXITY_MODEL=${PERPLEXITY_MODEL}
+        - PERPLEXITY_TEMPERATURE=${PERPLEXITY_TEMPERATURE}
         
         # Trading APIs (NEW)
-        - TRADING_SERVICE_URL=${TRADING_SERVICE_URL:-http://localhost:8000/api/v1/trading}
+        - TRADING_SERVICE_URL=${TRADING_SERVICE_URL}
         
     command: uvicorn app.main:app --host 0.0.0.0 --port 5006 --reload

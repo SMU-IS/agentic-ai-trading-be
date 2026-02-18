@@ -13,7 +13,12 @@ class RedisService:
         self.redis_aggregator_stream = None
     
     async def connect(self):
-        redis_con = f"redis://:{settings.redis_password}@{settings.redis_host}:{settings.redis_port}"
+        # Handle cases where redis_host might already contain a port
+        if ":" in settings.redis_host:
+            redis_con = f"redis://:{settings.redis_password}@{settings.redis_host}"
+        else:
+            redis_con = f"redis://:{settings.redis_password}@{settings.redis_host}:{settings.redis_port}"
+            
         self.redis = await aioredis.from_url(redis_con)
 
         self.redis_signal_stream = settings.redis_signal_stream
