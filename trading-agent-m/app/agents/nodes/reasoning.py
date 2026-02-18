@@ -1,7 +1,6 @@
 import json
 import re
 
-from app.agents.state import AgentState
 from langchain_core.prompts import ChatPromptTemplate
 from app.agents.state import AgentState, TradingDecision, TradeAction
 
@@ -125,7 +124,7 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
     try:
         response = await chain.ainvoke(input_vars)
         decision = parse_llm_json(response.content)
-        print(f"   [✅ LLM Response Parsed] successfully parsed trade decision.")
+        print("   [✅ LLM Response Parsed] successfully parsed trade decision.")
         ### Ensure ticker is included in decision for downstream nodes
         decision.ticker = signal_data.ticker 
 
