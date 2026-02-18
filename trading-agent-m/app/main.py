@@ -1,26 +1,28 @@
-from fastapi import FastAPI, status
-from fastapi.responses import JSONResponse
 import asyncio
 from contextlib import asynccontextmanager
 
-from app.services.redis_service import RedisService  # Your RedisService class
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
+from langchain_perplexity import (
+    ChatPerplexity,  # Requires: pip install langchain-perplexity
+)
 
 from app.core.config import env_config
+from app.services.redis_service import RedisService  # Your RedisService class
 from app.services.trading_workflow import TradingWorkflow
-from langchain_perplexity import ChatPerplexity  # Requires: pip install langchain-perplexity
-
 
 redis_service: RedisService = None
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     global redis_service, workflow, signal_task
-    
+
     # Init Redis
     redis_service = RedisService()
     await redis_service.connect()
-    
+
     # Init Perplexity LLM + TradingWorkflow
     llm = ChatPerplexity(
         pplx_api_key=env_config.perplexity_api_key,
@@ -28,7 +30,7 @@ async def lifespan(app: FastAPI):
         temperature=env_config.perplexity_temperature or 0.2,
     )
     workflow = TradingWorkflow(llm_client=llm)
-    
+
     # Start signal processing task
     async def process_signals():
         async for signal in redis_service.listen_signal_stream():
@@ -38,9 +40,8 @@ async def lifespan(app: FastAPI):
             except Exception as e:
                 print(f"❌ Workflow error for {signal.signal_id}: {e}")
 
-    
     signal_task = asyncio.create_task(process_signals())
-    
+
     yield
     # Shutdown
     signal_task.cancel()
@@ -61,28 +62,23 @@ async def health_check():
         if redis_service.redis is None:
             return JSONResponse(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                content={"status": "error", "message": "Redis not connected"}
+                content={"status": "error", "message": "Redis not connected"},
             )
-        
+
         # Ping Redis
         pong = await redis_service.redis.ping()
         stream_len = await redis_service.redis.xlen(redis_service.redis_signal_stream)
-        
+
         return {
             "status": "healthy",
             "redis": {
                 "connected": True,
                 "ping": pong,
-                "signal_stream_length": stream_len
-            }
+                "signal_stream_length": stream_len,
+            },
         }
     except Exception as e:
         return JSONResponse(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            content={"status": "error", "message": str(e)}
+            content={"status": "error", "message": str(e)},
         )
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
