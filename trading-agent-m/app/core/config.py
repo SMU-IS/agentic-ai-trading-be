@@ -12,7 +12,7 @@ class EnvConfig(BaseSettings):
     )
 
     # Redis Stream
-    redis_host: str = os.getenv("REDIS_HOST", "localhost:6379")
+    redis_host: str = os.getenv("REDIS_HOST", "localhost")
     redis_port: str = os.getenv("REDIS_PORT", "17989")
     redis_password: str = os.getenv("REDIS_PASSWORD", "password")
     redis_signal_stream: str = os.getenv("REDIS_SIGNAL_STREAM", "trading_signal_stream")

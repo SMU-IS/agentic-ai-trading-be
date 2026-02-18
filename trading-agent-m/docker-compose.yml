@@ -1,6 +1,8 @@
 services:
   trading-agent-m-service:
     build: .
+    env_file:
+      - .env
     container_name: trading-agent-m-container
     ports:
       - "5006:5006"

@@ -66,13 +66,13 @@ services:
         strip_path: true
 
   # === Notification Microservice 5004 ===
-  # - name: notification-entry
-  #   url: http://notification-service:5004
-  #   routes:
-  #     - name: notification-routes
-  #       paths:
-  #         - /api/v1/notification
-  #       strip_path: true
+  - name: notification-entry
+    url: http://notification-service:5004
+    routes:
+      - name: notification-routes
+        paths:
+          - /api/v1/notification
+        strip_path: true
 
   # === User Info Microservice 5005 ===
   - name: user-service-entry
