@@ -31,20 +31,25 @@ class SentimentBridge:
 
                     ticker_meta = json.loads(ticker_meta_raw.strip('"'))
 
+                    tickers_info = []
                     for ticker, meta in ticker_meta.items():
-                        notification_data = {
-                            "event_type": "NEWS_UPDATE",
-                            "id": data.get("id").strip('"') if data.get("id") else None,
-                            "ticker": ticker,
-                            "event_type_meta": meta.get("event_type"),
-                            "sentiment_score": meta.get("sentiment_score"),
-                            "sentiment_confidence": meta.get("sentiment_confidence"),
-                        }
+                        tickers_info.append({
+                            "symbol": ticker,
+                            "event_type": meta.get("event_type") or "",
+                            "sentiment_label": meta.get("sentiment_label") or ""
+                        })
 
-                        await self.r.xadd(
-                            self.notification_stream,
-                            notification_data,
-                        )
-                        print("🔁 News event:", notification_data)
+                    notification_data = {
+                        "id": (data.get("id") or "").strip('"'),
+                        "headline": json.loads(data.get("content") or "{}").get("title", ""),
+                        "tickers": json.dumps(tickers_info),
+                        "event_description": "; ".join([meta.get("event_description") or "" for meta in ticker_meta.values()])
+                    }
+
+                    await self.r.xadd(
+                        self.notification_stream,
+                        notification_data,
+                    )
+                    print("🔁 News event:", notification_data)
 
                     last_id = event_id

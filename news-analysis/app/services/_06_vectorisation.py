@@ -1,33 +1,49 @@
-from typing import Any
+import logging
 from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends
 from langchain_core.documents import Document
-from qdrant_client.http import models
+from qdrant_client import models
 
 from app.core.security import get_current_user
 from app.providers.vector.strategy import QdrantGeminiStrategy
 from app.schemas.compiled_news_payload import NewsAnalysisPayload
-from app.schemas.query_docs_payload import QueryDocsRequest
 from app.schemas.raw_news_payload import RedditSourcePayload
 
 router = APIRouter(tags=["Ingest Documents"], dependencies=[Depends(get_current_user)])
+
+
+logger = logging.getLogger(__name__)
 
 
 class VectorisationService:
     def __init__(
         self,
     ):
-        strategy = QdrantGeminiStrategy()
-        self.vector_store = strategy.get_vector_store()
+        self.strategy = QdrantGeminiStrategy()
+        self.vector_store = self.strategy.get_vector_store()
 
-    async def setup_indexing(self):
-        client = self.vector_store.client  # type: ignore
-        client.create_payload_index(
-            collection_name="news_analysis_compiled",
-            field_name="metadata.tickers",
-            field_schema=models.PayloadSchemaType.KEYWORD,
-        )
+    async def _setup_indexing(
+        self, field_name: str, collection_name="news_analysis_compiled"
+    ):
+        try:
+            client = self.vector_store.client
+            client.create_payload_index(
+                collection_name=collection_name,
+                field_name=field_name,
+                field_schema=models.PayloadSchemaType.KEYWORD,
+            )
+        except Exception as e:
+            logger.warning(f"Index on {field_name} may already exist: {e}")
+
+    async def ensure_indexes(self):
+        """
+        Idempotent: Checks and creates necessary indexes for efficient querying.
+        """
+
+        await self._setup_indexing(field_name="tickers")
+        await self._setup_indexing(field_name="tickers_metadata[].ticker")
+        await self._setup_indexing(field_name="tickers_metadata[].event_type")
 
     async def get_sanitised_news_payload(self, processed_source: RedditSourcePayload):
         fields = processed_source.fields
@@ -57,6 +73,16 @@ class VectorisationService:
             else:
                 continue
 
+        transformed_tickers_flat = [
+            {
+                "ticker": ticker,
+                "event_type": data["event_type"],
+                "sentiment_score": data["sentiment_score"],
+                "sentiment_label": data["sentiment_label"],
+            }
+            for ticker, data in transformed_tickers.items()
+        ]
+
         url = fields.url
         try:
             domain = urlparse(url).netloc
@@ -71,7 +97,7 @@ class VectorisationService:
             "metadata": {
                 "topic_id": topic_id,
                 "tickers": list(transformed_tickers.keys()),
-                "tickers_metadata": transformed_tickers,
+                "tickers_metadata": transformed_tickers_flat,
                 "timestamp": timestamps,
                 "source_domain": domain,
                 "credibility_score": engagement.upvote_ratio,
@@ -101,52 +127,3 @@ class VectorisationService:
         except Exception as e:
             print(f"❌ Error ingesting document: {str(e)}")
             raise RuntimeError(f"Failed to ingest document: {e}") from e
-
-    async def retrieve_ticker_insights(
-        self, payload: QueryDocsRequest
-    ) -> list[dict[str, Any]]:
-        """
-        Performs a semantic similarity search to identify and retrieve relevant context.
-
-        Args:
-            payload (QueryDocsRequest): An object containing:
-                - query (str): The search text.
-                - limit (int): Max number of results.
-                - tickers (list[str]): List of tickers to filter by.
-
-        Returns:
-            list[dict[str, Any]]: List of documents with metadata and similarity score.
-        """
-
-        filter_by_tickers = models.Filter(
-            must=[
-                models.FieldCondition(
-                    key="metadata.tickers",
-                    match=models.MatchAny(any=payload.tickers),
-                )
-            ]
-        )
-
-        try:
-            results = await self.vector_store.asimilarity_search_with_score(
-                query=payload.query, k=payload.limit, filter=filter_by_tickers
-            )
-
-            formatted_results = []
-            for doc, score in results:
-                formatted_results.append(
-                    {
-                        "topic_id": doc.metadata.get("topic_id"),
-                        "text_content": doc.metadata.get("text_content"),
-                        "similarity_score": score,
-                    }
-                )
-
-            print(
-                f"✅ Found {len(formatted_results)} documents for query: '{payload.query}'"
-            )
-            return formatted_results
-
-        except Exception as e:
-            print(f"❌ Error during retrieval: {str(e)}")
-            raise RuntimeError(f"Failed to retrieve documents: {e}") from e

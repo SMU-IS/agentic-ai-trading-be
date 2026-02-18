@@ -39,6 +39,7 @@ class EnvConfig(BaseSettings):
     # LLM
     # Ollama:
     ollama_base_url: str = Field(..., validation_alias="OLLAMA_BASE_URL")
+    large_language_model_llama: str = Field(default="llama3.1", validation_alias="LARGE_LANGUAGE_MODEL_LLAMA_LOCAL")
 
     # Gemini:
     llm_provider_gemini: str = Field(
