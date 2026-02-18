@@ -3,6 +3,7 @@ import re
 
 from app.agents.state import AgentState
 from langchain_core.prompts import ChatPromptTemplate
+from app.agents.state import AgentState, TradingDecision, TradeAction
 
 
 async def node_decide_trade(llm, state: AgentState) -> AgentState:
@@ -10,15 +11,26 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
     Brain: Uses LLM for short-term swing trades driven by news volatility.
     Goal: Capture 2-5 day swings against short-term news-driven volatility.
     """
-    print(f"   [🧠 Swing Trading Brain] Analyzing {state['ticker']}...")
 
-    def get_market_summary(state: AgentState) -> str:
-        """Safe market data extraction."""
-        market = state.get("market_data", {})
-        return json.dumps(market)
+    signal_data = state["signal_data"]
+    market_summary = state["market_data"].to_prompt() if state.get("market_data") else "No market data available."
+    # 2. Prepare enriched input for LLM
+    input_vars = {
+        "ticker": signal_data.ticker,
+        "romour_summary": signal_data.rumor_summary,
+        "credibility": signal_data.credibility,
+        "credibility_reason": signal_data.credibility_reason,
+        "trade_signal": signal_data.trade_signal,
+        "confidence": signal_data.confidence,
+        "trade_rationale": signal_data.trade_rationale,
+        "position_size_pct": signal_data.position_size_pct,
+        "stop_loss_pct": signal_data.stop_loss_pct,
+        "target_pct": signal_data.target_pct,
 
-    market_summary = get_market_summary(state)
+        "market_summary": market_summary,
+    }
 
+    print(f"   [🧠 Swing Trading Brain] Analyzing {signal_data.ticker}...")
     # Enhanced prompt for news-driven swing trading
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -57,9 +69,16 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
             (
                 "human",
                 """
-            NEWS SIGNAL:
-            Sentiment: {sentiment} (score: {score})
-            Event Type: {event_type}
+            Here are some insights about the trade signal and market context for {ticker}:
+            Rumor: {romour_summary}
+            Credibility: {credibility} ({credibility_reason})
+            Trade Signal: {trade_signal}
+            Confidence: {confidence}
+            Trade Rationale: {trade_rationale}
+            Position Size: {position_size_pct}%
+            Stop Loss: {stop_loss_pct}%
+            Target: {target_pct}%
+
 
             ANALYSIS REQUIRED:
             1. News impact assessment
@@ -90,41 +109,67 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
             
             
             if you think there should not be any trade, return action as HOLD with qty 0.
+
+            DEBUG FEATURE: If you are unsure about the trade, return a HOLD with a detailed thesis explaining why you are uncertain. This will help improve the model over time.
+            TESTING NOTE: For testing purpose, you can return a BUY with entry price just slightly above current stock price, and stop loss just below current stock price, to simulate a valid swing trade.
+            
+            CURRENT MODE: TESTING
             """,
             ),
         ]
     )
 
-    # 2. Prepare enriched input for LLM
-    input_vars = {
-        "ticker": state["ticker"],
-        "sentiment": state["signal"].get("sentiment", "neutral"),
-        "score": state["signal"].get("score", 0.0),
-        "event_type": state["signal"].get("event_type", "general"),
-        "market_summary": market_summary,
-    }
-
     # 3. Invoke LLM
     chain = prompt | llm
-    response = await chain.ainvoke(input_vars)
+    try:
+        # response = await chain.ainvoke(input_vars)
+        # decision = parse_llm_json(response.content)
+        # Ensure ticker is included in decision for downstream nodes
+        # decision.ticker = signal_data.ticker 
 
-    decision = parse_llm_json(response.content)
-    if decision.get("action") not in ["BUY", "SELL", "HOLD"]:
-        decision["action"] = "HOLD"
+        ### For testing, hardcoding decision
+        decision = TradingDecision(
+            action=TradeAction.BUY, 
+            confidence=0.3, 
+            entry_price=202.93, 
+            stop_loss=195.54, 
+            take_profit=210.91, 
+            qty=0, 
+            risk_reward='1.2:1', 
+            thesis="DEBUG ON; Testing mode enabled.", 
+            current_stock_price=202.69, 
+            ticker='AMZN')
+    except Exception as e:
+        print(f"   [❌ LLM Error] {e}")
+        decision = TradingDecision(
+            action=TradeAction.HOLD,
+            confidence=0.0,
+            entry_price=0.0,
+            stop_loss=0.0,
+            take_profit=0.0,
+            qty=0.0,
+            risk_reward="0:1",
+            thesis="LLM error - no trade",
+            current_stock_price=state.get("market_data").latest_quote.ask_price if state.get("market_data") else 0.0
+        )
 
-    return {
-        "order_details": {
-            **decision,
-            "ticker": state["ticker"],
-        },
-        "has_trade_opportunity": decision.get("action") in ["BUY", "SELL"],
-    }
+    if decision.action == TradeAction.HOLD:
+        print("   [🧠 Brain Decision] No trade opportunity identified. Action: HOLD")
+    else:
+        print(f"   [🧠 Brain Decision] Trade opportunity identified! Action: {decision.action}, Entry: ${decision.entry_price:.2f}, SL: ${decision.stop_loss:.2f}, TP: ${decision.take_profit:.2f}")
+    
+    print(f"   [✅ Brain Output] {decision.to_prompt()}")
+    state["has_trade_opportunity"] = decision.action in [TradeAction.BUY, TradeAction.SELL]
+    print(f"   [✅ Trade Opportunity] {'Yes' if state['has_trade_opportunity'] else 'No'}")
+    state["order_details"] = decision
+    print("Testing purpose - setting should_execute to True to test downstream nodes.")
+    print(decision)
+    return state
 
 
 # Helper function to parse LLM JSON responses robustly
 def parse_llm_json(response_content: str) -> dict:
     content = response_content.strip()
-    print("Raw LLM:", content)
 
     # Step 1: Extract JSON (handles ```json, ```, raw, or nested)
     json_match = re.search(
@@ -146,10 +191,10 @@ def parse_llm_json(response_content: str) -> dict:
 
     try:
         decision = json.loads(raw_json)
-        print("✅ Parsed:", decision)
+        decision = TradingDecision.from_dict(decision)
         return decision
     except json.JSONDecodeError as e:
-        print(f"❌ Parse failed: {e} | Raw: {raw_json[:200]}...")
+        print(f"❌ Parse failed: {e} | Raw: {raw_json}...")
         return fallback_decision()
 
 

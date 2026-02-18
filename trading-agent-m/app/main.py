@@ -1,51 +1,89 @@
-import logging
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
+import asyncio
+from contextlib import asynccontextmanager
 
-from fastapi import APIRouter, FastAPI
+from app.services.redis_service import RedisService  # Your RedisService class
 
-from app.agents.graph import app_workflow
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger("API")
+from app.core.config import env_config
+from app.services.trading_workflow import TradingWorkflow
+from langchain_perplexity import ChatPerplexity  # Requires: pip install langchain-perplexity
 
 
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     logger.info("🚀 API Starting up...")
-#     task = asyncio.create_task(start_consumer())
+redis_service: RedisService = None
 
-#     yield
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    global redis_service, workflow, signal_task
+    
+    # Init Redis
+    redis_service = RedisService()
+    await redis_service.connect()
+    
+    # Init Perplexity LLM + TradingWorkflow
+    llm = ChatPerplexity(
+        pplx_api_key=env_config.perplexity_api_key,
+        model=env_config.perplexity_model or "llama-3.1-sonar-small-128k-online",
+        temperature=env_config.perplexity_temperature or 0.2,
+    )
+    workflow = TradingWorkflow(llm_client=llm)
+    
+    # Start signal processing task
+    async def process_signals():
+        async for signal in redis_service.listen_signal_stream():
+            try:
+                print(f"🚀 Processing signal: {signal.signal_id}")
+                await workflow.run(signal)
+            except Exception as e:
+                print(f"❌ Workflow error for {signal.signal_id}: {e}")
+            return
 
-#     logger.info("🛑 API Shutting down...")
-#     task.cancel()
-
-#     try:
-#         await task
-#     except asyncio.CancelledError:
-#         logger.info("✅ Worker cancelled successfully")
-
-
-# app = FastAPI(lifespan=lifespan)
-app = FastAPI()
-router = APIRouter()
-
-
-@app.get("/healthcheck")
-def health():
-    return {"status": "Trading Agent M service is healthy"}
+    
+    signal_task = asyncio.create_task(process_signals())
+    
+    yield
+    # Shutdown
+    signal_task.cancel()
+    try:
+        await signal_task
+    except asyncio.CancelledError:
+        pass
+    await redis_service.close()
 
 
-@router.post("/trading-agent")
-async def run_agent(signal_data: dict):
-    result = await app_workflow.run(signal_data)
-    return result
+app = FastAPI(lifespan=lifespan)
 
 
-"""
-TODO: to be removed, for testing purpose only
+@app.get("/health")
+async def health_check():
+    """Health check endpoint - checks Redis connection"""
+    try:
+        if redis_service.redis is None:
+            return JSONResponse(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                content={"status": "error", "message": "Redis not connected"}
+            )
+        
+        # Ping Redis
+        pong = await redis_service.redis.ping()
+        stream_len = await redis_service.redis.xlen(redis_service.redis_signal_stream)
+        
+        return {
+            "status": "healthy",
+            "redis": {
+                "connected": True,
+                "ping": pong,
+                "signal_stream_length": stream_len
+            }
+        }
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"status": "error", "message": str(e)}
+        )
 
-docker exec -it redis-stream-consumer-enriched_market_signals redis-cli XADD enriched_market_signals "*" payload '{"user_id": "joshua_123", "ticker": "AAPL", "signal": {"sentiment": "bullish", "score": 0.95}, "portfolio": {"qty": 10, "avg_price": 150.0}, "risk_profile": "aggressive"}'
-"""
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

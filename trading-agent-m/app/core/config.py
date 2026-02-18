@@ -12,18 +12,21 @@ class EnvConfig(BaseSettings):
         env_file=ENV_PATH, env_file_encoding="utf-8", extra="ignore"
     )
 
-    # LLM
-    ollama_base_url: str = Field(..., validation_alias="OLLAMA_BASE_URL")
-    ollama_temperature: float = Field(..., validation_alias="TEMPERATURE")
-    large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
+    # Ollama
+    # ollama_base_url: str = Field(..., validation_alias="OLLAMA_BASE_URL")
+    # ollama_temperature: float = Field(..., validation_alias="TEMPERATURE")
+    # large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
 
     # Redis Stream
-    # redis_url: str = Field(..., validation_alias="REDIS_URL")
-    # redis_worker_name: str = Field(..., validation_alias="REDIS_WORKER_NAME")
-    # redis_stream_key: str = Field(..., validation_alias="REDIS_STREAM_KEY")
-    # redis_group_name: str = Field(..., validation_alias="REDIS_GROUP_NAME")
+    redis_host: str = os.getenv("REDIS_HOST", "localhost:6379")
+    redis_port: str = os.getenv("REDIS_PORT", "17989")
+    redis_password: str = os.getenv("REDIS_PASSWORD", "password")
+    redis_signal_stream: str = os.getenv("REDIS_SIGNAL_STREAM", "trading_signal_stream")
 
-    # qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
+    # Perplexity
+    perplexity_api_key: str = os.getenv("PERPLEXITY_API_KEY", "your-default-api-key")
+    perplexity_model: str = os.getenv("PERPLEXITY_MODEL", "sonar")
+    perplexity_temperature: float = os.getenv("PERPLEXITY_TEMPERATURE", 0.2)
 
-
+    trading_service_url : str = os.getenv("TRADING_SERVICE_URL", "http://localhost:8000/api/v1/trading")
 env_config = EnvConfig()  # type: ignore

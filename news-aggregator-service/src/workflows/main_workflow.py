@@ -120,7 +120,7 @@ class WorkflowManager:
         for article in state["articles"]:
             # Convert dict back to model if needed
             if isinstance(article, dict):
-                article = TickerSentiment(**article)
+                article = TickerSentiment(**article)    
                 all_articles.append(article)
                 print(f"\n📰 Parsing article for tickers/topics: {article.ticker}")
         state["articles"] = all_articles
@@ -159,13 +159,11 @@ class WorkflowManager:
         news_content_compile = [a["metadata"]["text_content"] for a in state["qdrant_context"]]
         news_content = "\n".join(news_content_compile)
         analysis = await analyzer.analyze(news_content)
-        # analyzer.print_analysis(analysis)
+        analyzer.print_analysis(analysis)
         state["deep_analysis"] = analysis
-        
-        print("POSTING DATA")
+    
         # Post the analysis
         response = post_deepanalysis(analysis)
-        print("POSTING PASS")
 
         # Safe ID extraction with validation
         if response and isinstance(response, dict):
