@@ -155,7 +155,7 @@ def list_all_orders(
     try:
         all_orders = broker.list_all_orders(limit=limit)
         order_ids = [str(order["id"]) for order in all_orders]
-        print("Fetching reasonings for order IDs:", order_ids)
+        # print("Fetching reasonings for order IDs:", order_ids)
 
         reasonings = services.trading_db.get_reasonings_batch(order_ids)
         print("Fetched reasonings for orders:", reasonings)
@@ -176,6 +176,8 @@ def list_all_orders(
                 order["risk_adjustments_made"] = reasonings.get(order_id, {}).get(
                     "risk_adjustments_made", []
                 )
+                order["signal_data"] = reasonings.get(order_id, {}).get("signal_data", None)
+                order["closed_position"] = reasonings.get(order_id, {}).get("closed_position", None)
             else:
                 order["trading_agent_reasonings"] = None
                 order["is_trading_agent"] = False
