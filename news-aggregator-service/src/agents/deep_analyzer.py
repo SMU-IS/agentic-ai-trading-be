@@ -45,18 +45,6 @@ Output ONLY valid JSON:
 }
 """
 
-sample_news_prompt ="""
-Hims & Hers (HIMS.N), said in a statement on Saturday that it will stop offering access to the compounded semaglutide pill after the U.S. Food and Drug Administration said it would take action against the telehealth provider for its $49 weight-loss pill.
-
-"Since launching the compounded semaglutide pill on our platform, we’ve had constructive conversations with stakeholders across the industry. As a result, we have decided to stop offering access to this treatment," the company said.
-
-The FDA said on Friday that it plans to restrict GLP-1 ingredients used in non-approved compounded drugs that companies such as Hims and other compounding pharmacies have marketed as alternatives to authorized treatments, citing concerns over quality, safety and potential violations of federal law.
-
-The FDA said it would refer the company to the Department of Justice but did not make clear whether it could quickly halt the sale of the Hims' product, the cheapest GLP-1 therapy on the U.S. market.
-
-Reuters reported on Thursday that Hims would begin offering copies of Novo Nordisk's (NOVOb.CO), new Wegovy pill at an introductory price of $49 per month, about $100 less than the brand name.
-"""
-
 class DeepAnalyzer:
     def __init__(self, llm: LLMService):
         self.llm = llm
@@ -103,16 +91,3 @@ class DeepAnalyzer:
         
         print(f"\n⚙️  TRADE RATIONALE: {analysis.trade_rationale}")
         print("="*80 + "\n")
-
-
-async def test():
-    llm = LLMService()
-    analyzer = DeepAnalyzer(llm)
-    analysis = await analyzer.analyze(sample_news_prompt)
-    analyzer.print_analysis(analysis)
-
-if __name__ == "__main__":
-    import asyncio
-    from dotenv import load_dotenv
-    load_dotenv()
-    asyncio.run(test())
