@@ -54,7 +54,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-@app.get("/health")
+@app.get("/healthcheck")
 async def health_check():
     """Health check endpoint - checks Redis connection"""
     try:
