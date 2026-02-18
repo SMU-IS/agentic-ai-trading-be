@@ -145,7 +145,9 @@ class WorkflowManager:
     async def get_qdrant_vector(self,state: AgentState) -> AgentState:
         print("================================")
         print("🔍 Looking up Qdrant for historical context")
-        qdrant_content = await lookup_qdrant(state["articles"][0].ticker)
+        ticker = state["articles"][0].ticker
+        event_type = state["articles"][0].event_type
+        qdrant_content = await lookup_qdrant(ticker, event_type)
         # print("QDRANT CONTENT:", qdrant_content)
         state["qdrant_context"] = qdrant_content
         print("🔍 Qdrant content points retrieved:", len(qdrant_content))
@@ -156,9 +158,11 @@ class WorkflowManager:
         print("🔬 Deep analysis of triggered topics")
         analyzer = DeepAnalyzer(self.llm_service)
         print(state.keys())
-        news_content_compile = [a["metadata"]["text_content"] for a in state["qdrant_context"]]
+        news_content_compile = [a["text_content"] for a in state["qdrant_context"]]
         news_content = "\n".join(news_content_compile)
-        analysis = await analyzer.analyze(news_content)
+        article = state["articles"][0]
+        print(f"Analyzing article: {article.ticker} {article.event_type}")
+        analysis = await analyzer.analyze(news_content, article)
         analyzer.print_analysis(analysis)
         state["deep_analysis"] = analysis
     

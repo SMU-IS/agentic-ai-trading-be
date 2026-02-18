@@ -1,4 +1,4 @@
-from src.models.state import DeepAnalysis
+from src.models.state import DeepAnalysis, TickerSentiment
 from src.services.llm_service import LLMService
 
 system_prompt = """
@@ -9,6 +9,7 @@ TICKER: {insert_ticker_here}
 CURRENT DATE: {insert_date_here}
 ADDITIONAL CONTEXT: {insert_any_prior_info_here}
 
+In the event where no news collection is provided, you should still evaluate the rumor based on the information given in the prompt. Do not assume that the absence of news means there is no information to analyze. Instead, focus on the content of the rumor itself and any relevant context provided in the prompt to make your evaluation.
 Step-by-step evaluation (reason explicitly):
 
 1. **Source Hierarchy & Specificity** (1-10):
@@ -60,10 +61,15 @@ class DeepAnalyzer:
     def __init__(self, llm: LLMService):
         self.llm = llm
     
-    async def analyze(self, news_content: str) -> DeepAnalysis:
+    async def analyze(self, news_content: str, article: TickerSentiment) -> DeepAnalysis:
         # Generate research questions
         questions_prompt = f"""
-        These are the latest news collected:
+        Incoming news article:
+        {article.ticker} - {article.event_type}
+        {article.event_description}
+
+
+        These are the latest news collected (if any):
         {news_content}
         """
         

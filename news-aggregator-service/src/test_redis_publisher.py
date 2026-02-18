@@ -24,6 +24,17 @@ async def publish_test_news():
     #     }
     # }
     
+    # test_articles = {
+    #     "event_type": "NEWS_UPDATE",
+    #     "id": "reddit:1r2a9xx",
+    #     "ticker": "AVAV",
+    #     "event_type_meta": "regulatory_approval",
+    #     "sentiment_score": 0.9,  # 🔥 HIGH SENTIMENT
+    #     "sentiment_confidence": 0.9142,
+    #     "event_description": "AeroVironment Inc Q4 2026 earnings CRUSH expectations: +22M subscribers, $11.8B revenue, 35% ad-tier growth, AVAV shares +12% after-hours",
+    #     "sentiment_reasoning": "AeroVironment delivered monster Q4 results with record subscriber growth (22M vs 15M expected), revenue beat ($11.8B vs $11.2B), and advertising revenue exploding 35% YoY. Management raised 2027 guidance, announced $18B buyback, and confirmed live sports expansion (NFL games, boxing PPVs). Analysts upgrading targets to $1600+. Clear BUY signal with massive momentum."
+    # }
+
     test_articles = {
         "event_type": "NEWS_UPDATE",
         "id": "reddit:1r2a9xx",
