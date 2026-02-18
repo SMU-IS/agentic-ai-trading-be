@@ -1,3 +1,4 @@
+import logging
 from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends
@@ -12,6 +13,9 @@ from app.schemas.raw_news_payload import RedditSourcePayload
 router = APIRouter(tags=["Ingest Documents"], dependencies=[Depends(get_current_user)])
 
 
+logger = logging.getLogger(__name__)
+
+
 class VectorisationService:
     def __init__(
         self,
@@ -22,18 +26,24 @@ class VectorisationService:
     async def _setup_indexing(
         self, field_name: str, collection_name="news_analysis_compiled"
     ):
-        client = self.vector_store.client  # type: ignore
-        client.create_payload_index(
-            collection_name=collection_name,
-            field_name=f"metadata.{field_name}",
-            field_schema=models.PayloadSchemaType.KEYWORD,
-        )
+        try:
+            client = self.vector_store.client
+            client.create_payload_index(
+                collection_name=collection_name,
+                field_name=field_name,
+                field_schema=models.PayloadSchemaType.KEYWORD,
+            )
+        except Exception as e:
+            logger.warning(f"Index on {field_name} may already exist: {e}")
 
-    async def _ensure_indexes(self):
-        """Idempotent: Checks and creates necessary indexes for efficient querying."""
-        await self._setup_indexing(field_name="metadata.tickers")
-        # await self._setup_indexing(field_name="metadata.market_events.ticker")
-        # await self._setup_indexing(field_name="metadata.market_events.event_type")
+    async def ensure_indexes(self):
+        """
+        Idempotent: Checks and creates necessary indexes for efficient querying.
+        """
+
+        await self._setup_indexing(field_name="tickers")
+        await self._setup_indexing(field_name="tickers_metadata[].ticker")
+        await self._setup_indexing(field_name="tickers_metadata[].event_type")
 
     async def get_sanitised_news_payload(self, processed_source: RedditSourcePayload):
         fields = processed_source.fields
@@ -63,6 +73,16 @@ class VectorisationService:
             else:
                 continue
 
+        transformed_tickers_flat = [
+            {
+                "ticker": ticker,
+                "event_type": data["event_type"],
+                "sentiment_score": data["sentiment_score"],
+                "sentiment_label": data["sentiment_label"],
+            }
+            for ticker, data in transformed_tickers.items()
+        ]
+
         url = fields.url
         try:
             domain = urlparse(url).netloc
@@ -77,7 +97,7 @@ class VectorisationService:
             "metadata": {
                 "topic_id": topic_id,
                 "tickers": list(transformed_tickers.keys()),
-                "tickers_metadata": transformed_tickers,
+                "tickers_metadata": transformed_tickers_flat,
                 "timestamp": timestamps,
                 "source_domain": domain,
                 "credibility_score": engagement.upvote_ratio,
@@ -87,8 +107,6 @@ class VectorisationService:
                 "author": author,
             },
         }
-
-        await self._ensure_indexes()
 
         vector = content.clean_combined_withouturl
         final_payload = NewsAnalysisPayload(**sanitised_news_payload)
