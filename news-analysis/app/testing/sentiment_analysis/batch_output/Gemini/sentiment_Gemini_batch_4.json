@@ -35,16 +35,16 @@
         ],
         "event_type": "GOVERNMENT_INVESTMENT",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.7,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The post mentions a significant government investment in USAR, resulting in a 30% increase in stock price, and the author implies that insider trading may be occurring, suggesting a bullish sentiment towards the stock."
+        "sentiment_reasoning": "The post highlights a significant government investment and a subsequent large price increase in USAR, suggesting a strong positive catalyst and potential for further gains, despite the author's cynical framing of market manipulation."
       }
     },
     "generated_metadata": {
       "USAR": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "The post mentions a significant government investment in USAR, resulting in a 30% increase in stock price, and the author implies that insider trading may be occurring, suggesting a bullish sentiment towards the stock."
+        "sentiment_score": 0.7,
+        "sentiment_reasoning": "The post highlights a significant government investment and a subsequent large price increase in USAR, suggesting a strong positive catalyst and potential for further gains, despite the author's cynical framing of market manipulation."
       }
     }
   },
@@ -86,9 +86,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.2,
-        "sentiment_label": "negative",
-        "sentiment_reasoning": "The post mentions that TSLA at $60bn is 'too big to be a tenbagger', implying a negative outlook on its potential for extreme growth. The tone is not strongly bearish, but slightly negative."
+        "sentiment_score": 0.0,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post mentions TSLA only in the context of a historical discussion about its market cap at the time, noting that it was considered too large to be a tenbagger. There is no current sentiment expressed about the stock's performance or future prospects."
       },
       "RKLB": {
         "type": "stock",
@@ -129,9 +129,9 @@
     },
     "generated_metadata": {
       "TSLA": {
-        "sentiment_label": "negative",
-        "sentiment_score": -0.2,
-        "sentiment_reasoning": "The post mentions that TSLA at $60bn is 'too big to be a tenbagger', implying a negative outlook on its potential for extreme growth. The tone is not strongly bearish, but slightly negative."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "The post mentions TSLA only in the context of a historical discussion about its market cap at the time, noting that it was considered too large to be a tenbagger. There is no current sentiment expressed about the stock's performance or future prospects."
       },
       "RKLB": {
         "sentiment_label": null,
@@ -186,9 +186,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.6,
+        "sentiment_score": 0.4,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The author views Microsoft as 'fundamentally more attractive' after its recent decline and notes a 39% YoY increase in Azure and other cloud services revenue, indicating a positive outlook."
+        "sentiment_reasoning": "The author sees Microsoft as fundamentally more attractive after its recent price decline, highlighting strong cloud revenue growth and a win in enterprise AI mindshare. The planned increase in allocation supports this positive outlook."
       },
       "AMZN": {
         "type": "stock",
@@ -198,9 +198,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.2,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "Although the author is reconsidering their allocation in Amazon due to potential overoptimism, they still acknowledge Amazon's potential for asymmetric upside from AI adoption and its strength in infrastructure and cost."
+        "sentiment_score": 0.1,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "While the author initially had a larger exposure to Amazon due to perceived asymmetric upside, they are now reconsidering this optimism. The planned reduction in allocation suggests a more balanced, less strongly bullish view."
       },
       "GOOGL": {
         "type": "stock",
@@ -210,26 +210,26 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.1,
+        "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The author views Google as winning in research and model efficiency, but does not express a strong opinion or sentiment towards the company, making the sentiment neutral."
+        "sentiment_reasoning": "Google's allocation remains unchanged, and the author views it as winning in research and model efficiency. The sentiment is neutral as there's no explicit shift in opinion or allocation towards or away from the stock."
       }
     },
     "generated_metadata": {
       "MSFT": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.6,
-        "sentiment_reasoning": "The author views Microsoft as 'fundamentally more attractive' after its recent decline and notes a 39% YoY increase in Azure and other cloud services revenue, indicating a positive outlook."
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "The author sees Microsoft as fundamentally more attractive after its recent price decline, highlighting strong cloud revenue growth and a win in enterprise AI mindshare. The planned increase in allocation supports this positive outlook."
       },
       "AMZN": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.2,
-        "sentiment_reasoning": "Although the author is reconsidering their allocation in Amazon due to potential overoptimism, they still acknowledge Amazon's potential for asymmetric upside from AI adoption and its strength in infrastructure and cost."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.1,
+        "sentiment_reasoning": "While the author initially had a larger exposure to Amazon due to perceived asymmetric upside, they are now reconsidering this optimism. The planned reduction in allocation suggests a more balanced, less strongly bullish view."
       },
       "GOOGL": {
         "sentiment_label": "neutral",
-        "sentiment_score": 0.1,
-        "sentiment_reasoning": "The author views Google as winning in research and model efficiency, but does not express a strong opinion or sentiment towards the company, making the sentiment neutral."
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "Google's allocation remains unchanged, and the author views it as winning in research and model efficiency. The sentiment is neutral as there's no explicit shift in opinion or allocation towards or away from the stock."
       }
     }
   },
@@ -371,7 +371,7 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a question about which companies will win from a copper supply shortage, without expressing a clear opinion or stance on SCCO."
+        "sentiment_reasoning": "The post asks a question about a potential copper supply shortage and which companies might benefit, but does not express a direct opinion or sentiment towards SCCO."
       },
       "FCX": {
         "type": "stock",
@@ -383,7 +383,7 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a question about which companies will win from a copper supply shortage, without expressing a clear opinion or stance on FCX."
+        "sentiment_reasoning": "The post inquires about a copper supply shortage and potential winners, listing FCX as a possibility without expressing a specific bullish or bearish stance."
       },
       "TECK": {
         "type": "stock",
@@ -395,24 +395,24 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a question about which companies will win from a copper supply shortage, without expressing a clear opinion or stance on TECK."
+        "sentiment_reasoning": "The post is speculative about a copper supply shortage and potential beneficiaries, including TECK, but lacks a definitive sentiment or opinion."
       }
     },
     "generated_metadata": {
       "SCCO": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a question about which companies will win from a copper supply shortage, without expressing a clear opinion or stance on SCCO."
+        "sentiment_reasoning": "The post asks a question about a potential copper supply shortage and which companies might benefit, but does not express a direct opinion or sentiment towards SCCO."
       },
       "FCX": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a question about which companies will win from a copper supply shortage, without expressing a clear opinion or stance on FCX."
+        "sentiment_reasoning": "The post inquires about a copper supply shortage and potential winners, listing FCX as a possibility without expressing a specific bullish or bearish stance."
       },
       "TECK": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a question about which companies will win from a copper supply shortage, without expressing a clear opinion or stance on TECK."
+        "sentiment_reasoning": "The post is speculative about a copper supply shortage and potential beneficiaries, including TECK, but lacks a definitive sentiment or opinion."
       }
     }
   },
@@ -501,16 +501,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.5,
+        "sentiment_score": -0.4,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The post mentions INTU stock getting 'cooked' and experiencing a sharp drop, indicating a bearish tone, but the author's long-term perspective and consideration of accumulating more shares adds a neutral aspect, though the overall sentiment leans negative due to the focus on the stock's decline."
+        "sentiment_reasoning": "The user expresses concern over a significant price drop and seeks to understand if it's a temporary pullback or a fundamental shift, indicating bearish sentiment due to the observed losses and uncertainty."
       }
     },
     "generated_metadata": {
       "INTU": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.5,
-        "sentiment_reasoning": "The post mentions INTU stock getting 'cooked' and experiencing a sharp drop, indicating a bearish tone, but the author's long-term perspective and consideration of accumulating more shares adds a neutral aspect, though the overall sentiment leans negative due to the focus on the stock's decline."
+        "sentiment_score": -0.4,
+        "sentiment_reasoning": "The user expresses concern over a significant price drop and seeks to understand if it's a temporary pullback or a fundamental shift, indicating bearish sentiment due to the observed losses and uncertainty."
       }
     }
   },
@@ -554,14 +554,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post presents both positive and negative aspects of Disney's earnings report, including revenue growth and succession concerns, without taking a clear stance, and questions the impact of leadership transition on the stock."
+        "sentiment_reasoning": "The post presents a balanced view of Disney's Q1 earnings, highlighting strong operational performance and revenue beats while also acknowledging significant concerns about leadership succession, leading to a neutral overall sentiment."
       }
     },
     "generated_metadata": {
       "DIS": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post presents both positive and negative aspects of Disney's earnings report, including revenue growth and succession concerns, without taking a clear stance, and questions the impact of leadership transition on the stock."
+        "sentiment_reasoning": "The post presents a balanced view of Disney's Q1 earnings, highlighting strong operational performance and revenue beats while also acknowledging significant concerns about leadership succession, leading to a neutral overall sentiment."
       }
     }
   },
@@ -601,16 +601,16 @@
         ],
         "event_type": "COMPANY_INVESTMENT",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post presents both a potential overreaction and a legitimate concern about Amazon's $200B AI investment, resulting in a neutral sentiment, and the question 'Overreaction?' implies no clear stance."
+        "sentiment_score": -0.2,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The post highlights a significant stock drop following a large AI investment, with concerns about 'unclear ROI' and Wall Street nervousness, suggesting a bearish short-term outlook despite historical parallels."
       }
     },
     "generated_metadata": {
       "AMZN": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post presents both a potential overreaction and a legitimate concern about Amazon's $200B AI investment, resulting in a neutral sentiment, and the question 'Overreaction?' implies no clear stance."
+        "sentiment_label": "negative",
+        "sentiment_score": -0.2,
+        "sentiment_reasoning": "The post highlights a significant stock drop following a large AI investment, with concerns about 'unclear ROI' and Wall Street nervousness, suggesting a bearish short-term outlook despite historical parallels."
       }
     }
   },
@@ -650,9 +650,9 @@
         ],
         "event_type": "EARNINGS_BEAT",
         "event_proposal": null,
-        "sentiment_score": 0.2,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "The author highlights SNAP's strong historical support level and questions the recent drop despite a mixed but not disastrous earnings report, indicating a bullish outlook. The author also mentions the company's growing user base, increased profitability, and potential for a buyout, further supporting a positive sentiment."
+        "sentiment_score": -0.3,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The user highlights the loss of a significant historical support level and a decline in a key user base, despite some positive financial metrics. The overall tone suggests concern about the stock's future trading range."
       },
       "RDDT": {
         "type": "stock",
@@ -669,9 +669,9 @@
     },
     "generated_metadata": {
       "SNAP": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.2,
-        "sentiment_reasoning": "The author highlights SNAP's strong historical support level and questions the recent drop despite a mixed but not disastrous earnings report, indicating a bullish outlook. The author also mentions the company's growing user base, increased profitability, and potential for a buyout, further supporting a positive sentiment."
+        "sentiment_label": "negative",
+        "sentiment_score": -0.3,
+        "sentiment_reasoning": "The user highlights the loss of a significant historical support level and a decline in a key user base, despite some positive financial metrics. The overall tone suggests concern about the stock's future trading range."
       },
       "RDDT": {
         "sentiment_label": null,
@@ -716,16 +716,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is seeking different views and perspectives on CRDO, indicating a neutral stance with no clear bullish or bearish opinion, and the author presents both positive and negative considerations, such as the high PE ratio and strong product moat."
+        "sentiment_score": 0.2,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The user expresses curiosity about CRDO as a potential investment during a tech sector dip, highlighting strong product moat, anticipated growth, and profitability. While acknowledging a high current PE, the user sees potential for it to decrease with growth, indicating a cautiously optimistic outlook."
       }
     },
     "generated_metadata": {
       "CRDO": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is seeking different views and perspectives on CRDO, indicating a neutral stance with no clear bullish or bearish opinion, and the author presents both positive and negative considerations, such as the high PE ratio and strong product moat."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.2,
+        "sentiment_reasoning": "The user expresses curiosity about CRDO as a potential investment during a tech sector dip, highlighting strong product moat, anticipated growth, and profitability. While acknowledging a high current PE, the user sees potential for it to decrease with growth, indicating a cautiously optimistic outlook."
       }
     }
   },
@@ -767,9 +767,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.6,
+        "sentiment_score": -0.4,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The post questions the justification of Tesla's high PE ratio and highlights the company's falling behind BYD in electric vehicle sales, while also casting doubt on Tesla's potential to dominate the robotics market due to a lack of data advantage."
+        "sentiment_reasoning": "The post questions Tesla's high PE ratio by highlighting BYD's sales lead and casting doubt on Tesla's AI/robotics transition thesis, suggesting a lack of competitive advantage in robotics."
       },
       "BYDDF": {
         "type": "stock",
@@ -787,8 +787,8 @@
     "generated_metadata": {
       "TSLA": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "The post questions the justification of Tesla's high PE ratio and highlights the company's falling behind BYD in electric vehicle sales, while also casting doubt on Tesla's potential to dominate the robotics market due to a lack of data advantage."
+        "sentiment_score": -0.4,
+        "sentiment_reasoning": "The post questions Tesla's high PE ratio by highlighting BYD's sales lead and casting doubt on Tesla's AI/robotics transition thesis, suggesting a lack of competitive advantage in robotics."
       },
       "BYDDF": {
         "sentiment_label": null,
@@ -833,16 +833,16 @@
         ],
         "event_type": "EARNINGS_MISS",
         "event_proposal": null,
-        "sentiment_score": 0.2,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "The author is holding the stock and expects a reversal in the next couple of weeks, with potential 35% gains from today, despite acknowledging the earnings miss and current market downturn."
+        "sentiment_score": -0.2,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The user expresses mixed feelings about SNAP's earnings, noting user growth but also declines in key regions and downward analyst revisions. While holding for potential gains, the overall tone leans negative due to the stock's significant drop, proximity to all-time lows, and uncertainty about a quick recovery."
       }
     },
     "generated_metadata": {
       "SNAP": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.2,
-        "sentiment_reasoning": "The author is holding the stock and expects a reversal in the next couple of weeks, with potential 35% gains from today, despite acknowledging the earnings miss and current market downturn."
+        "sentiment_label": "negative",
+        "sentiment_score": -0.2,
+        "sentiment_reasoning": "The user expresses mixed feelings about SNAP's earnings, noting user growth but also declines in key regions and downward analyst revisions. While holding for potential gains, the overall tone leans negative due to the stock's significant drop, proximity to all-time lows, and uncertainty about a quick recovery."
       }
     }
   },
@@ -896,7 +896,7 @@
         "event_proposal": null,
         "sentiment_score": 0.1,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post mentions holding GOOGL as part of the 'big stuff' forever, but this is a neutral statement as it's a factual action without strong opinion or emotional tone."
+        "sentiment_reasoning": "The user mentions GOOGL as a 'big stuff' stock they would 'hold forever', indicating a long-term positive outlook but without strong bullish sentiment or specific investment action."
       },
       "KO": {
         "type": "stock",
@@ -908,7 +908,7 @@
         "event_proposal": null,
         "sentiment_score": 0.1,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "Similar to GOOGL, the post mentions holding KO as part of the 'big stuff' forever, which is a neutral statement due to the lack of strong opinion or emotional tone."
+        "sentiment_reasoning": "The user lists KO as a stock they would 'hold the big stuff forever', suggesting a stable, long-term holding strategy rather than active bullish sentiment."
       }
     },
     "generated_metadata": {
@@ -920,12 +920,12 @@
       "GOOGL": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.1,
-        "sentiment_reasoning": "The post mentions holding GOOGL as part of the 'big stuff' forever, but this is a neutral statement as it's a factual action without strong opinion or emotional tone."
+        "sentiment_reasoning": "The user mentions GOOGL as a 'big stuff' stock they would 'hold forever', indicating a long-term positive outlook but without strong bullish sentiment or specific investment action."
       },
       "KO": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.1,
-        "sentiment_reasoning": "Similar to GOOGL, the post mentions holding KO as part of the 'big stuff' forever, which is a neutral statement due to the lack of strong opinion or emotional tone."
+        "sentiment_reasoning": "The user lists KO as a stock they would 'hold the big stuff forever', suggesting a stable, long-term holding strategy rather than active bullish sentiment."
       }
     }
   },
@@ -1050,14 +1050,14 @@
         "event_proposal": null,
         "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The post reports strong earnings metrics for Spotify, including a 10% Y/Y growth in premium subscribers and a 13% Y/Y increase in total revenue, indicating a very bullish sentiment. The author's disclosure of owning Spotify shares also suggests a positive stance."
+        "sentiment_reasoning": "The post highlights strong Q4 earnings for Spotify with beats on EPS and revenue, alongside significant growth in subscribers and MAUs. The author also discloses a personal ownership stake, reinforcing a bullish stance."
       }
     },
     "generated_metadata": {
       "SPOT": {
         "sentiment_label": "positive",
         "sentiment_score": 0.8,
-        "sentiment_reasoning": "The post reports strong earnings metrics for Spotify, including a 10% Y/Y growth in premium subscribers and a 13% Y/Y increase in total revenue, indicating a very bullish sentiment. The author's disclosure of owning Spotify shares also suggests a positive stance."
+        "sentiment_reasoning": "The post highlights strong Q4 earnings for Spotify with beats on EPS and revenue, alongside significant growth in subscribers and MAUs. The author also discloses a personal ownership stake, reinforcing a bullish stance."
       }
     }
   },
@@ -1158,16 +1158,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.9,
+        "sentiment_score": -0.8,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The author presents a detailed valuation model, indicating an 89% downside for PLTR due to its high Enterprise Value and underinvestment in cap ex and R&D, leading to a bearish sentiment."
+        "sentiment_reasoning": "The user presents a detailed valuation model indicating a significant 89% downside for PLTR, citing high enterprise value multiples and underinvestment in cap ex and R&D compared to peers. This suggests a strongly bearish outlook based on fundamental analysis."
       }
     },
     "generated_metadata": {
       "PLTR": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.9,
-        "sentiment_reasoning": "The author presents a detailed valuation model, indicating an 89% downside for PLTR due to its high Enterprise Value and underinvestment in cap ex and R&D, leading to a bearish sentiment."
+        "sentiment_score": -0.8,
+        "sentiment_reasoning": "The user presents a detailed valuation model indicating a significant 89% downside for PLTR, citing high enterprise value multiples and underinvestment in cap ex and R&D compared to peers. This suggests a strongly bearish outlook based on fundamental analysis."
       }
     }
   },
@@ -1207,9 +1207,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.6,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The author is considering buying VEEV and believes the company has been unduly punished, citing its massive margins, steady growth, and potential AI benefits."
+        "sentiment_reasoning": "The user expresses a positive outlook on VEEV, citing strong fundamentals like massive margins, steady growth, and high switching costs, along with potential AI gains, despite current market punishment."
       },
       "NOW": {
         "type": "stock",
@@ -1219,21 +1219,21 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.6,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The author is considering buying NOW and believes the company has been unduly punished, citing its massive margins, steady growth, and potential AI benefits, similar to VEEV."
+        "sentiment_reasoning": "The user views NOW positively, highlighting its strong fundamentals such as massive margins, steady growth, and high switching costs, alongside AI potential, despite current market undervaluation."
       }
     },
     "generated_metadata": {
       "VEEV": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "The author is considering buying VEEV and believes the company has been unduly punished, citing its massive margins, steady growth, and potential AI benefits."
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "The user expresses a positive outlook on VEEV, citing strong fundamentals like massive margins, steady growth, and high switching costs, along with potential AI gains, despite current market punishment."
       },
       "NOW": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "The author is considering buying NOW and believes the company has been unduly punished, citing its massive margins, steady growth, and potential AI benefits, similar to VEEV."
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "The user views NOW positively, highlighting its strong fundamentals such as massive margins, steady growth, and high switching costs, alongside AI potential, despite current market undervaluation."
       }
     }
   },
@@ -1276,9 +1276,9 @@
         ],
         "event_type": "DEBT_ISSUANCE",
         "event_proposal": null,
-        "sentiment_score": 0.0,
+        "sentiment_score": 0.1,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a factual announcement of Oracle's equity and debt financing plan, without expressing a clear opinion or emotion, and therefore is considered neutral. The announcement of a funding plan is a factual action without opinion."
+        "sentiment_reasoning": "Oracle announced a large financing plan involving both debt and equity to fund cloud infrastructure expansion. While this signals growth, the significant equity issuance could dilute existing shareholders, making the sentiment mixed."
       },
       "AMD": {
         "type": "stock",
@@ -1344,8 +1344,8 @@
     "generated_metadata": {
       "ORCL": {
         "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a factual announcement of Oracle's equity and debt financing plan, without expressing a clear opinion or emotion, and therefore is considered neutral. The announcement of a funding plan is a factual action without opinion."
+        "sentiment_score": 0.1,
+        "sentiment_reasoning": "Oracle announced a large financing plan involving both debt and equity to fund cloud infrastructure expansion. While this signals growth, the significant equity issuance could dilute existing shareholders, making the sentiment mixed."
       },
       "AMD": {
         "sentiment_label": null,
@@ -1413,9 +1413,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.8,
+        "sentiment_score": -0.7,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The author expresses bearish sentiment towards TTD, citing increased competition from Amazon, shrinking margins, and the CEO's lack of confidence in the company's future, as evidenced by his excessive selling of shares without buying any back."
+        "sentiment_reasoning": "The user expresses strong bearish sentiment towards TTD, citing increased competition from Amazon offering significantly lower prices, concerns about shrinking margins, and the CEO's substantial stock sales without any purchases, indicating a lack of confidence in the company's future."
       },
       "AMZN": {
         "type": "stock",
@@ -1445,8 +1445,8 @@
     "generated_metadata": {
       "TTD": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.8,
-        "sentiment_reasoning": "The author expresses bearish sentiment towards TTD, citing increased competition from Amazon, shrinking margins, and the CEO's lack of confidence in the company's future, as evidenced by his excessive selling of shares without buying any back."
+        "sentiment_score": -0.7,
+        "sentiment_reasoning": "The user expresses strong bearish sentiment towards TTD, citing increased competition from Amazon offering significantly lower prices, concerns about shrinking margins, and the CEO's substantial stock sales without any purchases, indicating a lack of confidence in the company's future."
       },
       "AMZN": {
         "sentiment_label": null,
@@ -1496,9 +1496,9 @@
         ],
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
-        "sentiment_score": -1.0,
+        "sentiment_score": -0.7,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The author explicitly states their intention to short RDDT and expects the price to drop into single digits, indicating a strong bearish sentiment. The mention of being vocal about the short and wanting to be on CNBC also suggests a high level of confidence in their negative outlook."
+        "sentiment_reasoning": "The user explicitly states an intention to short RDDT down into single digits, referencing a historical short-selling battle. This indicates a strong bearish sentiment and a desire to profit from the stock's decline."
       },
       "HLF": {
         "type": "stock",
@@ -1516,8 +1516,8 @@
     "generated_metadata": {
       "RDDT": {
         "sentiment_label": "negative",
-        "sentiment_score": -1.0,
-        "sentiment_reasoning": "The author explicitly states their intention to short RDDT and expects the price to drop into single digits, indicating a strong bearish sentiment. The mention of being vocal about the short and wanting to be on CNBC also suggests a high level of confidence in their negative outlook."
+        "sentiment_score": -0.7,
+        "sentiment_reasoning": "The user explicitly states an intention to short RDDT down into single digits, referencing a historical short-selling battle. This indicates a strong bearish sentiment and a desire to profit from the stock's decline."
       },
       "HLF": {
         "sentiment_label": null,
@@ -1566,9 +1566,9 @@
         ],
         "event_type": "PRODUCT_LAUNCH",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.4,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The launch of Project Genie, a cutting-edge world creation prototype, is a significant development for Google, indicating a strong potential for growth and innovation in the field of AI and virtual worlds. The post's tone suggests excitement and optimism about the technology's future."
+        "sentiment_reasoning": "Google's Project Genie is presented as an innovative AI research prototype, suggesting potential future advancements and market leadership in world-building technology."
       },
       "U": {
         "type": "stock",
@@ -1578,9 +1578,9 @@
         ],
         "event_type": "COMPETITOR_ANNOUNCEMENT",
         "event_proposal": null,
-        "sentiment_score": -0.7,
+        "sentiment_score": -0.6,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The post mentions Unity is down over 20%, implying a negative impact on the company due to Google's Project Genie announcement, suggesting that the new technology may be a competitive threat to Unity's business."
+        "sentiment_reasoning": "The announcement of Google's Project Genie, coupled with Unity's significant stock drop, implies increased competition and potential market share erosion for Unity in the virtual world creation space."
       },
       "TTWO": {
         "type": "stock",
@@ -1590,9 +1590,9 @@
         ],
         "event_type": "COMPETITOR_ANNOUNCEMENT",
         "event_proposal": null,
-        "sentiment_score": -0.5,
+        "sentiment_score": -0.4,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The post mentions Take Two is down 10%, indicating a negative reaction to Google's Project Genie announcement, suggesting that the new technology may be a competitive threat to Take Two's business, although the impact is less severe than on Unity."
+        "sentiment_reasoning": "The launch of Google's Project Genie and the subsequent drop in competitor stocks like Take Two suggest a potentially disruptive new technology that could negatively impact existing players in the interactive world market."
       },
       "RBLX": {
         "type": "stock",
@@ -1602,31 +1602,31 @@
         ],
         "event_type": "COMPETITOR_ANNOUNCEMENT",
         "event_proposal": null,
-        "sentiment_score": -0.5,
+        "sentiment_score": -0.4,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The post mentions Roblox is down 10%, similar to Take Two, indicating a negative reaction to Google's Project Genie announcement, suggesting that the new technology may be a competitive threat to Roblox's business."
+        "sentiment_reasoning": "Google's Project Genie launch, alongside the stock declines of Roblox and other competitors, indicates a new competitive threat that could challenge Roblox's dominance in user-generated virtual worlds."
       }
     },
     "generated_metadata": {
       "GOOGL": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "The launch of Project Genie, a cutting-edge world creation prototype, is a significant development for Google, indicating a strong potential for growth and innovation in the field of AI and virtual worlds. The post's tone suggests excitement and optimism about the technology's future."
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "Google's Project Genie is presented as an innovative AI research prototype, suggesting potential future advancements and market leadership in world-building technology."
       },
       "U": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.7,
-        "sentiment_reasoning": "The post mentions Unity is down over 20%, implying a negative impact on the company due to Google's Project Genie announcement, suggesting that the new technology may be a competitive threat to Unity's business."
+        "sentiment_score": -0.6,
+        "sentiment_reasoning": "The announcement of Google's Project Genie, coupled with Unity's significant stock drop, implies increased competition and potential market share erosion for Unity in the virtual world creation space."
       },
       "TTWO": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.5,
-        "sentiment_reasoning": "The post mentions Take Two is down 10%, indicating a negative reaction to Google's Project Genie announcement, suggesting that the new technology may be a competitive threat to Take Two's business, although the impact is less severe than on Unity."
+        "sentiment_score": -0.4,
+        "sentiment_reasoning": "The launch of Google's Project Genie and the subsequent drop in competitor stocks like Take Two suggest a potentially disruptive new technology that could negatively impact existing players in the interactive world market."
       },
       "RBLX": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.5,
-        "sentiment_reasoning": "The post mentions Roblox is down 10%, similar to Take Two, indicating a negative reaction to Google's Project Genie announcement, suggesting that the new technology may be a competitive threat to Roblox's business."
+        "sentiment_score": -0.4,
+        "sentiment_reasoning": "Google's Project Genie launch, alongside the stock declines of Roblox and other competitors, indicates a new competitive threat that could challenge Roblox's dominance in user-generated virtual worlds."
       }
     }
   },
@@ -1665,17 +1665,14 @@
           "SPOT"
         ],
         "event_type": "STRATEGIC_PARTNERSHIP",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is inquiring about the reason for Spotify's 6.5% drop without taking a stance, and mentions both a potential positive event (deal with checkout.com) and a potential negative event (leaked bad news), resulting in a neutral sentiment."
+        "event_proposal": null
       }
     },
     "generated_metadata": {
       "SPOT": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is inquiring about the reason for Spotify's 6.5% drop without taking a stance, and mentions both a potential positive event (deal with checkout.com) and a potential negative event (leaked bad news), resulting in a neutral sentiment."
+        "sentiment_reasoning": ""
       }
     }
   },
@@ -1716,10 +1713,7 @@
           "SOFI"
         ],
         "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "event_proposal": null
       },
       "NBIS": {
         "type": "stock",
@@ -1728,10 +1722,7 @@
           "NBIS"
         ],
         "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "event_proposal": null
       },
       "ASTS": {
         "type": "stock",
@@ -1740,10 +1731,7 @@
           "ASTS"
         ],
         "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "event_proposal": null
       },
       "AMPX": {
         "type": "stock",
@@ -1752,10 +1740,7 @@
           "AMPX"
         ],
         "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "event_proposal": null
       },
       "WULF": {
         "type": "stock",
@@ -1764,10 +1749,7 @@
           "WULF"
         ],
         "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "event_proposal": null
       },
       "IREN": {
         "type": "stock",
@@ -1776,10 +1758,7 @@
           "IREN"
         ],
         "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "event_proposal": null
       },
       "ONDS": {
         "type": "stock",
@@ -1788,10 +1767,7 @@
           "ONDS"
         ],
         "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "event_proposal": null
       },
       "UAMY": {
         "type": "stock",
@@ -1800,10 +1776,7 @@
           "UAMY"
         ],
         "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "event_proposal": null
       },
       "RZLV": {
         "type": "stock",
@@ -1812,10 +1785,7 @@
           "RZLV"
         ],
         "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "event_proposal": null
       },
       "IONQ": {
         "type": "stock",
@@ -1824,10 +1794,7 @@
           "IONQ"
         ],
         "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "event_proposal": null
       },
       "MDAI": {
         "type": "stock",
@@ -1836,67 +1803,64 @@
           "MDAI"
         ],
         "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "event_proposal": null
       }
     },
     "generated_metadata": {
       "SOFI": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "sentiment_reasoning": ""
       },
       "NBIS": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "sentiment_reasoning": ""
       },
       "ASTS": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "sentiment_reasoning": ""
       },
       "AMPX": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "sentiment_reasoning": ""
       },
       "WULF": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "sentiment_reasoning": ""
       },
       "IREN": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "sentiment_reasoning": ""
       },
       "ONDS": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "sentiment_reasoning": ""
       },
       "UAMY": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "sentiment_reasoning": ""
       },
       "RZLV": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "sentiment_reasoning": ""
       },
       "IONQ": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "sentiment_reasoning": ""
       },
       "MDAI": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking for opinions on the stock, indicating no stance or sentiment."
+        "sentiment_reasoning": ""
       }
     }
   }

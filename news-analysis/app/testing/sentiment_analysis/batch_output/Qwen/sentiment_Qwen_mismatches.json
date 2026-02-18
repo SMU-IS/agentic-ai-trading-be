@@ -1,0 +1,866 @@
+[
+  {
+    "id": "reddit:1qq495w",
+    "post_text": "Unique investment strategy. work for a company not going to say what industry but its a billion generating type of business therefore 90% of our clients are big corporations think Nvidia, Broadcom, Rio Tinto, Adruil to name a few, they spend millions for our services each year and I dont see that stopping any time soon, my question is - is it crazy to use that as an investment strategy as in buy into those stocks? It wont be a conflict of interest in anyway and there isnt any possibility of insi",
+    "ticker_mismatches": [
+      {
+        "ticker": "AVGO",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.6,
+        "generated_reasoning": "Broadcom is cited as a high-spending client with no indication of declining business. The author's contemplation of investment aligns with bullish sentiment toward the company's stability."
+      },
+      {
+        "ticker": "RIO",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.6,
+        "generated_reasoning": "Rio Tinto is mentioned as a long-term client in a billion-dollar industry, suggesting consistent revenue. The author's investment consideration reflects confidence in the company's performance."
+      },
+      {
+        "ticker": "NVDA",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.6,
+        "generated_reasoning": "The post highlights ongoing client spending by major corporations like NVIDIA, implying sustained demand for their services. The author considers investing in these companies as a strategy, indicating positive sentiment."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1r0aqv7",
+    "post_text": "why is WEN 1b marketcap but CMG is 50b. is the correction delayed or is wendy's failing or something? WEN at 7% dividend yield and appearing hugely oversold compared to similar brands in the sector, seems too good to be true at this point of the market. i cba doing the research myself. I had a baconator last week, it was good. From what I figured, WEN is one of those well established international brands and is going no where anytime soon.",
+    "ticker_mismatches": [
+      {
+        "ticker": "WEN",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": -0.1,
+        "generated_reasoning": "The post expresses confusion about WEN's low market cap relative to CMG and skepticism about its 'too good to be true' valuation, but also acknowledges its established brand status. The 'going nowhere' comment suggests mild bearishness, while the 'good' product experience is neutral. Overall, mixed signals with no strong bullish/bearish stance."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qulw7g",
+    "post_text": "Anybody else investing in SLS, DRTS and IBRX? New to investing and trading and, although biotech stocks have a bad reputation, these three stand out. Great results, good leadership and some approvals already. They all have many scheduled catalysts and- in SLS- maybe an early end to a trial that seems to be a huge success. I'm playing with 10,000 as a newbie separate from my boring retirement fund so I'm investing in all three. Planning to move the money around as different catalysts come but I'd",
+    "ticker_mismatches": [
+      {
+        "ticker": "SANA",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.1,
+        "generated_reasoning": "Mentioned casually with 'haha' and no specific positive/negative analysis, indicating neutral/curious stance."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qz3upd",
+    "post_text": "Correction to my previously VERY FLAWED analysis on Reddit. My New Reasonable Fair Value For RDDT: $108. I posted this yesterday. I really effed up and got the ARPU for META wrong. The new reasonable fair value is $108. However, I m leaning in between the Reasonable Very Optimistic Scenario now because I think 65 dollars is tad bit low for 2030. https://www.reddit.com/r/redditstock/comments/1qylso9/enough_with_the_opinions_here_is_the_actual_math/?utm_source=share&utm_medium=web3x&utm_name=web3x",
+    "ticker_mismatches": [
+      {
+        "ticker": "META",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.45,
+        "generated_reasoning": "Author corrects initial analysis by cutting META's ARPU assumption in half due to platform complexity, calling the original figure 'higher than I thought.' This downward revision implies bearishness about META's ability to sustain high ARPU across multiple platforms."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qvyyii",
+    "post_text": "What Happened to HOOD? Skyrocketed in 2025, now collapsing in 2026. I'm sort of at a lost what's happening to Robinhood lately. Can someone explain why it performed so well in 2025, but is now collapsing in 2026, down almost 50% in the last 3-4 months? I'm thinking about jumping ship, but unsure what's the best plan of action from here. I understand the recent events with the FED and Kevin Warsh, but it was also starting to go down, even the beginning of this year, before that even came up.",
+    "ticker_mismatches": [
+      {
+        "ticker": "HOOD",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": -0.05,
+        "generated_reasoning": "The post expresses confusion and uncertainty about HOOD's recent performance, with no clear bullish or bearish stance. Phrases like 'jumping ship' hint at mild concern but are framed as a question about strategy rather than a strong negative opinion."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1quvgmo",
+    "post_text": "SPGI 8% drop! Any AI companies creeping into their area? Earnings is a week away, which other news could cause this drop? Does separation of Mobility global into another unit warrant 8% fall in a day? How does it harm existing shareholders? Fico,mco in similar areas also fell a lot.",
+    "ticker_mismatches": [
+      {
+        "ticker": "MCO",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post discusses market declines and asks analytical questions about sector-wide impacts but does not provide a clear positive or negative stance toward MCO. No sentiment-laden language or actions are present."
+      },
+      {
+        "ticker": "SPGI",
+        "ground_truth_label": "negative",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      },
+      {
+        "ticker": "FICO",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post raises questions about market movements and potential impacts on SPGI, FICO, and MCO without expressing explicit bullish/bearish sentiment. No direct opinion or financial slang is used toward FICO."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qp790a",
+    "post_text": "Maybe the most overlooked information from $NFLX's latest quarter: its number of paid memberships. Lots of investors seem to be overlooking one key information from NFLX's last report: the number of paid members: They've just announced 325M paid members ---> This means the end of the S-curve could be near: https://app.rast.guru/?company=Netflix: https://app.rast.guru/?company=Netflix Knowing that they won't be able to raise their subscriptions price forever, the end of the revenue growth is prob",
+    "ticker_mismatches": [
+      {
+        "ticker": "NFLX",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "The post highlights declining revenue growth potential due to nearing the end of the S-curve, reduced transparency in membership reporting, and reliance on external factors (WBD acquisition) for future growth. These fundamental concerns indicate bearish sentiment despite analytical tone."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1quens4",
+    "post_text": "What is going on with RACE? So with RACE hitting a new 52 week low last month, I'm trying to understand what's going on with the stock. The stock initially got jack hammered because of weak guidance for their 2030 revenue outlook, which gave people a scare about whether Ferrari still had room for growth or not. I'm currently holding and adding to my position but it seems like sentiment around the stock isn't changing much. Is the stock somewhat in a holding period where it's waiting to see what ",
+    "ticker_mismatches": [
+      {
+        "ticker": "RACE",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post acknowledges a guidance downgrade (negative) but also highlights bullish factors like supply control and brand strength. The author is holding/adding but expresses uncertainty about market sentiment, resulting in a balanced view without clear bullish/bearish bias."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qvdkkl",
+    "post_text": "What everyone is missing with SaaS and the modern Day innovators Dilemma. We have seen what is happening in SaaS with Disney and Auto recently and it's something Clayton Christianson warned about decades ago. The Innovators dilemma is when a legacy cash cow business is being up ended by a less profitable but obvious future. With Disney it was and is cable to streaming with cars it was ICE to EVs and with software it's per user pricing to usage based licensing. As AI takes hold it will kill the u",
+    "ticker_mismatches": [
+      {
+        "ticker": "DIS",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "Legacy leader being disrupted by streaming (NFLX) with expected underperformance during transition."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qxqg6r",
+    "post_text": "Long SPY shares, watching tech allocation. The Recession Narrative Doesn't Match the Data Yesterday's Challenger layoff numbers (108,435 for January, highest since 2009) sparked aggressive selling in premarket that carried into the session. The narrative: Fed is \"behind the curve\" and labor weakness is morphing into recession. But the broader data tells a different story. The Disconnect: PMI came in red hot at the start of this week. Atlanta Fed Nowcast is projecting GDP with a 5 handle this qua",
+    "ticker_mismatches": [
+      {
+        "ticker": "MSFT",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "The post highlights concentration risk for Microsoft due to 45% of cloud contracts tied to OpenAI, indicating potential over-reliance and market pricing in this risk as a negative factor."
+      },
+      {
+        "ticker": "AMZN",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "Amazon's $200B capex announcement is framed as a market concern regarding AI infrastructure costs, suggesting financial strain despite strong earnings, which introduces bearish sentiment."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qvvc6a",
+    "post_text": "What are the thoughts behind certain software? Mainly SNOW; I know there's bugs, sell offs and lately deals.But, why is it dropping so much? I notice a lot of stocks doing good and not hitting up; You think this is the correction or a slowdown? (both) I know SNOW will be affected by this AI concern with software but, I want to think it'll come back up. Any thoughts or input about the topic? Also, what software do you think has staying power after AI reckoning?",
+    "ticker_mismatches": [
+      {
+        "ticker": "SNOW",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.3,
+        "generated_reasoning": "The post acknowledges current challenges (bugs, sell-offs, AI concerns) but expresses hope for SNOW's recovery with the statement 'I want to think it'll come back up.' The overall tone is cautiously optimistic despite mixed market observations."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qsdx40",
+    "post_text": "At what Bitcoin price would MSTR start selling? MSTR currently has about 712k coins and their net debt is about $14B (according to their website). For MSTR to cover their debt, coin price needs to be >$20k. But they couldn't wait for that price to start selling because this would trigger a crash and they wouldn't get an average price of $20k. So at what price do you think MSTR would have to start selling? UPDATE 5 Feb 2026: I would like to thank all of you who have contributed to this discussion",
+    "ticker_mismatches": [
+      {
+        "ticker": "MSTR",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "The post highlights potential financial risks for MSTR if Bitcoin's price drops below $50k ($20k for 'desperate trouble'), emphasizing vulnerability to investor/lender pressure. While speculative, the analysis frames MSTR in a negative light by linking its stability to declining crypto prices."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qy194w",
+    "post_text": "Big Tech Capex is accelerating +44% YoY to ~$610B in 2026. What are the best bets to surf this wave (besides Nvidia)? If you compare CAPEX numbers of big hyperscapers, you can still sing \"show must GOOOO OOOONNN!!!!\" |Company|2025 Est|2026 Guidance/Est|YoY Growth| |:-|:-|:-|:-| |Meta|\\~$72B|\\~$125B|+74%| |Amazon|\\~$131B|\\~$200B|+53%| |Alphabet|\\~$120B|\\~$180B|+50%| |Microsoft|\\~$100B|\\~$105B+|+5%| |TOTAL|\\~$423B|\\~$610B|+44%| What do you think are the best companies to surf this wave? Money has ",
+    "ticker_mismatches": [
+      {
+        "ticker": "GOOGL",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.65,
+        "generated_reasoning": "Alphabet's +50% YoY Capex growth is noted, reflecting bullish sentiment about its exposure to the tech spending surge."
+      },
+      {
+        "ticker": "AMZN",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.7,
+        "generated_reasoning": "Amazon's Capex growth of +53% YoY is emphasized, suggesting positive sentiment around its role in the tech infrastructure expansion."
+      },
+      {
+        "ticker": "META",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.8,
+        "generated_reasoning": "Meta's Capex growth is highlighted at +74% YoY, indicating strong investor interest and optimism about its position in the tech spending wave."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qs0iu3",
+    "post_text": "Tesla Ending Production of Models S and X in Q1, Making Way for Optimus Robotics Mass-Production. https://www.cnbc.com/2026/01/29/elon-musk-tesla-pivot-to-ai-robots-wall-street-reaction.html: https://www.cnbc.com/2026/01/29/elon-musk-tesla-pivot-to-ai-robots-wall-street-reaction.html https://www.theguardian.com/technology/2026/jan/28/tesla-q4-earnings-estimates-elon-musk: https://www.theguardian.com/technology/2026/jan/28/tesla-q4-earnings-estimates-elon-musk In the clearest sign yet that Tesla ",
+    "ticker_mismatches": [
+      {
+        "ticker": "TSLA",
+        "ground_truth_label": "neutral",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qv7f45",
+    "post_text": "SFM stock thoughts. SFM is down 62% from ATH RSI is on 24. I think is over punished, however CNN smart score ranks the stock 2 out of 10. Forecast 1 year from now is 30% as minimum, 79% as medium and 130% as high PE ratio of 13x looks pretty decent to me. I'm being patient on this one however is hurting. What are you thoughs and expectations on this one?",
+    "ticker_mismatches": [
+      {
+        "ticker": "SFM",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.5,
+        "generated_reasoning": "The author believes SFM is overpunished (bullish) with a 30-130% price forecast and a decent 13x PE ratio. While acknowledging the 62% decline and low RSI (24), the focus on long-term potential and patience indicates a net positive outlook despite current pain."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qxk52q",
+    "post_text": "What is happening right now?! Can someone please explain to me what I am missing? Meta and MSFT continually having-3-5% days with no news. Both beat earning. In understand people get shaken up a bit by their spending but does that justify $100-120 drops in a matter of days? Am I missing something? These massive drops just don't seem rational",
+    "ticker_mismatches": [
+      {
+        "ticker": "MSFT",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "Similar to META, the post emphasizes unexplained 3-5% drops despite earnings beats, framing the price action as negative. No bullish language or positive context is present."
+      },
+      {
+        "ticker": "META",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "Post highlights unexplained 3-5% price drops despite earnings beats, indicating negative market sentiment. The author questions the rationality of the decline but focuses on downward price movement."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qu9khr",
+    "post_text": "$IOT Samsara - Rally and Undervalued? Samsara is off a ton over the last few months, 50 day simple moving average of $36.33 and a 200-day simple moving average of $37.11. The firm has a market cap of $15.57 billion, a PE ratio of -338.58 and a beta of 1.61. Currently parked at $26.41 The chart has a marked spike at every earnings, and the next one is March 5. Samsara issued Q3 2026 earnings on December 4, 2025, reporting an EPS of $0.01, which missed the consensus estimate of $0.12 by $0.11. Qua",
+    "ticker_mismatches": [
+      {
+        "ticker": "IOT",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post is a question seeking opinions with no clear bullish/bearish stance. While the author expresses confusion and 'hoping for a rally' (slightly positive), this is balanced by factual reporting of negative fundamentals (negative EPS, earnings miss) and uncertainty. No strong sentiment indicators like slang or emojis are present."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qrnzun",
+    "post_text": "Nvidia's plan to invest up to $100 billion in OpenAI has stalled, WSJ reports. Nvidia CEO Jensen Huang has privately emphasized to industry associates in recent months that the original $100 billion agreement was non-binding and not finalized, the report said. Huang has also privately criticized what he has described as a lack of discipline in OpenAI's business approach and expressed concern about the competition it faces from the likes of Alphabet's (GOOGL.O), Google and Anthropic, the WSJ adde",
+    "ticker_mismatches": [
+      {
+        "ticker": "NVDA",
+        "ground_truth_label": "negative",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qqeev6",
+    "post_text": "Wow! Earnings drop sends Microsoft into a slide. Market overreacting? $MSFT is dragging down markets after earnings, yet fundamentals look strong. Revenue growth, cloud dominance, and massive cash reserves are still there. It's still a $3 trillion company. Are investors overreacting, or is this a real red flag? Thoughts? Source: Blossom Social",
+    "ticker_mismatches": [
+      {
+        "ticker": "MSFT",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post acknowledges the stock's decline after earnings but highlights strong fundamentals (revenue growth, cloud dominance, cash reserves) and questions if the market is overreacting. It presents both downside (earnings drop) and upside (strong fundamentals) without clear bullish/bearish stance."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qyd6ov",
+    "post_text": "Probabality of Netflix and WBD merger going through? Nvidia-Arm (abandoned): Scrapped after U.S., UK, and EU enforcers argued Nvidia could use control of Arm's neutral chip IP to disadvantage rival chipmakers and harm innovation. Penguin Random House-Simon & Schuster (blocked): U.S. DOJ convinced a court the deal would give the combined publisher monopsony power over authors, reducing advances and competition to acquire manuscripts. Illumina-Grail (blocked/unwound in EU): EU authorities found th",
+    "ticker_mismatches": [
+      {
+        "ticker": "NFLX",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "The merger faces DOJ scrutiny over antitrust concerns (Netflix's dominance, reduced competition). Regulatory risks and potential blockage create bearish sentiment."
+      },
+      {
+        "ticker": "WBD",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "Pending merger with Netflix raises regulatory concerns about market concentration. Uncertainty over approval and potential antitrust issues weigh negatively."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qxrvun",
+    "post_text": "Why has AMZN been the most underperforming MAG7 stock in past 5 years? I was looking at the charts of Mag7 and AMZN has only grown 23.73% in the past 5 years. For comparison, here are the other Mag7 based on percentage increase from highest to lowest. NVDA - 1258% GOOG - 208% META - 145% S&P 500 - 77% MSFT - 64% TSLA - 45% (Not sure why this stock is included in MAG7 though) Even with impressive revenue yesterday, I think the upcoming 200 Billion CAPEX has spooked everybody. Do you think a rebou",
+    "ticker_mismatches": [
+      {
+        "ticker": "AMZN",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.65,
+        "generated_reasoning": "The post highlights AMZN's underperformance relative to other MAG7 stocks, expresses concern over the $200B CAPEX spooking investors, and questions its potential for a rebound. Negative framing of AMZN as a 'boring value stock' with 'single-digit' growth reinforces bearish sentiment."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qr6v75",
+    "post_text": "Analysing thebperformance of reddit's potential tenbaggers from over 6 years ago. https://np.reddit.com/r/stocks/s/xLJthAWYM1 As can be seen above, /r/stocks users shared their submissions of potential tenbagger stocks. It's very interesting to see the top comment saying that TSLA at $60bn is simply too big to be a tenbagger. Also interesting to see some of the hype names from this time period and how they correlate to today's hype names. For example SPCE. Yes, there were space hype stocks even ",
+    "ticker_mismatches": [
+      {
+        "ticker": "TSLA",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "The post references skepticism about TSLA's growth potential ('too big to be a tenbagger'), reflecting bearish investor sentiment. The historical context of overhyped stocks (e.g., SPCE) and cautionary tone about future performance further reinforce negativity."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qypsiy",
+    "post_text": "I heard there is a copper supply shortage. When will this officially happen and which companies will win from that ? People keep talking about AI this AI that, gold this gold that, silver this silver that. Let's talk about copper and which companies will win from that and how long will you hold ? SCCO FCX TECK IVN ( Canadian) Am I missing a stock ?",
+    "ticker_mismatches": [
+      {
+        "ticker": "FCX",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post inquires about companies benefiting from copper supply chain disruption but does not express a clear stance or opinion on FCX."
+      },
+      {
+        "ticker": "SCCO",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post is a question about potential winners in a copper supply shortage scenario without explicit bullish/bearish language. No direct sentiment expressed toward SCCO."
+      },
+      {
+        "ticker": "TECK",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The author asks which companies will 'win' from copper dynamics but does not provide personal sentiment or evidence to score TECK positively/negatively."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qvihfa",
+    "post_text": "Why INTU stock is getting cooked over last 2-3 weeks. INTU has dropped sharply from \\~$675 in December to \\~$430 today. As a long-term holder, I'm trying to understand what's really happening. Is this just a temporary pullback or a fundamental shift? Also, is this a good time to accumulate more shares?",
+    "ticker_mismatches": [
+      {
+        "ticker": "INTU",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post is a factual question about INTU's recent price drop without explicit bullish/bearish language. The author is a long-term holder seeking analysis but does not express a clear opinion or actionable stance."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1quem69",
+    "post_text": "Disney reports Q1 earnings: $26B revenue (5% growth), beats estimates but stock drops 5% on Iger succession concerns. Disney just reported Q1 fiscal 2026 earnings with some interesting contradictions: The Good: Revenue: $26 billion (5% YoY growth) Net income: $2.48 billion ($1.34 per share) Beat Wall Street estimates Theme parks crushed it: $10 billion revenue (record-breaking) Streaming operating income jumped 72% Planning $7 billion in stock buybacks The Bad: Stock dropped 5% despite beating e",
+    "ticker_mismatches": [
+      {
+        "ticker": "DIS",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "The post highlights strong financial results (revenue beat, theme park success, streaming profitability) but emphasizes negative market reaction (-5% stock drop) driven by Bob Iger's succession concerns. The focus on leadership transition risks ('FUD') and uncertainty about Josh D'Amaro's takeover outweighs the positive fundamentals, creating bearish sentiment despite operational strengths."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qyx0wr",
+    "post_text": "Considerations regarding CRDO especially at the current price. With the recent dips in different tech sector stocks, I was hoping to find something that is worth picking up during this time period, one of the stocks that I had looked into was CRDO and am curious to different views on this. Currently the PE is very high, at around 100, but I think the idea is that the forward PE would drop significantly to around 30s due to the anticipated growth? From a product perspective, it seems that it does",
+    "ticker_mismatches": [
+      {
+        "ticker": "CRDO",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post presents both positive factors (strong moat, anticipated growth, profitability, hyperscaler relevance) and negative factors (high current PE of 100). The author remains neutral by balancing upside/downside considerations without clear bullish/bearish language."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qp56a4",
+    "post_text": "BYD has overtaken Tesla as the world's biggest seller of electric vehicles. How can Tesla's PE ratio of ~290 be justified. Tesla has fallen behind BYD in terms of vehicle sales. Not to worry because Tesla is a AI & Robotics company - Decoding The Everything: https://decodingtheeverything.wordpress.com/2026/01/28/tesla-has-fallen-behind-byd-in-terms-of-vehicle-sales-not-to-worry-because-tesla-is-a-ai-robotics-company/ As you can see from the title, BYD overtook Tesla. Tesla bulls justify this by ",
+    "ticker_mismatches": [
+      {
+        "ticker": "BYDDF",
+        "ground_truth_label": "positive",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      },
+      {
+        "ticker": "TSLA",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.7,
+        "generated_reasoning": "The post criticizes Tesla's declining EV sales relative to BYD, questions the validity of its AI/robotics transition thesis, and highlights weaknesses in its data advantage for robotics. The tone is skeptical and bearish on Tesla's future prospects despite acknowledging its past strengths."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qrzoh1",
+    "post_text": "Do you \"diamond hand\" anything, or do you have strict sell rules? With the interesting silver movements on Friday, it occured to me I've modified my original technique over the years. On stocks, ill hold the big stuff forever. That is, VOO, or Google, or Coca Cola. That just sits there. For options, I tend to tap out at 50% gains. But over time I've put some cash in long shot calls. An example would be the drone stocks I expect to be associated with the military. Those are LEAPs until 2028. But ",
+    "ticker_mismatches": [
+      {
+        "ticker": "GOOGL",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.8,
+        "generated_reasoning": "The author explicitly states they 'hold the big stuff forever' including Google (GOOGL), indicating long-term confidence and bullish sentiment."
+      },
+      {
+        "ticker": "KO",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.8,
+        "generated_reasoning": "The author mentions Coca Cola (KO) as a stock they 'hold the big stuff forever,' reflecting long-term holding strategy and positive sentiment."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qs9xdh",
+    "post_text": "Unity and Roblox plummet as LingBot World and Project Genie demonstrate real time generative games. The 20% drop in Unity stock today correlates directly with the release of Google Project Genie to US subscribers and the open sourcing of LingBot World by Ant Group. These models prove that AI can generate consistent playable worlds at 16 frames per second without traditional rendering pipelines or assets. Investors are clearly rotating out of legacy 3D infrastructure stocks on fears that generati",
+    "ticker_mismatches": [
+      {
+        "ticker": "RBLX",
+        "ground_truth_label": "negative",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      },
+      {
+        "ticker": "U",
+        "ground_truth_label": "negative",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qtg772",
+    "post_text": "Oracle announces Equity and Debt Financing Plan for Calendar Year 2026. Source: https://www.prnewswire.com/news-releases/oracle-announces-equity-and-debt-financing-plan-for-calendar-year-2026-302675778.html: https://www.prnewswire.com/news-releases/oracle-announces-equity-and-debt-financing-plan-for-calendar-year-2026-302675778.html Oracle Corporation (NYSE: ORCL: https://www.prnewswire.com/news-releases/oracle-announces-equity-and-debt-financing-plan-for-calendar-year-2026-302675778.html#financ",
+    "ticker_mismatches": [
+      {
+        "ticker": "ORCL",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.7,
+        "generated_reasoning": "Oracle's announcement of a $45-50 billion funding plan for cloud infrastructure expansion signals strategic growth investment. The balanced debt-equity approach and emphasis on maintaining investment-grade ratings indicate financial prudence, which is viewed positively by investors."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1quaaxn",
+    "post_text": "TTD isn't a Turn Around Story. TTD is polarizing. Some believe it to be significantly undervalued. Others believe it's still a hefty premium. If one were to simply look at TTD finacials they'd be confused. Low debt, high profits, revenue but slowing growth, decent mote...so what gives. Some believe TTD to still be Overvalued. It's priced like Amazon but with increased competition,3 CFO's leaving in one year. Shrinking margins and a singular mote that's lost its edge. I'm on the bearish side now,",
+    "ticker_mismatches": [
+      {
+        "ticker": "TTD",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.85,
+        "generated_reasoning": "Strong bearish sentiment driven by competitive threats (Amazon's cheaper offering), CEO's excessive share sales without reinvestment, declining margins, and loss of client confidence. The author explicitly states 'I'm on the bearish side now' and highlights critical management and valuation concerns."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qr9p2i",
+    "post_text": "Google is launching Project Genie, an experimental research prototype that lets you create and explore worlds. \"In August, we previewed Genie 3: https://deepmind.google/blog/genie-3-a-new-frontier-for-world-models/, a general-purpose world model capable of generating diverse, interactive environments. Even in this early form, trusted testers were able to create an impressive range of fascinating worlds and experiences, and uncovered entirely new ways to use it. The next step is to broaden access",
+    "ticker_mismatches": [
+      {
+        "ticker": "GOOGL",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.7,
+        "generated_reasoning": "Product launch (Project Genie) signals innovation and potential market leadership in AI-driven world creation, aligning with bullish sentiment for Alphabet's long-term growth."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qu1ox0",
+    "post_text": "Kratos Defense : I miss something ? Hi everyone I try to understand why all my stock get red. So I've got Astera labs, Credo, and now Kratos. I buy some stock to bet on the defense investment from US and Europe (they like to buy american stuff). What happens to the stock to fall like that ? I try to buy stock of companies with good earning and guidance, but i lost money. Don't talk to me about ETF nasdaq, i'm french and i lost money cause of change Euro/USD. I'm tired :-(",
+    "ticker_mismatches": [
+      {
+        "ticker": "CRDO",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The investor references CRDO as part of their portfolio but does not express direct sentiment about its performance or fundamentals."
+      },
+      {
+        "ticker": "ALAB",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The investor mentions holding ALAB but provides no specific positive or negative sentiment about its performance or fundamentals."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qsq8wz",
+    "post_text": "Stocks to buy at a discount? Microsoft Dominance, Pricing power, and considering the scale of company discount is meaningful. Oracle: oracle has fallen more than microsoft but considering oracles pe and that growth at oracle is capped ; microsoft has the better discount. Service now, has fallen 40 peecent this year but its not a true discount because valuation still rich with a high pe Cloudflare is always expensive. The 30% drop just makes it \"less expensive\" It's an asymmetric play on the futu",
+    "ticker_mismatches": [
+      {
+        "ticker": "ETSY",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Etsy's 10% drop is deemed insignificant for a high-priced company with underestimated growth."
+      },
+      {
+        "ticker": "DGNX",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Not in LLM response"
+      },
+      {
+        "ticker": "RIME",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "No mention in the text."
+      },
+      {
+        "ticker": "RZLV",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "No mention in the text."
+      },
+      {
+        "ticker": "RDDT",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Reddit's 16% drop is framed as a 'buy on dips' strategy with uncertain direction."
+      },
+      {
+        "ticker": "UPWK",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "No mention in the text."
+      },
+      {
+        "ticker": "DAVA",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "Endava's TAM is overestimated, and the current environment is unfavorable."
+      },
+      {
+        "ticker": "JTAI",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Not in LLM response"
+      },
+      {
+        "ticker": "AMPL",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "Amplitude is a leader in analytics but suffers from low pricing power and intense competition."
+      },
+      {
+        "ticker": "TOST",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Toast has expansion potential but faces margin risks from competition."
+      },
+      {
+        "ticker": "DUOL",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Not in LLM response"
+      },
+      {
+        "ticker": "ADBE",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "Adobe's growth is an issue despite being loved by value investors."
+      },
+      {
+        "ticker": "NET",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.3,
+        "generated_reasoning": "Cloudflare's 30% drop is described as making it 'less expensive' but still richly valued."
+      },
+      {
+        "ticker": "NOTV",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Inotiv has a massive discount but faces an unfavorable environment, balancing positive and negative factors."
+      },
+      {
+        "ticker": "WKSP",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": ""
+      },
+      {
+        "ticker": "NOW",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "ServiceNow's 40% drop is noted, but its valuation remains rich with a high P/E."
+      },
+      {
+        "ticker": "ORCL",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "Oracle's growth is capped, and its price-to-earnings ratio is unfavorably compared to Microsoft."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qyghnq",
+    "post_text": "Big Tech companies are starting to look like IBM in the 1960s. Just as the emergence of computers pushed IBM toward vertical integration, the popularization of AI since the launch of ChatGPT in late 2022 has put today's cloud giants on a similar trajectory. In particular, the steep costs of Nvidia's chips and their limited availability have pushed tech giants to advance their AI chip efforts. https://finance.yahoo.com/news/big-tech-companies-are-starting-to-look-like-ibm-in-the-1960s-150030684.h",
+    "ticker_mismatches": [
+      {
+        "ticker": "NVDA",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "The post highlights challenges for NVDA as high chip costs and limited availability drive competitors to develop alternatives, implying reduced demand for NVIDIA's products."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qwxeeb",
+    "post_text": "mrk hits ath today. it's such a natural negative correlation to tech. i ve been holding my mrk stocks for 2 years. once 35%-40% under water. i strongly believe it would come back and it was massively undervalued. lly and mrk were once my top losers and they both have recovered from massive losses. sector rotation this year can't be more prominent hold tight to your losers and they may very likely get back softwares particular, msft particula. schwab guy said he saw heavy buying at msft .. btw, i",
+    "ticker_mismatches": [
+      {
+        "ticker": "MSFT",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "User explicitly sold MSFT at $434 and shifted to gold, indicating bearish sentiment despite mentioning Schwab's heavy buying."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qr9fw0",
+    "post_text": "13k from an old 401k, FI told me to throw it in the stock market. Hi everyone, I have 13k from an old 401k that I plan to roll over to a traditional IRA to a Roth IRA in the end, my financial advisor said to throw it in the stock market as I already have an Roth IRA and contribute to that. I've been doing research and this is the spread I was thinking for long term growth and holding. I'm new to the stock market so this is based on very limited knowledge. I am looking for general advise or maybe",
+    "ticker_mismatches": [
+      {
+        "ticker": "PLTR",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post mentions PLTR as part of a long-term investment allocation without explicit bullish/bearish language, sarcasm, or sentiment-driven modifiers."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qqhptj",
+    "post_text": "META +10% post-earnings: the $115-135B 2026 capex deserves some reflection. META reported solid Q4 2025 results yesterday: EPS of ($8.88 vs $8.19 expected), revenue of $59.9 billion (above expectations), and particularly strong Q1 2026 guidance (projected revenue of $53.5-56.5 billion, well above the consensus around $51 billion). The most noteworthy point: capex planned for 2026 is between $115 and $135 billion, a very significant increase from $72 billion in 2025. The market reacted positively",
+    "ticker_mismatches": [
+      {
+        "ticker": "META",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post highlights both positive earnings results (revenue beat, strong guidance) and significant risks (massive capex, potential overcapacity). The author acknowledges market optimism but expresses caution about unproven ROI and historical patterns of overvaluation, balancing bullish and bearish elements without a clear stance."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qth6yz",
+    "post_text": "NKE at $61... am i missing something? Been looking at nike since it's down so much. on the chart it looks like a steal being down 50%, but the valuation makes zero sense to me. It's trading at 36x earnings which is higher than its historical average, but revenue is basically flat or negative. usually when a stock tanks the PE compresses, but here it feels like we are paying a premium for shrinking earnings. I tried to make the math work with a dcf assuming a recovery to $3 fcf/share (averaging t",
+    "ticker_mismatches": [
+      {
+        "ticker": "NKE",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "The post highlights overvaluation concerns (36x P/E vs. shrinking earnings), poor fundamentals (flat/negative revenue, 10% ROIC), and skepticism about near-term recovery. Phrases like 'value trap,' 'dead money until 2027,' and 'waiting for $45' indicate bearish sentiment despite the stock's 50% decline."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qrer40",
+    "post_text": "What is everyone's take on DXYZ? DXYZ is a closed-end fund giving exposure to many companies that will IPO in 2026. This could be a huge opportunity as it gives PE exposure to companies with massive valuations pre-IPO. One company is SpaceX with a 34.6% exposure. What does everyone think about buying into this?",
+    "ticker_mismatches": [
+      {
+        "ticker": "DXYZ",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post is a question seeking opinions without expressing a clear bullish or bearish stance. It highlights potential opportunities (pre-IPO PE exposure, SpaceX allocation) but frames the analysis as neutral inquiry rather than advocacy."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qrnnph",
+    "post_text": "Oracle Taking a Beating but Lands Air Force Contract. On Friday, the U.S. Air Force handed Oracle America Inc. a firm-fixed-price task order worth $88,112,197 under its Cloud One program. The work is slated to continue through Dec. 7, 2028, according to a government announcement. I keep seeing news of them landing big companies like IHG, Saudi Heath Cloud deal, Bank of Valletta, Etc. Also potential blackstone funding the build out. Am I missing something or this is going to keep going down? Micr",
+    "ticker_mismatches": [
+      {
+        "ticker": "MSFT",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "The post mentions Microsoft being 'beat on great earnings' due to higher-than-expected capex, indicating negative sentiment toward the earnings performance despite strong results. The focus on negative financial implications (higher capex) outweighs neutral factual reporting."
+      },
+      {
+        "ticker": "ORCL",
+        "ground_truth_label": "positive",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qt138n",
+    "post_text": "Adobe stock to mix up my portfolio. So since last year I didn't invest any money although I made like 5k due to intel and NVidia going up pretty decent as well as Voo and a few others I had. Now I am looking deeply into Adobe, Paypal and Netflix. I know its the talk right now but I have my eyes more shifted to Adobe everything seems right about it. Does anyone have any input on Adobe specifically you can chip in your two cents on the others but I do want to invest something into adobe",
+    "ticker_mismatches": [
+      {
+        "ticker": "NVDA",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Factual mention of past gains without current opinion or sentiment expressed."
+      },
+      {
+        "ticker": "INTC",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Factual mention of past gains without current opinion or sentiment expressed."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qud96p",
+    "post_text": "If Tesla's valuation is based around Elon hype, where is the IPO cash for SpaceX's supposed $1.25T coming from? Is the expectation that retail investors will sell their Tesla shares to buy SpaceX shares? If a merger is on the table, is the combined value of the companies assumed to be closer to $1.25T? They're both hype stocks. They both have about $4B in net income. Is the stock market really in a position to invest trillions of dollars into hype around one person?",
+    "ticker_mismatches": [
+      {
+        "ticker": "TSLA",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "The post critiques Tesla's valuation as being driven by 'Elon hype' and questions the feasibility of SpaceX's $1.25T valuation, implying skepticism about the sustainability of hype-driven valuations. The rhetorical questions and critical tone toward 'hype stocks' suggest bearish sentiment toward TSLA's fundamentals."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1r15azv",
+    "post_text": "Starting my investment journey and looking for opinions. Hi, I am currently looking at a long term investing plan and as the country I live in has a 8 year tax of 38% on unrealised gains when investing in etfs I don't see this as an option. So the only option to get the best return on compound interest is to invest in individual stocks as a long term investment plan. I have done alot of reading and learning and I like the idea of the moat strategy. I would appreciate some feedback on my 6 picks.",
+    "ticker_mismatches": [
+      {
+        "ticker": "BRK.B",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "User lists BRK.B as part of their moat strategy but provides no explicit bullish/bearish opinion or sentiment indicators."
+      },
+      {
+        "ticker": "BN",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Mentioned as an investment pick without any evaluative language or sentiment markers."
+      },
+      {
+        "ticker": "WPM",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Cited as a long-term holding with no sentiment modifiers or market position indicators."
+      },
+      {
+        "ticker": "AIQUF",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Selected as part of the moat strategy but no explicit sentiment expressed toward the stock."
+      },
+      {
+        "ticker": "FNV",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Included in the user's portfolio selection without positive/negative framing or financial slang."
+      },
+      {
+        "ticker": "LIN",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Included in the portfolio without any bullish/bearish language or contextual events."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qyhxmz",
+    "post_text": "AI disruption and tax software stocks: is there an investable angle? (i.e. $INTU) Over the past few days we've seen a selloff in SaaS stocks, which initially confused me since many of these companies are still profitable and largely just seeing higher R&D spend (for example, $CRM). Then this morning, while getting ready to start tax prep, it started to make sense: instead of paying for tax software or a prep service, I can realistically try using vanguard LLM (Opus 4.6 or insert model of choice)",
+    "ticker_mismatches": [
+      {
+        "ticker": "CRM",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": -0.1,
+        "generated_reasoning": "The post notes higher R&D spend contributing to SaaS selloff but frames it as a sector-wide trend without explicit criticism of CRM's fundamentals. No strong bullish/bearish language or actions are directed at CRM."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qw5ryj",
+    "post_text": "Millrose Properties High Dividend. Millrose Properties (MRP) is a \"Homesite Option Purchase Platform to support residential homebuilders in the acquisition and development of homesites.\" They spun off from Lennar (LEN) in February 2025. They currently pay a very nice dividend of 10.04%. Their payout ratio is 108.74%. From what I have read, the high payout ratio suggests their dividend is not sustainable. Is the high dividend just a temporary lure to get investors to buy in? What have you seen wi",
+    "ticker_mismatches": [
+      {
+        "ticker": "MRP",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "The post raises concerns about MRP's dividend sustainability due to a 108.74% payout ratio, questioning if the high dividend is a temporary lure. This skepticism and focus on potential risks indicate bearish sentiment."
+      }
+    ]
+  }
+]

@@ -1,44 +1,5 @@
 [
   {
-    "id": "reddit:1r0b1pf",
-    "content_type": "post",
-    "native_id": "1r0b1pf",
-    "source": "reddit_batch",
-    "author": "No_River_8171",
-    "url": "https://www.reddit.com/r/stocks/comments/1r0b1pf/alphabet_looks_to_raise_about_15_billion_from_us/",
-    "timestamps": "2026-02-09T17:48:48+00:00",
-    "content": {
-      "title": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports",
-      "body": "Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter.\n\nToughts ?? ",
-      "clean_title": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports",
-      "clean_body": "Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter. Toughts ??",
-      "clean_combined_withurl": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports. Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter. Toughts ??",
-      "clean_combined_withouturl": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports. Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter. Toughts ??"
-    },
-    "engagement": {
-      "total_comments": 72,
-      "score": 280,
-      "upvote_ratio": 0.96
-    },
-    "metadata": {
-      "subreddit": "stocks",
-      "category": null
-    },
-    "images": [],
-    "links": [],
-    "ticker_metadata": {
-      "GOOGL": {
-        "type": "stock",
-        "official_name": "Alphabet Inc.",
-        "name_identified": [
-          "GOOGL"
-        ],
-        "event_type": "DEBT_ISSUANCE",
-        "event_proposal": null
-      }
-    }
-  },
-  {
     "id": "reddit:1qvdkkl",
     "content_type": "post",
     "native_id": "1qvdkkl",
@@ -281,45 +242,6 @@
     }
   },
   {
-    "id": "reddit:1qtz5xw",
-    "content_type": "post",
-    "native_id": "1qtz5xw",
-    "source": "reddit_batch",
-    "author": "caughtya-lookin",
-    "url": "https://www.reddit.com/r/stocks/comments/1qtz5xw/transfer_shares_of_spy_to_voo_taxable_exchange/",
-    "timestamps": "2026-02-02T16:07:40+00:00",
-    "content": {
-      "title": "Transfer Shares of SPY to VOO - taxable exchange?",
-      "body": "Within one taxable (not IRA) portfolio, I have $27k in multiple SPY share lots, all long term.  Every share lot has turned a significant gain.  I would like to consolidate by transferring all of my SPY shares into VOO shares.  As these are like ETFs, will my gains still be taxed?  I think I know the answer 😏 but would love to hear from this knowledgeable group.  Thank you for guidance!  ",
-      "clean_title": "Transfer Shares of SPY to VOO - taxable exchange?",
-      "clean_body": "Within one taxable (not IRA) portfolio, I have $27k in multiple SPY share lots, all long term. Every share lot has turned a significant gain. I would like to consolidate by transferring all of my SPY shares into VOO shares. As these are like ETFs, will my gains still be taxed? I think I know the answer 😏 but would love to hear from this knowledgeable group. Thank you for guidance!",
-      "clean_combined_withurl": "Transfer Shares of SPY to VOO - taxable exchange? Within one taxable (not IRA) portfolio, I have $27k in multiple SPY share lots, all long term. Every share lot has turned a significant gain. I would like to consolidate by transferring all of my SPY shares into VOO shares. As these are like ETFs, will my gains still be taxed? I think I know the answer 😏 but would love to hear from this knowledgeable group. Thank you for guidance!",
-      "clean_combined_withouturl": "Transfer Shares of SPY to VOO - taxable exchange? Within one taxable (not IRA) portfolio, I have $27k in multiple SPY share lots, all long term. Every share lot has turned a significant gain. I would like to consolidate by transferring all of my SPY shares into VOO shares. As these are like ETFs, will my gains still be taxed? I think I know the answer :smirking_face: but would love to hear from this knowledgeable group. Thank you for guidance!"
-    },
-    "engagement": {
-      "total_comments": 13,
-      "score": 5,
-      "upvote_ratio": 0.69
-    },
-    "metadata": {
-      "subreddit": "stocks",
-      "category": null
-    },
-    "images": [],
-    "links": [],
-    "ticker_metadata": {
-      "SPY": {
-        "type": "stock",
-        "official_name": "SPDR S&P 500 ETF TRUST",
-        "name_identified": [
-          "SPY"
-        ],
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null
-      }
-    }
-  },
-  {
     "id": "reddit:1r0upr2",
     "content_type": "post",
     "native_id": "1r0upr2",
@@ -514,31 +436,31 @@
       "https://ibb.co/1f76phVb](https://ibb.co/1f76phVb"
     ],
     "ticker_metadata": {
-      "QQQ": {
+      "AMZN": {
         "type": "stock",
-        "official_name": "INVESCO QQQ TRUST, SERIES 1",
+        "official_name": "AMAZON COM INC",
         "name_identified": [
-          "QQQ"
+          "AMZN"
         ],
-        "event_type": "INVESTOR_OPINION",
+        "event_type": null,
         "event_proposal": null
       },
-      "XLY": {
+      "TSLA": {
         "type": "stock",
-        "official_name": "XLY",
+        "official_name": "Tesla, Inc.",
         "name_identified": [
-          "XLY"
+          "TSLA"
         ],
-        "event_type": "INVESTOR_OPINION",
+        "event_type": null,
         "event_proposal": null
       },
-      "XLP": {
+      "HD": {
         "type": "stock",
-        "official_name": "XLP",
+        "official_name": "HOME DEPOT, INC.",
         "name_identified": [
-          "XLP"
+          "HD"
         ],
-        "event_type": "INVESTOR_OPINION",
+        "event_type": null,
         "event_proposal": null
       }
     }
@@ -937,47 +859,6 @@
     }
   },
   {
-    "id": "reddit:1r0h2kw",
-    "content_type": "post",
-    "native_id": "1r0h2kw",
-    "source": "reddit_batch",
-    "author": "Dizzy_Efficiency_947",
-    "url": "https://www.reddit.com/r/IBRX/comments/1r0h2kw/patrick_soon_on_video_i_was_just_on_the_phone/",
-    "timestamps": "2026-02-09T21:24:49+00:00",
-    "content": {
-      "title": "Patrick Soon on video: \"I was just on the phone last night with the head of the Saudi Arabia FDA who says we want to now expose this to all tumor types\"",
-      "body": "Patrick Soon on video: \"I was just on the phone last night with the head of the Saudi Arabia FDA who says we want to now expose this to all tumor types\"\n\n[https://youtu.be/aRDyqswYUOY?si=EtTPOkGwHzuTDqIr&t=797](https://youtu.be/aRDyqswYUOY?si=EtTPOkGwHzuTDqIr&t=797)",
-      "clean_title": "Patrick Soon on video: \"I was just on the phone last night with the head of the Saudi Arabia FDA who says we want to now expose this to all tumor types\"",
-      "clean_body": "Patrick Soon on video: \"I was just on the phone last night with the head of the Saudi Arabia FDA who says we want to now expose this to all tumor types\" https://youtu.be/aRDyqswYUOY?si=EtTPOkGwHzuTDqIr&t=797: https://youtu.be/aRDyqswYUOY?si=EtTPOkGwHzuTDqIr&t=797",
-      "clean_combined_withurl": "Patrick Soon on video: \"I was just on the phone last night with the head of the Saudi Arabia FDA who says we want to now expose this to all tumor types\" Patrick Soon on video: \"I was just on the phone last night with the head of the Saudi Arabia FDA who says we want to now expose this to all tumor types\" https://youtu.be/aRDyqswYUOY?si=EtTPOkGwHzuTDqIr&t=797: https://youtu.be/aRDyqswYUOY?si=EtTPOkGwHzuTDqIr&t=797",
-      "clean_combined_withouturl": "Patrick Soon on video: \"I was just on the phone last night with the head of the Saudi Arabia FDA who says we want to now expose this to all tumor types\" Patrick Soon on video: \"I was just on the phone last night with the head of the Saudi Arabia FDA who says we want to now expose this to all tumor types\""
-    },
-    "engagement": {
-      "total_comments": 9,
-      "score": 61,
-      "upvote_ratio": 1.0
-    },
-    "metadata": {
-      "subreddit": "IBRX",
-      "category": null
-    },
-    "images": [],
-    "links": [
-      "https://youtu.be/aRDyqswYUOY?si=EtTPOkGwHzuTDqIr&t=797](https://youtu.be/aRDyqswYUOY?si=EtTPOkGwHzuTDqIr&t=797"
-    ],
-    "ticker_metadata": {
-      "IBRX": {
-        "type": "stock",
-        "official_name": "ImmunityBio, Inc.",
-        "name_identified": [
-          "IBRX"
-        ],
-        "event_type": "REGULATORY_APPROVAL",
-        "event_proposal": null
-      }
-    }
-  },
-  {
     "id": "reddit:1qx2umg",
     "content_type": "post",
     "native_id": "1qx2umg",
@@ -1005,15 +886,6 @@
     "images": [],
     "links": [],
     "ticker_metadata": {
-      "SLV": {
-        "type": "stock",
-        "official_name": "iShares Silver Trust",
-        "name_identified": [
-          "SLV"
-        ],
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null
-      },
       "SPPP": {
         "type": "stock",
         "official_name": "SPROTT PHYSICAL PLATINUM & PALLADIUM TRUST",
@@ -1210,6 +1082,150 @@
           "MSFT"
         ],
         "event_type": "EARNINGS_BEAT",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qyotyi",
+    "content_type": "post",
+    "native_id": "1qyotyi",
+    "source": "reddit_batch",
+    "author": "Consistent_Tower5508",
+    "url": "https://www.reddit.com/r/stocks/comments/1qyotyi/rddt_ceo_doing_short_seller_job/",
+    "timestamps": "2026-02-07T20:42:53+00:00",
+    "content": {
+      "title": "RDDT - CEO doing short seller job",
+      "body": "Anyone else watching RDDT and wondering what the CEO is thinking? Steve Hoffman is selling like crazy like there is no other day. Between the messaging, timing, and overall optics, it feels like management is actively undermining confidence instead of defending shareholder value.\n\nShort sellers couldn’t ask for better help. Am I missing something here, or is this self-inflicted damage?\n\nCurious to hear other takes.\n\nif I could attach a screenshot here, it would have been great to show the CEO is selling throughout last year and starting beginning this year even before the ending as well",
+      "clean_title": "RDDT - CEO doing short seller job",
+      "clean_body": "Anyone else watching RDDT and wondering what the CEO is thinking? Steve Hoffman is selling like crazy like there is no other day. Between the messaging, timing, and overall optics, it feels like management is actively undermining confidence instead of defending shareholder value. Short sellers couldn't ask for better help. Am I missing something here, or is this self-inflicted damage? Curious to hear other takes. if I could attach a screenshot here, it would have been great to show the CEO is selling throughout last year and starting beginning this year even before the ending as well",
+      "clean_combined_withurl": "RDDT - CEO doing short seller job. Anyone else watching RDDT and wondering what the CEO is thinking? Steve Hoffman is selling like crazy like there is no other day. Between the messaging, timing, and overall optics, it feels like management is actively undermining confidence instead of defending shareholder value. Short sellers couldn't ask for better help. Am I missing something here, or is this self-inflicted damage? Curious to hear other takes. if I could attach a screenshot here, it would have been great to show the CEO is selling throughout last year and starting beginning this year even before the ending as well",
+      "clean_combined_withouturl": "RDDT - CEO doing short seller job. Anyone else watching RDDT and wondering what the CEO is thinking? Steve Hoffman is selling like crazy like there is no other day. Between the messaging, timing, and overall optics, it feels like management is actively undermining confidence instead of defending shareholder value. Short sellers couldn't ask for better help. Am I missing something here, or is this self-inflicted damage? Curious to hear other takes. if I could attach a screenshot here, it would have been great to show the CEO is selling throughout last year and starting beginning this year even before the ending as well"
+    },
+    "engagement": {
+      "total_comments": 71,
+      "score": 74,
+      "upvote_ratio": 0.65
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "RDDT": {
+        "type": "stock",
+        "official_name": "Reddit, Inc.",
+        "name_identified": [
+          "RDDT"
+        ],
+        "event_type": "INSIDER_SELLING",
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qqlgp9",
+    "content_type": "post",
+    "native_id": "1qqlgp9",
+    "source": "reddit_batch",
+    "author": "National-Theory1218",
+    "url": "https://www.reddit.com/r/investing/comments/1qqlgp9/amazon_could_invest_up_to_50b_in_openai_thought/",
+    "timestamps": "2026-01-29T21:21:02+00:00",
+    "content": {
+      "title": "Amazon could invest up to $50B in OpenAI. Thought? 🤔",
+      "body": "Amazon reportedly in talks to invest up to $50B in OpenAI. \n\nIf this happens, it would mark one of the largest strategic AI investments ever. Potentially reshaping the competitive landscape against Microsoft, Google and Meta. Do you see this as a smart long-term bet by Amazon, or a sign that the AI arms race is reaching unsustainable levels?\n\nCurious to hear thoughts from both investors and tech folks. \n\nSource: CNBC & Blossom Social ",
+      "clean_title": "Amazon could invest up to $50B in OpenAI. Thought? 🤔",
+      "clean_body": "Amazon reportedly in talks to invest up to $50B in OpenAI. If this happens, it would mark one of the largest strategic AI investments ever. Potentially reshaping the competitive landscape against Microsoft, Google and Meta. Do you see this as a smart long-term bet by Amazon, or a sign that the AI arms race is reaching unsustainable levels? Curious to hear thoughts from both investors and tech folks. Source: CNBC & Blossom Social",
+      "clean_combined_withurl": "Amazon could invest up to $50B in OpenAI. Thought? 🤔. Amazon reportedly in talks to invest up to $50B in OpenAI. If this happens, it would mark one of the largest strategic AI investments ever. Potentially reshaping the competitive landscape against Microsoft, Google and Meta. Do you see this as a smart long-term bet by Amazon, or a sign that the AI arms race is reaching unsustainable levels? Curious to hear thoughts from both investors and tech folks. Source: CNBC & Blossom Social",
+      "clean_combined_withouturl": "Amazon could invest up to $50B in OpenAI. Thought? :thinking_face:. Amazon reportedly in talks to invest up to $50B in OpenAI. If this happens, it would mark one of the largest strategic AI investments ever. Potentially reshaping the competitive landscape against Microsoft, Google and Meta. Do you see this as a smart long-term bet by Amazon, or a sign that the AI arms race is reaching unsustainable levels? Curious to hear thoughts from both investors and tech folks. Source: CNBC & Blossom Social"
+    },
+    "engagement": {
+      "total_comments": 155,
+      "score": 145,
+      "upvote_ratio": 0.77
+    },
+    "metadata": {
+      "subreddit": "investing",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "AMZN": {
+        "type": "stock",
+        "official_name": "AMAZON COM INC",
+        "name_identified": [
+          "AMZN"
+        ],
+        "event_type": "COMPANY_INVESTMENT",
+        "event_proposal": null
+      },
+      "MSFT": {
+        "type": "stock",
+        "official_name": "MICROSOFT CORP",
+        "name_identified": [
+          "MSFT"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "GOOGL": {
+        "type": "stock",
+        "official_name": "Alphabet Inc.",
+        "name_identified": [
+          "GOOGL"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "META": {
+        "type": "stock",
+        "official_name": "Meta Platforms, Inc.",
+        "name_identified": [
+          "META"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1qwymfm",
+    "content_type": "post",
+    "native_id": "1qwymfm",
+    "source": "reddit_batch",
+    "author": "StockBrokenUSA",
+    "url": "https://www.reddit.com/r/stocks/comments/1qwymfm/costo_stock_price_flat_for_years/",
+    "timestamps": "2026-02-05T21:42:45+00:00",
+    "content": {
+      "title": "Costo Stock Price flat for years",
+      "body": "Did a complete model of Costco operations. I gave them a generous growth rate on their revenue drivers and maintained cost controls for their store expansion of 23/yr. \n\nmy math coves out to $256 Billion, $310 Billion and $278 Billion for their valuations in  scenarios where I played around with their drivers and capex led by store growth. \n\nin my base case, their share value should be at $631. I think their current trading at a high P/E of 52-53x compared to their 10-year average around 30-33x backs up what I’ve uncovered. \n\n\n\nlong story short, the market has Costco incorrectly priced, and without correction, I expect them to trade flat for a few years until earnings and growth story normalize to their market cap. \n\nyou can shame me, say “what about this?!” And point to their stock continuing to go higher, but at these valuations, their price will get hit the hardest on even a slight earnings miss.\n\n  \n",
+      "clean_title": "Costo Stock Price flat for years",
+      "clean_body": "Did a complete model of Costco operations. I gave them a generous growth rate on their revenue drivers and maintained cost controls for their store expansion of 23/yr. my math coves out to $256 Billion, $310 Billion and $278 Billion for their valuations in scenarios where I played around with their drivers and capex led by store growth. in my base case, their share value should be at $631. I think their current trading at a high P/E of 52-53x compared to their 10-year average around 30-33x backs up what I've uncovered. long story short, the market has Costco incorrectly priced, and without correction, I expect them to trade flat for a few years until earnings and growth story normalize to their market cap. you can shame me, say \"what about this?!\" And point to their stock continuing to go higher, but at these valuations, their price will get hit the hardest on even a slight earnings miss.",
+      "clean_combined_withurl": "Costo Stock Price flat for years. Did a complete model of Costco operations. I gave them a generous growth rate on their revenue drivers and maintained cost controls for their store expansion of 23/yr. my math coves out to $256 Billion, $310 Billion and $278 Billion for their valuations in scenarios where I played around with their drivers and capex led by store growth. in my base case, their share value should be at $631. I think their current trading at a high P/E of 52-53x compared to their 10-year average around 30-33x backs up what I've uncovered. long story short, the market has Costco incorrectly priced, and without correction, I expect them to trade flat for a few years until earnings and growth story normalize to their market cap. you can shame me, say \"what about this?!\" And point to their stock continuing to go higher, but at these valuations, their price will get hit the hardest on even a slight earnings miss.",
+      "clean_combined_withouturl": "Costo Stock Price flat for years. Did a complete model of Costco operations. I gave them a generous growth rate on their revenue drivers and maintained cost controls for their store expansion of 23/yr. my math coves out to $256 Billion, $310 Billion and $278 Billion for their valuations in scenarios where I played around with their drivers and capex led by store growth. in my base case, their share value should be at $631. I think their current trading at a high P/E of 52-53x compared to their 10-year average around 30-33x backs up what I've uncovered. long story short, the market has Costco incorrectly priced, and without correction, I expect them to trade flat for a few years until earnings and growth story normalize to their market cap. you can shame me, say \"what about this?!\" And point to their stock continuing to go higher, but at these valuations, their price will get hit the hardest on even a slight earnings miss."
+    },
+    "engagement": {
+      "total_comments": 34,
+      "score": 35,
+      "upvote_ratio": 0.78
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "COST": {
+        "type": "stock",
+        "official_name": "COSTCO WHOLESALE CORP /NEW",
+        "name_identified": [
+          "COST"
+        ],
+        "event_type": "INVESTOR_OPINION",
         "event_proposal": null
       }
     }

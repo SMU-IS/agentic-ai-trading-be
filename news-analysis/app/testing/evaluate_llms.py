@@ -15,8 +15,9 @@ Usage:
     python evaluate_llms.py --prepare                          # Create all 3 datasets + batches
     python evaluate_llms.py --service ticker --llm gemini      # Test one service + one LLM
     python evaluate_llms.py --service ticker --all             # Test one service + all LLMs
-    python evaluate_llms.py --service event --llm llama
-    python evaluate_llms.py --service sentiment --llm deepseek
+    python evaluate_llms.py --service event --llm llama        # Test event service 
+    python evaluate_llms.py --service sentiment --llm deepseek # Test sentiment service
+    python evaluate_llms.py --combine sentiment --llm deepsek  # Combine batch outputs into 1 file
     python evaluate_llms.py --evaluate ticker                  # Generate results file from combined outputs
 """
 
@@ -63,10 +64,10 @@ RANDOM_SEED = 42
 
 # RPM (requests per minute) limits per provider - used to calculate spacing
 RPM_LIMITS = {
-    "gemini": 10,      # conservative for free tier
+    "gemini": 5,      # conservative for free tier
     "llama": 5,       # Groq free tier
-    "deepseek": 20,    # OpenRouter
-    "qwen": 5,         # Groq free tier: 6K TPM, ~2K tokens/req = ~3 req/min
+    "deepseek": 5,    # OpenRouter
+    "qwen": 5,         # Groq free tier
 }
 
 # Retry config for rate limit (429) and transient errors
@@ -781,7 +782,7 @@ async def run_sentiment_test(posts: List[Dict], llm_key: str, sentiment_service:
 # BATCH PROCESSING ORCHESTRATOR
 # =============================================================================
 
-async def run_service_evaluation(service: str, llm_key: str):
+async def run_service_evaluation(service: str, llm_key: str, start_batch: int = 1):
     """Run a single service test for a single LLM across all batches."""
     config = LLM_CONFIGS[llm_key]
     provider = config["provider"]
@@ -830,9 +831,26 @@ async def run_service_evaluation(service: str, llm_key: str):
     start_time = time.time()
     all_results = []
 
+    if start_batch > 1:
+        print(f"\n  Resuming from batch {start_batch} — loading previous batch results...")
+
     for bf in batch_files:
-        batch_num = bf.replace("batch_", "").replace(".json", "")
-        print(f"\n  --- Batch {batch_num}/{len(batch_files)} ---")
+        batch_num = int(bf.replace("batch_", "").replace(".json", ""))
+        batch_num_str = str(batch_num)
+
+        # Skip batches before start_batch — load saved results instead
+        if batch_num < start_batch:
+            saved_file = os.path.join(output_dir, f"{service}_{folder_name}_batch_{batch_num_str}.json")
+            if os.path.exists(saved_file):
+                with open(saved_file, "r", encoding="utf-8") as f:
+                    saved_results = json.load(f)
+                all_results.extend(saved_results)
+                print(f"  --- Batch {batch_num_str}/{len(batch_files)} --- LOADED from previous run ({len(saved_results)} posts)")
+            else:
+                print(f"  --- Batch {batch_num_str}/{len(batch_files)} --- WARNING: No saved output found, skipping")
+            continue
+
+        print(f"\n  --- Batch {batch_num_str}/{len(batch_files)} ---")
 
         with open(os.path.join(input_dir, bf), "r", encoding="utf-8") as f:
             batch_posts = json.load(f)
@@ -846,10 +864,10 @@ async def run_service_evaluation(service: str, llm_key: str):
             batch_results = await run_sentiment_test(batch_posts, llm_key, svc, rate_limiter)
 
         # Save batch output
-        out_file = os.path.join(output_dir, f"{service}_{folder_name}_batch_{batch_num}.json")
+        out_file = os.path.join(output_dir, f"{service}_{folder_name}_batch_{batch_num_str}.json")
         with open(out_file, "w", encoding="utf-8") as f:
             json.dump(batch_results, f, indent=2, ensure_ascii=False)
-        print(f"    Saved: {service}_{folder_name}_batch_{batch_num}.json")
+        print(f"    Saved: {service}_{folder_name}_batch_{batch_num_str}.json")
 
         all_results.extend(batch_results)
 
@@ -871,11 +889,48 @@ async def run_service_evaluation(service: str, llm_key: str):
             print(f"  [{folder_name}] No new event types proposed")
 
     # Combine all batches into one file
+    combine_batch_outputs(service, llm_key)
+
+
+def combine_batch_outputs(service: str, llm_key: str):
+    """Combine all saved batch output files into a single results file.
+
+    Can be called standalone via --combine or automatically after run_service_evaluation.
+    Only combines batch files that exist in the output directory.
+    """
+    config = LLM_CONFIGS[llm_key]
+    folder_name = config["folder_name"]
+    output_dir = get_batch_output_dir(service, llm_key)
+
+    if not os.path.exists(output_dir):
+        print(f"ERROR: Output directory not found: {output_dir}")
+        return
+
+    # Find all batch output files
+    prefix = f"{service}_{folder_name}_batch_"
+    batch_files = sorted(
+        [f for f in os.listdir(output_dir) if f.startswith(prefix) and f.endswith(".json")],
+        key=lambda x: int(x.replace(prefix, "").replace(".json", "")),
+    )
+
+    if not batch_files:
+        print(f"ERROR: No batch output files found in {output_dir}")
+        return
+
+    print(f"\nCombining batch outputs for {config['display_name']} — {service}")
+    all_results = []
+    for bf in batch_files:
+        batch_num = bf.replace(prefix, "").replace(".json", "")
+        with open(os.path.join(output_dir, bf), "r", encoding="utf-8") as f:
+            batch_data = json.load(f)
+        all_results.extend(batch_data)
+        print(f"  Loaded {bf} ({len(batch_data)} posts)")
+
     combined_file = os.path.join(output_dir, f"{service}_{folder_name}_results.json")
     with open(combined_file, "w", encoding="utf-8") as f:
         json.dump(all_results, f, indent=2, ensure_ascii=False)
     print(f"  Combined output: {combined_file}")
-    print(f"  Total posts processed: {len(all_results)}")
+    print(f"  Total posts combined: {len(all_results)} from {len(batch_files)} batches")
 
 
 # =============================================================================
@@ -1347,6 +1402,14 @@ def main():
         "--evaluate", type=str, choices=["ticker", "event", "sentiment"],
         help="Generate results file by comparing combined outputs against golden dataset",
     )
+    parser.add_argument(
+        "--start-batch", type=int, default=1,
+        help="Start from this batch number (skips earlier batches, loads their saved results). E.g. --start-batch 3",
+    )
+    parser.add_argument(
+        "--combine", type=str, choices=["ticker", "event", "sentiment"],
+        help="Combine existing batch output files into a single results file. Requires --llm.",
+    )
 
     args = parser.parse_args()
 
@@ -1356,6 +1419,13 @@ def main():
 
     if args.evaluate:
         generate_results(args.evaluate)
+        return
+
+    if args.combine:
+        if not args.llm:
+            print("ERROR: --combine requires --llm <name>")
+            sys.exit(1)
+        combine_batch_outputs(args.combine, args.llm)
         return
 
     if args.service:
@@ -1370,7 +1440,7 @@ def main():
             sys.exit(1)
 
         for llm_key in llms_to_test:
-            asyncio.run(run_service_evaluation(args.service, llm_key))
+            asyncio.run(run_service_evaluation(args.service, llm_key, start_batch=args.start_batch))
 
         return
 

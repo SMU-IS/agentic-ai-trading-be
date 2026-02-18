@@ -37,14 +37,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a neutral inquiry about investment strategy regarding a corporate action (spinoff). The user owns CTVA but seeks advice on selling post-split shares, without expressing bullish/bearish opinions or using sentiment-laden language."
+        "sentiment_reasoning": "The post is a neutral inquiry about investment strategy regarding a corporate spinoff. The author owns CTVA but expresses no clear bullish/bearish opinion about its future performance post-split, merely seeking advice on timing/selling decisions."
       }
     },
     "generated_metadata": {
       "CTVA": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a neutral inquiry about investment strategy regarding a corporate action (spinoff). The user owns CTVA but seeks advice on selling post-split shares, without expressing bullish/bearish opinions or using sentiment-laden language."
+        "sentiment_reasoning": "The post is a neutral inquiry about investment strategy regarding a corporate spinoff. The author owns CTVA but expresses no clear bullish/bearish opinion about its future performance post-split, merely seeking advice on timing/selling decisions."
       }
     }
   },
@@ -84,33 +84,16 @@
         ],
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
-        "sentiment_score": 0.6,
+        "sentiment_score": 0.7,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "User expresses intention to hold USAS long-term despite price drop, citing belief in gold/silver fundamentals. 'Stock go up and down and may we moving with SILVER and Gold' indicates bullish conviction in underlying assets."
-      },
-      "SLV": {
-        "type": "stock",
-        "official_name": "iShares Silver Trust",
-        "name_identified": [
-          "SLV"
-        ],
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Mentioned as current holding but no explicit bullish/bearish sentiment. 'Was in with SLV' is factual without opinion on future performance."
+        "sentiment_reasoning": "The user expresses confidence in holding USAS long-term due to its exposure to gold and silver, despite short-term volatility. The decision to hold through price drops and align with metal prices indicates bullish sentiment."
       }
     },
     "generated_metadata": {
       "USAS": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.6,
-        "sentiment_reasoning": "User expresses intention to hold USAS long-term despite price drop, citing belief in gold/silver fundamentals. 'Stock go up and down and may we moving with SILVER and Gold' indicates bullish conviction in underlying assets."
-      },
-      "SLV": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Mentioned as current holding but no explicit bullish/bearish sentiment. 'Was in with SLV' is factual without opinion on future performance."
+        "sentiment_score": 0.7,
+        "sentiment_reasoning": "The user expresses confidence in holding USAS long-term due to its exposure to gold and silver, despite short-term volatility. The decision to hold through price drops and align with metal prices indicates bullish sentiment."
       }
     }
   },
@@ -150,16 +133,50 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.7,
+        "sentiment_score": 0.75,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The author argues Uber is undervalued due to its strategic role as a demand aggregator for autonomous vehicles, framing it as a bullish long-term opportunity. Positive terms like 'indispensable' and 'solidify' reinforce optimism about Uber's future position in the AV ecosystem."
+        "sentiment_reasoning": "The author argues Uber is undervalued due to its potential as a demand aggregator for autonomous vehicles, using a favorable hotel network analogy. Strong bullish language like 'indispensable' and 'growth is being downplayed' indicates confidence in Uber's future role."
+      },
+      "MAR": {
+        "type": "stock",
+        "official_name": "MARRIOTT INTERNATIONAL INC /MD/",
+        "name_identified": [
+          "MAR"
+        ],
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
+      },
+      "HLT": {
+        "type": "stock",
+        "official_name": "Hilton Worldwide Holdings Inc.",
+        "name_identified": [
+          "HLT"
+        ],
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       }
     },
     "generated_metadata": {
       "UBER": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.7,
-        "sentiment_reasoning": "The author argues Uber is undervalued due to its strategic role as a demand aggregator for autonomous vehicles, framing it as a bullish long-term opportunity. Positive terms like 'indispensable' and 'solidify' reinforce optimism about Uber's future position in the AV ecosystem."
+        "sentiment_score": 0.75,
+        "sentiment_reasoning": "The author argues Uber is undervalued due to its potential as a demand aggregator for autonomous vehicles, using a favorable hotel network analogy. Strong bullish language like 'indispensable' and 'growth is being downplayed' indicates confidence in Uber's future role."
+      },
+      "MAR": {
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
+      },
+      "HLT": {
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       }
     }
   },
@@ -199,9 +216,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post mentions NVDA as a client of the author's company but does not express a bullish or bearish opinion about the stock. The sentiment is neutral as it's a factual statement without investment stance."
+        "sentiment_score": 0.6,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The post highlights ongoing client spending by major corporations like NVIDIA, implying sustained demand for their services. The author considers investing in these companies as a strategy, indicating positive sentiment."
       },
       "AVGO": {
         "type": "stock",
@@ -211,9 +228,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "AVGO is referenced as a client example without any evaluation of its stock performance. The context is a question about investment strategy, not a direct sentiment toward the ticker."
+        "sentiment_score": 0.6,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "Broadcom is cited as a high-spending client with no indication of declining business. The author's contemplation of investment aligns with bullish sentiment toward the company's stability."
       },
       "RIO": {
         "type": "stock",
@@ -223,26 +240,26 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "RIO is listed as a client example in a neutral factual context. No positive/negative language or investment recommendation is made about the stock."
+        "sentiment_score": 0.6,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "Rio Tinto is mentioned as a long-term client in a billion-dollar industry, suggesting consistent revenue. The author's investment consideration reflects confidence in the company's performance."
       }
     },
     "generated_metadata": {
       "NVDA": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post mentions NVDA as a client of the author's company but does not express a bullish or bearish opinion about the stock. The sentiment is neutral as it's a factual statement without investment stance."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "The post highlights ongoing client spending by major corporations like NVIDIA, implying sustained demand for their services. The author considers investing in these companies as a strategy, indicating positive sentiment."
       },
       "AVGO": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "AVGO is referenced as a client example without any evaluation of its stock performance. The context is a question about investment strategy, not a direct sentiment toward the ticker."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "Broadcom is cited as a high-spending client with no indication of declining business. The author's contemplation of investment aligns with bullish sentiment toward the company's stability."
       },
       "RIO": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "RIO is listed as a client example in a neutral factual context. No positive/negative language or investment recommendation is made about the stock."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "Rio Tinto is mentioned as a long-term client in a billion-dollar industry, suggesting consistent revenue. The author's investment consideration reflects confidence in the company's performance."
       }
     }
   },
@@ -282,9 +299,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.3,
-        "sentiment_label": "negative",
-        "sentiment_reasoning": "The post questions WEN's low market cap relative to CMG and expresses skepticism about its 'too good to be true' valuation, implying potential undervaluation concerns. The phrase 'too good to be true' and uncertainty about a delayed correction suggest cautious bearishness."
+        "sentiment_score": -0.1,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post expresses confusion about WEN's low market cap relative to CMG and skepticism about its 'too good to be true' valuation, but also acknowledges its established brand status. The 'going nowhere' comment suggests mild bearishness, while the 'good' product experience is neutral. Overall, mixed signals with no strong bullish/bearish stance."
       },
       "CMG": {
         "type": "stock",
@@ -294,21 +311,21 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "No direct sentiment is expressed about CMG beyond a factual market cap comparison. The post lacks opinion or analysis about CMG's fundamentals or future performance."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       }
     },
     "generated_metadata": {
       "WEN": {
-        "sentiment_label": "negative",
-        "sentiment_score": -0.3,
-        "sentiment_reasoning": "The post questions WEN's low market cap relative to CMG and expresses skepticism about its 'too good to be true' valuation, implying potential undervaluation concerns. The phrase 'too good to be true' and uncertainty about a delayed correction suggest cautious bearishness."
+        "sentiment_label": "neutral",
+        "sentiment_score": -0.1,
+        "sentiment_reasoning": "The post expresses confusion about WEN's low market cap relative to CMG and skepticism about its 'too good to be true' valuation, but also acknowledges its established brand status. The 'going nowhere' comment suggests mild bearishness, while the 'good' product experience is neutral. Overall, mixed signals with no strong bullish/bearish stance."
       },
       "CMG": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "No direct sentiment is expressed about CMG beyond a factual market cap comparison. The post lacks opinion or analysis about CMG's fundamentals or future performance."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       }
     }
   },
@@ -348,16 +365,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.7,
+        "sentiment_score": 0.75,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The analysis highlights strong earnings drivers (inventory draw, margin expansion, FCF improvement) and platform catalysts (robotaxi, FSD, AI6). Positive price targets ($470-$500) and confidence in hitting 3-5 checklist items indicate bullish sentiment despite acknowledging risks like tariffs and potential Q4 guidance caution."
+        "sentiment_reasoning": "The analysis highlights bullish factors like inventory draw, margin expansion, and platform advancements (robotaxi, AI6). The author sets a $470-$500 price target if key metrics are met, using terms like 'bull fuel' and 'next leg.' Risks are acknowledged but framed as manageable, with overall confidence in Tesla's execution."
       }
     },
     "generated_metadata": {
       "TSLA": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.7,
-        "sentiment_reasoning": "The analysis highlights strong earnings drivers (inventory draw, margin expansion, FCF improvement) and platform catalysts (robotaxi, FSD, AI6). Positive price targets ($470-$500) and confidence in hitting 3-5 checklist items indicate bullish sentiment despite acknowledging risks like tariffs and potential Q4 guidance caution."
+        "sentiment_score": 0.75,
+        "sentiment_reasoning": "The analysis highlights bullish factors like inventory draw, margin expansion, and platform advancements (robotaxi, AI6). The author sets a $470-$500 price target if key metrics are met, using terms like 'bull fuel' and 'next leg.' Risks are acknowledged but framed as manageable, with overall confidence in Tesla's execution."
       }
     }
   },
@@ -399,7 +416,7 @@
         "event_proposal": null,
         "sentiment_score": 0.6,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Post mentions memory shortage driving growth and considers investing in Micron, indicating bullish sentiment."
+        "sentiment_reasoning": "Post highlights memory shortage driving stock gains and investor interest in Micron, with bullish language like 'popping off' and 'poised to continue.'"
       },
       "SNDK": {
         "type": "stock",
@@ -411,19 +428,19 @@
         "event_proposal": null,
         "sentiment_score": 0.6,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Post references memory shortage boosting Sandisk and evaluates it as a potential investment, showing positive outlook."
+        "sentiment_reasoning": "Sandisk is mentioned alongside Micron as a beneficiary of memory shortage, with similar bullish context about market momentum."
       }
     },
     "generated_metadata": {
       "MU": {
         "sentiment_label": "positive",
         "sentiment_score": 0.6,
-        "sentiment_reasoning": "Post mentions memory shortage driving growth and considers investing in Micron, indicating bullish sentiment."
+        "sentiment_reasoning": "Post highlights memory shortage driving stock gains and investor interest in Micron, with bullish language like 'popping off' and 'poised to continue.'"
       },
       "SNDK": {
         "sentiment_label": "positive",
         "sentiment_score": 0.6,
-        "sentiment_reasoning": "Post references memory shortage boosting Sandisk and evaluates it as a potential investment, showing positive outlook."
+        "sentiment_reasoning": "Sandisk is mentioned alongside Micron as a beneficiary of memory shortage, with similar bullish context about market momentum."
       }
     }
   },
@@ -467,14 +484,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The appointment of Josh D'Amaro as CEO is framed as a positive leadership move with praise for his operational expertise, but the stock's 7% decline post-earnings and ongoing market uncertainty balance the sentiment. No overt bullish/bearish slang or sarcasm detected."
+        "sentiment_reasoning": "The post highlights a management change with positive leadership endorsements but notes mixed market reactions (stock down 7% despite earnings beat). No explicit bullish/bearish slang or strong opinionated language is present, balancing positive succession planning with negative short-term stock performance."
       }
     },
     "generated_metadata": {
       "DIS": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The appointment of Josh D'Amaro as CEO is framed as a positive leadership move with praise for his operational expertise, but the stock's 7% decline post-earnings and ongoing market uncertainty balance the sentiment. No overt bullish/bearish slang or sarcasm detected."
+        "sentiment_reasoning": "The post highlights a management change with positive leadership endorsements but notes mixed market reactions (stock down 7% despite earnings beat). No explicit bullish/bearish slang or strong opinionated language is present, balancing positive succession planning with negative short-term stock performance."
       }
     }
   },
@@ -514,9 +531,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.6,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Positive industry growth projections for semiconductors and AI-related applications, which benefit Apple's ecosystem and product demand."
+        "sentiment_reasoning": "Positive industry growth projections for semiconductors, with AAPL positioned to benefit from AI data centers and edge computing trends."
       },
       "AMZN": {
         "type": "stock",
@@ -526,9 +543,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.6,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Strong semiconductor industry growth supports Amazon's cloud infrastructure and AI-driven services."
+        "sentiment_reasoning": "Semiconductor industry growth projections align with AMZN's AI data center and cloud computing expansion opportunities."
       },
       "GOOGL": {
         "type": "stock",
@@ -538,9 +555,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.6,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Projected semiconductor growth aligns with Alphabet's AI and data center investments."
+        "sentiment_reasoning": "Industry-wide semiconductor growth, particularly in AI and 5G/6G, supports bullish sentiment for GOOGL's infrastructure needs."
       },
       "META": {
         "type": "stock",
@@ -550,9 +567,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.6,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Industry-wide semiconductor growth supports Meta's AI and metaverse infrastructure needs."
+        "sentiment_reasoning": "Meta's reliance on AI and edge computing aligns with projected semiconductor demand growth, driving positive sentiment."
       },
       "MSFT": {
         "type": "stock",
@@ -562,9 +579,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.6,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Microsoft benefits from semiconductor growth in cloud computing and AI development."
+        "sentiment_reasoning": "MSFT benefits from AI data center expansion and 5G/6G adoption, supported by semiconductor industry growth forecasts."
       },
       "MU": {
         "type": "stock",
@@ -574,9 +591,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.9,
+        "sentiment_score": 0.7,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Direct beneficiary of memory/semiconductor industry growth with strong YoY revenue projections."
+        "sentiment_reasoning": "Direct exposure to memory/logic chip demand (up 34.8%-39.9% YoY) and AI-driven semiconductor growth strengthens sentiment."
       },
       "NVDA": {
         "type": "stock",
@@ -586,9 +603,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.9,
+        "sentiment_score": 0.7,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Highly exposed to AI chip demand and semiconductor industry growth projections."
+        "sentiment_reasoning": "NVDA's AI chip leadership and semiconductor industry growth projections create strong bullish momentum."
       },
       "TSM": {
         "type": "stock",
@@ -598,51 +615,51 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.9,
+        "sentiment_score": 0.7,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Leading semiconductor manufacturer directly aligned with industry growth forecasts."
+        "sentiment_reasoning": "TSM's role as a leading semiconductor manufacturer aligns with $1 trillion industry growth projections and AI demand."
       }
     },
     "generated_metadata": {
       "AAPL": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "Positive industry growth projections for semiconductors and AI-related applications, which benefit Apple's ecosystem and product demand."
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "Positive industry growth projections for semiconductors, with AAPL positioned to benefit from AI data centers and edge computing trends."
       },
       "AMZN": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "Strong semiconductor industry growth supports Amazon's cloud infrastructure and AI-driven services."
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "Semiconductor industry growth projections align with AMZN's AI data center and cloud computing expansion opportunities."
       },
       "GOOGL": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "Projected semiconductor growth aligns with Alphabet's AI and data center investments."
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "Industry-wide semiconductor growth, particularly in AI and 5G/6G, supports bullish sentiment for GOOGL's infrastructure needs."
       },
       "META": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "Industry-wide semiconductor growth supports Meta's AI and metaverse infrastructure needs."
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "Meta's reliance on AI and edge computing aligns with projected semiconductor demand growth, driving positive sentiment."
       },
       "MSFT": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "Microsoft benefits from semiconductor growth in cloud computing and AI development."
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "MSFT benefits from AI data center expansion and 5G/6G adoption, supported by semiconductor industry growth forecasts."
       },
       "MU": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.9,
-        "sentiment_reasoning": "Direct beneficiary of memory/semiconductor industry growth with strong YoY revenue projections."
+        "sentiment_score": 0.7,
+        "sentiment_reasoning": "Direct exposure to memory/logic chip demand (up 34.8%-39.9% YoY) and AI-driven semiconductor growth strengthens sentiment."
       },
       "NVDA": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.9,
-        "sentiment_reasoning": "Highly exposed to AI chip demand and semiconductor industry growth projections."
+        "sentiment_score": 0.7,
+        "sentiment_reasoning": "NVDA's AI chip leadership and semiconductor industry growth projections create strong bullish momentum."
       },
       "TSM": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.9,
-        "sentiment_reasoning": "Leading semiconductor manufacturer directly aligned with industry growth forecasts."
+        "sentiment_score": 0.7,
+        "sentiment_reasoning": "TSM's role as a leading semiconductor manufacturer aligns with $1 trillion industry growth projections and AI demand."
       }
     }
   },
@@ -684,9 +701,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Post mentions Tesla as a comparison point but provides no specific positive/negative analysis about TSLA itself."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "UBER": {
         "type": "stock",
@@ -696,9 +713,9 @@
         ],
         "event_type": "STRATEGIC_PARTNERSHIP",
         "event_proposal": null,
-        "sentiment_score": 0.65,
+        "sentiment_score": 0.75,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Highlights strategic partnership with WeRide, asset-light model, and 1200-vehicle commitment as positive unit economics proof for AV scalability."
+        "sentiment_reasoning": "The post highlights UBER's strategic partnership with WeRide as a key development, emphasizing asset-light operations and a 1200-vehicle commitment. Uber's selection as WeRide's primary global partner signals validation of their AV strategy, with positive implications for scalability and unit economics."
       },
       "WRD": {
         "type": "stock",
@@ -708,75 +725,26 @@
         ],
         "event_type": "STRATEGIC_PARTNERSHIP",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.85,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Emphasizes WeRide's L4 tech leadership, Abu Dhabi breakeven progress, and selection as Uber's primary global AV partner as strong validation."
+        "sentiment_reasoning": "The analysis praises WRD's L4 tech support and breakeven unit economics in Abu Dhabi, positioning WeRide as a critical enabler of Uber's AV expansion. The 1200-vehicle commitment and roadmap to 2030 are framed as proof of viable AV economics without massive subsidies, boosting confidence in WRD's business model."
       }
     },
     "generated_metadata": {
       "TSLA": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Post mentions Tesla as a comparison point but provides no specific positive/negative analysis about TSLA itself."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "UBER": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.65,
-        "sentiment_reasoning": "Highlights strategic partnership with WeRide, asset-light model, and 1200-vehicle commitment as positive unit economics proof for AV scalability."
+        "sentiment_score": 0.75,
+        "sentiment_reasoning": "The post highlights UBER's strategic partnership with WeRide as a key development, emphasizing asset-light operations and a 1200-vehicle commitment. Uber's selection as WeRide's primary global partner signals validation of their AV strategy, with positive implications for scalability and unit economics."
       },
       "WRD": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "Emphasizes WeRide's L4 tech leadership, Abu Dhabi breakeven progress, and selection as Uber's primary global AV partner as strong validation."
-      }
-    }
-  },
-  {
-    "id": "reddit:1qsli7n",
-    "content_type": "post",
-    "native_id": "1qsli7n",
-    "source": "reddit_batch",
-    "author": "Cremeeave",
-    "url": "https://www.reddit.com/r/stocks/comments/1qsli7n/so_im_faced_with_a_difficult_decision_i_have_a/",
-    "timestamps": "2026-02-01T02:07:14+00:00",
-    "content": {
-      "title": "So I’m faced with a difficult decision. I have a decent chunk of money and am debating putting it into VXUS, BTC, or even in physical gold.-",
-      "body": "This could be more of a financial or even mental crisis for me. I need to know if I’m not the only one with this similar mindset. \n\nThe USD has dropped in value by like 10% and the political climate isn’t giving me comfort in the stock market as a whole. I seriously want to invest and grow my portfolio though. \n\nMy worries: \n\nis a hypothetical war with the UN going to tank ETFs?\n\nIs this current administration trying to dry up the USD and transfer their wealth to BTC?\n\nIf im this unsure about it, wouldn’t investing in physical currency be the best method? \n\nI am uncertain if the USD will be a fundamental currency in the next 10 years, and am even more uncertain about the stock market’s ups and downs during this unprecedented political climate.\n\nThat being said, I am still casually buying into single stocks that I trust and am reluctantly still adding into my Roth. ",
-      "clean_title": "So I'm faced with a difficult decision. I have a decent chunk of money and am debating putting it into VXUS, BTC, or even in physical gold.-",
-      "clean_body": "This could be more of a financial or even mental crisis for me. I need to know if I'm not the only one with this similar mindset. The USD has dropped in value by like 10% and the political climate isn't giving me comfort in the stock market as a whole. I seriously want to invest and grow my portfolio though. My worries: is a hypothetical war with the UN going to tank ETFs? Is this current administration trying to dry up the USD and transfer their wealth to BTC? If im this unsure about it, wouldn't investing in physical currency be the best method? I am uncertain if the USD will be a fundamental currency in the next 10 years, and am even more uncertain about the stock market's ups and downs during this unprecedented political climate. That being said, I am still casually buying into single stocks that I trust and am reluctantly still adding into my Roth.",
-      "clean_combined_withurl": "So I'm faced with a difficult decision. I have a decent chunk of money and am debating putting it into VXUS, BTC, or even in physical gold.- This could be more of a financial or even mental crisis for me. I need to know if I'm not the only one with this similar mindset. The USD has dropped in value by like 10% and the political climate isn't giving me comfort in the stock market as a whole. I seriously want to invest and grow my portfolio though. My worries: is a hypothetical war with the UN going to tank ETFs? Is this current administration trying to dry up the USD and transfer their wealth to BTC? If im this unsure about it, wouldn't investing in physical currency be the best method? I am uncertain if the USD will be a fundamental currency in the next 10 years, and am even more uncertain about the stock market's ups and downs during this unprecedented political climate. That being said, I am still casually buying into single stocks that I trust and am reluctantly still adding into my Roth.",
-      "clean_combined_withouturl": "So I'm faced with a difficult decision. I have a decent chunk of money and am debating putting it into VXUS, BTC, or even in physical gold.- This could be more of a financial or even mental crisis for me. I need to know if I'm not the only one with this similar mindset. The USD has dropped in value by like 10% and the political climate isn't giving me comfort in the stock market as a whole. I seriously want to invest and grow my portfolio though. My worries: is a hypothetical war with the UN going to tank ETFs? Is this current administration trying to dry up the USD and transfer their wealth to BTC? If im this unsure about it, wouldn't investing in physical currency be the best method? I am uncertain if the USD will be a fundamental currency in the next 10 years, and am even more uncertain about the stock market's ups and downs during this unprecedented political climate. That being said, I am still casually buying into single stocks that I trust and am reluctantly still adding into my Roth."
-    },
-    "engagement": {
-      "total_comments": 43,
-      "score": 0,
-      "upvote_ratio": 0.31
-    },
-    "metadata": {
-      "subreddit": "stocks",
-      "category": null
-    },
-    "images": [],
-    "links": [],
-    "ticker_metadata": {
-      "VXUS": {
-        "type": "stock",
-        "official_name": "VXUS",
-        "name_identified": [
-          "VXUS"
-        ],
-        "event_type": "INVESTOR_OPINION",
-        "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The user expresses uncertainty about VXUS due to macroeconomic/political concerns (USD devaluation, war risks) but does not provide clear bullish/bearish language. They mention considering VXUS as an investment option without strong positive or negative sentiment."
-      }
-    },
-    "generated_metadata": {
-      "VXUS": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The user expresses uncertainty about VXUS due to macroeconomic/political concerns (USD devaluation, war risks) but does not provide clear bullish/bearish language. They mention considering VXUS as an investment option without strong positive or negative sentiment."
+        "sentiment_score": 0.85,
+        "sentiment_reasoning": "The analysis praises WRD's L4 tech support and breakeven unit economics in Abu Dhabi, positioning WeRide as a critical enabler of Uber's AV expansion. The 1200-vehicle commitment and roadmap to 2030 are framed as proof of viable AV economics without massive subsidies, boosting confidence in WRD's business model."
       }
     }
   },
@@ -816,9 +784,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Post is a general question about market preparation with no explicit bullish/bearish stance toward META."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "NFLX": {
         "type": "stock",
@@ -828,9 +796,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Mentioned in a list of potential investments without specific sentiment or opinion expressed."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "TSLA": {
         "type": "stock",
@@ -840,9 +808,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Included in a neutral list of stocks being considered without evaluative language."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "COIN": {
         "type": "stock",
@@ -852,9 +820,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Cited as a 'maybe' in a speculative list with no clear positive/negative framing."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "PLTR": {
         "type": "stock",
@@ -864,9 +832,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Marked as 'maybe' in a neutral inquiry about market positioning with no sentiment expressed."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "ASTS": {
         "type": "stock",
@@ -876,9 +844,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Included in a general list of stocks under consideration without evaluative context."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "NBIS": {
         "type": "stock",
@@ -888,9 +856,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Mentioned in a neutral speculative list of potential investments."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "IREN": {
         "type": "stock",
@@ -900,9 +868,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Cited in a neutral context of market preparation without opinion or evaluation."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "RKT": {
         "type": "stock",
@@ -912,56 +880,56 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Included in a speculative list of stocks with no expressed sentiment."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       }
     },
     "generated_metadata": {
       "META": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Post is a general question about market preparation with no explicit bullish/bearish stance toward META."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "NFLX": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Mentioned in a list of potential investments without specific sentiment or opinion expressed."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "TSLA": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Included in a neutral list of stocks being considered without evaluative language."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "COIN": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Cited as a 'maybe' in a speculative list with no clear positive/negative framing."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "PLTR": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Marked as 'maybe' in a neutral inquiry about market positioning with no sentiment expressed."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "ASTS": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Included in a general list of stocks under consideration without evaluative context."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "NBIS": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Mentioned in a neutral speculative list of potential investments."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "IREN": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Cited in a neutral context of market preparation without opinion or evaluation."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "RKT": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Included in a speculative list of stocks with no expressed sentiment."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       }
     }
   },
@@ -1003,7 +971,7 @@
         "event_proposal": null,
         "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Strong positive catalyst mentioned (early trial success), explicit excitement about the SLS announcement, and active investment intent."
+        "sentiment_reasoning": "Strong positive language ('huge success', 'planning to invest') and specific catalyst anticipation (trial end) indicate bullish sentiment."
       },
       "DRTS": {
         "type": "stock",
@@ -1015,7 +983,7 @@
         "event_proposal": null,
         "sentiment_score": 0.6,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "General positive framing (great results, scheduled catalysts) and inclusion in active investment strategy."
+        "sentiment_reasoning": "Mentioned as part of active investment strategy with 'great results' and 'scheduled catalysts' suggests moderate bullishness."
       },
       "IBRX": {
         "type": "stock",
@@ -1027,7 +995,7 @@
         "event_proposal": null,
         "sentiment_score": 0.6,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Positive attributes (good leadership, approvals) and inclusion in active investment strategy."
+        "sentiment_reasoning": "Included in investment plan with 'good leadership' and 'approvals already' supporting positive sentiment."
       },
       "SANA": {
         "type": "stock",
@@ -1037,31 +1005,31 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.2,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "Mentioned casually with 'haha' as an afterthought, no specific positive/negative details provided."
+        "sentiment_score": 0.1,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "Mentioned casually with 'haha' and no specific positive/negative analysis, indicating neutral/curious stance."
       }
     },
     "generated_metadata": {
       "SLS": {
         "sentiment_label": "positive",
         "sentiment_score": 0.8,
-        "sentiment_reasoning": "Strong positive catalyst mentioned (early trial success), explicit excitement about the SLS announcement, and active investment intent."
+        "sentiment_reasoning": "Strong positive language ('huge success', 'planning to invest') and specific catalyst anticipation (trial end) indicate bullish sentiment."
       },
       "DRTS": {
         "sentiment_label": "positive",
         "sentiment_score": 0.6,
-        "sentiment_reasoning": "General positive framing (great results, scheduled catalysts) and inclusion in active investment strategy."
+        "sentiment_reasoning": "Mentioned as part of active investment strategy with 'great results' and 'scheduled catalysts' suggests moderate bullishness."
       },
       "IBRX": {
         "sentiment_label": "positive",
         "sentiment_score": 0.6,
-        "sentiment_reasoning": "Positive attributes (good leadership, approvals) and inclusion in active investment strategy."
+        "sentiment_reasoning": "Included in investment plan with 'good leadership' and 'approvals already' supporting positive sentiment."
       },
       "SANA": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.2,
-        "sentiment_reasoning": "Mentioned casually with 'haha' as an afterthought, no specific positive/negative details provided."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.1,
+        "sentiment_reasoning": "Mentioned casually with 'haha' and no specific positive/negative analysis, indicating neutral/curious stance."
       }
     }
   },
@@ -1105,7 +1073,7 @@
         "event_proposal": null,
         "sentiment_score": 0.65,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Author corrects prior analysis with higher fair value ($108) and optimistic revenue projections. Leans toward 'Reasonable Very Optimistic Scenario' for 2030, showing confidence in Reddit's growth potential despite acknowledging initial errors."
+        "sentiment_reasoning": "Author provides updated valuation model showing higher fair value ($108) and presents optimistic revenue growth scenarios (47.26% CAGR in 'Ultra Bull' case). The analysis frames Reddit as having significant upside potential despite acknowledging initial errors."
       },
       "META": {
         "type": "stock",
@@ -1115,21 +1083,21 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "META is referenced factually as a benchmark for Reddit's ARPU calculations. No direct bullish/bearish sentiment expressed about META itself; discussion focuses on Reddit's valuation relative to META's metrics."
+        "sentiment_score": -0.45,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "Author corrects initial analysis by cutting META's ARPU assumption in half due to platform complexity, calling the original figure 'higher than I thought.' This downward revision implies bearishness about META's ability to sustain high ARPU across multiple platforms."
       }
     },
     "generated_metadata": {
       "RDDT": {
         "sentiment_label": "positive",
         "sentiment_score": 0.65,
-        "sentiment_reasoning": "Author corrects prior analysis with higher fair value ($108) and optimistic revenue projections. Leans toward 'Reasonable Very Optimistic Scenario' for 2030, showing confidence in Reddit's growth potential despite acknowledging initial errors."
+        "sentiment_reasoning": "Author provides updated valuation model showing higher fair value ($108) and presents optimistic revenue growth scenarios (47.26% CAGR in 'Ultra Bull' case). The analysis frames Reddit as having significant upside potential despite acknowledging initial errors."
       },
       "META": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "META is referenced factually as a benchmark for Reddit's ARPU calculations. No direct bullish/bearish sentiment expressed about META itself; discussion focuses on Reddit's valuation relative to META's metrics."
+        "sentiment_label": "negative",
+        "sentiment_score": -0.45,
+        "sentiment_reasoning": "Author corrects initial analysis by cutting META's ARPU assumption in half due to platform complexity, calling the original figure 'higher than I thought.' This downward revision implies bearishness about META's ability to sustain high ARPU across multiple platforms."
       }
     }
   },
@@ -1169,16 +1137,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.6,
-        "sentiment_label": "negative",
-        "sentiment_reasoning": "The post expresses confusion and concern over HOOD's recent 50% decline, using terms like 'collapsing' and 'jumping ship,' indicating a negative sentiment toward its current performance."
+        "sentiment_score": -0.05,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post expresses confusion and uncertainty about HOOD's recent performance, with no clear bullish or bearish stance. Phrases like 'jumping ship' hint at mild concern but are framed as a question about strategy rather than a strong negative opinion."
       }
     },
     "generated_metadata": {
       "HOOD": {
-        "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "The post expresses confusion and concern over HOOD's recent 50% decline, using terms like 'collapsing' and 'jumping ship,' indicating a negative sentiment toward its current performance."
+        "sentiment_label": "neutral",
+        "sentiment_score": -0.05,
+        "sentiment_reasoning": "The post expresses confusion and uncertainty about HOOD's recent performance, with no clear bullish or bearish stance. Phrases like 'jumping ship' hint at mild concern but are framed as a question about strategy rather than a strong negative opinion."
       }
     }
   },
@@ -1218,16 +1186,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.4,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "User is considering investing more in CELH due to its recent 35% gain and positive readings, despite parental concerns. The action of planning to move funds into CELH indicates a bullish stance."
+        "sentiment_score": 0.0,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post describes a mixed experience with CELH (35% gain followed by a drop back to breakeven) but does not express a clear bullish or bearish opinion. The user questions their strategy rather than advocating for or against the stock, and the father's criticism is framed as conflicting advice rather than a direct market sentiment."
       }
     },
     "generated_metadata": {
       "CELH": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.4,
-        "sentiment_reasoning": "User is considering investing more in CELH due to its recent 35% gain and positive readings, despite parental concerns. The action of planning to move funds into CELH indicates a bullish stance."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "The post describes a mixed experience with CELH (35% gain followed by a drop back to breakeven) but does not express a clear bullish or bearish opinion. The user questions their strategy rather than advocating for or against the stock, and the father's criticism is framed as conflicting advice rather than a direct market sentiment."
       }
     }
   },
@@ -1259,6 +1227,18 @@
     "images": [],
     "links": [],
     "ticker_metadata": {
+      "DKNG": {
+        "type": "stock",
+        "official_name": "DraftKings Inc.",
+        "name_identified": [
+          "DKNG"
+        ],
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
+      },
       "TSLA": {
         "type": "stock",
         "official_name": "Tesla, Inc.",
@@ -1269,14 +1249,19 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post contains general investment advice and reflections on market crashes but does not mention TSLA or express any specific sentiment toward the ticker."
+        "sentiment_reasoning": "The post provides general investment advice about market crashes and strategies but does not mention TSLA or express any specific sentiment toward the ticker."
       }
     },
     "generated_metadata": {
+      "DKNG": {
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
+      },
       "TSLA": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post contains general investment advice and reflections on market crashes but does not mention TSLA or express any specific sentiment toward the ticker."
+        "sentiment_reasoning": "The post provides general investment advice about market crashes and strategies but does not mention TSLA or express any specific sentiment toward the ticker."
       }
     }
   },
@@ -1316,9 +1301,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Mentioned in context of capital expenditures affecting Micron, but no direct bullish/bearish stance on AMZN itself."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "GOOGL": {
         "type": "stock",
@@ -1328,9 +1313,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Referenced alongside AMZN's Capex impact on Micron, but no opinion expressed about GOOGL's own performance."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "MU": {
         "type": "stock",
@@ -1340,26 +1325,26 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.85,
+        "sentiment_score": 0.9,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Explicitly stated 'fully bullish on Micron' with expectations of positive sentiment shift post-earnings and investor event."
+        "sentiment_reasoning": "Strong bullish language ('moon', 'fuel for a launch') and confidence in Micron's fundamentals despite market risks. The author explicitly states 'fully bullish on Micron' and ties positive sentiment to upcoming earnings and investor events."
       }
     },
     "generated_metadata": {
       "AMZN": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Mentioned in context of capital expenditures affecting Micron, but no direct bullish/bearish stance on AMZN itself."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "GOOGL": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Referenced alongside AMZN's Capex impact on Micron, but no opinion expressed about GOOGL's own performance."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "MU": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.85,
-        "sentiment_reasoning": "Explicitly stated 'fully bullish on Micron' with expectations of positive sentiment shift post-earnings and investor event."
+        "sentiment_score": 0.9,
+        "sentiment_reasoning": "Strong bullish language ('moon', 'fuel for a launch') and confidence in Micron's fundamentals despite market risks. The author explicitly states 'fully bullish on Micron' and ties positive sentiment to upcoming earnings and investor events."
       }
     }
   },
@@ -1404,9 +1389,9 @@
           "meaning": "Company separates or spins out a business unit into a distinct entity while maintaining some ownership, distinct from full divestiture. This can affect shareholder value distribution and operational focus.",
           "confidence": 0.8
         },
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Post raises questions about SPGI's 8% drop without expressing clear bullish/bearish stance. No direct opinion or sentiment-laden language detected."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "FICO": {
         "type": "stock",
@@ -1416,9 +1401,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.6,
-        "sentiment_label": "negative",
-        "sentiment_reasoning": "Mentioned as 'fell a lot' in context of SPGI's drop, indicating negative market movement. No bullish language detected."
+        "sentiment_score": 0.0,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post raises questions about market movements and potential impacts on SPGI, FICO, and MCO without expressing explicit bullish/bearish sentiment. No direct opinion or financial slang is used toward FICO."
       },
       "MCO": {
         "type": "stock",
@@ -1428,26 +1413,26 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.6,
-        "sentiment_label": "negative",
-        "sentiment_reasoning": "Explicitly noted as 'fell a lot' alongside SPGI's drop, signaling negative investor sentiment."
+        "sentiment_score": 0.0,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post discusses market declines and asks analytical questions about sector-wide impacts but does not provide a clear positive or negative stance toward MCO. No sentiment-laden language or actions are present."
       }
     },
     "generated_metadata": {
       "SPGI": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Post raises questions about SPGI's 8% drop without expressing clear bullish/bearish stance. No direct opinion or sentiment-laden language detected."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "FICO": {
-        "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "Mentioned as 'fell a lot' in context of SPGI's drop, indicating negative market movement. No bullish language detected."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "The post raises questions about market movements and potential impacts on SPGI, FICO, and MCO without expressing explicit bullish/bearish sentiment. No direct opinion or financial slang is used toward FICO."
       },
       "MCO": {
-        "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "Explicitly noted as 'fell a lot' alongside SPGI's drop, signaling negative investor sentiment."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "The post discusses market declines and asks analytical questions about sector-wide impacts but does not provide a clear positive or negative stance toward MCO. No sentiment-laden language or actions are present."
       }
     }
   },
@@ -1491,14 +1476,31 @@
         "event_proposal": null,
         "sentiment_score": -0.6,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The post highlights concerns about NFLX's growth sustainability (end of S-curve, reduced membership data transparency) and implies revenue growth may plateau in 2-3 years. While mentioning WBD's acquisition as a potential positive, the overall tone focuses on bearish fundamentals like slowing growth and strategic uncertainty."
+        "sentiment_reasoning": "The post highlights declining revenue growth potential due to nearing the end of the S-curve, reduced transparency in membership reporting, and reliance on external factors (WBD acquisition) for future growth. These fundamental concerns indicate bearish sentiment despite analytical tone."
+      },
+      "WBD": {
+        "type": "stock",
+        "official_name": "Warner Bros. Discovery, Inc.",
+        "name_identified": [
+          "WBD"
+        ],
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       }
     },
     "generated_metadata": {
       "NFLX": {
         "sentiment_label": "negative",
         "sentiment_score": -0.6,
-        "sentiment_reasoning": "The post highlights concerns about NFLX's growth sustainability (end of S-curve, reduced membership data transparency) and implies revenue growth may plateau in 2-3 years. While mentioning WBD's acquisition as a potential positive, the overall tone focuses on bearish fundamentals like slowing growth and strategic uncertainty."
+        "sentiment_reasoning": "The post highlights declining revenue growth potential due to nearing the end of the S-curve, reduced transparency in membership reporting, and reliance on external factors (WBD acquisition) for future growth. These fundamental concerns indicate bearish sentiment despite analytical tone."
+      },
+      "WBD": {
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       }
     }
   },
@@ -1538,16 +1540,16 @@
         ],
         "event_type": "GUIDANCE_DOWNGRADE",
         "event_proposal": null,
-        "sentiment_score": 0.5,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "The user is holding and adding to their RACE position despite the guidance downgrade, indicating confidence. They highlight bullish factors like supply control and exclusive demand, though acknowledge short-term sentiment stagnation."
+        "sentiment_score": 0.0,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post acknowledges a guidance downgrade (negative) but also highlights bullish factors like supply control and brand strength. The author is holding/adding but expresses uncertainty about market sentiment, resulting in a balanced view without clear bullish/bearish bias."
       }
     },
     "generated_metadata": {
       "RACE": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "The user is holding and adding to their RACE position despite the guidance downgrade, indicating confidence. They highlight bullish factors like supply control and exclusive demand, though acknowledge short-term sentiment stagnation."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "The post acknowledges a guidance downgrade (negative) but also highlights bullish factors like supply control and brand strength. The author is holding/adding but expresses uncertainty about market sentiment, resulting in a balanced view without clear bullish/bearish bias."
       }
     }
   },
@@ -1587,16 +1589,16 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post mentions VZ as a potential investment option without expressing clear bullish/bearish sentiment. The user is seeking advice on yield strategies, not stating an opinion on VZ's performance."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       }
     },
     "generated_metadata": {
       "VZ": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post mentions VZ as a potential investment option without expressing clear bullish/bearish sentiment. The user is seeking advice on yield strategies, not stating an opinion on VZ's performance."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       }
     }
   },
@@ -1638,14 +1640,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a factual question about selling DE shares for financial planning purposes, not expressing bullish/bearish sentiment. No opinion on DE's future performance is stated."
+        "sentiment_reasoning": "The post discusses a personal financial decision about selling DE shares due to age and risk management, not expressing a bullish or bearish opinion on DE's fundamentals. The user acknowledges gains but frames the question as a strategic move rather than a sentiment-driven action."
       }
     },
     "generated_metadata": {
       "DE": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a factual question about selling DE shares for financial planning purposes, not expressing bullish/bearish sentiment. No opinion on DE's future performance is stated."
+        "sentiment_reasoning": "The post discusses a personal financial decision about selling DE shares due to age and risk management, not expressing a bullish or bearish opinion on DE's fundamentals. The user acknowledges gains but frames the question as a strategic move rather than a sentiment-driven action."
       }
     }
   },
@@ -1688,16 +1690,16 @@
         ],
         "event_type": "EARNINGS_BEAT",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post provides factual earnings results (revenue, EPS) and a balanced analysis of SIMO's position in the storage/controller market, while also highlighting risks like semiconductor cycles and customer concentration. No overt bullish/bearish slang, sarcasm, or strong opinionated stance is detected."
+        "sentiment_score": 0.7,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "Earnings beat with strong revenue and income figures, positive after-hours stock movement (+15%), and bullish thesis on storage/controller demand. Risks are acknowledged but outweighed by positive financial performance and market reaction."
       }
     },
     "generated_metadata": {
       "SIMO": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post provides factual earnings results (revenue, EPS) and a balanced analysis of SIMO's position in the storage/controller market, while also highlighting risks like semiconductor cycles and customer concentration. No overt bullish/bearish slang, sarcasm, or strong opinionated stance is detected."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.7,
+        "sentiment_reasoning": "Earnings beat with strong revenue and income figures, positive after-hours stock movement (+15%), and bullish thesis on storage/controller demand. Risks are acknowledged but outweighed by positive financial performance and market reaction."
       }
     }
   },
@@ -1737,9 +1739,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.6,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "The user's Schwab investment in a mixed tech portfolio (including GOOGL) grew from $200 to $268.12, indicating positive performance."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "AAPL": {
         "type": "stock",
@@ -1749,9 +1751,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.6,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "The user's Schwab investment in a mixed tech portfolio (including AAPL) grew from $200 to $268.12, indicating positive performance."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "NVDA": {
         "type": "stock",
@@ -1761,9 +1763,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.6,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "The user's Schwab investment in a mixed tech portfolio (including NVDA) grew from $200 to $268.12, indicating positive performance."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "AMZN": {
         "type": "stock",
@@ -1773,9 +1775,9 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.6,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "The user's Schwab investment in a mixed tech portfolio (including AMZN) grew from $200 to $268.12, indicating positive performance."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "MSFT": {
         "type": "stock",
@@ -1785,36 +1787,102 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": 0.6,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "The user's Schwab investment in a mixed tech portfolio (including MSFT) grew from $200 to $268.12, indicating positive performance."
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
+      },
+      "SCHW": {
+        "type": "stock",
+        "official_name": "SCHWAB CHARLES CORP",
+        "name_identified": [
+          "SCHW"
+        ],
+        "event_type": null,
+        "event_proposal": null,
+        "sentiment_score": null,
+        "sentiment_label": null,
+        "sentiment_reasoning": "No event identified - skipped"
       }
     },
     "generated_metadata": {
       "GOOGL": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.6,
-        "sentiment_reasoning": "The user's Schwab investment in a mixed tech portfolio (including GOOGL) grew from $200 to $268.12, indicating positive performance."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "AAPL": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.6,
-        "sentiment_reasoning": "The user's Schwab investment in a mixed tech portfolio (including AAPL) grew from $200 to $268.12, indicating positive performance."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "NVDA": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.6,
-        "sentiment_reasoning": "The user's Schwab investment in a mixed tech portfolio (including NVDA) grew from $200 to $268.12, indicating positive performance."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "AMZN": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.6,
-        "sentiment_reasoning": "The user's Schwab investment in a mixed tech portfolio (including AMZN) grew from $200 to $268.12, indicating positive performance."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
       },
       "MSFT": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.6,
-        "sentiment_reasoning": "The user's Schwab investment in a mixed tech portfolio (including MSFT) grew from $200 to $268.12, indicating positive performance."
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
+      },
+      "SCHW": {
+        "sentiment_label": null,
+        "sentiment_score": null,
+        "sentiment_reasoning": "No event identified - skipped"
+      }
+    }
+  },
+  {
+    "id": "reddit:1r0b1pf",
+    "content_type": "post",
+    "native_id": "1r0b1pf",
+    "source": "reddit_batch",
+    "author": "No_River_8171",
+    "url": "https://www.reddit.com/r/stocks/comments/1r0b1pf/alphabet_looks_to_raise_about_15_billion_from_us/",
+    "timestamps": "2026-02-09T17:48:48+00:00",
+    "content": {
+      "title": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports",
+      "body": "Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter.\n\nToughts ?? ",
+      "clean_title": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports",
+      "clean_body": "Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter. Toughts ??",
+      "clean_combined_withurl": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports. Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter. Toughts ??",
+      "clean_combined_withouturl": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports. Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter. Toughts ??"
+    },
+    "engagement": {
+      "total_comments": 72,
+      "score": 280,
+      "upvote_ratio": 0.96
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "GOOGL": {
+        "type": "stock",
+        "official_name": "Alphabet Inc.",
+        "name_identified": [
+          "GOOGL"
+        ],
+        "event_type": "DEBT_ISSUANCE",
+        "event_proposal": null,
+        "sentiment_score": 0.0,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post is a factual report of Alphabet's debt issuance without explicit bullish/bearish language, sarcasm, or Reddit slang. The question 'Toughts ??' lacks sentiment stance."
+      }
+    },
+    "generated_metadata": {
+      "GOOGL": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "The post is a factual report of Alphabet's debt issuance without explicit bullish/bearish language, sarcasm, or Reddit slang. The question 'Toughts ??' lacks sentiment stance."
       }
     }
   }

@@ -35,16 +35,16 @@
         ],
         "event_type": "DIVESTITURE",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is neutral as it only discusses the author's intention to continue investing in the seeds part of the business after the spinoff, without expressing a clear opinion on CTVA's prospects."
+        "sentiment_score": -0.5,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The user explicitly states they only want to invest in the spun-off seeds business, indicating a desire to divest from the remaining CTVA entity (fertilizers and herbicides)."
       }
     },
     "generated_metadata": {
       "CTVA": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is neutral as it only discusses the author's intention to continue investing in the seeds part of the business after the spinoff, without expressing a clear opinion on CTVA's prospects."
+        "sentiment_label": "negative",
+        "sentiment_score": -0.5,
+        "sentiment_reasoning": "The user explicitly states they only want to invest in the spun-off seeds business, indicating a desire to divest from the remaining CTVA entity (fertilizers and herbicides)."
       }
     }
   },
@@ -84,16 +84,16 @@
         ],
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post discusses holding USAS long term and mentions its correlation with silver and gold, but does not express a clear bullish or bearish stance, and the author's decision to hold is based on a neutral expectation that the stock will fluctuate."
+        "sentiment_score": 0.3,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The user expresses an intention to hold USAS long-term, linking its potential to gold and silver, despite a recent price drop, indicating a cautiously positive outlook."
       }
     },
     "generated_metadata": {
       "USAS": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post discusses holding USAS long term and mentions its correlation with silver and gold, but does not express a clear bullish or bearish stance, and the author's decision to hold is based on a neutral expectation that the stock will fluctuate."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.3,
+        "sentiment_reasoning": "The user expresses an intention to hold USAS long-term, linking its potential to gold and silver, despite a recent price drop, indicating a cautiously positive outlook."
       }
     }
   },
@@ -133,9 +133,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.85,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The author believes Uber is undervalued and will solidify its position as a demand aggregator for autonomous robotaxis, with a well-reasoned argument for its future growth and indispensability in the industry."
+        "sentiment_reasoning": "The author explicitly states Uber is undervalued and argues that autonomous vehicles will solidify its position as an indispensable demand aggregator, countering Wall Street's fears."
       },
       "MAR": {
         "type": "stock",
@@ -165,8 +165,8 @@
     "generated_metadata": {
       "UBER": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "The author believes Uber is undervalued and will solidify its position as a demand aggregator for autonomous robotaxis, with a well-reasoned argument for its future growth and indispensability in the industry."
+        "sentiment_score": 0.85,
+        "sentiment_reasoning": "The author explicitly states Uber is undervalued and argues that autonomous vehicles will solidify its position as an indispensable demand aggregator, countering Wall Street's fears."
       },
       "MAR": {
         "sentiment_label": null,
@@ -216,9 +216,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post mentions NVDA as a major client, but the tone is neutral and inquiring, without expressing a clear opinion or sentiment towards the stock."
+        "sentiment_score": 0.4,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The author identifies NVDA as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
       },
       "AVGO": {
         "type": "stock",
@@ -228,9 +228,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Similar to NVDA, AVGO is mentioned as a client, but the post's tone is neutral and questioning, lacking a clear bullish or bearish stance."
+        "sentiment_score": 0.4,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The author identifies Broadcom (AVGO) as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
       },
       "RIO": {
         "type": "stock",
@@ -240,26 +240,26 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "RIO is also mentioned as a major client, but the post's overall tone is inquiring and neutral, without expressing a clear sentiment or opinion towards the stock."
+        "sentiment_score": 0.4,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The author identifies Rio Tinto (RIO) as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
       }
     },
     "generated_metadata": {
       "NVDA": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post mentions NVDA as a major client, but the tone is neutral and inquiring, without expressing a clear opinion or sentiment towards the stock."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "The author identifies NVDA as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
       },
       "AVGO": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Similar to NVDA, AVGO is mentioned as a client, but the post's tone is neutral and questioning, lacking a clear bullish or bearish stance."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "The author identifies Broadcom (AVGO) as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
       },
       "RIO": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "RIO is also mentioned as a major client, but the post's overall tone is inquiring and neutral, without expressing a clear sentiment or opinion towards the stock."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "The author identifies Rio Tinto (RIO) as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
       }
     }
   },
@@ -299,9 +299,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.5,
+        "sentiment_score": 0.4,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The author mentions WEN's high dividend yield, its appearance of being oversold, and its status as a well-established international brand, indicating a bullish sentiment. The author's casual mention of enjoying a Baconator also adds a positive tone."
+        "sentiment_reasoning": "The post highlights WEN's high dividend yield and describes it as 'hugely oversold' and a 'well established international brand' that is 'going no where anytime soon,' indicating a belief in its stability and undervaluation despite initial questions."
       },
       "CMG": {
         "type": "stock",
@@ -319,8 +319,8 @@
     "generated_metadata": {
       "WEN": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "The author mentions WEN's high dividend yield, its appearance of being oversold, and its status as a well-established international brand, indicating a bullish sentiment. The author's casual mention of enjoying a Baconator also adds a positive tone."
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "The post highlights WEN's high dividend yield and describes it as 'hugely oversold' and a 'well established international brand' that is 'going no where anytime soon,' indicating a belief in its stability and undervaluation despite initial questions."
       },
       "CMG": {
         "sentiment_label": null,
@@ -365,16 +365,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.4,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The post provides a detailed analysis of Tesla's Q3 earnings preview, highlighting potential positives such as a top-line beat, increased operating cash flow, and improved gross margin, with a bullish tone and specific targets for the stock price."
+        "sentiment_reasoning": "The analysis outlines several positive expectations for Q3 (top-line beat, improved cash flow, higher GM) and significant upside potential if key milestones are met, including a price target of $470-$500, despite acknowledging risks and a high bar."
       }
     },
     "generated_metadata": {
       "TSLA": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "The post provides a detailed analysis of Tesla's Q3 earnings preview, highlighting potential positives such as a top-line beat, increased operating cash flow, and improved gross margin, with a bullish tone and specific targets for the stock price."
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "The analysis outlines several positive expectations for Q3 (top-line beat, improved cash flow, higher GM) and significant upside potential if key milestones are met, including a price target of $470-$500, despite acknowledging risks and a high bar."
       }
     }
   },
@@ -414,9 +414,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post mentions Micron as a potential investment opportunity due to the memory shortage, but also considers the possibility of a crash, indicating a neutral stance."
+        "sentiment_score": 0.4,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The post states Micron is 'popping off' due to memory shortages and is 'poised to continue doing so,' indicating a positive near-term outlook despite general market caution."
       },
       "SNDK": {
         "type": "stock",
@@ -426,21 +426,21 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post mentions Sandisk as a potential investment opportunity due to the memory shortage, but also considers the possibility of a crash and asks for a comparison with Micron, indicating a neutral stance."
+        "sentiment_score": 0.4,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The post states Sandisk is 'popping off' due to memory shortages and is 'poised to continue doing so,' indicating a positive near-term outlook despite general market caution."
       }
     },
     "generated_metadata": {
       "MU": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post mentions Micron as a potential investment opportunity due to the memory shortage, but also considers the possibility of a crash, indicating a neutral stance."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "The post states Micron is 'popping off' due to memory shortages and is 'poised to continue doing so,' indicating a positive near-term outlook despite general market caution."
       },
       "SNDK": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post mentions Sandisk as a potential investment opportunity due to the memory shortage, but also considers the possibility of a crash and asks for a comparison with Micron, indicating a neutral stance."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "The post states Sandisk is 'popping off' due to memory shortages and is 'poised to continue doing so,' indicating a positive near-term outlook despite general market caution."
       }
     }
   },
@@ -482,16 +482,16 @@
         ],
         "event_type": "MANAGEMENT_CHANGE",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post reports on a management change at Disney with factual information and quotes from Bob Iger, without expressing a clear opinion or emotional tone, and the mixed reception from Wall Street and the stock's recent performance are presented in a neutral manner."
+        "sentiment_score": -0.2,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "Despite positive operational news like an earnings beat and a new CEO from a successful division, the stock lost 7% and Wall Street had a 'mixed reception,' indicating underlying market skepticism."
       }
     },
     "generated_metadata": {
       "DIS": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post reports on a management change at Disney with factual information and quotes from Bob Iger, without expressing a clear opinion or emotional tone, and the mixed reception from Wall Street and the stock's recent performance are presented in a neutral manner."
+        "sentiment_label": "negative",
+        "sentiment_score": -0.2,
+        "sentiment_reasoning": "Despite positive operational news like an earnings beat and a new CEO from a successful division, the stock lost 7% and Wall Street had a 'mixed reception,' indicating underlying market skepticism."
       }
     }
   },
@@ -531,9 +531,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.5,
+        "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The post mentions a significant growth in the semiconductor industry, which is likely to benefit AAPL as a major player in the tech industry. The projected growth in key application areas such as AI data centers and autonomous vehicles is also a positive indicator for AAPL."
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in areas like AI data centers and edge computing, which indirectly benefit Apple's product ecosystem. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "AMZN": {
         "type": "stock",
@@ -543,9 +543,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.5,
+        "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Similar to AAPL, AMZN is likely to benefit from the growth in the semiconductor industry, particularly in areas such as AI data centers and edge computing. The post's neutral tone and focus on industry growth rather than specific company performance contribute to the positive sentiment."
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in areas like AI data centers, which directly benefit Amazon's AWS cloud services. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "GOOGL": {
         "type": "stock",
@@ -555,9 +555,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.5,
+        "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "GOOGL's involvement in AI data centers, 5G/6G, and edge computing makes it a likely beneficiary of the projected growth in the semiconductor industry. The post's emphasis on the growth potential of these areas contributes to the positive sentiment."
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in areas like AI data centers and autonomous vehicles, which directly benefit Google's cloud and AI initiatives. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "META": {
         "type": "stock",
@@ -567,9 +567,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.5,
+        "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "META's focus on AI and machine learning, as well as its involvement in areas such as robotics and autonomous vehicles, makes it a potential beneficiary of the growth in the semiconductor industry. The post's neutral tone and focus on industry growth contribute to the positive sentiment."
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in areas like AI data centers, which directly benefit Meta's AI and metaverse infrastructure. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "MSFT": {
         "type": "stock",
@@ -579,9 +579,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.5,
+        "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "MSFT's involvement in AI data centers, edge computing, and autonomous vehicles makes it a likely beneficiary of the projected growth in the semiconductor industry. The post's emphasis on the growth potential of these areas contributes to the positive sentiment."
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in areas like AI data centers, robotics, and edge computing, which directly benefit Microsoft's Azure cloud and AI services. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "MU": {
         "type": "stock",
@@ -591,9 +591,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.5,
+        "sentiment_score": 0.9,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "As a major player in the semiconductor industry, MU is likely to benefit from the projected growth in the industry, particularly in areas such as memory chips. The post's neutral tone and focus on industry growth rather than specific company performance contribute to the positive sentiment."
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, specifically mentioning memory chips as a high-growth area, which directly benefits Micron Technology. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "NVDA": {
         "type": "stock",
@@ -603,9 +603,9 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.5,
+        "sentiment_score": 0.9,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "NVDA's focus on AI chips and its involvement in areas such as AI data centers, 5G/6G, and autonomous vehicles make it a likely beneficiary of the growth in the semiconductor industry. The post's emphasis on the growth potential of these areas contributes to the positive sentiment."
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in key application areas like AI data centers, autonomous vehicles, and robotics, which directly benefit NVIDIA's core business. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "TSM": {
         "type": "stock",
@@ -615,51 +615,51 @@
         ],
         "event_type": "EXTERNAL_INDUSTRY_GROWTH",
         "event_proposal": null,
-        "sentiment_score": 0.5,
+        "sentiment_score": 0.9,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "As a major player in the semiconductor industry, TSM is likely to benefit from the projected growth in the industry, particularly in areas such as logic chips and memory chips. The post's neutral tone and focus on industry growth rather than specific company performance contribute to the positive sentiment."
+        "sentiment_reasoning": "The post highlights significant projected growth in the global semiconductor industry, which directly benefits TSMC as a leading foundry. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       }
     },
     "generated_metadata": {
       "AAPL": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "The post mentions a significant growth in the semiconductor industry, which is likely to benefit AAPL as a major player in the tech industry. The projected growth in key application areas such as AI data centers and autonomous vehicles is also a positive indicator for AAPL."
+        "sentiment_score": 0.8,
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in areas like AI data centers and edge computing, which indirectly benefit Apple's product ecosystem. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "AMZN": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "Similar to AAPL, AMZN is likely to benefit from the growth in the semiconductor industry, particularly in areas such as AI data centers and edge computing. The post's neutral tone and focus on industry growth rather than specific company performance contribute to the positive sentiment."
+        "sentiment_score": 0.8,
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in areas like AI data centers, which directly benefit Amazon's AWS cloud services. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "GOOGL": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "GOOGL's involvement in AI data centers, 5G/6G, and edge computing makes it a likely beneficiary of the projected growth in the semiconductor industry. The post's emphasis on the growth potential of these areas contributes to the positive sentiment."
+        "sentiment_score": 0.8,
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in areas like AI data centers and autonomous vehicles, which directly benefit Google's cloud and AI initiatives. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "META": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "META's focus on AI and machine learning, as well as its involvement in areas such as robotics and autonomous vehicles, makes it a potential beneficiary of the growth in the semiconductor industry. The post's neutral tone and focus on industry growth contribute to the positive sentiment."
+        "sentiment_score": 0.8,
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in areas like AI data centers, which directly benefit Meta's AI and metaverse infrastructure. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "MSFT": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "MSFT's involvement in AI data centers, edge computing, and autonomous vehicles makes it a likely beneficiary of the projected growth in the semiconductor industry. The post's emphasis on the growth potential of these areas contributes to the positive sentiment."
+        "sentiment_score": 0.8,
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in areas like AI data centers, robotics, and edge computing, which directly benefit Microsoft's Azure cloud and AI services. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "MU": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "As a major player in the semiconductor industry, MU is likely to benefit from the projected growth in the industry, particularly in areas such as memory chips. The post's neutral tone and focus on industry growth rather than specific company performance contribute to the positive sentiment."
+        "sentiment_score": 0.9,
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, specifically mentioning memory chips as a high-growth area, which directly benefits Micron Technology. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "NVDA": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "NVDA's focus on AI chips and its involvement in areas such as AI data centers, 5G/6G, and autonomous vehicles make it a likely beneficiary of the growth in the semiconductor industry. The post's emphasis on the growth potential of these areas contributes to the positive sentiment."
+        "sentiment_score": 0.9,
+        "sentiment_reasoning": "The post highlights significant projected growth in the semiconductor industry, particularly in key application areas like AI data centers, autonomous vehicles, and robotics, which directly benefit NVIDIA's core business. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       },
       "TSM": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "As a major player in the semiconductor industry, TSM is likely to benefit from the projected growth in the industry, particularly in areas such as logic chips and memory chips. The post's neutral tone and focus on industry growth rather than specific company performance contribute to the positive sentiment."
+        "sentiment_score": 0.9,
+        "sentiment_reasoning": "The post highlights significant projected growth in the global semiconductor industry, which directly benefits TSMC as a leading foundry. The author also explicitly states holding 'Long positions' in these tickers, indicating a bullish stance."
       }
     }
   },
@@ -715,7 +715,7 @@
         "event_proposal": null,
         "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The post highlights Uber's strategic partnership with WeRide, which is expected to achieve breakeven unit economics and scale up to 1200 vehicles in the Middle East, indicating a positive development for Uber's business."
+        "sentiment_reasoning": "The post highlights Uber's strategic choice of WeRide as a primary partner, an asset-light model for AV operations, and the potential for breakeven unit economics in their Abu Dhabi venture, all indicating a strong positive outlook for Uber's AV strategy."
       },
       "WRD": {
         "type": "stock",
@@ -725,9 +725,9 @@
         ],
         "event_type": "STRATEGIC_PARTNERSHIP",
         "event_proposal": null,
-        "sentiment_score": 0.9,
+        "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The post presents WeRide's partnership with Uber as a significant opportunity, with the company's L4 tech and asset-light model expected to drive growth and achieve breakeven unit economics, indicating a very positive sentiment towards WeRide."
+        "sentiment_reasoning": "WeRide is positioned as Uber's primary global scale-up partner, with its L4 tech enabling breakeven unit economics in current operations and a clear roadmap for significant vehicle deployment, proving a viable economic model for AVs."
       }
     },
     "generated_metadata": {
@@ -739,12 +739,12 @@
       "UBER": {
         "sentiment_label": "positive",
         "sentiment_score": 0.8,
-        "sentiment_reasoning": "The post highlights Uber's strategic partnership with WeRide, which is expected to achieve breakeven unit economics and scale up to 1200 vehicles in the Middle East, indicating a positive development for Uber's business."
+        "sentiment_reasoning": "The post highlights Uber's strategic choice of WeRide as a primary partner, an asset-light model for AV operations, and the potential for breakeven unit economics in their Abu Dhabi venture, all indicating a strong positive outlook for Uber's AV strategy."
       },
       "WRD": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.9,
-        "sentiment_reasoning": "The post presents WeRide's partnership with Uber as a significant opportunity, with the company's L4 tech and asset-light model expected to drive growth and achieve breakeven unit economics, indicating a very positive sentiment towards WeRide."
+        "sentiment_score": 0.8,
+        "sentiment_reasoning": "WeRide is positioned as Uber's primary global scale-up partner, with its L4 tech enabling breakeven unit economics in current operations and a clear roadmap for significant vehicle deployment, proving a viable economic model for AVs."
       }
     }
   },
@@ -969,9 +969,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.9,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The author mentions 'great results', 'good leadership', and 'huge success' in relation to SLS, indicating a strong positive sentiment towards the stock."
+        "sentiment_reasoning": "The user expresses strong bullish sentiment, highlighting an 'early end to a trial that seems to be a huge success' and eagerness not to miss an upcoming announcement."
       },
       "DRTS": {
         "type": "stock",
@@ -981,9 +981,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.5,
+        "sentiment_score": 0.7,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The author includes DRTS among their investments, citing 'great results' and 'scheduled catalysts', but with less specific praise than for SLS, resulting in a moderately positive sentiment."
+        "sentiment_reasoning": "The user is investing in DRTS, stating it 'stands out' with 'Great results, good leadership and some approvals already,' and 'many scheduled catalysts'."
       },
       "IBRX": {
         "type": "stock",
@@ -993,9 +993,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.5,
+        "sentiment_score": 0.7,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Similar to DRTS, the author invests in IBRX and mentions 'great results' and 'scheduled catalysts', but lacks specific details, leading to a moderately positive sentiment."
+        "sentiment_reasoning": "The user is investing in IBRX, stating it 'stands out' with 'Great results, good leadership and some approvals already,' and 'many scheduled catalysts'."
       },
       "SANA": {
         "type": "stock",
@@ -1005,31 +1005,31 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.2,
-        "sentiment_label": "positive",
-        "sentiment_reasoning": "The author mentions SANA in a casual, humorous way, suggesting a mildly positive sentiment, but with less conviction or specific details than for the other stocks."
+        "sentiment_score": 0.0,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "SANA is mentioned casually as an afterthought ('And throw Sana in there, too, haha') for potential inclusion in a chart, without explicit positive or negative sentiment."
       }
     },
     "generated_metadata": {
       "SLS": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "The author mentions 'great results', 'good leadership', and 'huge success' in relation to SLS, indicating a strong positive sentiment towards the stock."
+        "sentiment_score": 0.9,
+        "sentiment_reasoning": "The user expresses strong bullish sentiment, highlighting an 'early end to a trial that seems to be a huge success' and eagerness not to miss an upcoming announcement."
       },
       "DRTS": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "The author includes DRTS among their investments, citing 'great results' and 'scheduled catalysts', but with less specific praise than for SLS, resulting in a moderately positive sentiment."
+        "sentiment_score": 0.7,
+        "sentiment_reasoning": "The user is investing in DRTS, stating it 'stands out' with 'Great results, good leadership and some approvals already,' and 'many scheduled catalysts'."
       },
       "IBRX": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "Similar to DRTS, the author invests in IBRX and mentions 'great results' and 'scheduled catalysts', but lacks specific details, leading to a moderately positive sentiment."
+        "sentiment_score": 0.7,
+        "sentiment_reasoning": "The user is investing in IBRX, stating it 'stands out' with 'Great results, good leadership and some approvals already,' and 'many scheduled catalysts'."
       },
       "SANA": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.2,
-        "sentiment_reasoning": "The author mentions SANA in a casual, humorous way, suggesting a mildly positive sentiment, but with less conviction or specific details than for the other stocks."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "SANA is mentioned casually as an afterthought ('And throw Sana in there, too, haha') for potential inclusion in a chart, without explicit positive or negative sentiment."
       }
     }
   },
@@ -1071,9 +1071,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.3,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The author provides a detailed and optimistic valuation analysis for RDDT, with a fair value per share of $108.23, indicating a positive sentiment towards the company's future growth prospects."
+        "sentiment_reasoning": "The author presents a 'New Reasonable Fair Value' of $108 and explicitly states they are 'leaning in between the Reasonable Very Optimistic Scenario,' suggesting a belief in a higher valuation for RDDT."
       },
       "META": {
         "type": "stock",
@@ -1085,19 +1085,19 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The author mentions META as a reference point for their valuation analysis of RDDT, but does not express a clear opinion or sentiment towards META's performance or prospects."
+        "sentiment_reasoning": "META is mentioned only as a factual benchmark for ARPU comparison to RDDT, with no direct sentiment expressed about its stock or future performance."
       }
     },
     "generated_metadata": {
       "RDDT": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "The author provides a detailed and optimistic valuation analysis for RDDT, with a fair value per share of $108.23, indicating a positive sentiment towards the company's future growth prospects."
+        "sentiment_score": 0.3,
+        "sentiment_reasoning": "The author presents a 'New Reasonable Fair Value' of $108 and explicitly states they are 'leaning in between the Reasonable Very Optimistic Scenario,' suggesting a belief in a higher valuation for RDDT."
       },
       "META": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The author mentions META as a reference point for their valuation analysis of RDDT, but does not express a clear opinion or sentiment towards META's performance or prospects."
+        "sentiment_reasoning": "META is mentioned only as a factual benchmark for ARPU comparison to RDDT, with no direct sentiment expressed about its stock or future performance."
       }
     }
   },
@@ -1137,16 +1137,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.8,
+        "sentiment_score": -0.85,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The post expresses concern and uncertainty about HOOD's performance, mentioning a collapse in 2026 and a 50% decline in the last 3-4 months, indicating a bearish sentiment. The author's consideration of 'jumping ship' further reinforces the negative outlook."
+        "sentiment_reasoning": "The user describes HOOD as 'collapsing' and 'down almost 50%', expressing confusion and considering 'jumping ship,' which indicates a strong bearish outlook."
       }
     },
     "generated_metadata": {
       "HOOD": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.8,
-        "sentiment_reasoning": "The post expresses concern and uncertainty about HOOD's performance, mentioning a collapse in 2026 and a 50% decline in the last 3-4 months, indicating a bearish sentiment. The author's consideration of 'jumping ship' further reinforces the negative outlook."
+        "sentiment_score": -0.85,
+        "sentiment_reasoning": "The user describes HOOD as 'collapsing' and 'down almost 50%', expressing confusion and considering 'jumping ship,' which indicates a strong bearish outlook."
       }
     }
   },
@@ -1188,14 +1188,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a question about the portfolio and investment strategy, without expressing a clear opinion or stance on the ticker, and both positive and negative views are mentioned, resulting in a neutral sentiment."
+        "sentiment_reasoning": "The user notes a past 35% gain but the stock is now back to the purchase price, and cites external positive views ('everywhere I read about it says it's good'). However, the overall post is a question seeking advice on investment strategy, not a direct bullish or bearish stance on the ticker itself."
       }
     },
     "generated_metadata": {
       "CELH": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a question about the portfolio and investment strategy, without expressing a clear opinion or stance on the ticker, and both positive and negative views are mentioned, resulting in a neutral sentiment."
+        "sentiment_reasoning": "The user notes a past 35% gain but the stock is now back to the purchase price, and cites external positive views ('everywhere I read about it says it's good'). However, the overall post is a question seeking advice on investment strategy, not a direct bullish or bearish stance on the ticker itself."
       }
     }
   },
@@ -1249,7 +1249,7 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post does not mention TSLA specifically and provides general advice for new investors, without expressing any opinion or sentiment towards the company."
+        "sentiment_reasoning": "The post provides general investment advice and does not mention TSLA, thus no specific sentiment is expressed towards the ticker."
       }
     },
     "generated_metadata": {
@@ -1261,7 +1261,7 @@
       "TSLA": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post does not mention TSLA specifically and provides general advice for new investors, without expressing any opinion or sentiment towards the company."
+        "sentiment_reasoning": "The post provides general investment advice and does not mention TSLA, thus no specific sentiment is expressed towards the ticker."
       }
     }
   },
@@ -1325,9 +1325,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.8,
+        "sentiment_score": 0.9,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The post expresses bullish sentiment towards Micron, citing the potential for a launch and smooth recovery after the current wave of fear, with the author stating they are 'still fully bullish' on the stock. The use of the phrase 'Micron moon' also indicates a strong positive sentiment."
+        "sentiment_reasoning": "The author uses strong bullish language, including slang like 'moon' and 'launch,' and explicitly states 'fully bullish on Micron,' expecting a smooth ride."
       }
     },
     "generated_metadata": {
@@ -1343,8 +1343,8 @@
       },
       "MU": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.8,
-        "sentiment_reasoning": "The post expresses bullish sentiment towards Micron, citing the potential for a launch and smooth recovery after the current wave of fear, with the author stating they are 'still fully bullish' on the stock. The use of the phrase 'Micron moon' also indicates a strong positive sentiment."
+        "sentiment_score": 0.9,
+        "sentiment_reasoning": "The author uses strong bullish language, including slang like 'moon' and 'launch,' and explicitly states 'fully bullish on Micron,' expecting a smooth ride."
       }
     }
   },
@@ -1401,9 +1401,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.1,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post mentions FICO as a company in a similar area that also fell, but does not express a clear opinion or sentiment towards the company."
+        "sentiment_score": -0.4,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The post reports that FICO 'fell a lot' in the context of a broader discussion about stock drops and potential harm to shareholders, indicating a negative price action."
       },
       "MCO": {
         "type": "stock",
@@ -1413,9 +1413,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.1,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post mentions MCO as a company in a similar area that also fell, but does not express a clear opinion or sentiment towards the company."
+        "sentiment_score": -0.4,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The post reports that MCO 'fell a lot' in the context of a broader discussion about stock drops and potential harm to shareholders, indicating a negative price action."
       }
     },
     "generated_metadata": {
@@ -1425,14 +1425,14 @@
         "sentiment_reasoning": "No event identified - skipped"
       },
       "FICO": {
-        "sentiment_label": "neutral",
-        "sentiment_score": -0.1,
-        "sentiment_reasoning": "The post mentions FICO as a company in a similar area that also fell, but does not express a clear opinion or sentiment towards the company."
+        "sentiment_label": "negative",
+        "sentiment_score": -0.4,
+        "sentiment_reasoning": "The post reports that FICO 'fell a lot' in the context of a broader discussion about stock drops and potential harm to shareholders, indicating a negative price action."
       },
       "MCO": {
-        "sentiment_label": "neutral",
-        "sentiment_score": -0.1,
-        "sentiment_reasoning": "The post mentions MCO as a company in a similar area that also fell, but does not express a clear opinion or sentiment towards the company."
+        "sentiment_label": "negative",
+        "sentiment_score": -0.4,
+        "sentiment_reasoning": "The post reports that MCO 'fell a lot' in the context of a broader discussion about stock drops and potential harm to shareholders, indicating a negative price action."
       }
     }
   },
@@ -1474,9 +1474,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.5,
+        "sentiment_score": -0.7,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The post discusses the potential end of Netflix's revenue growth due to the S-curve nearing its end and the inability to raise subscription prices forever, indicating a bearish outlook. The tone is analytical but leans towards a negative sentiment."
+        "sentiment_reasoning": "The post suggests NFLX is nearing the end of its S-curve for paid memberships, implying an imminent end to revenue growth, and highlights the company's decision to stop publishing quarterly membership numbers as supporting evidence for slowing growth."
       },
       "WBD": {
         "type": "stock",
@@ -1494,8 +1494,8 @@
     "generated_metadata": {
       "NFLX": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.5,
-        "sentiment_reasoning": "The post discusses the potential end of Netflix's revenue growth due to the S-curve nearing its end and the inability to raise subscription prices forever, indicating a bearish outlook. The tone is analytical but leans towards a negative sentiment."
+        "sentiment_score": -0.7,
+        "sentiment_reasoning": "The post suggests NFLX is nearing the end of its S-curve for paid memberships, implying an imminent end to revenue growth, and highlights the company's decision to stop publishing quarterly membership numbers as supporting evidence for slowing growth."
       },
       "WBD": {
         "sentiment_label": null,
@@ -1542,14 +1542,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is inquiring about the stock's performance and seeking opinions from others, without expressing a clear bullish or bearish stance, and factual actions like holding and adding to the position are mentioned without emotional tone."
+        "sentiment_reasoning": "The post acknowledges past negative market reactions and weak guidance but also highlights strong fundamental bullish points for the company and the user's personal decision to add to their position, presenting a balanced view."
       }
     },
     "generated_metadata": {
       "RACE": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is inquiring about the stock's performance and seeking opinions from others, without expressing a clear bullish or bearish stance, and factual actions like holding and adding to the position are mentioned without emotional tone."
+        "sentiment_reasoning": "The post acknowledges past negative market reactions and weak guidance but also highlights strong fundamental bullish points for the company and the user's personal decision to add to their position, presenting a balanced view."
       }
     }
   },
@@ -1638,16 +1638,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a question about when to sell high and does not express a clear opinion on the stock, and the author's consideration of selling is based on their age and financial situation rather than a negative view of the company."
+        "sentiment_score": 0.4,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The user explicitly states 'considerable gains' on DE, indicating strong past performance and current high valuation. The consideration to sell is due to these gains and personal financial planning, not a negative outlook on the stock itself."
       }
     },
     "generated_metadata": {
       "DE": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a question about when to sell high and does not express a clear opinion on the stock, and the author's consideration of selling is based on their age and financial situation rather than a negative view of the company."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "The user explicitly states 'considerable gains' on DE, indicating strong past performance and current high valuation. The consideration to sell is due to these gains and personal financial planning, not a negative outlook on the stock itself."
       }
     }
   },
@@ -1692,14 +1692,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post provides factual information about SIMO's Q4'25 financial report and the author's thesis, but it does not express a clear opinion or stance, and the tone is neutral, asking for the reader's opinion."
+        "sentiment_reasoning": "While the post notes a significant after-hours stock increase following earnings, it also explicitly outlines both a conditional bullish thesis and clear downside risks, concluding with a question for others' opinions, leading to a neutral overall stance from the author."
       }
     },
     "generated_metadata": {
       "SIMO": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post provides factual information about SIMO's Q4'25 financial report and the author's thesis, but it does not express a clear opinion or stance, and the tone is neutral, asking for the reader's opinion."
+        "sentiment_reasoning": "While the post notes a significant after-hours stock increase following earnings, it also explicitly outlines both a conditional bullish thesis and clear downside risks, concluding with a question for others' opinions, leading to a neutral overall stance from the author."
       }
     }
   },
@@ -1875,14 +1875,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a factual report of Alphabet's potential bond sale without expressing a clear opinion or stance, and the question at the end is open-ended without indicating a positive or negative sentiment."
+        "sentiment_reasoning": "The post reports on Alphabet's bond sale and asks for thoughts, but does not express a clear bullish or bearish stance on the company or the event itself."
       }
     },
     "generated_metadata": {
       "GOOGL": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a factual report of Alphabet's potential bond sale without expressing a clear opinion or stance, and the question at the end is open-ended without indicating a positive or negative sentiment."
+        "sentiment_reasoning": "The post reports on Alphabet's bond sale and asks for thoughts, but does not express a clear bullish or bearish stance on the company or the event itself."
       }
     }
   }

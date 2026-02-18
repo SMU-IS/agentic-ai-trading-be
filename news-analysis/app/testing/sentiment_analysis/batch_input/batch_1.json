@@ -74,15 +74,6 @@
         ],
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null
-      },
-      "SLV": {
-        "type": "stock",
-        "official_name": "iShares Silver Trust",
-        "name_identified": [
-          "SLV"
-        ],
-        "event_type": "INVESTOR_ACTION",
-        "event_proposal": null
       }
     }
   },
@@ -121,6 +112,24 @@
           "UBER"
         ],
         "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      },
+      "MAR": {
+        "type": "stock",
+        "official_name": "MARRIOTT INTERNATIONAL INC /MD/",
+        "name_identified": [
+          "MAR"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
+      "HLT": {
+        "type": "stock",
+        "official_name": "Hilton Worldwide Holdings Inc.",
+        "name_identified": [
+          "HLT"
+        ],
+        "event_type": null,
         "event_proposal": null
       }
     }
@@ -520,45 +529,6 @@
     }
   },
   {
-    "id": "reddit:1qsli7n",
-    "content_type": "post",
-    "native_id": "1qsli7n",
-    "source": "reddit_batch",
-    "author": "Cremeeave",
-    "url": "https://www.reddit.com/r/stocks/comments/1qsli7n/so_im_faced_with_a_difficult_decision_i_have_a/",
-    "timestamps": "2026-02-01T02:07:14+00:00",
-    "content": {
-      "title": "So I’m faced with a difficult decision. I have a decent chunk of money and am debating putting it into VXUS, BTC, or even in physical gold.-",
-      "body": "This could be more of a financial or even mental crisis for me. I need to know if I’m not the only one with this similar mindset. \n\nThe USD has dropped in value by like 10% and the political climate isn’t giving me comfort in the stock market as a whole. I seriously want to invest and grow my portfolio though. \n\nMy worries: \n\nis a hypothetical war with the UN going to tank ETFs?\n\nIs this current administration trying to dry up the USD and transfer their wealth to BTC?\n\nIf im this unsure about it, wouldn’t investing in physical currency be the best method? \n\nI am uncertain if the USD will be a fundamental currency in the next 10 years, and am even more uncertain about the stock market’s ups and downs during this unprecedented political climate.\n\nThat being said, I am still casually buying into single stocks that I trust and am reluctantly still adding into my Roth. ",
-      "clean_title": "So I'm faced with a difficult decision. I have a decent chunk of money and am debating putting it into VXUS, BTC, or even in physical gold.-",
-      "clean_body": "This could be more of a financial or even mental crisis for me. I need to know if I'm not the only one with this similar mindset. The USD has dropped in value by like 10% and the political climate isn't giving me comfort in the stock market as a whole. I seriously want to invest and grow my portfolio though. My worries: is a hypothetical war with the UN going to tank ETFs? Is this current administration trying to dry up the USD and transfer their wealth to BTC? If im this unsure about it, wouldn't investing in physical currency be the best method? I am uncertain if the USD will be a fundamental currency in the next 10 years, and am even more uncertain about the stock market's ups and downs during this unprecedented political climate. That being said, I am still casually buying into single stocks that I trust and am reluctantly still adding into my Roth.",
-      "clean_combined_withurl": "So I'm faced with a difficult decision. I have a decent chunk of money and am debating putting it into VXUS, BTC, or even in physical gold.- This could be more of a financial or even mental crisis for me. I need to know if I'm not the only one with this similar mindset. The USD has dropped in value by like 10% and the political climate isn't giving me comfort in the stock market as a whole. I seriously want to invest and grow my portfolio though. My worries: is a hypothetical war with the UN going to tank ETFs? Is this current administration trying to dry up the USD and transfer their wealth to BTC? If im this unsure about it, wouldn't investing in physical currency be the best method? I am uncertain if the USD will be a fundamental currency in the next 10 years, and am even more uncertain about the stock market's ups and downs during this unprecedented political climate. That being said, I am still casually buying into single stocks that I trust and am reluctantly still adding into my Roth.",
-      "clean_combined_withouturl": "So I'm faced with a difficult decision. I have a decent chunk of money and am debating putting it into VXUS, BTC, or even in physical gold.- This could be more of a financial or even mental crisis for me. I need to know if I'm not the only one with this similar mindset. The USD has dropped in value by like 10% and the political climate isn't giving me comfort in the stock market as a whole. I seriously want to invest and grow my portfolio though. My worries: is a hypothetical war with the UN going to tank ETFs? Is this current administration trying to dry up the USD and transfer their wealth to BTC? If im this unsure about it, wouldn't investing in physical currency be the best method? I am uncertain if the USD will be a fundamental currency in the next 10 years, and am even more uncertain about the stock market's ups and downs during this unprecedented political climate. That being said, I am still casually buying into single stocks that I trust and am reluctantly still adding into my Roth."
-    },
-    "engagement": {
-      "total_comments": 43,
-      "score": 0,
-      "upvote_ratio": 0.31
-    },
-    "metadata": {
-      "subreddit": "stocks",
-      "category": null
-    },
-    "images": [],
-    "links": [],
-    "ticker_metadata": {
-      "VXUS": {
-        "type": "stock",
-        "official_name": "VXUS",
-        "name_identified": [
-          "VXUS"
-        ],
-        "event_type": "INVESTOR_OPINION",
-        "event_proposal": null
-      }
-    }
-  },
-  {
     "id": "reddit:1qxb0el",
     "content_type": "post",
     "native_id": "1qxb0el",
@@ -891,6 +861,15 @@
     "images": [],
     "links": [],
     "ticker_metadata": {
+      "DKNG": {
+        "type": "stock",
+        "official_name": "DraftKings Inc.",
+        "name_identified": [
+          "DKNG"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      },
       "TSLA": {
         "type": "stock",
         "official_name": "Tesla, Inc.",
@@ -1058,6 +1037,15 @@
           "NFLX"
         ],
         "event_type": "INVESTOR_OPINION",
+        "event_proposal": null
+      },
+      "WBD": {
+        "type": "stock",
+        "official_name": "Warner Bros. Discovery, Inc.",
+        "name_identified": [
+          "WBD"
+        ],
+        "event_type": null,
         "event_proposal": null
       }
     }
@@ -1292,6 +1280,54 @@
           "MSFT"
         ],
         "event_type": null,
+        "event_proposal": null
+      },
+      "SCHW": {
+        "type": "stock",
+        "official_name": "SCHWAB CHARLES CORP",
+        "name_identified": [
+          "SCHW"
+        ],
+        "event_type": null,
+        "event_proposal": null
+      }
+    }
+  },
+  {
+    "id": "reddit:1r0b1pf",
+    "content_type": "post",
+    "native_id": "1r0b1pf",
+    "source": "reddit_batch",
+    "author": "No_River_8171",
+    "url": "https://www.reddit.com/r/stocks/comments/1r0b1pf/alphabet_looks_to_raise_about_15_billion_from_us/",
+    "timestamps": "2026-02-09T17:48:48+00:00",
+    "content": {
+      "title": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports",
+      "body": "Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter.\n\nToughts ?? ",
+      "clean_title": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports",
+      "clean_body": "Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter. Toughts ??",
+      "clean_combined_withurl": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports. Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter. Toughts ??",
+      "clean_combined_withouturl": "Alphabet looks to raise about $15 billion from US bond sale, Bloomberg News reports. Feb 9 (Reuters) - Alphabet (GOOGL.O), opens new tab is looking to raise about $15 billion from a U.S. high-grade dollar bond sale, Bloomberg News reported on Monday, citing people with knowledge of the matter. Toughts ??"
+    },
+    "engagement": {
+      "total_comments": 72,
+      "score": 280,
+      "upvote_ratio": 0.96
+    },
+    "metadata": {
+      "subreddit": "stocks",
+      "category": null
+    },
+    "images": [],
+    "links": [],
+    "ticker_metadata": {
+      "GOOGL": {
+        "type": "stock",
+        "official_name": "Alphabet Inc.",
+        "name_identified": [
+          "GOOGL"
+        ],
+        "event_type": "DEBT_ISSUANCE",
         "event_proposal": null
       }
     }

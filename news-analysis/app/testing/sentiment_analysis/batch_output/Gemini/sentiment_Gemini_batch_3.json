@@ -39,14 +39,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a neutral inquiry about a DCF valuation model for Spotify, asking for discussion and opinions without expressing a clear bullish or bearish stance. No financial slang, sarcasm, or strong sentiment indicators are present."
+        "sentiment_reasoning": "The post shares a DCF valuation for Spotify and invites discussion without expressing a personal bullish or bearish stance on the stock."
       }
     },
     "generated_metadata": {
       "SPOT": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a neutral inquiry about a DCF valuation model for Spotify, asking for discussion and opinions without expressing a clear bullish or bearish stance. No financial slang, sarcasm, or strong sentiment indicators are present."
+        "sentiment_reasoning": "The post shares a DCF valuation for Spotify and invites discussion without expressing a personal bullish or bearish stance on the stock."
       }
     }
   },
@@ -88,7 +88,7 @@
         "event_proposal": null,
         "sentiment_score": 0.95,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Strong partnerships with hyperscalers (AMZN, MSFT, GOOGL, META) highlighted in earnings calls, including transitions to Blackwell and Rubin. Positioning as a core AI infrastructure provider."
+        "sentiment_reasoning": "Explicitly listed as a long position, NVDA is highlighted as a cornerstone of AI strategy for multiple hyperscalers with significant product adoption (H100s, Blackwell, Vera Rubin platform)."
       },
       "AMZN": {
         "type": "stock",
@@ -100,7 +100,7 @@
         "event_proposal": null,
         "sentiment_score": 0.85,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Cloud and Ads revenue growth of 23.6% and 23.1% YoY, $200+ billion 2026 capex forecast for AI infrastructure, and collaboration with NVIDIA."
+        "sentiment_reasoning": "Explicitly listed as a long position, AMZN shows strong cloud and ad revenue growth, record AWS quarterly growth, and a massive CapEx forecast for AI infrastructure."
       },
       "MSFT": {
         "type": "stock",
@@ -110,9 +110,9 @@
         ],
         "event_type": "EARNINGS_BEAT",
         "event_proposal": null,
-        "sentiment_score": 0.9,
+        "sentiment_score": 0.95,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "39% Azure growth, $625 billion revenue backlog (up 110% YoY), and strategic AI infrastructure investments with NVIDIA and OpenAI."
+        "sentiment_reasoning": "Explicitly listed as a long position, MSFT demonstrates exceptional Intelligent Cloud and Azure growth, significant AI CapEx, and phenomenal revenue backlog growth driven by OpenAI."
       },
       "GOOGL": {
         "type": "stock",
@@ -122,9 +122,9 @@
         ],
         "event_type": "EARNINGS_BEAT",
         "event_proposal": null,
-        "sentiment_score": 0.88,
+        "sentiment_score": 0.85,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "47.5% cloud revenue growth, $175-185 billion 2026 capex, and first-to-market access to NVIDIA's Vera Rubin platform."
+        "sentiment_reasoning": "Explicitly listed as a long position, GOOGL reports record GCP growth, substantial AI CapEx, and strong revenue backlog growth, emphasizing its commitment to AI."
       },
       "META": {
         "type": "stock",
@@ -134,9 +134,9 @@
         ],
         "event_type": "EARNINGS_BEAT",
         "event_proposal": null,
-        "sentiment_score": 0.82,
+        "sentiment_score": 0.85,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "24.1% Ads revenue growth, 600k+ H100-equivalent compute clusters, and roadmap transition to NVIDIA Blackwell."
+        "sentiment_reasoning": "Explicitly listed as a long position, META shows strong AI-enhanced ad revenue growth, significant CapEx for AI development, and massive investment in NVDA GPUs for its infrastructure."
       },
       "TSM": {
         "type": "stock",
@@ -146,9 +146,9 @@
         ],
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
-        "sentiment_score": 0.75,
+        "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Manufacturing all AI logic chips (NVIDIA, Google, Meta, Amazon) and networking equipment, critical to hyperscaler capex."
+        "sentiment_reasoning": "Explicitly listed as a long position, TSM is identified as a critical manufacturer for all major AI logic chips from Nvidia, Google, Meta, Amazon, and Microsoft."
       },
       "MU": {
         "type": "stock",
@@ -160,7 +160,7 @@
         "event_proposal": null,
         "sentiment_score": 0.7,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Memory chip supplier for AI infrastructure, aligned with hyperscalers' $200-200+ billion 2026 capex forecasts."
+        "sentiment_reasoning": "Explicitly listed as a long position, MU is highlighted as a key designer and manufacturer of memory chips essential for the AI supply chain."
       },
       "SNDR": {
         "type": "stock",
@@ -203,37 +203,37 @@
       "NVDA": {
         "sentiment_label": "positive",
         "sentiment_score": 0.95,
-        "sentiment_reasoning": "Strong partnerships with hyperscalers (AMZN, MSFT, GOOGL, META) highlighted in earnings calls, including transitions to Blackwell and Rubin. Positioning as a core AI infrastructure provider."
+        "sentiment_reasoning": "Explicitly listed as a long position, NVDA is highlighted as a cornerstone of AI strategy for multiple hyperscalers with significant product adoption (H100s, Blackwell, Vera Rubin platform)."
       },
       "AMZN": {
         "sentiment_label": "positive",
         "sentiment_score": 0.85,
-        "sentiment_reasoning": "Cloud and Ads revenue growth of 23.6% and 23.1% YoY, $200+ billion 2026 capex forecast for AI infrastructure, and collaboration with NVIDIA."
+        "sentiment_reasoning": "Explicitly listed as a long position, AMZN shows strong cloud and ad revenue growth, record AWS quarterly growth, and a massive CapEx forecast for AI infrastructure."
       },
       "MSFT": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.9,
-        "sentiment_reasoning": "39% Azure growth, $625 billion revenue backlog (up 110% YoY), and strategic AI infrastructure investments with NVIDIA and OpenAI."
+        "sentiment_score": 0.95,
+        "sentiment_reasoning": "Explicitly listed as a long position, MSFT demonstrates exceptional Intelligent Cloud and Azure growth, significant AI CapEx, and phenomenal revenue backlog growth driven by OpenAI."
       },
       "GOOGL": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.88,
-        "sentiment_reasoning": "47.5% cloud revenue growth, $175-185 billion 2026 capex, and first-to-market access to NVIDIA's Vera Rubin platform."
+        "sentiment_score": 0.85,
+        "sentiment_reasoning": "Explicitly listed as a long position, GOOGL reports record GCP growth, substantial AI CapEx, and strong revenue backlog growth, emphasizing its commitment to AI."
       },
       "META": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.82,
-        "sentiment_reasoning": "24.1% Ads revenue growth, 600k+ H100-equivalent compute clusters, and roadmap transition to NVIDIA Blackwell."
+        "sentiment_score": 0.85,
+        "sentiment_reasoning": "Explicitly listed as a long position, META shows strong AI-enhanced ad revenue growth, significant CapEx for AI development, and massive investment in NVDA GPUs for its infrastructure."
       },
       "TSM": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.75,
-        "sentiment_reasoning": "Manufacturing all AI logic chips (NVIDIA, Google, Meta, Amazon) and networking equipment, critical to hyperscaler capex."
+        "sentiment_score": 0.8,
+        "sentiment_reasoning": "Explicitly listed as a long position, TSM is identified as a critical manufacturer for all major AI logic chips from Nvidia, Google, Meta, Amazon, and Microsoft."
       },
       "MU": {
         "sentiment_label": "positive",
         "sentiment_score": 0.7,
-        "sentiment_reasoning": "Memory chip supplier for AI infrastructure, aligned with hyperscalers' $200-200+ billion 2026 capex forecasts."
+        "sentiment_reasoning": "Explicitly listed as a long position, MU is highlighted as a key designer and manufacturer of memory chips essential for the AI supply chain."
       },
       "SNDR": {
         "sentiment_label": null,
@@ -288,16 +288,16 @@
         ],
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
-        "sentiment_score": -0.75,
+        "sentiment_score": -0.8,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The author expresses strong bearish sentiment toward NVDA, citing concerns about AI infrastructure limitations, tech sector layoffs, and a belief that the current momentum is unsustainable. The decision to sell shares to preserve gains and shift to gold indicates a negative outlook."
+        "sentiment_reasoning": "The user is strongly considering selling NVDA shares due to concerns about the AI momentum being a 'fever dream,' lack of infrastructure/power, and a broader bearish outlook on the tech sector and impending market crash."
       }
     },
     "generated_metadata": {
       "NVDA": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.75,
-        "sentiment_reasoning": "The author expresses strong bearish sentiment toward NVDA, citing concerns about AI infrastructure limitations, tech sector layoffs, and a belief that the current momentum is unsustainable. The decision to sell shares to preserve gains and shift to gold indicates a negative outlook."
+        "sentiment_score": -0.8,
+        "sentiment_reasoning": "The user is strongly considering selling NVDA shares due to concerns about the AI momentum being a 'fever dream,' lack of infrastructure/power, and a broader bearish outlook on the tech sector and impending market crash."
       }
     }
   },
@@ -337,9 +337,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.6,
+        "sentiment_score": 0.7,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The post suggests a positive outlook for AXON, citing potential increased demand for body cameras due to ICE/BP events as a turning point to reverse its downward spiral. The tone is optimistic about future prospects without sarcasm or bearish slang."
+        "sentiment_reasoning": "The post identifies a potential new catalyst (body cams for ICE/BP) that could be a 'turning point' for AXON, reversing a 'downward spiral,' indicating a strong bullish outlook."
       },
       "BP": {
         "type": "stock",
@@ -369,8 +369,8 @@
     "generated_metadata": {
       "AXON": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.6,
-        "sentiment_reasoning": "The post suggests a positive outlook for AXON, citing potential increased demand for body cameras due to ICE/BP events as a turning point to reverse its downward spiral. The tone is optimistic about future prospects without sarcasm or bearish slang."
+        "sentiment_score": 0.7,
+        "sentiment_reasoning": "The post identifies a potential new catalyst (body cams for ICE/BP) that could be a 'turning point' for AXON, reversing a 'downward spiral,' indicating a strong bullish outlook."
       },
       "BP": {
         "sentiment_label": null,
@@ -420,16 +420,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.6,
+        "sentiment_score": -0.7,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The post highlights multiple negative aspects of Nu's stock trading app in Brazil, including poor user experience, lack of features (no fractional shares, no real-time data), and product quality concerns. The author questions Nu's commitment to the product as a core offering, which could impact user retention and growth."
+        "sentiment_reasoning": "The post expresses significant concern about Nu's stock trading app, detailing multiple negative user experiences and questioning the company's commitment to the product, which could lead to user churn."
       }
     },
     "generated_metadata": {
       "NU": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "The post highlights multiple negative aspects of Nu's stock trading app in Brazil, including poor user experience, lack of features (no fractional shares, no real-time data), and product quality concerns. The author questions Nu's commitment to the product as a core offering, which could impact user retention and growth."
+        "sentiment_score": -0.7,
+        "sentiment_reasoning": "The post expresses significant concern about Nu's stock trading app, detailing multiple negative user experiences and questioning the company's commitment to the product, which could lead to user churn."
       }
     }
   },
@@ -473,14 +473,14 @@
         "event_proposal": null,
         "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "NVIDIA's CEO confirmed participation in OpenAI's funding round as 'largest-ever investment,' signaling strong confidence and bullish sentiment. Direct endorsement from leadership with no negative context."
+        "sentiment_reasoning": "Nvidia's CEO confirmed the company will make its largest-ever investment in OpenAI, signaling a strong strategic commitment to a leading AI company and strengthening its position in the AI ecosystem."
       }
     },
     "generated_metadata": {
       "NVDA": {
         "sentiment_label": "positive",
         "sentiment_score": 0.8,
-        "sentiment_reasoning": "NVIDIA's CEO confirmed participation in OpenAI's funding round as 'largest-ever investment,' signaling strong confidence and bullish sentiment. Direct endorsement from leadership with no negative context."
+        "sentiment_reasoning": "Nvidia's CEO confirmed the company will make its largest-ever investment in OpenAI, signaling a strong strategic commitment to a leading AI company and strengthening its position in the AI ecosystem."
       }
     }
   },
@@ -520,16 +520,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a question seeking opinions with no clear bullish/bearish stance. While the author expresses confusion and 'hoping for a rally' (slightly positive), this is balanced by factual reporting of negative fundamentals (negative EPS, earnings miss) and uncertainty. No strong sentiment indicators like slang or emojis are present."
+        "sentiment_score": 0.2,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The author expresses confusion over mixed financial data and recent price declines but explicitly states 'hoping for a rally,' indicating a desire for positive price movement."
       }
     },
     "generated_metadata": {
       "IOT": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a question seeking opinions with no clear bullish/bearish stance. While the author expresses confusion and 'hoping for a rally' (slightly positive), this is balanced by factual reporting of negative fundamentals (negative EPS, earnings miss) and uncertainty. No strong sentiment indicators like slang or emojis are present."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.2,
+        "sentiment_reasoning": "The author expresses confusion over mixed financial data and recent price declines but explicitly states 'hoping for a rally,' indicating a desire for positive price movement."
       }
     }
   },
@@ -688,14 +688,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post acknowledges the stock's decline after earnings but highlights strong fundamentals (revenue growth, cloud dominance, cash reserves) and questions if the market is overreacting. It presents both downside (earnings drop) and upside (strong fundamentals) without clear bullish/bearish stance."
+        "sentiment_reasoning": "The post acknowledges a negative event (earnings drop, market slide) but immediately counters with strong positive fundamentals and questions if the market is overreacting, presenting both upside and downside without a definitive stance."
       }
     },
     "generated_metadata": {
       "MSFT": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post acknowledges the stock's decline after earnings but highlights strong fundamentals (revenue growth, cloud dominance, cash reserves) and questions if the market is overreacting. It presents both downside (earnings drop) and upside (strong fundamentals) without clear bullish/bearish stance."
+        "sentiment_reasoning": "The post acknowledges a negative event (earnings drop, market slide) but immediately counters with strong positive fundamentals and questions if the market is overreacting, presenting both upside and downside without a definitive stance."
       }
     }
   },
@@ -738,16 +738,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.6,
+        "sentiment_score": 0.4,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The author acknowledges financial risks (e.g., PPE growth, liability shifts) but concludes with a bullish stance, explicitly stating 'it's a good stock to buy' due to its role in the AI boom. The analysis is balanced but ends with a clear positive recommendation."
+        "sentiment_reasoning": "The post details several financial risks and potential concerns for MSFT but ultimately concludes that it is 'a good stock to buy' due to its dominant business and role in the AI boom, indicating a cautiously bullish stance."
       }
     },
     "generated_metadata": {
       "MSFT": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.6,
-        "sentiment_reasoning": "The author acknowledges financial risks (e.g., PPE growth, liability shifts) but concludes with a bullish stance, explicitly stating 'it's a good stock to buy' due to its role in the AI boom. The analysis is balanced but ends with a clear positive recommendation."
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "The post details several financial risks and potential concerns for MSFT but ultimately concludes that it is 'a good stock to buy' due to its dominant business and role in the AI boom, indicating a cautiously bullish stance."
       }
     }
   },
@@ -789,9 +789,9 @@
         ],
         "event_type": "GOVERNMENT_INVESTMENT",
         "event_proposal": null,
-        "sentiment_score": -0.6,
+        "sentiment_score": -0.5,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The article highlights risks from Trump's government equity stakes, including litigation vulnerability, political conflicts, and barriers to market competition. USA Rare Earth is explicitly mentioned as a recipient of these investments, which are framed as creating long-term instability and legal risks."
+        "sentiment_reasoning": "The company is identified as receiving a government stake, which the article frames as creating 'political, legal and business risks' for the companies involved due to unprecedented government intervention."
       },
       "INTC": {
         "type": "stock",
@@ -803,7 +803,7 @@
         "event_proposal": null,
         "sentiment_score": -0.5,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "Intel is cited as a major company with government equity stakes. The analysis emphasizes politicization of business decisions, capital misallocation, and potential conflicts of interest, all of which negatively impact corporate autonomy and investor confidence."
+        "sentiment_reasoning": "Intel is listed as a recipient of a government stake, which the article generally describes as creating 'political, legal and business risks' for the companies involved due to the nature of the intervention."
       },
       "MP": {
         "type": "stock",
@@ -813,26 +813,26 @@
         ],
         "event_type": "GOVERNMENT_INVESTMENT",
         "event_proposal": null,
-        "sentiment_score": -0.7,
+        "sentiment_score": -0.8,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "MP Materials is directly quoted warning about litigation risks and vulnerability to executive/legislative changes. The article frames government-backed firms as creating an uneven playing field, with executives quietly opposing the intervention despite public silence."
+        "sentiment_reasoning": "The company explicitly warned investors that its deal faces 'the risk of litigation' and is vulnerable to 'changes in federal administration,' reinforcing the article's negative framing of government stakes."
       }
     },
     "generated_metadata": {
       "USAR": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "The article highlights risks from Trump's government equity stakes, including litigation vulnerability, political conflicts, and barriers to market competition. USA Rare Earth is explicitly mentioned as a recipient of these investments, which are framed as creating long-term instability and legal risks."
+        "sentiment_score": -0.5,
+        "sentiment_reasoning": "The company is identified as receiving a government stake, which the article frames as creating 'political, legal and business risks' for the companies involved due to unprecedented government intervention."
       },
       "INTC": {
         "sentiment_label": "negative",
         "sentiment_score": -0.5,
-        "sentiment_reasoning": "Intel is cited as a major company with government equity stakes. The analysis emphasizes politicization of business decisions, capital misallocation, and potential conflicts of interest, all of which negatively impact corporate autonomy and investor confidence."
+        "sentiment_reasoning": "Intel is listed as a recipient of a government stake, which the article generally describes as creating 'political, legal and business risks' for the companies involved due to the nature of the intervention."
       },
       "MP": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.7,
-        "sentiment_reasoning": "MP Materials is directly quoted warning about litigation risks and vulnerability to executive/legislative changes. The article frames government-backed firms as creating an uneven playing field, with executives quietly opposing the intervention despite public silence."
+        "sentiment_score": -0.8,
+        "sentiment_reasoning": "The company explicitly warned investors that its deal faces 'the risk of litigation' and is vulnerable to 'changes in federal administration,' reinforcing the article's negative framing of government stakes."
       }
     }
   },
@@ -908,9 +908,9 @@
         ],
         "event_type": "MERGER",
         "event_proposal": null,
-        "sentiment_score": -0.6,
+        "sentiment_score": -0.7,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The merger faces DOJ scrutiny over antitrust concerns (Netflix's dominance, reduced competition). Regulatory risks and potential blockage create bearish sentiment."
+        "sentiment_reasoning": "The post highlights DOJ concerns about the potential merger, citing risks of reduced competition and increased costs, which suggests a negative outlook for the deal's approval."
       },
       "WBD": {
         "type": "stock",
@@ -920,9 +920,9 @@
         ],
         "event_type": "MERGER",
         "event_proposal": null,
-        "sentiment_score": -0.5,
+        "sentiment_score": -0.7,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "Pending merger with Netflix raises regulatory concerns about market concentration. Uncertainty over approval and potential antitrust issues weigh negatively."
+        "sentiment_reasoning": "The post highlights DOJ concerns about the potential merger, citing risks of reduced competition and increased costs, which suggests a negative outlook for the deal's approval."
       },
       "AMZN": {
         "type": "stock",
@@ -1027,13 +1027,13 @@
       },
       "NFLX": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "The merger faces DOJ scrutiny over antitrust concerns (Netflix's dominance, reduced competition). Regulatory risks and potential blockage create bearish sentiment."
+        "sentiment_score": -0.7,
+        "sentiment_reasoning": "The post highlights DOJ concerns about the potential merger, citing risks of reduced competition and increased costs, which suggests a negative outlook for the deal's approval."
       },
       "WBD": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.5,
-        "sentiment_reasoning": "Pending merger with Netflix raises regulatory concerns about market concentration. Uncertainty over approval and potential antitrust issues weigh negatively."
+        "sentiment_score": -0.7,
+        "sentiment_reasoning": "The post highlights DOJ concerns about the potential merger, citing risks of reduced competition and increased costs, which suggests a negative outlook for the deal's approval."
       },
       "AMZN": {
         "sentiment_label": null,
@@ -1110,14 +1110,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is asking questions about RKLB's recent price decline without expressing a clear bullish or bearish opinion. The author notes the drop but doesn't provide a stance, instead seeking community insight on potential causes like profit-taking or market corrections."
+        "sentiment_reasoning": "The post acknowledges a significant price drop but explicitly states a lack of bad news and the presence of positive developments, then asks about both bullish (buying the dip) and bearish (caution) scenarios, indicating no clear stance."
       }
     },
     "generated_metadata": {
       "RKLB": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is asking questions about RKLB's recent price decline without expressing a clear bullish or bearish opinion. The author notes the drop but doesn't provide a stance, instead seeking community insight on potential causes like profit-taking or market corrections."
+        "sentiment_reasoning": "The post acknowledges a significant price drop but explicitly states a lack of bad news and the presence of positive developments, then asks about both bullish (buying the dip) and bearish (caution) scenarios, indicating no clear stance."
       }
     }
   },
@@ -1157,9 +1157,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.6,
+        "sentiment_score": -0.85,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "Mentioned in speculative context as potential 'Enron-like' fraud candidate, implying negative investor sentiment about future risks."
+        "sentiment_reasoning": "The ticker is mentioned as a potential candidate for a 'spectacular fall from grace' and compared to historical fraud cases like Enron and MCI Worldcom."
       },
       "CVNA": {
         "type": "stock",
@@ -1169,9 +1169,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.6,
+        "sentiment_score": -0.85,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "Included in speculative list of companies facing potential downfall, linked to historical fraud comparisons."
+        "sentiment_reasoning": "The ticker is mentioned as a potential candidate for a 'spectacular fall from grace' and compared to historical fraud cases like Enron and MCI Worldcom."
       },
       "MSTR": {
         "type": "stock",
@@ -1181,9 +1181,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.6,
+        "sentiment_score": -0.85,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "Speculated as candidate for 'spectacular fall from grace,' aligning with negative investor opinion about future risks."
+        "sentiment_reasoning": "The ticker is mentioned as a potential candidate for a 'spectacular fall from grace' and compared to historical fraud cases like Enron and MCI Worldcom."
       },
       "NVDA": {
         "type": "stock",
@@ -1193,9 +1193,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.4,
+        "sentiment_score": -0.85,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "Mentioned in speculative context alongside fraud comparisons, though less emphasized than other tickers."
+        "sentiment_reasoning": "The ticker is mentioned as a potential candidate for a 'spectacular fall from grace' and compared to historical fraud cases like Enron and MCI Worldcom."
       },
       "PLTR": {
         "type": "stock",
@@ -1205,9 +1205,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.5,
+        "sentiment_score": -0.85,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "Included in speculative list of companies facing potential downfall, linked to negative investor sentiment about future risks."
+        "sentiment_reasoning": "The ticker is mentioned as a potential candidate for a 'spectacular fall from grace' and compared to historical fraud cases like Enron and MCI Worldcom."
       },
       "NFLX": {
         "type": "stock",
@@ -1225,28 +1225,28 @@
     "generated_metadata": {
       "SMCI": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "Mentioned in speculative context as potential 'Enron-like' fraud candidate, implying negative investor sentiment about future risks."
+        "sentiment_score": -0.85,
+        "sentiment_reasoning": "The ticker is mentioned as a potential candidate for a 'spectacular fall from grace' and compared to historical fraud cases like Enron and MCI Worldcom."
       },
       "CVNA": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "Included in speculative list of companies facing potential downfall, linked to historical fraud comparisons."
+        "sentiment_score": -0.85,
+        "sentiment_reasoning": "The ticker is mentioned as a potential candidate for a 'spectacular fall from grace' and compared to historical fraud cases like Enron and MCI Worldcom."
       },
       "MSTR": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "Speculated as candidate for 'spectacular fall from grace,' aligning with negative investor opinion about future risks."
+        "sentiment_score": -0.85,
+        "sentiment_reasoning": "The ticker is mentioned as a potential candidate for a 'spectacular fall from grace' and compared to historical fraud cases like Enron and MCI Worldcom."
       },
       "NVDA": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.4,
-        "sentiment_reasoning": "Mentioned in speculative context alongside fraud comparisons, though less emphasized than other tickers."
+        "sentiment_score": -0.85,
+        "sentiment_reasoning": "The ticker is mentioned as a potential candidate for a 'spectacular fall from grace' and compared to historical fraud cases like Enron and MCI Worldcom."
       },
       "PLTR": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.5,
-        "sentiment_reasoning": "Included in speculative list of companies facing potential downfall, linked to negative investor sentiment about future risks."
+        "sentiment_score": -0.85,
+        "sentiment_reasoning": "The ticker is mentioned as a potential candidate for a 'spectacular fall from grace' and compared to historical fraud cases like Enron and MCI Worldcom."
       },
       "NFLX": {
         "sentiment_label": null,
@@ -1291,16 +1291,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "The analysis presents both challenges (revenue decline, user drop) and positive steps (cost management, product updates) without clear bullish/bearish bias. The final question remains neutral, balancing market concerns with operational improvements."
+        "sentiment_score": -0.3,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The post highlights significant growth headwinds, multi-year low stock prices, declining revenue and paying users, and cautious investor activity, despite management's efforts to improve operational efficiency and product."
       }
     },
     "generated_metadata": {
       "BMBL": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The analysis presents both challenges (revenue decline, user drop) and positive steps (cost management, product updates) without clear bullish/bearish bias. The final question remains neutral, balancing market concerns with operational improvements."
+        "sentiment_label": "negative",
+        "sentiment_score": -0.3,
+        "sentiment_reasoning": "The post highlights significant growth headwinds, multi-year low stock prices, declining revenue and paying users, and cautious investor activity, despite management's efforts to improve operational efficiency and product."
       }
     }
   },
@@ -1344,14 +1344,14 @@
         "event_proposal": null,
         "sentiment_score": 0.9,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Earnings beat with revenue and EPS exceeding high guidance, raised 2026 outlook, and strong AI growth narrative ('picks and shovels' play, Hyperscalers' AI arms race). No bearish language or sarcasm detected."
+        "sentiment_reasoning": "The post highlights Celestica's Q4 revenue and EPS beating guidance, a raised 2026 outlook, and strong positioning in the AI growth sector, using very bullish language like 'crushed Q4' and 'bodes well'."
       }
     },
     "generated_metadata": {
       "CLS": {
         "sentiment_label": "positive",
         "sentiment_score": 0.9,
-        "sentiment_reasoning": "Earnings beat with revenue and EPS exceeding high guidance, raised 2026 outlook, and strong AI growth narrative ('picks and shovels' play, Hyperscalers' AI arms race). No bearish language or sarcasm detected."
+        "sentiment_reasoning": "The post highlights Celestica's Q4 revenue and EPS beating guidance, a raised 2026 outlook, and strong positioning in the AI growth sector, using very bullish language like 'crushed Q4' and 'bodes well'."
       }
     }
   },
@@ -1391,9 +1391,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.65,
+        "sentiment_score": -0.4,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The post highlights AMZN's underperformance relative to other MAG7 stocks, expresses concern over the $200B CAPEX spooking investors, and questions its potential for a rebound. Negative framing of AMZN as a 'boring value stock' with 'single-digit' growth reinforces bearish sentiment."
+        "sentiment_reasoning": "The post highlights AMZN's significant underperformance compared to other MAG7 stocks over the past five years and suggests that upcoming CAPEX has 'spooked everybody,' outweighing recent impressive revenue."
       },
       "NVDA": {
         "type": "stock",
@@ -1459,8 +1459,8 @@
     "generated_metadata": {
       "AMZN": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.65,
-        "sentiment_reasoning": "The post highlights AMZN's underperformance relative to other MAG7 stocks, expresses concern over the $200B CAPEX spooking investors, and questions its potential for a rebound. Negative framing of AMZN as a 'boring value stock' with 'single-digit' growth reinforces bearish sentiment."
+        "sentiment_score": -0.4,
+        "sentiment_reasoning": "The post highlights AMZN's significant underperformance compared to other MAG7 stocks over the past five years and suggests that upcoming CAPEX has 'spooked everybody,' outweighing recent impressive revenue."
       },
       "NVDA": {
         "sentiment_label": null,
@@ -1529,14 +1529,14 @@
         "event_proposal": null,
         "sentiment_score": 0.9,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The post highlights SoFi's earnings beat (13c EPS vs. 11-12c guidance), record revenue growth (+37% to $1B), and aggressive 2026 guidance (30%+ annual revenue growth, 38-42% EPS CAGR). Leadership called results 'Exceptional,' and metrics like 60% EBITDA growth and 35% member growth reinforce bullish sentiment."
+        "sentiment_reasoning": "SoFi reported its first billion-dollar quarter, beat EPS estimates, and achieved record growth in revenue, EBITDA, members, and products. Management also provided strong 2026 and medium-term guidance with significant growth projections."
       }
     },
     "generated_metadata": {
       "SOFI": {
         "sentiment_label": "positive",
         "sentiment_score": 0.9,
-        "sentiment_reasoning": "The post highlights SoFi's earnings beat (13c EPS vs. 11-12c guidance), record revenue growth (+37% to $1B), and aggressive 2026 guidance (30%+ annual revenue growth, 38-42% EPS CAGR). Leadership called results 'Exceptional,' and metrics like 60% EBITDA growth and 35% member growth reinforce bullish sentiment."
+        "sentiment_reasoning": "SoFi reported its first billion-dollar quarter, beat EPS estimates, and achieved record growth in revenue, EBITDA, members, and products. Management also provided strong 2026 and medium-term guidance with significant growth projections."
       }
     }
   },
@@ -1576,9 +1576,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.85,
+        "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "Explicit bullish language ('no-brainer' to buy) and valuation comparison favoring Microsoft over Costco."
+        "sentiment_reasoning": "The post explicitly states 'Buying Microsoft is at this point a no-brainer' and highlights its attractive valuation compared to its past and other companies."
       },
       "GOOGL": {
         "type": "stock",
@@ -1588,9 +1588,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
-        "sentiment_label": "neutral",
-        "sentiment_reasoning": "Historical context of skepticism toward Google is mentioned, but no current stance is explicitly stated."
+        "sentiment_score": 0.3,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "GOOGL is used as a historical example of a stock that was undervalued and became profitable despite negative sentiment, implying a positive retrospective view."
       },
       "COST": {
         "type": "stock",
@@ -1600,26 +1600,26 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.5,
-        "sentiment_label": "negative",
-        "sentiment_reasoning": "Direct recommendation to short Costco at a high multiple, despite the author's later clarification that the example is a joke."
+        "sentiment_score": 0.0,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "While initially suggesting to 'short Costco' due to high earnings multiples, the author explicitly states this is 'a joke' and 'just to show the perspective,' negating a serious bearish stance."
       }
     },
     "generated_metadata": {
       "MSFT": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.85,
-        "sentiment_reasoning": "Explicit bullish language ('no-brainer' to buy) and valuation comparison favoring Microsoft over Costco."
+        "sentiment_score": 0.8,
+        "sentiment_reasoning": "The post explicitly states 'Buying Microsoft is at this point a no-brainer' and highlights its attractive valuation compared to its past and other companies."
       },
       "GOOGL": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Historical context of skepticism toward Google is mentioned, but no current stance is explicitly stated."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.3,
+        "sentiment_reasoning": "GOOGL is used as a historical example of a stock that was undervalued and became profitable despite negative sentiment, implying a positive retrospective view."
       },
       "COST": {
-        "sentiment_label": "negative",
-        "sentiment_score": -0.5,
-        "sentiment_reasoning": "Direct recommendation to short Costco at a high multiple, despite the author's later clarification that the example is a joke."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "While initially suggesting to 'short Costco' due to high earnings multiples, the author explicitly states this is 'a joke' and 'just to show the perspective,' negating a serious bearish stance."
       }
     }
   },
@@ -1661,14 +1661,14 @@
         "event_proposal": null,
         "sentiment_score": 0.9,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "The post explicitly states 'Shopify is a buy' and emphasizes its market dominance, long-term growth potential, and infrastructure role for businesses. Positive language includes 'longterm winner' and 'default infrastructure layer,' with no bearish or sarcastic elements detected."
+        "sentiment_reasoning": "The post explicitly states Shopify is a 'buy' and highlights its 'dominance' and 'strong position' as a 'longterm winner' and 'default infrastructure' for e-commerce, indicating high confidence in its future."
       }
     },
     "generated_metadata": {
       "SHOP": {
         "sentiment_label": "positive",
         "sentiment_score": 0.9,
-        "sentiment_reasoning": "The post explicitly states 'Shopify is a buy' and emphasizes its market dominance, long-term growth potential, and infrastructure role for businesses. Positive language includes 'longterm winner' and 'default infrastructure layer,' with no bearish or sarcastic elements detected."
+        "sentiment_reasoning": "The post explicitly states Shopify is a 'buy' and highlights its 'dominance' and 'strong position' as a 'longterm winner' and 'default infrastructure' for e-commerce, indicating high confidence in its future."
       }
     }
   },
@@ -1708,9 +1708,9 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": -0.8,
+        "sentiment_score": -0.95,
         "sentiment_label": "negative",
-        "sentiment_reasoning": "The post criticizes Etsy's financial management (excessive executive pay, failed acquisitions, high debt), speculative AI threats, and a buyback program creating 'false value.' The explicit short thesis and price target in the low $30s indicate strong bearish sentiment."
+        "sentiment_reasoning": "The post presents a detailed short thesis for ETSY, citing excessive executive compensation, failed acquisitions leading to significant losses and increased debt, and a share buyback program seen as propping up a false sense of value amidst low growth and core business degradation, concluding with a low price target."
       },
       "EBAY": {
         "type": "stock",
@@ -1728,8 +1728,8 @@
     "generated_metadata": {
       "ETSY": {
         "sentiment_label": "negative",
-        "sentiment_score": -0.8,
-        "sentiment_reasoning": "The post criticizes Etsy's financial management (excessive executive pay, failed acquisitions, high debt), speculative AI threats, and a buyback program creating 'false value.' The explicit short thesis and price target in the low $30s indicate strong bearish sentiment."
+        "sentiment_score": -0.95,
+        "sentiment_reasoning": "The post presents a detailed short thesis for ETSY, citing excessive executive compensation, failed acquisitions leading to significant losses and increased debt, and a share buyback program seen as propping up a false sense of value amidst low growth and core business degradation, concluding with a low price target."
       },
       "EBAY": {
         "sentiment_label": null,
@@ -1774,16 +1774,16 @@
         ],
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_score": 0.0,
+        "sentiment_score": 0.1,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post raises questions about WNC's stock behavior (volume increase, price jump) without expressing a clear bullish or bearish stance. The author is seeking analysis rather than stating an opinion, and there is no use of financial slang or emojis indicating sentiment."
+        "sentiment_reasoning": "The post describes unusual trading volume and a stock price jump for WNC, posing questions about potential insider buying ahead of an earnings report. While there's curiosity, there's no definitive bullish or bearish stance expressed."
       }
     },
     "generated_metadata": {
       "WNC": {
         "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post raises questions about WNC's stock behavior (volume increase, price jump) without expressing a clear bullish or bearish stance. The author is seeking analysis rather than stating an opinion, and there is no use of financial slang or emojis indicating sentiment."
+        "sentiment_score": 0.1,
+        "sentiment_reasoning": "The post describes unusual trading volume and a stock price jump for WNC, posing questions about potential insider buying ahead of an earnings report. While there's curiosity, there's no definitive bullish or bearish stance expressed."
       }
     }
   },
@@ -1825,16 +1825,16 @@
         ],
         "event_type": "EARNINGS_BEAT",
         "event_proposal": null,
-        "sentiment_score": 0.85,
+        "sentiment_score": 0.8,
         "sentiment_label": "positive",
-        "sentiment_reasoning": "TSMC reported a 37% YoY revenue increase, exceeding guidance, with strong AI chip demand and plans for significant capital investment. The potential U.S. tariff carve-out further supports positive sentiment."
+        "sentiment_reasoning": "TSMC reported a significant 37% year-over-year revenue increase driven by strong AI chip demand, exceeding guidance and signaling sustained growth. The company's substantial capital expenditure plans and potential tariff exemptions further bolster a positive outlook."
       }
     },
     "generated_metadata": {
       "TSM": {
         "sentiment_label": "positive",
-        "sentiment_score": 0.85,
-        "sentiment_reasoning": "TSMC reported a 37% YoY revenue increase, exceeding guidance, with strong AI chip demand and plans for significant capital investment. The potential U.S. tariff carve-out further supports positive sentiment."
+        "sentiment_score": 0.8,
+        "sentiment_reasoning": "TSMC reported a significant 37% year-over-year revenue increase driven by strong AI chip demand, exceeding guidance and signaling sustained growth. The company's substantial capital expenditure plans and potential tariff exemptions further bolster a positive outlook."
       }
     }
   },
@@ -1876,14 +1876,14 @@
         "event_proposal": null,
         "sentiment_score": 0.0,
         "sentiment_label": "neutral",
-        "sentiment_reasoning": "The post is a question expressing confusion about AMD's stock price drop despite an earnings beat. It lacks explicit bullish/bearish language, sarcasm, or financial slang, and does not express a clear stance."
+        "sentiment_reasoning": "The user is expressing confusion and seeking understanding about AMD's stock price dropping after an earnings beat, rather than stating a clear bullish or bearish sentiment towards the company itself."
       }
     },
     "generated_metadata": {
       "AMD": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post is a question expressing confusion about AMD's stock price drop despite an earnings beat. It lacks explicit bullish/bearish language, sarcasm, or financial slang, and does not express a clear stance."
+        "sentiment_reasoning": "The user is expressing confusion and seeking understanding about AMD's stock price dropping after an earnings beat, rather than stating a clear bullish or bearish sentiment towards the company itself."
       }
     }
   }
