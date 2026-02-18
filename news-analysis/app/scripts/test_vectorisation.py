@@ -81,7 +81,7 @@ async def run_test():
 
     try:
         service = VectorisationService()
-        await service.setup_indexing()
+        await service.ensure_indexes()
     except Exception as e:
         print(f"Error: {e}")
         return

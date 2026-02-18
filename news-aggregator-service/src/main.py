@@ -50,12 +50,17 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/healthcheck")
 async def health_check():
-    """Fast health check endpoint."""
-    return {
-        "status": "healthy",
-        "redis": redis_service is not None,
-        "workflow": workflow is not None,
-    }
+    """Health check endpoint with dependency verification."""
+    if redis_service is None:
+        return {"status": "unhealthy", "reason": "redis_service not initialized"}
+
+    try:
+        # Test Redis connection
+        await redis_service.redis.ping()
+    except Exception as e:
+        return {"status": "unhealthy", "reason": f"redis ping failed: {e}"}
+
+    return {"status": "healthy"}
 
 
 async def stream_processor():
