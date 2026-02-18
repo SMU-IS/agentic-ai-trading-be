@@ -6,6 +6,9 @@ Uses Groq LLM (Llama 3.3 70B Versatile) for per-ticker sentiment analysis with d
 Analyzes sentiment for each ticker mentioned in financial news/social media posts.
 Supports sarcasm detection, financial slang (Reddit/WSB), and emoji interpretation.
 Uses few-shot prompting from _05_sentiment_prompts.py.
+
+Sentiment scores are computed via a weighted factor breakdown:
+  Final = (market_impact × 0.40) + (tone × 0.25) + (source_quality × 0.10) + (context × 0.25)
 """
 
 import asyncio
@@ -29,6 +32,14 @@ from ._05_sentiment_prompts import build_sentiment_prompt
 
 logger = logging.getLogger(__name__)
 
+# Factor weights for sentiment score computation
+FACTOR_WEIGHTS = {
+    'market_impact': 0.40,
+    'tone': 0.25,
+    'source_quality': 0.10,
+    'context': 0.25,
+}
+
 
 @dataclass
 class TickerSentiment:
@@ -38,6 +49,7 @@ class TickerSentiment:
     sentiment_score: float  # -1.0 to 1.0
     sentiment_label: str  # positive, negative, neutral
     reasoning: str
+    factor_breakdown: Dict[str, float]  # Individual factor scores
 
 
 @dataclass
@@ -106,7 +118,7 @@ class LLMSentimentService:
             item: Pipeline data with 'content' and 'ticker_metadata'
 
         Returns:
-            Item enriched with per-ticker sentiment scores
+            Item enriched with per-ticker sentiment scores and factor breakdowns
         """
         # Extract text from nested structure
         content = item.get('content', {})
@@ -140,6 +152,7 @@ class LLMSentimentService:
                 ticker_metadata[ticker]['sentiment_score'] = sentiment_data['sentiment_score']
                 ticker_metadata[ticker]['sentiment_label'] = sentiment_data['sentiment_label']
                 ticker_metadata[ticker]['sentiment_reasoning'] = sentiment_data['reasoning']
+                ticker_metadata[ticker]['factor_breakdown'] = sentiment_data['factor_breakdown']
 
         # Update item with enriched data (per-ticker only, no overall)
         item['ticker_metadata'] = ticker_metadata
@@ -224,7 +237,7 @@ class LLMSentimentService:
         text: str = ""
     ) -> Dict[str, Dict]:
         """
-        Parse and validate the LLM response.
+        Parse and validate the LLM response including factor breakdown.
 
         Args:
             response: Raw LLM response
@@ -232,19 +245,35 @@ class LLMSentimentService:
             text: Original text for confidence calibration
 
         Returns:
-            Validated per-ticker sentiment dict
+            Validated per-ticker sentiment dict with factor breakdowns
         """
         ticker_sentiments = {}
         raw_sentiments = response.get('ticker_sentiments', {})
-        num_tickers = len(ticker_metadata)
 
         for ticker in ticker_metadata.keys():
             if ticker in raw_sentiments:
                 raw = raw_sentiments[ticker]
 
-                # Parse and validate sentiment score
-                score = float(raw.get('sentiment_score', 0.0))
-                score = max(-1.0, min(1.0, score))  # Clamp to [-1, 1]
+                # Parse and validate factor breakdown
+                factor_breakdown = self._parse_factor_breakdown(raw.get('factor_breakdown', {}))
+
+                # Recompute sentiment score from factors for consistency
+                computed_score = self._compute_score_from_factors(factor_breakdown)
+
+                # Also get the LLM's reported score for comparison
+                llm_score = float(raw.get('sentiment_score', 0.0))
+                llm_score = max(-1.0, min(1.0, llm_score))
+
+                # Use computed score from factors (authoritative), fall back to LLM score
+                # if factor breakdown was missing/invalid
+                if self._has_valid_factors(factor_breakdown):
+                    score = computed_score
+                else:
+                    score = llm_score
+                    logger.warning(
+                        f"Factor breakdown missing/invalid for {ticker}, "
+                        f"using LLM-reported score: {llm_score}"
+                    )
 
                 # Determine label based on score thresholds
                 label = self._score_to_label(score)
@@ -256,6 +285,7 @@ class LLMSentimentService:
                     'sentiment_score': round(score, 4),
                     'sentiment_label': label,
                     'reasoning': reasoning,
+                    'factor_breakdown': factor_breakdown,
                     'official_name': ticker_metadata[ticker].get('OfficialName', ticker)
                 }
             else:
@@ -267,6 +297,50 @@ class LLMSentimentService:
 
         return ticker_sentiments
 
+    def _parse_factor_breakdown(self, raw_factors: Dict) -> Dict[str, float]:
+        """
+        Parse and validate factor breakdown from LLM response.
+        Clamps each factor to [-1.0, 1.0].
+
+        Args:
+            raw_factors: Raw factor dict from LLM response
+
+        Returns:
+            Validated factor breakdown dict
+        """
+        factors = {}
+        for factor_name in FACTOR_WEIGHTS.keys():
+            try:
+                value = float(raw_factors.get(factor_name, 0.0))
+                factors[factor_name] = max(-1.0, min(1.0, round(value, 4)))
+            except (TypeError, ValueError):
+                factors[factor_name] = 0.0
+        return factors
+
+    def _compute_score_from_factors(self, factor_breakdown: Dict[str, float]) -> float:
+        """
+        Compute the weighted sentiment score from factor breakdown.
+
+        Formula: (market_impact × 0.40) + (tone × 0.25) + (source_quality × 0.10) + (context × 0.25)
+
+        Args:
+            factor_breakdown: Dict of factor_name -> score
+
+        Returns:
+            Weighted composite score clamped to [-1.0, 1.0]
+        """
+        score = sum(
+            factor_breakdown.get(factor, 0.0) * weight
+            for factor, weight in FACTOR_WEIGHTS.items()
+        )
+        return max(-1.0, min(1.0, round(score, 4)))
+
+    def _has_valid_factors(self, factor_breakdown: Dict[str, float]) -> bool:
+        """
+        Check if the factor breakdown contains meaningful (non-zero) values.
+        Returns False if all factors are exactly 0.0 (likely missing/unparsed).
+        """
+        return any(v != 0.0 for v in factor_breakdown.values())
 
     def _score_to_label(self, score: float) -> str:
         """
@@ -300,6 +374,12 @@ class LLMSentimentService:
             'sentiment_score': 0.0,
             'sentiment_label': 'neutral',
             'reasoning': 'Analysis failed - using neutral fallback',
+            'factor_breakdown': {
+                'market_impact': 0.0,
+                'tone': 0.0,
+                'source_quality': 0.0,
+                'context': 0.0,
+            },
             'official_name': official_name
         }
 
@@ -311,7 +391,7 @@ llm_sentiment_service = LLMSentimentService()
 # Main for testing
 async def main():
     print("=" * 80)
-    print("LLM SENTIMENT SERVICE TEST - Per-Ticker Analysis")
+    print("LLM SENTIMENT SERVICE TEST - Per-Ticker Analysis with Factor Breakdown")
     print("=" * 80)
 
     # Test case: 3 tickers with Reddit-style content (sarcasm, slang, emojis)
@@ -356,6 +436,12 @@ async def main():
         print(f"\n  {ticker} ({data.get('official_name')}):")
         print(f"    Score: {data.get('sentiment_score')}")
         print(f"    Label: {data.get('sentiment_label')}")
+        print(f"    Factor Breakdown:")
+        fb = data.get('factor_breakdown', {})
+        print(f"      Market Impact (40%): {fb.get('market_impact')}")
+        print(f"      Tone (25%):          {fb.get('tone')}")
+        print(f"      Source Quality (10%): {fb.get('source_quality')}")
+        print(f"      Context (25%):        {fb.get('context')}")
         print(f"    Reasoning: {data.get('reasoning')}")
 
 
