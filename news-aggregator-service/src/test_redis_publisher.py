@@ -1,5 +1,4 @@
 import asyncio
-import json
 from src.services.redis_service import RedisService
 
 async def publish_test_news():
