@@ -21,7 +21,7 @@ async def node_execute_trade_logic(state: AgentState) -> Dict[str, Any]:
         print("   [❌ Execute] No order_details - skipping")
         return {"execution_result": {"status": "skipped", "reason": "no_order_details"}}
 
-    print(f"!!! [🤝🏻 Market Access] Executing {action} {order_details}")
+    print(f"   [📈 Market Access] Executing \n{order_details.to_prompt()}")
 
     # Handle rounding and type conversions
     order_details.qty = round(float(order_details.qty), 2)
@@ -89,7 +89,9 @@ async def node_execute_trade_logic(state: AgentState) -> Dict[str, Any]:
 # Update your graph edge to return state
 async def node_execute_trade(state: AgentState) -> AgentState:
     """Wrapper to mutate state."""
+    print("   [🚀 Execute Trade] Starting trade execution node...")
     execution_result = await node_execute_trade_logic(state)
-    print(f"   [🧾 Execution Result] {execution_result}")
+    # print(f"   [🧾 Execution Result] {execution_result}")
     state["execution_order_id"] = execution_result.get("execution_result", {}).get("order_id", None)
+    print(f"   [✅ Execution Result] Order ID set in state: {state['execution_order_id']}")
     return state

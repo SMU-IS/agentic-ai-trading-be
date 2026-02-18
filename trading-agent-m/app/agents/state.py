@@ -249,7 +249,8 @@ class db_trade_decision(TypedDict):
     action: str
     reasonings: str
     closed_position: NotRequired[Optional[closed_position]]
-
+    signal_id: str
+    
 class risk_evaluation_result(TypedDict):
     adjusted_order_details: Optional[Dict[str, Any]]
     risk_evaluation: Optional[Dict[str, Any]]
@@ -276,6 +277,6 @@ class AgentState(TypedDict):
 
     # Save to db
     execution_order_id: NotRequired[Optional[str]]
-    
+
     # Conlfict resolution
     conflict_resolution: NotRequired[Optional[Dict[db_trade_decision, Any]]]

@@ -24,6 +24,7 @@ def to_serializable(obj: Any) -> Any:
 # Update your graph edge to return state
 async def node_trade_logging(state: AgentState) -> AgentState:
     """Wrapper to mutate state."""
+    print("   [📝 Trade Logging] Starting trade logging node...")
     # [DEBUG] Log trade decision
     # print("========================================")
     # print("   [📝 Trade Logging] Current Agent State:")
@@ -70,18 +71,34 @@ async def node_trade_logging(state: AgentState) -> AgentState:
             "signal_id": state.get("signal_id"),
         }
         db_payload.append(execution_order)
-    
+    else:
+        no_order_payload = {
+            "order_id": "N/A",
+            "symbol": order_details.ticker,
+            "action": order_details.action.value,
+            "confidence": order_details.confidence,
+            "risk_evaluation": None,
+            "reasonings": order_details.thesis,
+            "risk_adjustments_made": [],
+            "market_data": to_serializable(market_data_raw),
+            "signal_id": state.get("signal_id"),
+        }
+        db_payload.append(no_order_payload)
+
     # ✅ Serialize db_payload safely
-    print(f"   [📝 Trade Logging] Sending to DB: {json.dumps(to_serializable(db_payload), indent=2, default=str)}")
-    
+    # print(f"   [📝 Trade Logging] Sending to DB: {json.dumps(to_serializable(db_payload), indent=2, default=str)}")
+
     # Post to trading DB
     result = await post_order_to_db(db_payload)
     print("   [✅ Trade Logging] DB Response:", result)
 
+
+    # Save all trade decision
     return state
 
 async def post_order_to_db(data: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Post orders to trading database."""
+    print(f"   [📝 Trade Logging] Sending to DB: {[x['order_id'] for x in data]}")
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
             # Fixed: Use json= (not data=) and correct endpoint

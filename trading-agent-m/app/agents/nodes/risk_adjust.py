@@ -33,22 +33,22 @@ async def node_risk_adjust_trade_logic(state: AgentState) -> AgentState:
     evaluation_result: RiskAssessment = risk_evaluation_metrics(
         order_details, yahoo_data, account_bp[0]
     )
-
-    print_risk_evaluation(evaluation_result)
+    print(f"   [🛡️ Risk Layer] Risk score {evaluation_result.risk_score}/1.50")
+    # print_risk_evaluation(evaluation_result)
     order_details = evaluation_result.adjusted_trade
     
     conflict_resolve_summary = await resolve_conflicting_position(
-        order_details.ticker, order_details.action.value, order_details.qty
+        order_details.ticker, order_details.action.value, order_details.qty, state.get("signal_id", "")
     )
     # [DEBUG]: Print conflict resolution summary
-    print("   [🛡️ Risk Layer] Conflict Resolution Summary:")
-    print(conflict_resolve_summary)
+    print(f"   [🛡️ Risk Layer] Conflict Resolution status: {conflict_resolve_summary.get('status', 'No Conflict Detected')}")
+    # print(conflict_resolve_summary)
     should_execute = True
     if conflict_resolve_summary.get("has_conflict", False):
         state["conflict_resolution"] = conflict_resolve_summary.get(
             "conflict_resolution", {}
         )
-        print(f"   [🛡️ Risk Layer] Conflict Resolution: {state['conflict_resolution']}")
+        # print(f"   [🛡️ Risk Layer] Conflict Resolution: {state['conflict_resolution']}")
 
         # If no current position, we want to execute a new order
         if conflict_resolve_summary.get("current_position", None) is not None:
@@ -94,6 +94,7 @@ async def resolve_conflicting_position(
     symbol: str,
     side: str,
     qty: float,
+    signal_id: str = ""
 ) -> Dict[str, Any]:
     """
     Determine if a new order conflicts with existing position.
@@ -160,7 +161,8 @@ async def resolve_conflicting_position(
                             market_value=current_position.get("market_value", 0),
                             avg_entry_price=current_position.get("avg_entry_price", 0),
                             pnl=current_position.get("unrealized_pl", 0),
-                        )
+                        ),
+                        signal_id=signal_id
                     )
                 elif action_type == "cancelled_orders":
                     vars_dict = db_trade_decision(
@@ -168,6 +170,7 @@ async def resolve_conflicting_position(
                         symbol=symbol,
                         action=action_type,
                         reasonings=f"[Trade Conflict] Cancelled {act['count']} pending order(s) for {symbol}",
+                        signal_id=signal_id
                     )
 
                 conflict_resolution.append(vars_dict)

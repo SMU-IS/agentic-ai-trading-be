@@ -28,6 +28,7 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
         "target_pct": signal_data.target_pct,
 
         "market_summary": market_summary,
+
     }
 
     print(f"   [🧠 Swing Trading Brain] Analyzing {signal_data.ticker}...")
@@ -122,23 +123,24 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
     # 3. Invoke LLM
     chain = prompt | llm
     try:
-        # response = await chain.ainvoke(input_vars)
-        # decision = parse_llm_json(response.content)
-        # Ensure ticker is included in decision for downstream nodes
-        # decision.ticker = signal_data.ticker 
+        response = await chain.ainvoke(input_vars)
+        decision = parse_llm_json(response.content)
+        print(f"   [✅ LLM Response Parsed] successfully parsed trade decision.")
+        ### Ensure ticker is included in decision for downstream nodes
+        decision.ticker = signal_data.ticker 
 
-        ### For testing, hardcoding decision
-        decision = TradingDecision(
-            action=TradeAction.BUY, 
-            confidence=0.3, 
-            entry_price=202.93, 
-            stop_loss=195.54, 
-            take_profit=210.91, 
-            qty=0, 
-            risk_reward='1.2:1', 
-            thesis="DEBUG ON; Testing mode enabled.", 
-            current_stock_price=202.69, 
-            ticker='AMZN')
+        ### [DEBUG] For testing, hardcoding decision
+        # decision = TradingDecision(
+        #     action=TradeAction.BUY, 
+        #     confidence=0.3, 
+        #     entry_price=202.93, 
+        #     stop_loss=195.54, 
+        #     take_profit=210.91, 
+        #     qty=0, 
+        #     risk_reward='1.2:1', 
+        #     thesis="DEBUG ON; Testing mode enabled.", 
+        #     current_stock_price=202.69, 
+        #     ticker='AMZN')
     except Exception as e:
         print(f"   [❌ LLM Error] {e}")
         decision = TradingDecision(
@@ -150,7 +152,8 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
             qty=0.0,
             risk_reward="0:1",
             thesis="LLM error - no trade",
-            current_stock_price=state.get("market_data").latest_quote.ask_price if state.get("market_data") else 0.0
+            current_stock_price=0.0,
+            ticker=signal_data.ticker
         )
 
     if decision.action == TradeAction.HOLD:
@@ -158,12 +161,15 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
     else:
         print(f"   [🧠 Brain Decision] Trade opportunity identified! Action: {decision.action}, Entry: ${decision.entry_price:.2f}, SL: ${decision.stop_loss:.2f}, TP: ${decision.take_profit:.2f}")
     
-    print(f"   [✅ Brain Output] {decision.to_prompt()}")
+    print("   [✅ Brain Output] Formatted Trade Decision:")
+    print("-" * 60)
+    print(decision.to_prompt())
+    print("-" * 60)
+    print()
+
     state["has_trade_opportunity"] = decision.action in [TradeAction.BUY, TradeAction.SELL]
     print(f"   [✅ Trade Opportunity] {'Yes' if state['has_trade_opportunity'] else 'No'}")
     state["order_details"] = decision
-    print("Testing purpose - setting should_execute to True to test downstream nodes.")
-    print(decision)
     return state
 
 
