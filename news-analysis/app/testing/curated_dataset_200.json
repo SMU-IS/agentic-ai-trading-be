@@ -275,32 +275,32 @@
       "BRK.B": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       },
       "BN": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       },
       "FNV": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       },
       "WPM": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       },
       "AIQUF": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       },
       "LIN": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       }
     }
   },
@@ -1123,7 +1123,7 @@
       "MRP": {
         "event_type": "DIVESTITURE",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "negative"
       },
       "LEN": {
         "event_type": "DIVESTITURE",
@@ -1404,7 +1404,7 @@
       "DIS": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "negative"
       },
       "NFLX": {
         "event_type": "INVESTOR_OPINION",
@@ -1657,12 +1657,12 @@
       "FICO": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "negative"
+        "sentiment_label": "neutral"
       },
       "MCO": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "negative"
+        "sentiment_label": "neutral"
       }
     }
   },
@@ -1850,7 +1850,7 @@
       "RACE": {
         "event_type": "GUIDANCE_DOWNGRADE",
         "event_proposal": null,
-        "sentiment_label": "negative"
+        "sentiment_label": "neutral"
       }
     }
   },
@@ -1957,7 +1957,7 @@
       "TSLA": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "negative"
       }
     }
   },
@@ -2082,7 +2082,7 @@
       "TTD": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "negative"
       },
       "AMZN": {
         "event_type": null,
@@ -2127,7 +2127,7 @@
       "IOT": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       }
     }
   },
@@ -2603,7 +2603,7 @@
       "NKE": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "negative"
       }
     }
   },
@@ -2796,12 +2796,12 @@
       "INTC": {
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       },
       "NVDA": {
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       }
     }
   },
@@ -3269,7 +3269,7 @@
       "TSLA": {
         "event_type": null,
         "event_proposal": "PRODUCT_LINE_DISCONTINUATION",
-        "sentiment_label": "neutral"
+        "sentiment_label": "negative"
       }
     }
   },
@@ -3550,12 +3550,12 @@
       "ORCL": {
         "event_type": null,
         "event_proposal": "GOVERNMENT_CONTRACT_WIN",
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       },
       "MSFT": {
         "event_type": "EARNINGS_BEAT",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "negative"
       },
       "IHG": {
         "event_type": null,
@@ -3706,7 +3706,7 @@
       "DXYZ": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       }
     }
   },
@@ -3807,7 +3807,7 @@
       "GOOGL": {
         "event_type": "PRODUCT_LAUNCH",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "positive"
       },
       "U": {
         "event_type": "COMPETITOR_ANNOUNCEMENT",
@@ -3892,7 +3892,7 @@
       "PLTR": {
         "event_type": "INVESTOR_ACTION",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       },
       "TSLA": {
         "event_type": "INVESTOR_ACTION",
@@ -4288,7 +4288,7 @@
       "MSTR": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "negative"
       }
     }
   },
@@ -4800,7 +4800,7 @@
       "META": {
         "event_type": "EARNINGS_BEAT",
         "event_proposal": null,
-        "sentiment_label": "positive"
+        "sentiment_label": "neutral"
       },
       "MSFT": {
         "event_type": null,
@@ -4840,7 +4840,7 @@
       "MSFT": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "negative"
+        "sentiment_label": "neutral"
       }
     }
   },
@@ -5189,7 +5189,7 @@
       "NFLX": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "negative"
       },
       "WBD": {
         "event_type": null,
@@ -5231,7 +5231,7 @@
       "TSLA": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "negative"
       },
       "BYDDF": {
         "event_type": null,
@@ -5532,17 +5532,17 @@
       "SCCO": {
         "event_type": "SUPPLY_CHAIN_DISRUPTION",
         "event_proposal": null,
-        "sentiment_label": "negative"
+        "sentiment_label": "neutral"
       },
       "FCX": {
         "event_type": "SUPPLY_CHAIN_DISRUPTION",
         "event_proposal": null,
-        "sentiment_label": "negative"
+        "sentiment_label": "neutral"
       },
       "TECK": {
         "event_type": "SUPPLY_CHAIN_DISRUPTION",
         "event_proposal": null,
-        "sentiment_label": "negative"
+        "sentiment_label": "neutral"
       }
     }
   },
@@ -5772,7 +5772,7 @@
       "CRM": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "negative"
+        "sentiment_label": "neutral"
       }
     }
   },
@@ -6259,7 +6259,7 @@
       "AMZN": {
         "event_type": "INVESTOR_OPINION",
         "event_proposal": null,
-        "sentiment_label": "neutral"
+        "sentiment_label": "negative"
       },
       "NVDA": {
         "event_type": null,

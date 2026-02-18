@@ -3023,7 +3023,7 @@
         "sentiment_reasoning": "The post mentions Alphabet's capex growth of +50% YoY, which is a substantial increase. The tone is positive, but the growth rate is not as remarkable as some other companies, such as Meta."
       },
       "MSFT": {
-        "sentiment_label": "negative",
+        "sentiment_label": "neutral",
         "sentiment_score": -0.2,
         "sentiment_reasoning": "The post notes Microsoft's capex growth of only +5% YoY, which is significantly lower than the other companies listed. The tone implies that Microsoft may not be as well-positioned to benefit from the accelerating Big Tech capex."
       },
@@ -3179,9 +3179,9 @@
     },
     "generated_metadata": {
       "TSLA": {
-        "sentiment_label": null,
-        "sentiment_score": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.5,
+        "sentiment_reasoning": "The post mentions plummeting Tesla EV sales and a pivot to an unproven market, which indicates a negative sentiment towards the company's current situation, despite the stock continuing to climb"
       }
     }
   },
@@ -3313,7 +3313,7 @@
     },
     "generated_metadata": {
       "SFM": {
-        "sentiment_label": "positive",
+        "sentiment_label": "nuetral",
         "sentiment_score": 0.2,
         "sentiment_reasoning": "The author thinks SFM is over-punished and has a decent PE ratio, indicating a bullish stance, but also mentions it's hurting, which slightly tempers the positivity."
       }
@@ -4223,9 +4223,9 @@
     },
     "generated_metadata": {
       "NVDA": {
-        "sentiment_label": null,
-        "sentiment_score": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.5,
+        "sentiment_reasoning": "The post reports that Nvidia's plan to invest in OpenAI has stalled, and the CEO has expressed concerns about OpenAI's business approach, indicating potential troubles for Nvidia's investment plans. The tone of the post, including the phrase 'Trouble in paradise?', also suggests a negative outlook."
       },
       "GOOGL": {
         "sentiment_label": null,
@@ -4610,12 +4610,12 @@
         "sentiment_reasoning": "No event identified - skipped"
       },
       "NFLX": {
-        "sentiment_label": "negative",
+        "sentiment_label": "neutral",
         "sentiment_score": -0.2,
         "sentiment_reasoning": "The post raises concerns about Netflix potentially cementing dominance in streaming and reducing content and talent competition if the merger with WBD goes through, indicating a bearish tone."
       },
       "WBD": {
-        "sentiment_label": "negative",
+        "sentiment_label": "nuetral",
         "sentiment_score": -0.2,
         "sentiment_reasoning": "Similar to NFLX, the post highlights potential anticompetitive issues with the merger, which could negatively impact WBD's value and the overall market, leading to a slightly bearish sentiment."
       },
@@ -5601,7 +5601,7 @@
     },
     "generated_metadata": {
       "TSLA": {
-        "sentiment_label": "negative",
+        "sentiment_label": "neutral",
         "sentiment_score": -0.2,
         "sentiment_reasoning": "The post mentions that TSLA at $60bn is 'too big to be a tenbagger', implying a negative outlook on its potential for extreme growth. The tone is not strongly bearish, but slightly negative."
       },
@@ -6263,9 +6263,9 @@
         "sentiment_reasoning": "The post questions the justification of Tesla's high PE ratio and highlights the company's falling behind BYD in electric vehicle sales, while also casting doubt on Tesla's potential to dominate the robotics market due to a lack of data advantage."
       },
       "BYDDF": {
-        "sentiment_label": null,
-        "sentiment_score": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_label": "positive",
+        "sentiment_score": 0.8,
+        "sentiment_reasoning": "The post reports BYD's success in overtaking Tesla as the world's biggest seller of electric vehicles, implying a strong market position and competitive advantage"
       }
     }
   },
@@ -6468,14 +6468,14 @@
     },
     "generated_metadata": {
       "U": {
-        "sentiment_label": null,
-        "sentiment_score": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.8,
+        "sentiment_reasoning": "The post mentions Unity's stock plummeting and investors rotating out of legacy 3D infrastructure stocks due to the threat of generative models, indicating a bearish sentiment"
       },
       "RBLX": {
-        "sentiment_label": null,
-        "sentiment_score": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.8,
+        "sentiment_reasoning": "Similar to Unity, the post mentions Roblox plummeting and the threat of generative models replacing the current game development stack, indicating a bearish sentiment"
       },
       "GOOGL": {
         "sentiment_label": null,
@@ -8389,7 +8389,7 @@
         "sentiment_reasoning": "Microsoft is considered to have a better discount compared to Oracle, with dominance, pricing power, and scale, making it an attractive investment opportunity."
       },
       "ORCL": {
-        "sentiment_label": "negative",
+        "sentiment_label": "neutral",
         "sentiment_score": -0.2,
         "sentiment_reasoning": "Oracle has fallen more than Microsoft, but its growth is capped, and its PE ratio is high, making it a less attractive investment compared to Microsoft."
       },
@@ -8409,7 +8409,7 @@
         "sentiment_reasoning": "Snowflake has a substantial discount and could be worth buying at lower levels, making it an attractive investment opportunity."
       },
       "DAVA": {
-        "sentiment_label": "positive",
+        "sentiment_label": "neutral",
         "sentiment_score": 0.2,
         "sentiment_reasoning": "Endava's TAM was overestimated, but now it's underestimated, making it a potential investment opportunity, but the reasoning is not strong enough to be positive or negative."
       },
@@ -8429,7 +8429,7 @@
         "sentiment_reasoning": "Figma is considered a stronger growth stock, making it a potentially attractive investment opportunity."
       },
       "TOST": {
-        "sentiment_label": "negative",
+        "sentiment_label": "neutral",
         "sentiment_score": -0.2,
         "sentiment_reasoning": "Toast has fallen 70%, but it's still overpriced, and competition could squeeze margins, making it a less attractive investment opportunity."
       },
@@ -8439,9 +8439,9 @@
         "sentiment_reasoning": "No event identified - skipped"
       },
       "AMPL": {
-        "sentiment_label": "neutral",
-        "sentiment_score": -0.1,
-        "sentiment_reasoning": "Amplitude is a clear winner in analytics, but it has low pricing power and too many competitors, making the sentiment slightly negative."
+        "sentiment_label": "negative",
+        "sentiment_score": -0.4,
+        "sentiment_reasoning": "The author mentions that Amplitude is a clear winner in analytics, but it has low pricing power and too many competitors, indicating a negative sentiment"
       },
       "SMWB": {
         "sentiment_label": "positive",
@@ -8450,13 +8450,13 @@
       },
       "RDDT": {
         "sentiment_label": "neutral",
-        "sentiment_score": 0.1,
+        "sentiment_score": 0.0,
         "sentiment_reasoning": "Reddit has reached a three-month low, but it's not a significant drop, and the discount isn't a determining factor to buy, making the sentiment neutral."
       },
       "ETSY": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.4,
-        "sentiment_reasoning": "Etsy has high margins and is heavily underestimated on growth, making it a potentially attractive investment opportunity."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.2,
+        "sentiment_reasoning": "The author mentions that Etsy has high margins and is heavily underestimated on growth, indicating a positive sentiment towards the stock"
       },
       "PINS": {
         "sentiment_label": "positive",
@@ -8479,54 +8479,54 @@
         "sentiment_reasoning": "Root has fallen 36% this year, and even if it proves its AI works better, telematics is not a monopoly anymore, making it a less attractive investment opportunity."
       },
       "RZLV": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_label": "positive",
+        "sentiment_score": 0.8,
+        "sentiment_reasoning": "The author states that Rezolve is moving from R&D to sales and has the potential to ten-fold, indicating a strong positive sentiment."
       },
       "UPWK": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_label": "positive",
+        "sentiment_score": 0.9,
+        "sentiment_reasoning": "The author mentions that Upwork is their favorite for value, with a low PE ratio, strong moat, and improving margins, indicating a very positive sentiment."
       },
       "RIME": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_label": "positive",
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "The author states that Rime fixes three major issues in logistics and has potential, but its true TAM is uncertain, indicating a positive sentiment."
       },
       "WKSP": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.5,
+        "sentiment_reasoning": "The author mentions that Worksport is selling a product that hasn't been sold before, and there's no way to say it's a buy, indicating a negative sentiment"
       },
       "ARAI": {
         "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_score": 0.2,
+        "sentiment_reasoning": "Arrive AI is a logistics company with potential, but integration with legacy systems is a challenge, making it a neutral investment opportunity."
       },
       "DUOL": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_label": "positive",
+        "sentiment_score": 0.7,
+        "sentiment_reasoning": "The author states that Duolingo has a massive discount and is a great quality company, indicating a positive sentiment"
       },
       "PATH": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.4,
+        "sentiment_reasoning": "UiPath is best in class for AI integration, but it is very expensive, especially for smaller companies, making it a less attractive investment opportunity."
       },
       "RVSN": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_label": "negative",
+        "sentiment_score":-0.5,
+        "sentiment_reasoning": "RailVision has regulatory hurdles and long upgrade cycles, making it a less attractive investment opportunity."
       },
       "DGNX": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_reasoning": "The author mentions that Diginex has a massive discount, and regulatory ESG will ensure some customers will buy, indicating a positive sentimene"
       },
       "JTAI": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.6,
+        "sentiment_reasoning": "The author mentions that Jet.AI has 'no real moat, no pricing power, costs are high, sensitive to customer spend', indicating a bearish view on the company's prospects. This suggests that the author is cautious about investing in JTAI"
       }
     }
   },
@@ -8587,7 +8587,7 @@
     },
     "generated_metadata": {
       "NVDA": {
-        "sentiment_label": "negative",
+        "sentiment_label": "neutral",
         "sentiment_score": -0.2,
         "sentiment_reasoning": "The post mentions the steep costs of Nvidia's chips and their limited availability, which could be a challenge for the company, implying a slightly negative sentiment."
       },
@@ -8936,7 +8936,7 @@
     },
     "generated_metadata": {
       "META": {
-        "sentiment_label": "negative",
+        "sentiment_label": "neutral",
         "sentiment_score": -0.2,
         "sentiment_reasoning": "The author is cautious about Meta's large capex spending and questions whether it will translate to real shareholder value, despite the stock's positive reaction to earnings. The author's tone is uneasy and defensive, indicating a negative sentiment towards the stock."
       },
@@ -9377,9 +9377,9 @@
     },
     "generated_metadata": {
       "ORCL": {
-        "sentiment_label": null,
-        "sentiment_score": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_label": "neutral",
+        "sentiment_score": -0.2,
+        "sentiment_reasoning": "The post mentions Oracle taking a beating and its stock price dropping, despite landing a major Air Force contract, indicating concerns about the company's future performance. The author's question about the stock's decline implies uncertainty and a potentially negative outlook."
       },
       "MSFT": {
         "sentiment_label": "neutral",

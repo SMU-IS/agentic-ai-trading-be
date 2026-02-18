@@ -1420,9 +1420,9 @@
     },
     "generated_metadata": {
       "SPGI": {
-        "sentiment_label": null,
-        "sentiment_score": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.7,
+        "sentiment_reasoning": "The post highlights a significant 8% drop in SPGI's stock, questioning the negative impact of the Mobility global business unit separation. The tone is critical, with a focus on potential harm to shareholders and uncertainty about the drop's justification."
       },
       "FICO": {
         "sentiment_label": "neutral",
@@ -3172,16 +3172,16 @@
         ],
         "event_type": null,
         "event_proposal": "PRODUCT_LINE_DISCONTINUATION",
-        "sentiment_score": null,
-        "sentiment_label": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_score": -0.6,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "Post highlights Tesla discontinuing high-margin Model S/X for unproven Optimus robots, citing declining automotive revenue (-11% YoY) and vehicle deliveries (-16%). The author expresses confusion over rising stock prices despite these fundamentals, using sarcastic 'WTF' to imply skepticism about the strategic pivot. Negative sentiment stems from financial underperformance and market uncertainty."
       }
     },
     "generated_metadata": {
       "TSLA": {
-        "sentiment_label": null,
-        "sentiment_score": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.6,
+        "sentiment_reasoning": "Post highlights Tesla discontinuing high-margin Model S/X for unproven Optimus robots, citing declining automotive revenue (-11% YoY) and vehicle deliveries (-16%). The author expresses confusion over rising stock prices despite these fundamentals, using sarcastic 'WTF' to imply skepticism about the strategic pivot. Negative sentiment stems from financial underperformance and market uncertainty."
       }
     }
   },
@@ -3313,9 +3313,9 @@
     },
     "generated_metadata": {
       "SFM": {
-        "sentiment_label": "positive",
-        "sentiment_score": 0.5,
-        "sentiment_reasoning": "The author believes SFM is overpunished (bullish) with a 30-130% price forecast and a decent 13x PE ratio. While acknowledging the 62% decline and low RSI (24), the focus on long-term potential and patience indicates a net positive outlook despite current pain."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.2,
+        "sentiment_reasoning": "The post acknowledges a significant price drop but frames it as 'overpunished' with a positive forecast (30-130% potential gain) and a 'decent' PE ratio. While the author admits it's 'hurting,' the overall tone leans bullish due to patience and optimistic price projections."
       }
     }
   },
@@ -4216,16 +4216,16 @@
         ],
         "event_type": null,
         "event_proposal": null,
-        "sentiment_score": null,
-        "sentiment_label": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_score": -0.4,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The stalled $100B OpenAI investment and CEO's criticism of OpenAI's business approach suggest potential growth risks for NVIDIA. Sarcasm in 'Trouble in paradise?' reinforces negative sentiment"
       }
     },
     "generated_metadata": {
       "NVDA": {
-        "sentiment_label": null,
-        "sentiment_score": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.4,
+        "sentiment_reasoning": "The stalled $100B OpenAI investment and CEO's criticism of OpenAI's business approach suggest potential growth risks for NVIDIA. Sarcasm in 'Trouble in paradise?' reinforces negative sentiment"
       },
       "GOOGL": {
         "sentiment_label": null,
@@ -5601,9 +5601,9 @@
     },
     "generated_metadata": {
       "TSLA": {
-        "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "The post references skepticism about TSLA's growth potential ('too big to be a tenbagger'), reflecting bearish investor sentiment. The historical context of overhyped stocks (e.g., SPCE) and cautionary tone about future performance further reinforce negativity."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "Historical analysis without explicit bullish/bearish stance; comment about past size limitations is neutral as it reflects hindsight, not current sentiment."
       },
       "RKLB": {
         "sentiment_label": null,
@@ -6437,9 +6437,9 @@
         ],
         "event_type": null,
         "event_proposal": "DISRUPTIVE_TECHNOLOGY_THREAT",
-        "sentiment_score": null,
-        "sentiment_label": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_score": -0.8,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The post indicates that Unity's 20% drop in value is due to fears that generative AI models (Project Genie, LingBot World) will replace traditional 3D development infrastructure. This represents a negative sentiment toward Unity's future prospects."
       },
       "RBLX": {
         "type": "stock",
@@ -6449,9 +6449,9 @@
         ],
         "event_type": null,
         "event_proposal": "DISRUPTIVE_TECHNOLOGY_THREAT",
-        "sentiment_score": null,
-        "sentiment_label": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_score": -0.8,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "Roblox is mentioned alongside Unity as part of 'legacy 3D infrastructure stocks' facing disruption from real-time generative AI models. The 20% drop in Unity correlates with fears that these new models will replace current game development stacks, including Roblox's approach"
       },
       "GOOGL": {
         "type": "stock",
@@ -6468,14 +6468,14 @@
     },
     "generated_metadata": {
       "U": {
-        "sentiment_label": null,
-        "sentiment_score": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.8,
+        "sentiment_reasoning": "Roblox is mentioned alongside Unity as part of 'legacy 3D infrastructure stocks' facing disruption from real-time generative AI models. The 20% drop in Unity correlates with fears that these new models will replace current game development stacks, including Roblox's approach"
       },
       "RBLX": {
-        "sentiment_label": null,
-        "sentiment_score": null,
-        "sentiment_reasoning": "No event identified - skipped"
+        "sentiment_label": "negative",
+        "sentiment_score": -0.8,
+        "sentiment_reasoning": "Post indicates Unity stock plummeted due to disruptive AI-generated game technology (Google Project Genie, LingBot World) threatening traditional 3D infrastructure. Investors are rotating out of legacy stocks like Unity, reflecting bearish sentiment"
       },
       "GOOGL": {
         "sentiment_label": null,
@@ -8394,9 +8394,9 @@
         "sentiment_reasoning": "Oracle's growth is capped, and its price-to-earnings ratio is unfavorably compared to Microsoft."
       },
       "NET": {
-        "sentiment_label": "negative",
-        "sentiment_score": -0.3,
-        "sentiment_reasoning": "Cloudflare's 30% drop is described as making it 'less expensive' but still richly valued."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "Cloudflare (NET) is described as 'less expensive' after a 30% drop but still considered richly valued. The analysis acknowledges the drop but does not advocate a clear bullish or bearish stance, balancing the discount with ongoing valuation concerns."
       },
       "NOW": {
         "sentiment_label": "negative",
@@ -8419,9 +8419,9 @@
         "sentiment_reasoning": "Inotiv has a massive discount but faces an unfavorable environment, balancing positive and negative factors."
       },
       "ADBE": {
-        "sentiment_label": "negative",
-        "sentiment_score": -0.4,
-        "sentiment_reasoning": "Adobe's growth is an issue despite being loved by value investors."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "Adobe is noted as loved by value investors but faces growth issues, balancing positive and negative factors"
       },
       "FIG": {
         "sentiment_label": "positive",
@@ -8479,14 +8479,14 @@
         "sentiment_reasoning": "Root's 36% drop is attributed to competitive pressures in telematics."
       },
       "RZLV": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "No mention in the text."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.9,
+        "sentiment_reasoning": "Rezolve is highlighted as the only stock with potential to 'tenx' due to transitioning to sales execution"
       },
       "UPWK": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "No mention in the text."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.7,
+        "sentiment_reasoning": "Upwork is praised for a low PE, strong moat, and improving margins, making it a top value pick."
       },
       "RIME": {
         "sentiment_label": "neutral",
@@ -8494,39 +8494,39 @@
         "sentiment_reasoning": "No mention in the text."
       },
       "WKSP": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": ""
+        "sentiment_label": "negative",
+        "sentiment_score": -0.8,
+        "sentiment_reasoning": "Worksport is down 80% with an unproven product, making it a high-risk, non-buy."
       },
       "ARAI": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_reasoning": "Mentions niche logistics use case (high-value deliveries) but highlights integration challenges with legacy systems. No bullish/bearish slang or strong sentiment indicators"
       },
       "DUOL": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_label": "positive",
+        "sentiment_score": 0.6,
+        "sentiment_reasoning": "Duolingo is labeled as having a massive discount for a quality company, signaling bullish sentiment."
       },
       "PATH": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_reasoning": "Notes 20% monthly drop and 'best in class AI integration' but calls it 'very expensive for a smaller company'. Balanced positive/negative without clear stance"
       },
       "RVSN": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_reasoning": "Mentions train safety benefits but highlights regulatory hurdles and long upgrade cycles. No sentiment-modifying language detected."
       },
       "DGNX": {
         "sentiment_label": "neutral",
         "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_reasoning": "Cites 'massive discount' but counters with competitive disadvantages (scale/credibility). No bullish/bearish framing or WSB slang"
       },
       "JTAI": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "Not in LLM response"
+        "sentiment_label": "negative",
+        "sentiment_score":-0.6,
+        "sentiment_reasoning": "Jet AI is criticized for high costs, lack of moat, and sensitivity to customer spend, indicating bearishness."
       }
     }
   },
@@ -8587,9 +8587,9 @@
     },
     "generated_metadata": {
       "NVDA": {
-        "sentiment_label": "negative",
-        "sentiment_score": -0.6,
-        "sentiment_reasoning": "The post highlights challenges for NVDA as high chip costs and limited availability drive competitors to develop alternatives, implying reduced demand for NVIDIA's products."
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0,
+        "sentiment_reasoning": "The post discusses industry trends (AI chip development) and mentions NVDA's chips as a catalyst for competitors' actions, but contains no explicit bullish/bearish language, financial slang, or opinionated stance on the stock's performance"
       },
       "IBM": {
         "sentiment_label": "neutral",
@@ -8936,9 +8936,9 @@
     },
     "generated_metadata": {
       "META": {
-        "sentiment_label": "neutral",
-        "sentiment_score": 0.0,
-        "sentiment_reasoning": "The post highlights both positive earnings results (revenue beat, strong guidance) and significant risks (massive capex, potential overcapacity). The author acknowledges market optimism but expresses caution about unproven ROI and historical patterns of overvaluation, balancing bullish and bearish elements without a clear stance."
+        "sentiment_label": "positive",
+        "sentiment_score": 0.4,
+        "sentiment_reasoning": "The post highlights META's strong Q4 earnings beat, revenue above expectations, and bullish Q1 guidance. The market reacted positively (+10% move), though the author expresses caution about long-term risks. The sentiment is positive due to the clear market endorsement despite reservations"
       },
       "MSFT": {
         "sentiment_label": null,
