@@ -22,3 +22,7 @@ async def start_consumers():
     # Notification stream consumer
     stream_consumer = StreamConsumer()
     asyncio.create_task(stream_consumer.async_start())
+
+@app.get("/healthcheck")
+def health():
+    return {"status": "Notification service is healthy"}
