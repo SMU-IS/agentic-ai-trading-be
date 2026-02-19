@@ -1,6 +1,8 @@
 services:
   broker-service:
     build: .
+    env_file:
+      - .env
     container_name: alpaca-broker-service
     ports:
       - "5007:5007"
