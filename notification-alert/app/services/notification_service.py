@@ -1,6 +1,7 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import List
 import json
+import asyncio
 
 router = APIRouter()
 connections: List[WebSocket] = [] 
@@ -34,3 +35,8 @@ async def websocket_endpoint(websocket: WebSocket):
             await websocket.receive_text() 
     except WebSocketDisconnect:
         connections.remove(websocket)
+    except asyncio.CancelledError:
+        print("WebSocket shutting down gracefully")
+        if websocket in connections:
+            connections.remove(websocket)
+        raise
