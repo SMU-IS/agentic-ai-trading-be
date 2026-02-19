@@ -4,11 +4,11 @@
     "post_text": "Unique investment strategy. work for a company not going to say what industry but its a billion generating type of business therefore 90% of our clients are big corporations think Nvidia, Broadcom, Rio Tinto, Adruil to name a few, they spend millions for our services each year and I dont see that stopping any time soon, my question is - is it crazy to use that as an investment strategy as in buy into those stocks? It wont be a conflict of interest in anyway and there isnt any possibility of insi",
     "ticker_mismatches": [
       {
-        "ticker": "RIO",
+        "ticker": "NVDA",
         "ground_truth_label": "neutral",
         "generated_label": "positive",
         "generated_score": 0.6,
-        "generated_reasoning": "Rio Tinto is mentioned as a long-term client in a billion-dollar industry, suggesting consistent revenue. The author's investment consideration reflects confidence in the company's performance."
+        "generated_reasoning": "The post highlights ongoing client spending by major corporations like NVIDIA, implying sustained demand for their services. The author considers investing in these companies as a strategy, indicating positive sentiment."
       },
       {
         "ticker": "AVGO",
@@ -18,11 +18,11 @@
         "generated_reasoning": "Broadcom is cited as a high-spending client with no indication of declining business. The author's contemplation of investment aligns with bullish sentiment toward the company's stability."
       },
       {
-        "ticker": "NVDA",
+        "ticker": "RIO",
         "ground_truth_label": "neutral",
         "generated_label": "positive",
         "generated_score": 0.6,
-        "generated_reasoning": "The post highlights ongoing client spending by major corporations like NVIDIA, implying sustained demand for their services. The author considers investing in these companies as a strategy, indicating positive sentiment."
+        "generated_reasoning": "Rio Tinto is mentioned as a long-term client in a billion-dollar industry, suggesting consistent revenue. The author's investment consideration reflects confidence in the company's performance."
       }
     ]
   },
@@ -143,18 +143,18 @@
     "post_text": "What is happening right now?! Can someone please explain to me what I am missing? Meta and MSFT continually having-3-5% days with no news. Both beat earning. In understand people get shaken up a bit by their spending but does that justify $100-120 drops in a matter of days? Am I missing something? These massive drops just don't seem rational",
     "ticker_mismatches": [
       {
-        "ticker": "MSFT",
-        "ground_truth_label": "neutral",
-        "generated_label": "negative",
-        "generated_score": -0.6,
-        "generated_reasoning": "Similar to META, the post emphasizes unexplained 3-5% drops despite earnings beats, framing the price action as negative. No bullish language or positive context is present."
-      },
-      {
         "ticker": "META",
         "ground_truth_label": "neutral",
         "generated_label": "negative",
         "generated_score": -0.6,
         "generated_reasoning": "Post highlights unexplained 3-5% price drops despite earnings beats, indicating negative market sentiment. The author questions the rationality of the decline but focuses on downward price movement."
+      },
+      {
+        "ticker": "MSFT",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "Similar to META, the post emphasizes unexplained 3-5% drops despite earnings beats, framing the price action as negative. No bullish language or positive context is present."
       }
     ]
   },
@@ -268,18 +268,18 @@
     "post_text": "Kratos Defense : I miss something ? Hi everyone I try to understand why all my stock get red. So I've got Astera labs, Credo, and now Kratos. I buy some stock to bet on the defense investment from US and Europe (they like to buy american stuff). What happens to the stock to fall like that ? I try to buy stock of companies with good earning and guidance, but i lost money. Don't talk to me about ETF nasdaq, i'm french and i lost money cause of change Euro/USD. I'm tired :-(",
     "ticker_mismatches": [
       {
-        "ticker": "ALAB",
-        "ground_truth_label": "negative",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "The investor mentions holding ALAB but provides no specific positive or negative sentiment about its performance or fundamentals."
-      },
-      {
         "ticker": "CRDO",
         "ground_truth_label": "negative",
         "generated_label": "neutral",
         "generated_score": 0.0,
         "generated_reasoning": "The investor references CRDO as part of their portfolio but does not express direct sentiment about its performance or fundamentals."
+      },
+      {
+        "ticker": "ALAB",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The investor mentions holding ALAB but provides no specific positive or negative sentiment about its performance or fundamentals."
       }
     ]
   },
@@ -288,25 +288,11 @@
     "post_text": "Stocks to buy at a discount? Microsoft Dominance, Pricing power, and considering the scale of company discount is meaningful. Oracle: oracle has fallen more than microsoft but considering oracles pe and that growth at oracle is capped ; microsoft has the better discount. Service now, has fallen 40 peecent this year but its not a true discount because valuation still rich with a high pe Cloudflare is always expensive. The 30% drop just makes it \"less expensive\" It's an asymmetric play on the futu",
     "ticker_mismatches": [
       {
-        "ticker": "RDDT",
+        "ticker": "NOTV",
         "ground_truth_label": "positive",
         "generated_label": "neutral",
         "generated_score": 0.0,
-        "generated_reasoning": "Reddit's 16% drop is framed as a 'buy on dips' strategy with uncertain direction."
-      },
-      {
-        "ticker": "ETSY",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "Etsy's 10% drop is deemed insignificant for a high-priced company with underestimated growth."
-      },
-      {
-        "ticker": "ORCL",
-        "ground_truth_label": "neutral",
-        "generated_label": "negative",
-        "generated_score": -0.4,
-        "generated_reasoning": "Oracle's growth is capped, and its price-to-earnings ratio is unfavorably compared to Microsoft."
+        "generated_reasoning": "Inotiv has a massive discount but faces an unfavorable environment, balancing positive and negative factors."
       },
       {
         "ticker": "DGNX",
@@ -316,18 +302,25 @@
         "generated_reasoning": "Cites 'massive discount' but counters with competitive disadvantages (scale/credibility). No bullish/bearish framing or WSB slang"
       },
       {
+        "ticker": "NOW",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "ServiceNow's 40% drop is noted, but its valuation remains rich with a high P/E."
+      },
+      {
+        "ticker": "ETSY",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Etsy's 10% drop is deemed insignificant for a high-priced company with underestimated growth."
+      },
+      {
         "ticker": "DAVA",
         "ground_truth_label": "neutral",
         "generated_label": "negative",
         "generated_score": -0.6,
         "generated_reasoning": "Endava's TAM is overestimated, and the current environment is unfavorable."
-      },
-      {
-        "ticker": "AMPL",
-        "ground_truth_label": "positive",
-        "generated_label": "negative",
-        "generated_score": -0.5,
-        "generated_reasoning": "Amplitude is a leader in analytics but suffers from low pricing power and intense competition."
       },
       {
         "ticker": "TOST",
@@ -337,25 +330,25 @@
         "generated_reasoning": "Toast has expansion potential but faces margin risks from competition."
       },
       {
-        "ticker": "RIME",
+        "ticker": "RDDT",
         "ground_truth_label": "positive",
         "generated_label": "neutral",
         "generated_score": 0.0,
-        "generated_reasoning": "No mention in the text."
+        "generated_reasoning": "Reddit's 16% drop is framed as a 'buy on dips' strategy with uncertain direction."
       },
       {
-        "ticker": "NOTV",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "Inotiv has a massive discount but faces an unfavorable environment, balancing positive and negative factors."
-      },
-      {
-        "ticker": "NOW",
+        "ticker": "AMPL",
         "ground_truth_label": "positive",
         "generated_label": "negative",
         "generated_score": -0.5,
-        "generated_reasoning": "ServiceNow's 40% drop is noted, but its valuation remains rich with a high P/E."
+        "generated_reasoning": "Amplitude is a leader in analytics but suffers from low pricing power and intense competition."
+      },
+      {
+        "ticker": "ORCL",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "Oracle's growth is capped, and its price-to-earnings ratio is unfavorably compared to Microsoft."
       },
       {
         "ticker": "ADBE",
@@ -363,6 +356,13 @@
         "generated_label": "neutral",
         "generated_score": 0.0,
         "generated_reasoning": "Adobe is noted as loved by value investors but faces growth issues, balancing positive and negative factors"
+      },
+      {
+        "ticker": "RIME",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "No mention in the text."
       }
     ]
   },

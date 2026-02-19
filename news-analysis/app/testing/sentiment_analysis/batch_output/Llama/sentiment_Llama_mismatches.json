@@ -220,18 +220,11 @@
     "post_text": "Stocks to buy at a discount? Microsoft Dominance, Pricing power, and considering the scale of company discount is meaningful. Oracle: oracle has fallen more than microsoft but considering oracles pe and that growth at oracle is capped ; microsoft has the better discount. Service now, has fallen 40 peecent this year but its not a true discount because valuation still rich with a high pe Cloudflare is always expensive. The 30% drop just makes it \"less expensive\" It's an asymmetric play on the futu",
     "ticker_mismatches": [
       {
-        "ticker": "RDDT",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "Reddit has reached a three-month low, but it's not a significant drop, and the discount isn't a determining factor to buy, making the sentiment neutral."
-      },
-      {
-        "ticker": "ETSY",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.2,
-        "generated_reasoning": "The author mentions that Etsy has high margins and is heavily underestimated on growth, indicating a positive sentiment towards the stock"
+        "ticker": "PATH",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "UiPath is best in class for AI integration, but it is very expensive, especially for smaller companies, making it a less attractive investment opportunity."
       },
       {
         "ticker": "DGNX",
@@ -241,11 +234,18 @@
         "generated_reasoning": "The author mentions that Diginex has a massive discount, and regulatory ESG will ensure some customers will buy, indicating a positive sentimene"
       },
       {
-        "ticker": "AMPL",
+        "ticker": "NOW",
         "ground_truth_label": "positive",
         "generated_label": "negative",
-        "generated_score": -0.4,
-        "generated_reasoning": "The author mentions that Amplitude is a clear winner in analytics, but it has low pricing power and too many competitors, indicating a negative sentiment"
+        "generated_score": -0.3,
+        "generated_reasoning": "ServiceNow has fallen 40% this year, but its valuation is still rich with a high PE, making it not a true discount."
+      },
+      {
+        "ticker": "ETSY",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.2,
+        "generated_reasoning": "The author mentions that Etsy has high margins and is heavily underestimated on growth, indicating a positive sentiment towards the stock"
       },
       {
         "ticker": "TOST",
@@ -255,25 +255,18 @@
         "generated_reasoning": "Toast has fallen 70%, but it's still overpriced, and competition could squeeze margins, making it a less attractive investment opportunity."
       },
       {
-        "ticker": "RVSN",
-        "ground_truth_label": "neutral",
-        "generated_label": "negative",
-        "generated_score": -0.5,
-        "generated_reasoning": "RailVision has regulatory hurdles and long upgrade cycles, making it a less attractive investment opportunity."
+        "ticker": "RDDT",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Reddit has reached a three-month low, but it's not a significant drop, and the discount isn't a determining factor to buy, making the sentiment neutral."
       },
       {
-        "ticker": "NOW",
+        "ticker": "AMPL",
         "ground_truth_label": "positive",
         "generated_label": "negative",
-        "generated_score": -0.3,
-        "generated_reasoning": "ServiceNow has fallen 40% this year, but its valuation is still rich with a high PE, making it not a true discount."
-      },
-      {
-        "ticker": "PATH",
-        "ground_truth_label": "neutral",
-        "generated_label": "negative",
         "generated_score": -0.4,
-        "generated_reasoning": "UiPath is best in class for AI integration, but it is very expensive, especially for smaller companies, making it a less attractive investment opportunity."
+        "generated_reasoning": "The author mentions that Amplitude is a clear winner in analytics, but it has low pricing power and too many competitors, indicating a negative sentiment"
       },
       {
         "ticker": "ADBE",
@@ -281,6 +274,13 @@
         "generated_label": "neutral",
         "generated_score": 0.1,
         "generated_reasoning": "Adobe has fallen over 30%, and while it's loved by value investors, its growth is an issue, and it could fall another 10%, making the sentiment neutral."
+      },
+      {
+        "ticker": "RVSN",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "RailVision has regulatory hurdles and long upgrade cycles, making it a less attractive investment opportunity."
       }
     ]
   },
@@ -394,18 +394,18 @@
         "generated_reasoning": "The post discusses the author's experience with a collar trade on their portfolio, including AFRM, without expressing a clear opinion or sentiment towards the stock."
       },
       {
-        "ticker": "QS",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "The post mentions QS reaching highs and then dropping, but the tone is informative and focused on the author's experience with a collar trade, rather than expressing a bullish or bearish sentiment."
-      },
-      {
         "ticker": "SOFI",
         "ground_truth_label": "positive",
         "generated_label": "neutral",
         "generated_score": 0.0,
         "generated_reasoning": "Similar to AFRM and QS, the post discusses SOFI as part of the author's portfolio, but does not express a clear opinion or sentiment towards the stock, focusing instead on the collar trade strategy."
+      },
+      {
+        "ticker": "QS",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The post mentions QS reaching highs and then dropping, but the tone is informative and focused on the author's experience with a collar trade, rather than expressing a bullish or bearish sentiment."
       }
     ]
   },

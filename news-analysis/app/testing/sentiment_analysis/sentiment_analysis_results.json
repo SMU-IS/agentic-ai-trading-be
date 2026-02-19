@@ -6,19 +6,19 @@
     "model": "gemini-2.5-flash",
     "total_posts": 148,
     "total_tickers_compared": 279,
-    "correct": 215,
+    "correct": 224,
     "metrics": {
-      "accuracy": 0.7706,
-      "macro_precision": 0.7672,
-      "macro_recall": 0.7941,
-      "macro_f1": 0.7749
+      "accuracy": 0.8029,
+      "macro_precision": 0.7996,
+      "macro_recall": 0.821,
+      "macro_f1": 0.807
     },
     "confusion_matrix": {
       "matrix": {
         "positive": {
-          "positive": 80,
+          "positive": 82,
           "negative": 4,
-          "neutral": 17
+          "neutral": 15
         },
         "negative": {
           "positive": 1,
@@ -26,28 +26,28 @@
           "neutral": 4
         },
         "neutral": {
-          "positive": 19,
-          "negative": 19,
-          "neutral": 77
+          "positive": 17,
+          "negative": 14,
+          "neutral": 84
         }
       },
       "per_class": {
         "positive": {
-          "precision": 0.8,
-          "recall": 0.7921,
-          "f1": 0.796,
+          "precision": 0.82,
+          "recall": 0.8119,
+          "f1": 0.8159,
           "support": 101
         },
         "negative": {
-          "precision": 0.716,
+          "precision": 0.7632,
           "recall": 0.9206,
-          "f1": 0.8056,
+          "f1": 0.8345,
           "support": 63
         },
         "neutral": {
-          "precision": 0.7857,
-          "recall": 0.6696,
-          "f1": 0.723,
+          "precision": 0.8155,
+          "recall": 0.7304,
+          "f1": 0.7706,
           "support": 115
         }
       }
