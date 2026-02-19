@@ -1,16 +1,29 @@
-from collections import defaultdict
-from typing import List, Dict, Union
 import json
 import re
+from collections import defaultdict
+from typing import Dict, List, Union
+
 import spacy
-from app.core.config import env_config
-from langchain_google_genai import ChatGoogleGenerativeAI
+import yfinance as yf
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
-import yfinance as yf
+from langchain_google_genai import ChatGoogleGenerativeAI
+
+from app.core.config import env_config
 
 STOP_SUFFIXES = [
-    "inc", "corp", "corporation", "ltd", "llc", "co", "&co", ",inc", ",inc.", "/new", "/de/", "/mn"
+    "inc",
+    "corp",
+    "corporation",
+    "ltd",
+    "llc",
+    "co",
+    "&co",
+    ",inc",
+    ",inc.",
+    "/new",
+    "/de/",
+    "/mn",
 ]
 
 TICKER_PATTERN = re.compile(r"\$[A-Z]{1,5}(?:\.[A-Z]{1,2})?\b")
@@ -22,7 +35,7 @@ class TickerIdentificationService:
     1. NER with SpaCy
     2. Mapping with cleaned tickers and alias mapping
     3. Regex for explicit tickers
-    4. LLM to identify additional tickers in text 
+    4. LLM to identify additional tickers in text
     """
 
     def __init__(
@@ -30,7 +43,8 @@ class TickerIdentificationService:
         cleaned_tickers: dict,
         alias_to_canonical: dict,
         model_type: str = env_config.llm_provider_gemini,
-        model_name: str = env_config.large_language_model_gemini or "gemini-2.5-flash-lite",
+        model_name: str = env_config.large_language_model_gemini
+        or "gemini-2.5-flash-lite",
         google_api_key: str = env_config.gemini_api_key,
         spacy_model: str = "en_core_web_lg",
     ):
@@ -41,9 +55,15 @@ class TickerIdentificationService:
         self.new_type_count = 0
         self.cleaned_tickers = cleaned_tickers
         self.alias_to_canonical = alias_to_canonical
-        self.canonical_to_aliases = self.build_canonical_to_aliases(self.alias_to_canonical)
-        self.ticker_to_title = {v["ticker"]: v["title"] for v in self.cleaned_tickers.values()}
-        self.ticker_to_canonical = {v["ticker"]: k for k, v in self.cleaned_tickers.items()}
+        self.canonical_to_aliases = self.build_canonical_to_aliases(
+            self.alias_to_canonical
+        )
+        self.ticker_to_title = {
+            v["ticker"]: v["title"] for v in self.cleaned_tickers.values()
+        }
+        self.ticker_to_canonical = {
+            v["ticker"]: k for k, v in self.cleaned_tickers.items()
+        }
         self.nlp = spacy.load(spacy_model)
 
     def _normalize_company(self, text: str) -> str:
@@ -60,7 +80,7 @@ class TickerIdentificationService:
             temperature=0,
         )
 
-    # use yahoo finance to classify ticker 
+    # use yahoo finance to classify ticker
     def classify_ticker(self, ticker: str) -> str:
         try:
             t = yf.Ticker(ticker)
@@ -71,7 +91,7 @@ class TickerIdentificationService:
                 "ETF": "etf",
                 "CRYPTOCURRENCY": "crypto",
                 "INDEX": "index",
-                "CURRENCY": "forex"
+                "CURRENCY": "forex",
             }
             return mapping.get(quote_type)
         except Exception:
@@ -153,7 +173,7 @@ class TickerIdentificationService:
 
             validated = []
             for item in result:
-                # ensure that every item is in dict format 
+                # ensure that every item is in dict format
                 if not isinstance(item, dict):
                     continue
                 company = item.get("company_name")
@@ -161,17 +181,21 @@ class TickerIdentificationService:
                 # normalize ticker
                 if ticker:
                     ticker = ticker.strip().replace("$", "").upper()
-                validated.append({
-                    "company_name": company,
-                    "ticker": ticker,
-                })
+                validated.append(
+                    {
+                        "company_name": company,
+                        "ticker": ticker,
+                    }
+                )
 
             return validated
         except Exception as e:
             print(f"LLM extraction error: {e}")
             return []
 
-    def build_canonical_to_aliases(self, alias_to_canonical: Dict[str, str]) -> Dict[str, List[str]]:
+    def build_canonical_to_aliases(
+        self, alias_to_canonical: Dict[str, str]
+    ) -> Dict[str, List[str]]:
         canonical_to_aliases = defaultdict(list)
         for alias, canonical in alias_to_canonical.items():
             canonical_to_aliases[canonical].append(alias)
@@ -190,7 +214,9 @@ class TickerIdentificationService:
             canonical = self.ticker_to_canonical.get(ticker)
             output[ticker] = {
                 "OfficialName": self.ticker_to_title.get(ticker, ""),
-                "Aliases": self.canonical_to_aliases.get(canonical, []) if canonical else []
+                "Aliases": self.canonical_to_aliases.get(canonical, [])
+                if canonical
+                else [],
             }
 
         return output
@@ -223,11 +249,16 @@ class TickerIdentificationService:
                     ticker_metadata[ticker] = {
                         "type": ticker_type,
                         "official_name": self.ticker_to_title.get(ticker, ""),
-                        "name_identified": [name_identified]
+                        "name_identified": [name_identified],
                     }
                 else:
-                    if name_identified not in ticker_metadata[ticker]["name_identified"]:
-                        ticker_metadata[ticker]["name_identified"].append(name_identified)
+                    if (
+                        name_identified
+                        not in ticker_metadata[ticker]["name_identified"]
+                    ):
+                        ticker_metadata[ticker]["name_identified"].append(
+                            name_identified
+                        )
 
         # 2. Regex tickers
         for match in TICKER_PATTERN.findall(text):
@@ -241,7 +272,7 @@ class TickerIdentificationService:
                     ticker_metadata[ticker] = {
                         "type": ticker_type,
                         "official_name": self.ticker_to_title.get(ticker, ""),
-                        "name_identified": [match]
+                        "name_identified": [match],
                     }
                 else:
                     if match not in ticker_metadata[ticker]["name_identified"]:
@@ -263,16 +294,25 @@ class TickerIdentificationService:
                             ticker_metadata[ticker] = {
                                 "type": ticker_type,
                                 "official_name": self.ticker_to_title.get(ticker, ""),
-                                "name_identified": [company_name]
+                                "name_identified": [company_name],
                             }
-                            self.update_alias_mapping(company_name, self.ticker_to_canonical[ticker])
+                            self.update_alias_mapping(
+                                company_name, self.ticker_to_canonical[ticker]
+                            )
                         else:
-                            if company_name not in ticker_metadata[ticker]["name_identified"]:
-                                ticker_metadata[ticker]["name_identified"].append(company_name)
+                            if (
+                                company_name
+                                not in ticker_metadata[ticker]["name_identified"]
+                            ):
+                                ticker_metadata[ticker]["name_identified"].append(
+                                    company_name
+                                )
         return ticker_metadata
 
     def process_post(self, post: Dict) -> Dict:
-        ticker_metadata = self.extract_tickers(post["content"]["clean_combined_withurl"])
+        ticker_metadata = self.extract_tickers(
+            post["content"]["clean_combined_withurl"]
+        )
         if ticker_metadata:
             post["ticker_metadata"] = ticker_metadata
         else:

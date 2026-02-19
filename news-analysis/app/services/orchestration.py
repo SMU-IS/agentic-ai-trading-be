@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 from datetime import datetime, timezone
 
 import redis
@@ -18,6 +19,8 @@ from app.services import (
     TickerIdentificationService,
     VectorisationService,
 )
+
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # RATE LIMITING CONFIGURATION (for testing with API rate limits)
@@ -160,6 +163,8 @@ events_types = json.loads(bucket.read_text(env_config.aws_bucket_events_key))
 
 
 async def run_pipeline():
+    logger.info("💨 Starting orchestration pipeline...")
+
     # Service Initialisation
     preproc_checkpoint = RedisCheckpoint("preprocess", redis_client)
     ticker_checkpoint = RedisCheckpoint("tickeridentification", redis_client)
@@ -283,9 +288,7 @@ async def run_pipeline():
             aliases = ticker_service.get_aliases(list(all_tickers))
 
             for ticker, data in aliases.items():
-                redis_client.hset(
-                    "all_identified_tickers", ticker, json.dumps(data)
-                )
+                redis_client.hset("all_identified_tickers", ticker, json.dumps(data))
             print("Successfully updated tickers list\n\n\n")
             all_tickers.clear()
 

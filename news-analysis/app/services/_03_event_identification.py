@@ -1,10 +1,10 @@
 import json
 from difflib import SequenceMatcher
 from typing import Dict
-from langchain_ollama import ChatOllama
+
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_ollama import ChatOllama
 
 from app.core.config import env_config
 
@@ -45,10 +45,6 @@ class EventIdentifierService:
             self.event_category_map.setdefault(category, []).append(event_name)
 
     def _get_llm(self):
-        # return GoogleGenerativeAIEmbeddings(
-        #     model=env_config.large_language_model_qwen,
-        #     google_api_key=env_config.gemini_api_key,
-        # )
         return ChatOllama(
             model=self.model_name,
             base_url=self.base_url,
