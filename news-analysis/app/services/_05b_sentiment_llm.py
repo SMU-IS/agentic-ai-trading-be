@@ -22,10 +22,10 @@ from langchain_core.output_parsers import JsonOutputParser
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from core.config import env_config
+from app.core.config import env_config
 
-# Import few-shot prompts (relative import to avoid circular import via __init__.py)
-from ._05_sentiment_prompts import build_sentiment_prompt
+# Import few-shot prompts
+from app.services._05_sentiment_prompts import build_sentiment_prompt
 
 logger = logging.getLogger(__name__)
 
