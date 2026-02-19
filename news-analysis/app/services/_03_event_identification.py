@@ -1,7 +1,8 @@
+from app.core.logger import logger
 import json
 from difflib import SequenceMatcher
 from typing import Dict
-from langchain_ollama import ChatOllama
+from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
@@ -19,13 +20,13 @@ class EventIdentifierService:
     def __init__(
         self,
         event_list: dict,
-        model_name: str = env_config.large_language_model_llama,
-        base_url: str = env_config.ollama_base_url,
+        model_name: str = env_config.large_language_model_llama or "llama-3.3-70b-versatile",
+        groq_api_key: str = env_config.groq_api_key,
         similarity_threshold: float = 0.6,  # threshold to reject duplicate events
         testflag: bool = False,
     ):
         self.model_name = model_name
-        self.base_url = base_url
+        self.groq_api_key = groq_api_key
         self.event_list = event_list
         # event_name : event_category mapping to be sent to llm
         self.event_list_simple = {
@@ -43,26 +44,26 @@ class EventIdentifierService:
         for event_name, data in self.event_list.items():
             category = data.get("event_category", "EXTERNAL_EVENT")
             self.event_category_map.setdefault(category, []).append(event_name)
+        
+        try:
+            self.llm = ChatGroq(
+                model=self.model_name,
+                api_key=env_config.groq_api_key,
+                temperature=0,
+            )
+            self.parser = JsonOutputParser()
+            logger.info(f"Groq LLM initialized: {model_name}")
+        except Exception as e:
+            logger.error(f"Failed to initialize Groq LLM: {e}")
+            self.llm = None
+            self.parser = None
 
-    def _get_llm(self):
-        # return GoogleGenerativeAIEmbeddings(
-        #     model=env_config.large_language_model_qwen,
-        #     google_api_key=env_config.gemini_api_key,
-        # )
-        return ChatOllama(
-            model=self.model_name,
-            base_url=self.base_url,
-            temperature=0.1,
-            format="json",
-        )
 
     def _propose_new_event_with_llm(self, text: str, ticker: str) -> dict:
         """
         Ask LLM to propose a new company/external event if it affects stock price,
         ignoring investor actions/opinions and events already represented.
         """
-        llm = self._get_llm()
-        parser = JsonOutputParser()
 
         format_instructions = (
             "Output a JSON object with the following fields:\n"
@@ -92,13 +93,13 @@ class EventIdentifierService:
             partial_variables={"format_instructions": format_instructions},
         )
 
-        chain = prompt | llm | parser
+        chain = prompt | self.llm | self.parser
 
         try:
             result = chain.invoke({"text": text, "ticker": ticker})
             return result
         except Exception as e:
-            print(f"[LLM Event Proposal Error] {e}")
+            logger.warning(f"[LLM Event Proposal Error] {e}")
             return None
 
     def is_similar(
@@ -108,15 +109,13 @@ class EventIdentifierService:
         if threshold is None:
             threshold = self.similarity_threshold
         ratio = SequenceMatcher(None, event_name_1, event_name_2).ratio()
-        print(f"Similarity between {event_name_1} and {event_name_2}: {ratio}")
+        logger.info(f"Similarity between {event_name_1} and {event_name_2}: {ratio}")
         return ratio >= threshold
 
     def _analyse_events_with_llm(self, text: str, ticker_metadata: dict) -> dict:
         """
         Classify known events and propose new company/external events if needed.
         """
-        llm = self._get_llm()
-        parser = JsonOutputParser()
 
         tickers_json = json.dumps(ticker_metadata, indent=2)
         format_instructions = (
@@ -198,7 +197,7 @@ class EventIdentifierService:
             },
         )
 
-        chain = prompt | llm | parser
+        chain = prompt | self.llm | self.parser
 
         # Initialize defaults
         for data in ticker_metadata.values():
@@ -271,7 +270,7 @@ class EventIdentifierService:
                             prop_name = existing_similar_event
                             proposal["proposed_event_name"] = prop_name
                             proposal["similar_event_found"] = True
-                            print(
+                            logger.info(
                                 f"[INFO] Similar event found for {ticker}, using existing: {prop_name}"
                             )
                         else:
@@ -283,7 +282,7 @@ class EventIdentifierService:
                             category_events.append(prop_name)
                             self.known_events_str += f"\n- {prop_name}: {category}"
                             self.neweventcount += 1
-                            print(
+                            logger.info(
                                 f"[INFO] New event added ({self.neweventcount}): {prop_name}"
                             )
                             proposal["similar_event_found"] = False
@@ -297,7 +296,7 @@ class EventIdentifierService:
             return ticker_metadata
 
         except Exception as e:
-            print(f"[LLM Event Extraction Error] {e}")
+            logger.warning(f"[LLM Event Extraction Error] {e}")
             return ticker_metadata
 
     def analyse_event(self, post: Dict) -> Dict:

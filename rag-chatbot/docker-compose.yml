@@ -23,5 +23,5 @@ services:
 
       - FORCE_COLOR=true
       - PYTHONUNBUFFERED=1
-    command: fastapi dev app/main.py --host 0.0.0.0 --port 5001
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5001
     restart: unless-stopped

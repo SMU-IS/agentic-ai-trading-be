@@ -11,7 +11,8 @@ logger = setup_logging()
 
 async def get_order_details(order_id: str):
     if not order_id:
-        return {"error": "Error: No order_id provided."}
+        logger.error("No order_id provided for trade history query.")
+        raise ValueError("No order_id provided.")
 
     order_detail = f"{env_config.order_details_query_url}/{order_id}"
     try:
@@ -84,7 +85,8 @@ async def get_trade_history_details(query: str, order_id: str) -> OrderDetailsRe
     except Exception as e:
         logger.error(f"Failed to fetch order details for {order_id}: {e}")
         raise Exception(
-            f"Could not retrieve trade history for order {order_id}: {str(e)}"
+            f"Unable to retrieve trade history details for order {order_id or 'unknown'}. "
+            "Please ensure the order ID exists and try again."
         )
 
     # TODO: KIV for Shawn

@@ -1,6 +1,8 @@
 services:
   broker-service:
     build: .
+    env_file:
+      - .env
     container_name: alpaca-broker-service
     ports:
       - "5007:5007"
@@ -10,4 +12,5 @@ services:
       ALPACA_PAPER: ${ALPACA_PAPER:-true}
       FLASK_ENV: production
       MONGODB_URI: ${MONGODB_URI}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5007
     restart: unless-stopped

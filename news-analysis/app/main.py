@@ -1,31 +1,44 @@
 import asyncio
-import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
+from redis.asyncio import Redis
 
+from app.core.config import env_config
 from app.core.constant import APIPath
+from app.core.logger import logger
 from app.routers import query_docs
 from app.services.orchestration import run_pipeline
 
-
-def separate_worker_thread():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(run_pipeline())
-    loop.close()
+# def separate_worker_thread():
+#     loop = asyncio.new_event_loop()
+#     asyncio.set_event_loop(loop)
+#     loop.run_until_complete(run_pipeline())
+#     loop.close()
 
 
 async def news_worker():
-    print("⏳ Worker waiting for server startup...")
-    await asyncio.sleep(60)
-    print("👷🏻‍♂️ News Analysis Worker started")
-    print("👷🏻‍♂️ Running pipeline in a separate thread...")
-    loop = asyncio.get_running_loop()
-    await loop.run_in_executor(None, separate_worker_thread)
+    r = Redis(
+        host=env_config.redis_host,
+        port=env_config.redis_port,
+        password=env_config.redis_password,
+        decode_responses=True,
+    )
+    while True:
+        try:
+            acquired = await r.set("pipeline_lock", "1", nx=True, ex=1800)
+            if acquired:
+                await run_pipeline()
+                await r.delete("pipeline_lock")
+            else:
+                logger.info("⏭️ Another worker is running pipeline, skipping")
+        except Exception as e:
+            logger.error(f"❌ Worker Error: {e}")
+        finally:
+            await asyncio.sleep(60)
 
 
 @asynccontextmanager
@@ -47,7 +60,6 @@ app = FastAPI(
 )
 
 
-logger = logging.getLogger("uvicorn.error")
 api_router = APIRouter()
 
 

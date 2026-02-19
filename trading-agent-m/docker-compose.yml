@@ -1,21 +1,27 @@
 services:
   trading-agent-m-service:
     build: .
+    env_file:
+      - .env
     container_name: trading-agent-m-container
     ports:
       - "5006:5006"
     volumes:
       - .:/code
     environment:
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
-      - LARGE_LANGUAGE_MODEL=${LARGE_LANGUAGE_MODEL}
-      - OPEN_AI_API_KEY=${OPEN_AI_API_KEY}
-      - TEMPERATURE=${TEMPERATURE}
-      # - REDIS_URL=${REDIS_URL}
-      # - REDIS_STREAM_KEY=${REDIS_STREAM_KEY}
-      # - REDIS_GROUP_NAME=${REDIS_GROUP_NAME}
-      # - REDIS_WORKER_NAME=${REDIS_WORKER_NAME}
-      # - QDRANT_URL=${QDRANT_URL}
-      - ALPACA_BASE_URL=${ALPACA_BASE_URL}
-      - YAHOO_BASE_URL=${YAHOO_BASE_URL}
-    command: fastapi dev app/main.py --host 0.0.0.0 --port 5006
+        # Redis
+        - REDIS_HOST=${REDIS_HOST:-localhost}
+        - REDIS_PORT=${REDIS_PORT:-17989}
+        - REDIS_PASSWORD=${REDIS_PASSWORD:-password}
+        - REDIS_SIGNAL_STREAM=${REDIS_SIGNAL_STREAM:-trading_signals}
+        
+        # Perplexity (NEW)
+        - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
+        - PERPLEXITY_MODEL=${PERPLEXITY_MODEL:-sonar}
+        - PERPLEXITY_TEMPERATURE=${PERPLEXITY_TEMPERATURE:-0.2}
+        
+        # Trading APIs (NEW)
+        - TRADING_SERVICE_URL=${TRADING_SERVICE_URL:-http://localhost:8000/api/v1/trading}
+        
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5006
+

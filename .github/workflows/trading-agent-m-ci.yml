@@ -13,6 +13,7 @@ on:
 
 jobs:
   build-and-test:
+    name: Continuous Integration
     runs-on: ubuntu-latest
 
     defaults:
@@ -51,3 +52,72 @@ jobs:
           file: ./trading-agent-m/Dockerfile
           push: false # Only build, don't push
           tags: trading-agent-m:latest
+
+  deploy:
+      name: Continuous Deployment
+      runs-on: ubuntu-latest
+      needs: build-and-test
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-1
+
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v2
+
+        - name: Ensure ECR Repository exists
+          run: |
+            aws ecr describe-repositories --repository-names trading-agent-m || \
+            aws ecr create-repository --repository-name trading-agent-m
+
+        - name: Build, tag, and push image to Amazon ECR
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: trading-agent-m
+            IMAGE_TAG: ${{ github.sha }}
+          run: |
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+              -f ./trading-agent-m/Dockerfile ./trading-agent-m
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+        - name: Update Kubeconfig
+          run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
+
+        - name: Create K8s Secret from TRADING_AGENT_M_SECRETS
+          run: |
+            echo "${{ secrets.TRADING_AGENT_M_SECRETS }}" > .env.tmp
+
+            kubectl create secret generic trading-agent-m-secrets \
+              --from-env-file=.env.tmp \
+              --dry-run=client -o yaml | kubectl apply -f -
+
+            rm .env.tmp
+
+        - name: Deploy to AWS EKS
+          env:
+            WORKSPACE: ${{ github.workspace }}
+          run: |
+            helm upgrade --install trading-agent-m ./infra -f ./deploy/values-trading-agent-m.yaml --set image.tag=${{ github.sha }}
+
+        - name: Verify Health and Status
+          if: always()
+          run: |
+            echo "****** Helm Release Status ******"
+            helm status trading-agent-m
+
+            echo "****** Deployment Revision History ******"
+            helm history trading-agent-m
+
+            echo "****** Kubernetes Pod Status ******"
+            kubectl get pods -l app.kubernetes.io/instance=trading-agent-m
+
+        - name: Apply Global Ingress Gateway
+          run: |
+            kubectl apply -f ./deploy/ingress.yaml
