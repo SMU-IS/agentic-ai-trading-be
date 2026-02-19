@@ -202,6 +202,8 @@ async def run_pipeline():
                     processed = preprocessor.preprocess_post(post_content)
                     preprocessing_stream.save(processed)
                     preproc_checkpoint.save(msg_id)
+                    reddit_stream.delete(msg_id)
+                    logger.info(f"{msg_id} deleted from reddit stream.")
         logger.info("preprocessing done\n\n\n")
 
         # Step 2: Extract tickers
@@ -233,6 +235,7 @@ async def run_pipeline():
                     ticker_stream.save(tickers_post)
                     ticker_checkpoint.save(msg_id)
                     preprocessing_stream.delete(msg_id)
+                    logger.info(f"{msg_id} deleted from preprocessing stream.")
                     ticker_processed_count += 1
         logger.info("ticker identification done\n\n\n")
 
@@ -279,6 +282,8 @@ async def run_pipeline():
                         event_stream.save(event_data)
                         event_checkpoint.save(msg_id)
                         ticker_stream.delete(msg_id)
+                        logger.info(f"{msg_id} deleted from ticker stream.")
+
         logger.info("event identification done\n\n\n")
 
         # Step 4: Add newly identified tickers to be consumed at scraping service (Only relevant tickers with event)
@@ -316,6 +321,8 @@ async def run_pipeline():
                     sentiment_stream.save(sentiment_result)
                     sentiment_checkpoint.save(msg_id)
                     event_stream.delete(msg_id)
+                    logger.info(f"{msg_id} deleted from event stream.")
+
                     processed_count += 1
 
                     if ENABLE_RATE_LIMITING:
