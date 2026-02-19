@@ -23,4 +23,5 @@ services:
         # Trading APIs (NEW)
         - TRADING_SERVICE_URL=${TRADING_SERVICE_URL:-http://localhost:8000/api/v1/trading}
         
-    command: uvicorn app.main:app --host 0.0.0.0 --port 5006 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5006
+
