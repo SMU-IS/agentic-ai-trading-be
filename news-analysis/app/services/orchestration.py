@@ -187,30 +187,27 @@ async def run_pipeline():
     # redis_client.delete("all_identified_tickers")
 
     try:
-        while True:
-            # Step 1: Consume scrapped data from Reddit stream
-            preproc_last_id = preproc_checkpoint.load()
-            reddit_entries = reddit_stream.read(
-                last_id=preproc_last_id, count=10, block_ms=5000
-            )
-            if not reddit_entries:
-                continue
+        # Step 1: Consume scrapped data from Reddit stream
+        preproc_last_id = preproc_checkpoint.load()
+        reddit_entries = reddit_stream.read(
+            last_id=preproc_last_id, count=10, block_ms=5000
+        )
+        if reddit_entries:
             for _, messages in reddit_entries:
                 for msg_id, data in messages:
                     post_content = data.get("data", data)
                     processed = preprocessor.preprocess_post(post_content)
                     preprocessing_stream.save(processed)
                     preproc_checkpoint.save(msg_id)
-            print("preprocessing done\n\n\n")
+        print("preprocessing done\n\n\n")
 
-            # Step 2: Extract tickers
-            ticker_processed_count = 0
-            ticker_last_id = ticker_checkpoint.load()
-            preproc_entries = preprocessing_stream.read(
-                last_id=ticker_last_id, count=10, block_ms=5000
-            )
-            if not preproc_entries:
-                continue
+        # Step 2: Extract tickers
+        ticker_processed_count = 0
+        ticker_last_id = ticker_checkpoint.load()
+        preproc_entries = preprocessing_stream.read(
+            last_id=ticker_last_id, count=10, block_ms=5000
+        )
+        if preproc_entries:
             for _, messages in preproc_entries:
                 for msg_id, data in messages:
                     # Rate limiting: add delay between API calls (for testing)
@@ -234,15 +231,14 @@ async def run_pipeline():
                     ticker_checkpoint.save(msg_id)
                     preprocessing_stream.delete(msg_id)
                     ticker_processed_count += 1
-            print("ticker identification done\n\n\n")
+        print("ticker identification done\n\n\n")
 
-            # Step 3: Event Identification
-            event_last_id = event_checkpoint.load()
-            ticker_entries = ticker_stream.read(
-                last_id=event_last_id, count=10, block_ms=5000
-            )
-            if not ticker_entries:
-                continue
+        # Step 3: Event Identification
+        event_last_id = event_checkpoint.load()
+        ticker_entries = ticker_stream.read(
+            last_id=event_last_id, count=10, block_ms=5000
+        )
+        if ticker_entries:
             for _, messages in ticker_entries:
                 for msg_id, data in messages:
                     event_data = eventidentifier.analyse_event(data)
@@ -280,33 +276,31 @@ async def run_pipeline():
                         event_stream.save(event_data)
                         event_checkpoint.save(msg_id)
                         ticker_stream.delete(msg_id)
-            print("event identification done\n\n\n")
+        print("event identification done\n\n\n")
 
-            # Step 4: Add newly identified tickers to be consumed at scraping service (Only relevant tickers with event)
-            if all_tickers:
-                aliases = ticker_service.get_aliases(list(all_tickers))
+        # Step 4: Add newly identified tickers to be consumed at scraping service (Only relevant tickers with event)
+        if all_tickers:
+            aliases = ticker_service.get_aliases(list(all_tickers))
 
-                for ticker, data in aliases.items():
-                    redis_client.hset(
-                        "all_identified_tickers", ticker, json.dumps(data)
-                    )
-                print("Successfully updated tickers list\n\n\n")
-                all_tickers.clear()
+            for ticker, data in aliases.items():
+                redis_client.hset(
+                    "all_identified_tickers", ticker, json.dumps(data)
+                )
+            print("Successfully updated tickers list\n\n\n")
+            all_tickers.clear()
 
-            # Step 5: Sentiment Analysis (LLM-based using Gemini)
-            # Rate limiting: process fewer items with delays between calls for testing
-            # Set ENABLE_RATE_LIMITING = False for real-time production processing
-            sentiment_last_id = sentiment_checkpoint.load()
+        # Step 5: Sentiment Analysis (LLM-based using Gemini)
+        # Rate limiting: process fewer items with delays between calls for testing
+        # Set ENABLE_RATE_LIMITING = False for real-time production processing
+        sentiment_last_id = sentiment_checkpoint.load()
 
-            # Adjust batch size based on rate limiting mode
-            read_count = SENTIMENT_BATCH_SIZE if ENABLE_RATE_LIMITING else 10
+        # Adjust batch size based on rate limiting mode
+        read_count = SENTIMENT_BATCH_SIZE if ENABLE_RATE_LIMITING else 10
 
-            event_entries = event_stream.read(
-                last_id=sentiment_last_id, count=10, block_ms=5000
-            )
-            if not event_entries:
-                continue
-
+        event_entries = event_stream.read(
+            last_id=sentiment_last_id, count=10, block_ms=5000
+        )
+        if event_entries:
             processed_count = 0
             for _, messages in event_entries:
                 for msg_id, data in messages:
@@ -328,46 +322,46 @@ async def run_pipeline():
                             f"[Rate Limit] Processed {processed_count}/{read_count} items"
                         )
 
-            print("sentiment analysis done\n\n\n")
+        print("sentiment analysis done\n\n\n")
 
-            # Step 6: Vectorisation
-            # first load Vectorisation checkpoint - if nothing processed yet, it will be 0-0
-            # consume from sentiment_stream and save to vectorDB
-            vector_last_id = vectorisation_checkpoint.load()
-            sentiment_entries = sentiment_stream.read(
-                last_id=vector_last_id, count=10, block_ms=5000
-            )
+        # Step 6: Vectorisation
+        # first load Vectorisation checkpoint - if nothing processed yet, it will be 0-0
+        # consume from sentiment_stream and save to vectorDB
+        vector_last_id = vectorisation_checkpoint.load()
+        sentiment_entries = sentiment_stream.read(
+            last_id=vector_last_id, count=10, block_ms=5000
+        )
 
-            if sentiment_entries:
-                for _, messages in sentiment_entries:
-                    for msg_id, data in messages:
-                        try:
-                            payload_dict = {"id": msg_id, "fields": data}
-                            # Transform pipeline data to NewsAnalysisPayload
-                            payload = RedditSourcePayload(**payload_dict)
-                            if payload:
-                                await vectorisation_service.get_sanitised_news_payload(
-                                    payload
-                                )
-                                vectorisation_checkpoint.save(msg_id)
-                                sentiment_stream.delete(msg_id)
-
-                            else:
-                                print(
-                                    f"[Warning] Skipping message {msg_id}: transformation failed"
-                                )
-                        except ValidationError as e:
-                            # Print the post ID and missing fields
-                            missing_fields = [err["loc"] for err in e.errors()]
-                            print(
-                                f"[ValidationError] Post ID {data.get('id')} is missing fields: {missing_fields}"
+        if sentiment_entries:
+            for _, messages in sentiment_entries:
+                for msg_id, data in messages:
+                    try:
+                        payload_dict = {"id": msg_id, "fields": data}
+                        # Transform pipeline data to NewsAnalysisPayload
+                        payload = RedditSourcePayload(**payload_dict)
+                        if payload:
+                            await vectorisation_service.get_sanitised_news_payload(
+                                payload
                             )
-                        except Exception as e:
-                            print(
-                                f"[Error] Unexpected error in Vectorisation Step for Post ID {data.get('id')}: {e}"
-                            )
+                            vectorisation_checkpoint.save(msg_id)
+                            sentiment_stream.delete(msg_id)
 
-                print("🎉 Saved to Qdrant")
+                        else:
+                            print(
+                                f"[Warning] Skipping message {msg_id}: transformation failed"
+                            )
+                    except ValidationError as e:
+                        # Print the post ID and missing fields
+                        missing_fields = [err["loc"] for err in e.errors()]
+                        print(
+                            f"[ValidationError] Post ID {data.get('id')} is missing fields: {missing_fields}"
+                        )
+                    except Exception as e:
+                        print(
+                            f"[Error] Unexpected error in Vectorisation Step for Post ID {data.get('id')}: {e}"
+                        )
+
+            print("🎉 Saved to Qdrant")
 
     except exceptions.ConnectionError as e:
         print(f"[Error] Redis connection failed: {e}")

@@ -16,5 +16,5 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_STREAM=${REDIS_STREAM}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-    command: fastapi dev app/main.py --host 0.0.0.0 --port 5003
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5003 --reload
     restart: always
