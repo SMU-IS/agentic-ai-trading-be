@@ -1,4 +1,4 @@
-from asyncio.log import logger
+from app.core.logger import logger
 import json
 from difflib import SequenceMatcher
 from typing import Dict
