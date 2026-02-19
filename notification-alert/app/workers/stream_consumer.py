@@ -119,7 +119,10 @@ class StreamConsumer:
 
                             except Exception as e:
                                 print(f"Failed processing {event_id} from {stream_name}: {e}")
-
+                
+            except asyncio.CancelledError:
+                print("🛑 StreamConsumer shutting...")
+                raise
             except Exception as e:
                 print(f"StreamConsumer error: {e}")
                 await asyncio.sleep(2)
