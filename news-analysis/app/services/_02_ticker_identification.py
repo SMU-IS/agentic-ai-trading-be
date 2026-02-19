@@ -1,4 +1,4 @@
-from asyncio.log import logger
+from app.core.logger import logger
 from collections import defaultdict
 from typing import List, Dict, Union
 import json
