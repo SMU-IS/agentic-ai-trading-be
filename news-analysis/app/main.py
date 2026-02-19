@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -10,6 +9,7 @@ from redis.asyncio import Redis
 
 from app.core.config import env_config
 from app.core.constant import APIPath
+from app.core.logger import logger
 from app.routers import query_docs
 from app.services.orchestration import run_pipeline
 
@@ -34,9 +34,9 @@ async def news_worker():
                 await run_pipeline()
                 await r.delete("pipeline_lock")
             else:
-                print("⏭️ Another worker is running pipeline, skipping")
+                logger.info("⏭️ Another worker is running pipeline, skipping")
         except Exception as e:
-            print(f"❌ Worker Error: {e}")
+            logger.error(f"❌ Worker Error: {e}")
         finally:
             await asyncio.sleep(60)
 
@@ -60,7 +60,6 @@ app = FastAPI(
 )
 
 
-logger = logging.getLogger("uvicorn.error")
 api_router = APIRouter()
 
 
