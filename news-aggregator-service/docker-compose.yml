@@ -18,5 +18,5 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - PORT=${PORT:-5008}
-    command: uvicorn src.main:app --host 0.0.0.0 --port 5008 --reload
+    command: uvicorn src.main:app --host 0.0.0.0 --port 5008
     restart: unless-stopped

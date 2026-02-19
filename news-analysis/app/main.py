@@ -29,7 +29,7 @@ async def news_worker():
     )
     while True:
         try:
-            acquired = await r.set("pipeline_lock", "1", nx=True, ex=300)
+            acquired = await r.set("pipeline_lock", "1", nx=True, ex=1800)
             if acquired:
                 await run_pipeline()
                 await r.delete("pipeline_lock")
