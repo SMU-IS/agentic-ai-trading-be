@@ -15,17 +15,16 @@ from typing import Dict, Optional
 from dataclasses import dataclass
 
 from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 
 # Import config
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from core.config import env_config
+from app.core.config import env_config
 
-# Import few-shot prompts (relative import to avoid circular import via __init__.py)
-from ._05_sentiment_prompts import build_sentiment_prompt
+# Import few-shot prompts
+from app.services._05_sentiment_prompts import build_sentiment_prompt
 
 logger = logging.getLogger(__name__)
 
@@ -185,12 +184,12 @@ class LLMSentimentService:
         tickers_info = self._format_tickers_for_prompt(ticker_metadata)
 
         try:
-            # Build few-shot prompt from external prompts file
-            prompt_messages = build_sentiment_prompt(text, tickers_info)
-            sentiment_prompt = ChatPromptTemplate.from_messages(prompt_messages)
+            # Build few-shot prompt — returns [SystemMessage, HumanMessage] directly,
+            # bypassing ChatPromptTemplate to avoid curly brace conflicts in the JSON schema.
+            messages = build_sentiment_prompt(text, tickers_info)
 
-            chain = sentiment_prompt | self.llm | self.parser
-            result = await chain.ainvoke({})
+            chain = self.llm | self.parser
+            result = await chain.ainvoke(messages)
 
             # Parse and validate the response
             ticker_sentiments = self._parse_sentiment_response(result, ticker_metadata, text)
@@ -271,11 +270,11 @@ class LLMSentimentService:
     def _score_to_label(self, score: float) -> str:
         """
         Convert sentiment score to label.
-        Neutral zone: -0.1 to 0.1
+        Neutral zone: -0.2 to 0.2
         """
-        if score > 0.1:
+        if score > 0.2:
             return "positive"
-        elif score < -0.1:
+        elif score < -0.2:
             return "negative"
         else:
             return "neutral"

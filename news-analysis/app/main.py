@@ -5,9 +5,7 @@ from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
-from redis.asyncio import Redis
 
-from app.core.config import env_config
 from app.core.constant import APIPath
 from app.core.logger import logger
 from app.routers import query_docs
@@ -21,24 +19,33 @@ from app.services.orchestration import run_pipeline
 
 
 async def news_worker():
-    r = Redis(
-        host=env_config.redis_host,
-        port=env_config.redis_port,
-        password=env_config.redis_password,
-        decode_responses=True,
-    )
+    # r = Redis(
+    #     host=env_config.redis_host,
+    #     port=env_config.redis_port,
+    #     password=env_config.redis_password,
+    #     decode_responses=True,
+    # )
     while True:
         try:
-            acquired = await r.set("pipeline_lock", "1", nx=True, ex=1800)
-            if acquired:
-                await run_pipeline()
-                await r.delete("pipeline_lock")
-            else:
-                logger.info("⏭️ Another worker is running pipeline, skipping")
+            logger.info("Running pipeline...")
+            await run_pipeline()
         except Exception as e:
             logger.error(f"❌ Worker Error: {e}")
         finally:
             await asyncio.sleep(60)
+
+    # while True:
+    #     try:
+    #         acquired = await r.set("pipeline_lock", "1", nx=True, ex=1800)
+    #         if acquired:
+    #             await run_pipeline()
+    #             await r.delete("pipeline_lock")
+    #         else:
+    #             logger.info("⏭️ Another worker is running pipeline, skipping")
+    #     except Exception as e:
+    #         logger.error(f"❌ Worker Error: {e}")
+    #     finally:
+    #         await asyncio.sleep(60)
 
 
 @asynccontextmanager
