@@ -1,54 +1,106 @@
 {
   "service": "sentiment_analysis",
   "golden_dataset": "curated_dataset_200.json",
-  "llama": {
-    "llm": "Llama 3.3 70B (Groq)",
-    "model": "llama-3.3-70b-versatile",
+  "gemini": {
+    "llm": "Gemini 2.5 Flash",
+    "model": "gemini-2.5-flash",
     "total_posts": 148,
     "total_tickers_compared": 279,
-    "correct": 202,
+    "correct": 215,
     "metrics": {
-      "accuracy": 0.724,
-      "macro_precision": 0.7318,
-      "macro_recall": 0.7337,
-      "macro_f1": 0.7269
+      "accuracy": 0.7706,
+      "macro_precision": 0.7672,
+      "macro_recall": 0.7941,
+      "macro_f1": 0.7749
     },
     "confusion_matrix": {
       "matrix": {
         "positive": {
-          "positive": 78,
+          "positive": 80,
           "negative": 4,
-          "neutral": 31
+          "neutral": 17
         },
         "negative": {
-          "positive": 0,
-          "negative": 48,
-          "neutral": 13
+          "positive": 1,
+          "negative": 58,
+          "neutral": 4
         },
         "neutral": {
-          "positive": 11,
-          "negative": 18,
-          "neutral": 76
+          "positive": 19,
+          "negative": 19,
+          "neutral": 77
         }
       },
       "per_class": {
         "positive": {
-          "precision": 0.8764,
-          "recall": 0.6903,
-          "f1": 0.7723,
-          "support": 113
+          "precision": 0.8,
+          "recall": 0.7921,
+          "f1": 0.796,
+          "support": 101
         },
         "negative": {
-          "precision": 0.6857,
-          "recall": 0.7869,
-          "f1": 0.7328,
-          "support": 61
+          "precision": 0.716,
+          "recall": 0.9206,
+          "f1": 0.8056,
+          "support": 63
         },
         "neutral": {
-          "precision": 0.6333,
-          "recall": 0.7238,
-          "f1": 0.6756,
-          "support": 105
+          "precision": 0.7857,
+          "recall": 0.6696,
+          "f1": 0.723,
+          "support": 115
+        }
+      }
+    }
+  },
+  "llama": {
+    "llm": "Llama 3.3 70B (Groq)",
+    "model": "llama-3.3-70b-versatile",
+    "total_posts": 148,
+    "total_tickers_compared": 285,
+    "correct": 247,
+    "metrics": {
+      "accuracy": 0.8667,
+      "macro_precision": 0.878,
+      "macro_recall": 0.88,
+      "macro_f1": 0.8776
+    },
+    "confusion_matrix": {
+      "matrix": {
+        "positive": {
+          "positive": 83,
+          "negative": 3,
+          "neutral": 16
+        },
+        "negative": {
+          "positive": 0,
+          "negative": 63,
+          "neutral": 4
+        },
+        "neutral": {
+          "positive": 8,
+          "negative": 5,
+          "neutral": 101
+        }
+      },
+      "per_class": {
+        "positive": {
+          "precision": 0.9121,
+          "recall": 0.8137,
+          "f1": 0.8601,
+          "support": 102
+        },
+        "negative": {
+          "precision": 0.8873,
+          "recall": 0.9403,
+          "f1": 0.913,
+          "support": 67
+        },
+        "neutral": {
+          "precision": 0.8347,
+          "recall": 0.886,
+          "f1": 0.8596,
+          "support": 114
         }
       }
     }
@@ -57,50 +109,50 @@
     "llm": "Qwen3 32B (Groq)",
     "model": "qwen/qwen3-32b",
     "total_posts": 148,
-    "total_tickers_compared": 279,
-    "correct": 202,
+    "total_tickers_compared": 284,
+    "correct": 246,
     "metrics": {
-      "accuracy": 0.724,
-      "macro_precision": 0.7205,
-      "macro_recall": 0.73,
-      "macro_f1": 0.7212
+      "accuracy": 0.8662,
+      "macro_precision": 0.8635,
+      "macro_recall": 0.8766,
+      "macro_f1": 0.8686
     },
     "confusion_matrix": {
       "matrix": {
         "positive": {
-          "positive": 84,
-          "negative": 5,
-          "neutral": 24
+          "positive": 88,
+          "negative": 3,
+          "neutral": 10
         },
         "negative": {
           "positive": 0,
-          "negative": 47,
-          "neutral": 14
+          "negative": 64,
+          "neutral": 4
         },
         "neutral": {
-          "positive": 12,
-          "negative": 22,
-          "neutral": 71
+          "positive": 11,
+          "negative": 10,
+          "neutral": 94
         }
       },
       "per_class": {
         "positive": {
-          "precision": 0.875,
-          "recall": 0.7434,
-          "f1": 0.8038,
-          "support": 113
+          "precision": 0.8889,
+          "recall": 0.8713,
+          "f1": 0.88,
+          "support": 101
         },
         "negative": {
-          "precision": 0.6351,
-          "recall": 0.7705,
-          "f1": 0.6963,
-          "support": 61
+          "precision": 0.8312,
+          "recall": 0.9412,
+          "f1": 0.8828,
+          "support": 68
         },
         "neutral": {
-          "precision": 0.6514,
-          "recall": 0.6762,
-          "f1": 0.6636,
-          "support": 105
+          "precision": 0.8704,
+          "recall": 0.8174,
+          "f1": 0.843,
+          "support": 115
         }
       }
     }

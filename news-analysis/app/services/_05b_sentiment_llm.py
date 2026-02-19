@@ -18,7 +18,7 @@ from typing import Dict, Optional
 from dataclasses import dataclass
 
 from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.output_parsers import JsonOutputParser
 
 # Import config
@@ -199,11 +199,18 @@ class LLMSentimentService:
 
         try:
             # Build few-shot prompt from external prompts file
+            # Use Message objects directly to avoid ChatPromptTemplate re-parsing
+            # curly braces in the JSON schema as template variables
             prompt_messages = build_sentiment_prompt(text, tickers_info)
-            sentiment_prompt = ChatPromptTemplate.from_messages(prompt_messages)
+            messages = []
+            for role, content in prompt_messages:
+                if role == "system":
+                    messages.append(SystemMessage(content=content))
+                else:
+                    messages.append(HumanMessage(content=content))
 
-            chain = sentiment_prompt | self.llm | self.parser
-            result = await chain.ainvoke({})
+            chain = self.llm | self.parser
+            result = await chain.ainvoke(messages)
 
             # Parse and validate the response
             ticker_sentiments = self._parse_sentiment_response(result, ticker_metadata, text)
