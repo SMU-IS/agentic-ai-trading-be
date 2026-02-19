@@ -1,5 +1,4 @@
 import asyncio
-import json
 from typing import AsyncGenerator, List
 
 import redis.asyncio as aioredis

@@ -1,19 +1,16 @@
-import logging
 from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends
 from langchain_core.documents import Document
 from qdrant_client import models
 
+from app.core.logger import logger
 from app.core.security import get_current_user
 from app.providers.vector.strategy import QdrantGeminiStrategy
 from app.schemas.compiled_news_payload import NewsAnalysisPayload
 from app.schemas.raw_news_payload import RedditSourcePayload
 
 router = APIRouter(tags=["Ingest Documents"], dependencies=[Depends(get_current_user)])
-
-
-logger = logging.getLogger(__name__)
 
 
 class VectorisationService:
@@ -87,9 +84,7 @@ class VectorisationService:
         try:
             domain = urlparse(url).netloc
         except Exception as e:
-            import logging
-
-            logging.error(f"Error parsing URL: {e}")
+            logger.error(f"Error parsing URL: {e}")
             domain = "reddit.com"
 
         sanitised_news_payload = {
@@ -121,9 +116,9 @@ class VectorisationService:
         try:
             doc = Document(page_content=vector, metadata=payload.metadata.model_dump())
             ids = await self.vector_store.aadd_documents(documents=[doc])
-            print(f"✅ Saved document with id: {ids[0]}")  # type: ignore
+            logger.info(f"✅ Saved document with id: {ids[0]}")  # type: ignore
             return {"status": "success", "id": ids[0]}  # type: ignore
 
         except Exception as e:
-            print(f"❌ Error ingesting document: {str(e)}")
+            logger.error(f"❌ Error ingesting document: {str(e)}")
             raise RuntimeError(f"Failed to ingest document: {e}") from e

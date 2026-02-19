@@ -105,9 +105,7 @@ class AgentBotService:
 
         except Exception as e:
             logger.error(f"Streaming Error: {str(e)}", exc_info=True)
-            error_msg = json.dumps(
-                {"error": f"Error encountered - {e}. Please try again."}
-            )
+            error_msg = json.dumps({"error": f"An error occurred: {str(e)}"})
             yield f"data: {error_msg}\n\n"
 
         finally:
