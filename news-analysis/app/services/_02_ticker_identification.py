@@ -1,29 +1,17 @@
+from asyncio.log import logger
+from collections import defaultdict
+from typing import List, Dict, Union
 import json
 import re
-from collections import defaultdict
-from typing import Dict, List, Union
-
 import spacy
-import yfinance as yf
+from app.core.config import env_config
+from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_google_genai import ChatGoogleGenerativeAI
-
-from app.core.config import env_config
+import yfinance as yf
 
 STOP_SUFFIXES = [
-    "inc",
-    "corp",
-    "corporation",
-    "ltd",
-    "llc",
-    "co",
-    "&co",
-    ",inc",
-    ",inc.",
-    "/new",
-    "/de/",
-    "/mn",
+    "inc", "corp", "corporation", "ltd", "llc", "co", "&co", ",inc", ",inc.", "/new", "/de/", "/mn"
 ]
 
 TICKER_PATTERN = re.compile(r"\$[A-Z]{1,5}(?:\.[A-Z]{1,2})?\b")
@@ -35,36 +23,40 @@ class TickerIdentificationService:
     1. NER with SpaCy
     2. Mapping with cleaned tickers and alias mapping
     3. Regex for explicit tickers
-    4. LLM to identify additional tickers in text
+    4. LLM to identify additional tickers in text 
     """
 
     def __init__(
         self,
         cleaned_tickers: dict,
         alias_to_canonical: dict,
-        model_type: str = env_config.llm_provider_gemini,
-        model_name: str = env_config.large_language_model_gemini
-        or "gemini-2.5-flash-lite",
-        google_api_key: str = env_config.gemini_api_key,
+        model_name: str = env_config.large_language_model_llama or "llama-3.3-70b-versatile",
+        groq_api_key: str = env_config.groq_api_key,
         spacy_model: str = "en_core_web_lg",
     ):
-        self.model_type = model_type
         self.model_name = model_name
-        self.google_api_key = google_api_key
+        self.groq_api_key = groq_api_key
         self.new_alias_count = 0
         self.new_type_count = 0
         self.cleaned_tickers = cleaned_tickers
         self.alias_to_canonical = alias_to_canonical
-        self.canonical_to_aliases = self.build_canonical_to_aliases(
-            self.alias_to_canonical
-        )
-        self.ticker_to_title = {
-            v["ticker"]: v["title"] for v in self.cleaned_tickers.values()
-        }
-        self.ticker_to_canonical = {
-            v["ticker"]: k for k, v in self.cleaned_tickers.items()
-        }
+        self.canonical_to_aliases = self.build_canonical_to_aliases(self.alias_to_canonical)
+        self.ticker_to_title = {v["ticker"]: v["title"] for v in self.cleaned_tickers.values()}
+        self.ticker_to_canonical = {v["ticker"]: k for k, v in self.cleaned_tickers.items()}
         self.nlp = spacy.load(spacy_model)
+        
+        try:
+            self.llm = ChatGroq(
+                model=self.model_name,
+                api_key=env_config.groq_api_key,
+                temperature=0,
+            )
+            self.parser = JsonOutputParser()
+            logger.info(f"Groq LLM initialized: {model_name}")
+        except Exception as e:
+            logger.error(f"Failed to initialize Groq LLM: {e}")
+            self.llm = None
+            self.parser = None
 
     def _normalize_company(self, text: str) -> str:
         return re.sub(r"[^a-z0-9]", "", text.lower())
@@ -72,15 +64,9 @@ class TickerIdentificationService:
     def _remove_suffix(self, name: str) -> str:
         pattern = r"(,?\s*(" + "|".join(STOP_SUFFIXES) + r")\.?)$"
         return re.sub(pattern, "", name, flags=re.IGNORECASE).strip()
+           
 
-    def _get_llm(self):
-        return ChatGoogleGenerativeAI(
-            model=self.model_name,
-            google_api_key=self.google_api_key,
-            temperature=0,
-        )
-
-    # use yahoo finance to classify ticker
+    # use yahoo finance to classify ticker 
     def classify_ticker(self, ticker: str) -> str:
         try:
             t = yf.Ticker(ticker)
@@ -91,7 +77,7 @@ class TickerIdentificationService:
                 "ETF": "etf",
                 "CRYPTOCURRENCY": "crypto",
                 "INDEX": "index",
-                "CURRENCY": "forex",
+                "CURRENCY": "forex"
             }
             return mapping.get(quote_type)
         except Exception:
@@ -110,15 +96,12 @@ class TickerIdentificationService:
                 self.new_type_count += 1
                 cleaned_entry["type"] = ticker_type
                 self.cleaned_tickers[canon] = cleaned_entry
-                print(f"Updated {canon} type to {ticker_type}")
+                logger.info(f"Updated {canon} type to {ticker_type}")
         else:
             ticker_type = cleaned_type
         return ticker_type
 
     def _extract_company_ticker_llm(self, text: str, orgs: list):
-        llm = self._get_llm()
-        parser = JsonOutputParser()
-
         format_instructions = (
             "Output a JSON array of objects. Each object must contain:\n"
             '- "company_name": string\n'
@@ -152,7 +135,7 @@ class TickerIdentificationService:
             partial_variables={"format_instructions": format_instructions},
         )
 
-        chain = prompt | llm | parser
+        chain = prompt | self.llm | self.parser
 
         try:
             result = chain.invoke({"input_text": text, "org_hints": org_hint_text})
@@ -161,19 +144,19 @@ class TickerIdentificationService:
                 try:
                     result = json.loads(result)
                 except json.JSONDecodeError:
-                    print("LLM returned non-JSON string")
+                    logger.warning("LLM returned non-JSON string")
                     return []
 
             if isinstance(result, dict):
                 result = [result]
 
             if not isinstance(result, list):
-                print(f"Unexpected LLM output type: {type(result)}")
+                logger.warning(f"Unexpected LLM output type: {type(result)}")
                 return []
 
             validated = []
             for item in result:
-                # ensure that every item is in dict format
+                # ensure that every item is in dict format 
                 if not isinstance(item, dict):
                     continue
                 company = item.get("company_name")
@@ -181,21 +164,17 @@ class TickerIdentificationService:
                 # normalize ticker
                 if ticker:
                     ticker = ticker.strip().replace("$", "").upper()
-                validated.append(
-                    {
-                        "company_name": company,
-                        "ticker": ticker,
-                    }
-                )
+                validated.append({
+                    "company_name": company,
+                    "ticker": ticker,
+                })
 
             return validated
         except Exception as e:
-            print(f"LLM extraction error: {e}")
+            logger.warning(f"LLM extraction error: {e}")
             return []
 
-    def build_canonical_to_aliases(
-        self, alias_to_canonical: Dict[str, str]
-    ) -> Dict[str, List[str]]:
+    def build_canonical_to_aliases(self, alias_to_canonical: Dict[str, str]) -> Dict[str, List[str]]:
         canonical_to_aliases = defaultdict(list)
         for alias, canonical in alias_to_canonical.items():
             canonical_to_aliases[canonical].append(alias)
@@ -206,7 +185,7 @@ class TickerIdentificationService:
         if norm_alias not in self.alias_to_canonical and norm_alias != canonical:
             self.alias_to_canonical[norm_alias] = canonical
             self.new_alias_count += 1
-            print(f"[Memory Update] Added alias mapping: {norm_alias} -> {canonical}")
+            logger.info(f"[Memory Update] Added alias mapping: {norm_alias} -> {canonical}")
 
     def get_aliases(self, tickers: List[str]) -> Dict[str, Dict[str, List[str]]]:
         output = {}
@@ -214,9 +193,7 @@ class TickerIdentificationService:
             canonical = self.ticker_to_canonical.get(ticker)
             output[ticker] = {
                 "OfficialName": self.ticker_to_title.get(ticker, ""),
-                "Aliases": self.canonical_to_aliases.get(canonical, [])
-                if canonical
-                else [],
+                "Aliases": self.canonical_to_aliases.get(canonical, []) if canonical else []
             }
 
         return output
@@ -228,7 +205,6 @@ class TickerIdentificationService:
 
         # 1. NER + mapping
         for org in orgs:
-            # print(f"org: {org}")
             norm_org = self._normalize_company(self._remove_suffix(org))
             ticker = None
             name_identified = ""
@@ -249,20 +225,14 @@ class TickerIdentificationService:
                     ticker_metadata[ticker] = {
                         "type": ticker_type,
                         "official_name": self.ticker_to_title.get(ticker, ""),
-                        "name_identified": [name_identified],
+                        "name_identified": [name_identified]
                     }
                 else:
-                    if (
-                        name_identified
-                        not in ticker_metadata[ticker]["name_identified"]
-                    ):
-                        ticker_metadata[ticker]["name_identified"].append(
-                            name_identified
-                        )
+                    if name_identified not in ticker_metadata[ticker]["name_identified"]:
+                        ticker_metadata[ticker]["name_identified"].append(name_identified)
 
         # 2. Regex tickers
         for match in TICKER_PATTERN.findall(text):
-            # print(f"match: {match}")
             ticker = match.replace("$", "").upper()
             if ticker in self.ticker_to_title:
                 if ticker not in ticker_metadata:
@@ -272,7 +242,7 @@ class TickerIdentificationService:
                     ticker_metadata[ticker] = {
                         "type": ticker_type,
                         "official_name": self.ticker_to_title.get(ticker, ""),
-                        "name_identified": [match],
+                        "name_identified": [match]
                     }
                 else:
                     if match not in ticker_metadata[ticker]["name_identified"]:
@@ -281,7 +251,6 @@ class TickerIdentificationService:
         # 3. LLM
         llm_result = self._extract_company_ticker_llm(text, orgs)
         if llm_result:
-            # print(f"llm results: {llm_result}")
             for company in llm_result:
                 if company:
                     company_name = company.get("company_name")
@@ -294,28 +263,19 @@ class TickerIdentificationService:
                             ticker_metadata[ticker] = {
                                 "type": ticker_type,
                                 "official_name": self.ticker_to_title.get(ticker, ""),
-                                "name_identified": [company_name],
+                                "name_identified": [company_name]
                             }
-                            self.update_alias_mapping(
-                                company_name, self.ticker_to_canonical[ticker]
-                            )
+                            self.update_alias_mapping(company_name, self.ticker_to_canonical[ticker])
                         else:
-                            if (
-                                company_name
-                                not in ticker_metadata[ticker]["name_identified"]
-                            ):
-                                ticker_metadata[ticker]["name_identified"].append(
-                                    company_name
-                                )
+                            if company_name not in ticker_metadata[ticker]["name_identified"]:
+                                ticker_metadata[ticker]["name_identified"].append(company_name)
         return ticker_metadata
 
     def process_post(self, post: Dict) -> Dict:
-        ticker_metadata = self.extract_tickers(
-            post["content"]["clean_combined_withurl"]
-        )
+        ticker_metadata = self.extract_tickers(post["content"]["clean_combined_withurl"])
         if ticker_metadata:
             post["ticker_metadata"] = ticker_metadata
         else:
-            print("This post is removed as no ticker was identified:")
-            print(post)
+            postid = post.get("id")
+            logger.info(f"This post is removed as no ticker was identified: {postid}")
         return post
