@@ -1,0 +1,709 @@
+[
+  {
+    "id": "reddit:1qtik2p",
+    "post_text": "Corteva spinoff advice (CTVA) I own some CTVA. They announced late last year intentions to split the herbicide and seed devisions of the company. CTVA will continue to operate fertilizers and herbicides and the spinoff will take the seeds. I only want to continue investing in the seeds part of the business. Should I sell once the respective post split shares settle, or try and trade in the price before the spinoff?",
+    "ticker_mismatches": [
+      {
+        "ticker": "CTVA",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "The user explicitly states they only want to invest in the spun-off seeds business, indicating a desire to divest from the remaining CTVA entity (fertilizers and herbicides)."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qq495w",
+    "post_text": "Unique investment strategy. work for a company not going to say what industry but its a billion generating type of business therefore 90% of our clients are big corporations think Nvidia, Broadcom, Rio Tinto, Adruil to name a few, they spend millions for our services each year and I dont see that stopping any time soon, my question is - is it crazy to use that as an investment strategy as in buy into those stocks? It wont be a conflict of interest in anyway and there isnt any possibility of insi",
+    "ticker_mismatches": [
+      {
+        "ticker": "RIO",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.4,
+        "generated_reasoning": "The author identifies Rio Tinto (RIO) as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
+      },
+      {
+        "ticker": "AVGO",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.4,
+        "generated_reasoning": "The author identifies Broadcom (AVGO) as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
+      },
+      {
+        "ticker": "NVDA",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.4,
+        "generated_reasoning": "The author identifies NVDA as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qushtr",
+    "post_text": "Disney names parks boss Josh D'Amaro as its next CEO to succeed Bob Iger, effective March 18. Disney has named Josh D'Amaro, chairman of Disney Experiences, as its next CEO, succeeding Bob Iger and clinching a closely watched succession race at the Mouse House. D'Amaro's appointment will be effective as of March 18 at Disney's annual meeting. Iger will serve as a senior advisor and Disney board member until he retires from the company on Dec. 31. \"Josh D'Amaro is an exceptional leader and the ri",
+    "ticker_mismatches": [
+      {
+        "ticker": "DIS",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.2,
+        "generated_reasoning": "Despite positive operational news like an earnings beat and a new CEO from a successful division, the stock lost 7% and Wall Street had a 'mixed reception,' indicating underlying market skepticism."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qulw7g",
+    "post_text": "Anybody else investing in SLS, DRTS and IBRX? New to investing and trading and, although biotech stocks have a bad reputation, these three stand out. Great results, good leadership and some approvals already. They all have many scheduled catalysts and- in SLS- maybe an early end to a trial that seems to be a huge success. I'm playing with 10,000 as a newbie separate from my boring retirement fund so I'm investing in all three. Planning to move the money around as different catalysts come but I'd",
+    "ticker_mismatches": [
+      {
+        "ticker": "SANA",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "SANA is mentioned casually as an afterthought ('And throw Sana in there, too, haha') for potential inclusion in a chart, without explicit positive or negative sentiment."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1quvgmo",
+    "post_text": "SPGI 8% drop! Any AI companies creeping into their area? Earnings is a week away, which other news could cause this drop? Does separation of Mobility global into another unit warrant 8% fall in a day? How does it harm existing shareholders? Fico,mco in similar areas also fell a lot.",
+    "ticker_mismatches": [
+      {
+        "ticker": "FICO",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "The post reports that FICO 'fell a lot' in the context of a broader discussion about stock drops and potential harm to shareholders, indicating a negative price action."
+      },
+      {
+        "ticker": "SPGI",
+        "ground_truth_label": "negative",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      },
+      {
+        "ticker": "MCO",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "The post reports that MCO 'fell a lot' in the context of a broader discussion about stock drops and potential harm to shareholders, indicating a negative price action."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1r1jzca",
+    "post_text": "When to sell high? 64 years old here. Bought a ton of DE a looong time ago so considerable gains on it if I sell, but it's close to 600 a share at this point. Does it make sense to unload and park in a HYSA until I can bottom feed something else? Given my age? Not retired",
+    "ticker_mismatches": [
+      {
+        "ticker": "DE",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.4,
+        "generated_reasoning": "The user explicitly states 'considerable gains' on DE, indicating strong past performance and current high valuation. The consideration to sell is due to these gains and personal financial planning, not a negative outlook on the stock itself."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qv9zg8",
+    "post_text": "SIMO (Silicon Motion) stock after Q4'25 financial report? Q4'25 earnings triggered a sizable after-hours move in SIMO. Posting a quick recap for anyone following memory/SSD-related names. What happened (Q4'25): • Revenue (GAAP) reported at $278.5M • Non-GAAP net income: $42.7M / Non-GAAP EPS: $1.26 (per ADS) • Stock moved \\~+15% after hours right after the release (high volatility around earnings) Quick snapshot (valuation / size): • Market cap: \\~$4.09B • TTM revenue: \\~$798M • TTM net income: ",
+    "ticker_mismatches": [
+      {
+        "ticker": "SIMO",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "While the post notes a significant after-hours stock increase following earnings, it also explicitly outlines both a conditional bullish thesis and clear downside risks, concluding with a question for others' opinions, leading to a neutral overall stance from the author."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qxqg6r",
+    "post_text": "Long SPY shares, watching tech allocation. The Recession Narrative Doesn't Match the Data Yesterday's Challenger layoff numbers (108,435 for January, highest since 2009) sparked aggressive selling in premarket that carried into the session. The narrative: Fed is \"behind the curve\" and labor weakness is morphing into recession. But the broader data tells a different story. The Disconnect: PMI came in red hot at the start of this week. Atlanta Fed Nowcast is projecting GDP with a 5 handle this qua",
+    "ticker_mismatches": [
+      {
+        "ticker": "AMZN",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.2,
+        "generated_reasoning": "The post notes Amazon's large capex announcement despite strong earnings, implying significant infrastructure costs related to AI that the market is now digesting, which could be a negative factor."
+      },
+      {
+        "ticker": "MSFT",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.3,
+        "generated_reasoning": "The post highlights concentration risk for MSFT due to a significant portion of future cloud contracts being tied to OpenAI, suggesting a potential downside."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qst0p5",
+    "post_text": "If Elon Musk were forced to step down, would it create short-term volatility or long-term instability for Tesla stock? Hypothetically, since he's one of the big names on the list, and not retired. We don't know who else might be named but for the most part, so far, no one else might move the needle. I'm thinking a medium-term pull-back. But after that, admittedly, I'm still too green to say whether or not it would recover or stabilize afterwards. Gimme your thoughts, I'm hoping to learn somethin",
+    "ticker_mismatches": [
+      {
+        "ticker": "TSLA",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.2,
+        "generated_reasoning": "The post discusses potential negative impacts of Elon Musk stepping down, suggesting short-term volatility and a medium-term pullback, while acknowledging a lack of expertise to predict long-term recovery."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qy194w",
+    "post_text": "Big Tech Capex is accelerating +44% YoY to ~$610B in 2026. What are the best bets to surf this wave (besides Nvidia)? If you compare CAPEX numbers of big hyperscapers, you can still sing \"show must GOOOO OOOONNN!!!!\" |Company|2025 Est|2026 Guidance/Est|YoY Growth| |:-|:-|:-|:-| |Meta|\\~$72B|\\~$125B|+74%| |Amazon|\\~$131B|\\~$200B|+53%| |Alphabet|\\~$120B|\\~$180B|+50%| |Microsoft|\\~$100B|\\~$105B+|+5%| |TOTAL|\\~$423B|\\~$610B|+44%| What do you think are the best companies to surf this wave? Money has ",
+    "ticker_mismatches": [
+      {
+        "ticker": "AMZN",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.5,
+        "generated_reasoning": "Amazon's substantial CAPEX increase (+53% YoY) is presented as a key opportunity to benefit from the Big Tech spending trend, making it an attractive investment prospect."
+      },
+      {
+        "ticker": "GOOGL",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.5,
+        "generated_reasoning": "Alphabet's strong CAPEX growth (+50% YoY) positions it well to capitalize on the accelerating Big Tech investment, indicating a positive outlook for the stock."
+      },
+      {
+        "ticker": "MSFT",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.2,
+        "generated_reasoning": "While Microsoft's CAPEX growth is the lowest among the hyperscalers (+5% YoY), it's still part of the overall accelerating Big Tech CAPEX trend, suggesting a moderate positive sentiment."
+      },
+      {
+        "ticker": "META",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.6,
+        "generated_reasoning": "The post highlights Meta's significant projected CAPEX growth (+74% YoY) as a positive indicator for surfing the Big Tech CAPEX wave, suggesting it's a strong bet."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qs0iu3",
+    "post_text": "Tesla Ending Production of Models S and X in Q1, Making Way for Optimus Robotics Mass-Production. https://www.cnbc.com/2026/01/29/elon-musk-tesla-pivot-to-ai-robots-wall-street-reaction.html: https://www.cnbc.com/2026/01/29/elon-musk-tesla-pivot-to-ai-robots-wall-street-reaction.html https://www.theguardian.com/technology/2026/jan/28/tesla-q4-earnings-estimates-elon-musk: https://www.theguardian.com/technology/2026/jan/28/tesla-q4-earnings-estimates-elon-musk In the clearest sign yet that Tesla ",
+    "ticker_mismatches": [
+      {
+        "ticker": "TSLA",
+        "ground_truth_label": "negative",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qxk52q",
+    "post_text": "What is happening right now?! Can someone please explain to me what I am missing? Meta and MSFT continually having-3-5% days with no news. Both beat earning. In understand people get shaken up a bit by their spending but does that justify $100-120 drops in a matter of days? Am I missing something? These massive drops just don't seem rational",
+    "ticker_mismatches": [
+      {
+        "ticker": "MSFT",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.3,
+        "generated_reasoning": "The user expresses confusion and frustration over MSFT's significant price drops despite beating earnings, suggesting the market reaction seems irrational and potentially bearish."
+      },
+      {
+        "ticker": "META",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.3,
+        "generated_reasoning": "The user expresses confusion and frustration over META's significant price drops despite beating earnings, suggesting the market reaction seems irrational and potentially bearish."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qwymfm",
+    "post_text": "Costo Stock Price flat for years. Did a complete model of Costco operations. I gave them a generous growth rate on their revenue drivers and maintained cost controls for their store expansion of 23/yr. my math coves out to $256 Billion, $310 Billion and $278 Billion for their valuations in scenarios where I played around with their drivers and capex led by store growth. in my base case, their share value should be at $631. I think their current trading at a high P/E of 52-53x compared to their 1",
+    "ticker_mismatches": [
+      {
+        "ticker": "COST",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": ""
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qu9khr",
+    "post_text": "$IOT Samsara - Rally and Undervalued? Samsara is off a ton over the last few months, 50 day simple moving average of $36.33 and a 200-day simple moving average of $37.11. The firm has a market cap of $15.57 billion, a PE ratio of -338.58 and a beta of 1.61. Currently parked at $26.41 The chart has a marked spike at every earnings, and the next one is March 5. Samsara issued Q3 2026 earnings on December 4, 2025, reporting an EPS of $0.01, which missed the consensus estimate of $0.12 by $0.11. Qua",
+    "ticker_mismatches": [
+      {
+        "ticker": "IOT",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.2,
+        "generated_reasoning": "The author expresses confusion over mixed financial data and recent price declines but explicitly states 'hoping for a rally,' indicating a desire for positive price movement."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qrnzun",
+    "post_text": "Nvidia's plan to invest up to $100 billion in OpenAI has stalled, WSJ reports. Nvidia CEO Jensen Huang has privately emphasized to industry associates in recent months that the original $100 billion agreement was non-binding and not finalized, the report said. Huang has also privately criticized what he has described as a lack of discipline in OpenAI's business approach and expressed concern about the competition it faces from the likes of Alphabet's (GOOGL.O), Google and Anthropic, the WSJ adde",
+    "ticker_mismatches": [
+      {
+        "ticker": "NVDA",
+        "ground_truth_label": "negative",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qyd6ov",
+    "post_text": "Probabality of Netflix and WBD merger going through? Nvidia-Arm (abandoned): Scrapped after U.S., UK, and EU enforcers argued Nvidia could use control of Arm's neutral chip IP to disadvantage rival chipmakers and harm innovation. Penguin Random House-Simon & Schuster (blocked): U.S. DOJ convinced a court the deal would give the combined publisher monopsony power over authors, reducing advances and competition to acquire manuscripts. Illumina-Grail (blocked/unwound in EU): EU authorities found th",
+    "ticker_mismatches": [
+      {
+        "ticker": "WBD",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.7,
+        "generated_reasoning": "The post highlights DOJ concerns about the potential merger, citing risks of reduced competition and increased costs, which suggests a negative outlook for the deal's approval."
+      },
+      {
+        "ticker": "NFLX",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.7,
+        "generated_reasoning": "The post highlights DOJ concerns about the potential merger, citing risks of reduced competition and increased costs, which suggests a negative outlook for the deal's approval."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qygve7",
+    "post_text": "BMBL navigating growth headwinds while aiming for operational stability. Bumble Inc (BMBL) continues to trade around $3.55-$3.60, levels not seen in several years. While the stock sits near multiyear lows, the underlying story is less about collapse and more about a company working through structural challenges in the online dating space. Recent quarters show that revenue has dipped slightly Q3 2025 reported $246.2 million, down roughly 10% year-over-year, and paying users have edged lower. Yet,",
+    "ticker_mismatches": [
+      {
+        "ticker": "BMBL",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.3,
+        "generated_reasoning": "The post highlights significant growth headwinds, multi-year low stock prices, declining revenue and paying users, and cautious investor activity, despite management's efforts to improve operational efficiency and product."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qxkpz5",
+    "post_text": "You can own Microsoft at 23x earnings and short Costco at 50x earnings. long AGI, short rotisserie chicken is actually value investing. Buying Microsoft is at this point a no-brainer. GOOG was this cheap while MSFT was in the high 30s. I remind you everyone shat on Google because they were \"behind\" and had looming lawsuits, while justifying Microsofts multiple with their solid position in the business world and their Azure market share. The Google trade seemed too easy to be profitable. And now,",
+    "ticker_mismatches": [
+      {
+        "ticker": "GOOGL",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.3,
+        "generated_reasoning": "GOOGL is used as a historical example of a stock that was undervalued and became profitable despite negative sentiment, implying a positive retrospective view."
+      },
+      {
+        "ticker": "COST",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "While initially suggesting to 'short Costco' due to high earnings multiples, the author explicitly states this is 'a joke' and 'just to show the perspective,' negating a serious bearish stance."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qz0pyx",
+    "post_text": "Rebalancing between Hyperscalers. After the recent price action of Microsoft, Amazon, and Google post earnings, I am reconsidering my allocation between the three. Between these three, my current position is 55% in Amazon, 36% in Google, and 9% in Microsoft. Bigger exposure in Amazon is due to potential asymmetric upside from AI adoption due to growing cloud revenue along side vertical expansion in chips and potential operating margin expansion due to existing air pockets in org structures. But ",
+    "ticker_mismatches": [
+      {
+        "ticker": "AMZN",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.1,
+        "generated_reasoning": "While the author initially had a larger exposure to Amazon due to perceived asymmetric upside, they are now reconsidering this optimism. The planned reduction in allocation suggests a more balanced, less strongly bullish view."
+      },
+      {
+        "ticker": "GOOGL",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Google's allocation remains unchanged, and the author views it as winning in research and model efficiency. The sentiment is neutral as there's no explicit shift in opinion or allocation towards or away from the stock."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qxrt7y",
+    "post_text": "$SNAP - I can't unsee the historical $7 support level that lasted seven years until this week and now it needs to jump 35 % to get to it. This is a textbook observation. I'm highlighting a historical \"line in the sand.\" The $7.00 - $8.00 range served as a massive support zone for SNAP for years. However, as of this week that \"floor\" has officially given way. Is it reasonable based on their Q4 earnings? I don't believe it is. Think of it as a floor made of concrete versus one made of glass. Ever ",
+    "ticker_mismatches": [
+      {
+        "ticker": "SNAP",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.3,
+        "generated_reasoning": "The user highlights the loss of a significant historical support level and a decline in a key user base, despite some positive financial metrics. The overall tone suggests concern about the stock's future trading range."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qp56a4",
+    "post_text": "BYD has overtaken Tesla as the world's biggest seller of electric vehicles. How can Tesla's PE ratio of ~290 be justified. Tesla has fallen behind BYD in terms of vehicle sales. Not to worry because Tesla is a AI & Robotics company - Decoding The Everything: https://decodingtheeverything.wordpress.com/2026/01/28/tesla-has-fallen-behind-byd-in-terms-of-vehicle-sales-not-to-worry-because-tesla-is-a-ai-robotics-company/ As you can see from the title, BYD overtook Tesla. Tesla bulls justify this by ",
+    "ticker_mismatches": [
+      {
+        "ticker": "BYDDF",
+        "ground_truth_label": "positive",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qwutsv",
+    "post_text": "SNAP is down 40 % this month. I'm holding until $7. Anybody else? I'm surprised the stock is down 11 % today. Earnings did leave the majority of analysts adjusting the price targets downward and I guess the market being down severely is making the stock get extra punished. Earnings weren't all bad though- you could make a case that they were in fact good and not bad. Overall I would say they were mixed. The number of daily active users increased but they fell 5 % in North America specifically an",
+    "ticker_mismatches": [
+      {
+        "ticker": "SNAP",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.2,
+        "generated_reasoning": "The user expresses mixed feelings about SNAP's earnings, noting user growth but also declines in key regions and downward analyst revisions. While holding for potential gains, the overall tone leans negative due to the stock's significant drop, proximity to all-time lows, and uncertainty about a quick recovery."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qs9xdh",
+    "post_text": "Unity and Roblox plummet as LingBot World and Project Genie demonstrate real time generative games. The 20% drop in Unity stock today correlates directly with the release of Google Project Genie to US subscribers and the open sourcing of LingBot World by Ant Group. These models prove that AI can generate consistent playable worlds at 16 frames per second without traditional rendering pipelines or assets. Investors are clearly rotating out of legacy 3D infrastructure stocks on fears that generati",
+    "ticker_mismatches": [
+      {
+        "ticker": "U",
+        "ground_truth_label": "negative",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      },
+      {
+        "ticker": "RBLX",
+        "ground_truth_label": "negative",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qsq8wz",
+    "post_text": "Stocks to buy at a discount? Microsoft Dominance, Pricing power, and considering the scale of company discount is meaningful. Oracle: oracle has fallen more than microsoft but considering oracles pe and that growth at oracle is capped ; microsoft has the better discount. Service now, has fallen 40 peecent this year but its not a true discount because valuation still rich with a high pe Cloudflare is always expensive. The 30% drop just makes it \"less expensive\" It's an asymmetric play on the futu",
+    "ticker_mismatches": [
+      {
+        "ticker": "JTAI",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Not in LLM response"
+      },
+      {
+        "ticker": "RDDT",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Describes a dip but downplays its significance, suggesting a 'buy on dips' strategy while acknowledging it 'could go much lower could go much higher,' indicating high uncertainty."
+      },
+      {
+        "ticker": "WKSP",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Not in LLM response"
+      },
+      {
+        "ticker": "DUOL",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Not in LLM response"
+      },
+      {
+        "ticker": "ORCL",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "Noted for falling more than Microsoft, having capped growth, and offering a less attractive discount."
+      },
+      {
+        "ticker": "DGNX",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Not in LLM response"
+      },
+      {
+        "ticker": "AMPL",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Praised as a 'clear winner in analytics' but offset by 'low pricing power' and 'too many competitors,' leading to a neutral outlook."
+      },
+      {
+        "ticker": "TOST",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.3,
+        "generated_reasoning": "Despite expanding TAM and upsell potential, significant concerns are raised about competition squeezing margins and potential pressure from rivals."
+      },
+      {
+        "ticker": "RIME",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Not in LLM response"
+      },
+      {
+        "ticker": "SMWB",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Offers an 'unbelievable discount' and is 'about to turn profitable' with acquisition potential, but significant risks from hyperscalers deepening their own analytics or buying smaller companies create uncertainty."
+      },
+      {
+        "ticker": "NOTV",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Offers an 'absolutely massive discount' but is heavily qualified by the 'current environment does not favor it,' balancing the sentiment."
+      },
+      {
+        "ticker": "NOW",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "Despite a 40% fall, it's considered not a true discount due to rich valuation and a high PE."
+      },
+      {
+        "ticker": "UPWK",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Not in LLM response"
+      },
+      {
+        "ticker": "SNOW",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Acknowledged for a 'substantial discount' but tempered by the expectation it 'could definitely drop more' and is 'worth buying at lower levels,' indicating current caution."
+      },
+      {
+        "ticker": "RZLV",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Not in LLM response"
+      },
+      {
+        "ticker": "ADBE",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Loved by value investors with potential for new products, but also noted for possible further drops and current growth issues, creating a balanced view."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qyghnq",
+    "post_text": "Big Tech companies are starting to look like IBM in the 1960s. Just as the emergence of computers pushed IBM toward vertical integration, the popularization of AI since the launch of ChatGPT in late 2022 has put today's cloud giants on a similar trajectory. In particular, the steep costs of Nvidia's chips and their limited availability have pushed tech giants to advance their AI chip efforts. https://finance.yahoo.com/news/big-tech-companies-are-starting-to-look-like-ibm-in-the-1960s-150030684.h",
+    "ticker_mismatches": [
+      {
+        "ticker": "NVDA",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.35,
+        "generated_reasoning": "The text highlights that the 'steep costs' and 'limited availability' of Nvidia's chips are pushing tech giants to develop their own AI chips, suggesting a potential future threat from increased competition or reduced reliance."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qqhptj",
+    "post_text": "META +10% post-earnings: the $115-135B 2026 capex deserves some reflection. META reported solid Q4 2025 results yesterday: EPS of ($8.88 vs $8.19 expected), revenue of $59.9 billion (above expectations), and particularly strong Q1 2026 guidance (projected revenue of $53.5-56.5 billion, well above the consensus around $51 billion). The most noteworthy point: capex planned for 2026 is between $115 and $135 billion, a very significant increase from $72 billion in 2025. The market reacted positively",
+    "ticker_mismatches": [
+      {
+        "ticker": "META",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "Despite strong earnings and a positive market reaction, the author expresses significant caution and uneasiness regarding Meta's massive capex plans, questioning the sustainability of the market's euphoria and advocating a defensive stance."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qrer40",
+    "post_text": "What is everyone's take on DXYZ? DXYZ is a closed-end fund giving exposure to many companies that will IPO in 2026. This could be a huge opportunity as it gives PE exposure to companies with massive valuations pre-IPO. One company is SpaceX with a 34.6% exposure. What does everyone think about buying into this?",
+    "ticker_mismatches": [
+      {
+        "ticker": "DXYZ",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.4,
+        "generated_reasoning": "The post highlights a 'huge opportunity' and 'massive valuations' for the fund's pre-IPO holdings, including a significant exposure to SpaceX, indicating a bullish outlook despite being framed as a question."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qr8smf",
+    "post_text": "Help me understand SOFI's price action. SOFI reported earnings that beat expectations today, yet the stock sold off sharply afterward. I'm trying to understand what the market may be reacting to that I missed in my due diligence. Additionally, the stock appeared to rally near $26 in pre-market trading before reversing lower once regular trading began. Was this driven by guidance, forward looking commentary, or broader market factors? Would appreciate any insights from those who followed the call",
+    "ticker_mismatches": [
+      {
+        "ticker": "SOFI",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.2,
+        "generated_reasoning": "The post highlights that SOFI's stock 'sold off sharply' despite beating earnings, and the user is seeking to understand this negative price action, framing the entire discussion around a downside event for the stock."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qrnnph",
+    "post_text": "Oracle Taking a Beating but Lands Air Force Contract. On Friday, the U.S. Air Force handed Oracle America Inc. a firm-fixed-price task order worth $88,112,197 under its Cloud One program. The work is slated to continue through Dec. 7, 2028, according to a government announcement. I keep seeing news of them landing big companies like IHG, Saudi Heath Cloud deal, Bank of Valletta, Etc. Also potential blackstone funding the build out. Am I missing something or this is going to keep going down? Micr",
+    "ticker_mismatches": [
+      {
+        "ticker": "MSFT",
+        "ground_truth_label": "negative",
+        "generated_label": "positive",
+        "generated_score": 0.3,
+        "generated_reasoning": "The post explicitly states Microsoft had 'great earnings', which is a strong positive, even though it notes the stock 'got beat' due to higher than expected capex, indicating a market reaction rather than a fundamental flaw."
+      },
+      {
+        "ticker": "ORCL",
+        "ground_truth_label": "neutral",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qu267b",
+    "post_text": "Is it worth buying GE aerospace ? Hi guys, i have a question. I believe in aviation development so I'd like to buy some GE stocks but for some reason investings com marked it as \"strong sell\", but i actually don't see a reason to sell it and fine with buying. Would you pick it now ?",
+    "ticker_mismatches": [
+      {
+        "ticker": "GE",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.4,
+        "generated_reasoning": "The user expresses a belief in aviation development and explicitly states they 'don't see a reason to sell it and fine with buying' GE, despite an external 'strong sell' rating."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qyasjx",
+    "post_text": "Should I focus my buying on MSFT for the next month or two? My portfolio is six individual stocks (MSFT, GOOG, KO, JPM, BRK.B, AXP). Usually I just give a monthly contribution and divide six ways equally. That said, with the recent MSFT dip I'm thinking I should give one month's allocation entirely to that stock and use an expected smaller and one-time windfall to divide amongst the others equally. Probably the wise move to load up on MSFT for cheap right? I started this like a year and a half a",
+    "ticker_mismatches": [
+      {
+        "ticker": "GOOGL",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.4,
+        "generated_reasoning": "The user regrets not having 'tilted towards GOOG' in the past, implying a positive retrospective view of its performance and a missed opportunity."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1r15azv",
+    "post_text": "Starting my investment journey and looking for opinions. Hi, I am currently looking at a long term investing plan and as the country I live in has a 8 year tax of 38% on unrealised gains when investing in etfs I don't see this as an option. So the only option to get the best return on compound interest is to invest in individual stocks as a long term investment plan. I have done alot of reading and learning and I like the idea of the moat strategy. I would appreciate some feedback on my 6 picks.",
+    "ticker_mismatches": [
+      {
+        "ticker": "FNV",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.25,
+        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
+      },
+      {
+        "ticker": "WPM",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.25,
+        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
+      },
+      {
+        "ticker": "BRK.B",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.25,
+        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
+      },
+      {
+        "ticker": "AIQUF",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.25,
+        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
+      },
+      {
+        "ticker": "BN",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.25,
+        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
+      },
+      {
+        "ticker": "LIN",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.25,
+        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qwdrfu",
+    "post_text": "Sharing my learnings - learnt about 'collar' trade, applied to my biggest winners. Saved me lot of pain (and gains). I learnt last year about how Mark Cuban saved his fortune during dot com bubble burst with a collar options trade (for the stocks he got when he sold his company). Mid last year, a lot of stocks from my portfolio such as Affirm, QS, Sofi, etc were doing very well. They were at their respective ATH. Getting out that point would have got good gains but all would have added to overal",
+    "ticker_mismatches": [
+      {
+        "ticker": "AFRM",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The stock was mentioned as a past 'biggest winner' at its ATH, and a collar trade was applied to manage both potential future upside and downside, without explicitly stating a current negative performance for AFRM itself."
+      },
+      {
+        "ticker": "QS",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.7,
+        "generated_reasoning": "The post explicitly states QS is 'down 50% than the highs' and currently trading at ~$8, indicating a significant negative performance from its peak, despite the collar trade mitigating the user's loss."
+      },
+      {
+        "ticker": "SOFI",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The stock was mentioned as a past 'biggest winner' at its ATH, and a collar trade was applied to manage both potential future upside and downside, without explicitly stating a current negative performance for SOFI itself."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qvig22",
+    "post_text": "Earnings beat 145% - stock goes down 30% A bit of a curiosity - Varonis (VRNS) is a data security company with solid revenues and growth. Now after the announcement of an earnings beat of 145% (EPS of 0.8 vs forecasted 0.3) the stock tanked from 32 USD to 20 USD. The recent high in october was at 62 USD. On top of this, financially the company is healthy without debt. Make it make sense.",
+    "ticker_mismatches": [
+      {
+        "ticker": "VRNS",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "Despite an earnings beat and positive fundamental descriptions, the stock 'tanked' 30% after the announcement, indicating a strong negative market reaction."
+      }
+    ]
+  },
+  {
+    "id": "reddit:1qtsbex",
+    "post_text": "What are some stocks you don't mind waiting on to get a good entry ? Just wondering what are people watch list and alerts on prices on some stocks that they will fully ape in the future ? For example I'll be waiting for SMCI to hit 20-25$ to full port and dca according just wondering what yall dip yall waiting for",
+    "ticker_mismatches": [
+      {
+        "ticker": "SMCI",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.6,
+        "generated_reasoning": "The user is waiting for SMCI to drop significantly (from current ~800-900 to 20-25) before 'full porting', indicating a very bearish outlook on its current valuation and future prospects at current prices."
+      }
+    ]
+  }
+]
