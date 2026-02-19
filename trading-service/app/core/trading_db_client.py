@@ -49,8 +49,20 @@ class MongoDBClient:
             serialized_doc = doc.copy()
             if '_id' in serialized_doc:
                 serialized_doc['_id'] = str(serialized_doc['_id'])
+            
+            # ✅ Check for signal_id and fetch from signals
+            if 'signal_id' in serialized_doc:
+                signal_id = serialized_doc['signal_id']
+                signal_doc = self.signals.find_one({"_id": ObjectId(signal_id)})
+                if signal_doc:
+                    # Convert ObjectId to string
+                    signal_doc = signal_doc.copy()
+                    if '_id' in signal_doc:
+                        signal_doc['_id'] = str(signal_doc['_id'])
+                    serialized_doc['signal_data'] = signal_doc
+            
             result[order_id] = serialized_doc
-        
+
         return result
     
     # Signals - From aggregator service
@@ -81,3 +93,27 @@ class MongoDBClient:
             return doc
         except Exception:
             return None
+        
+
+    def get_batch_signals_by_ids(self, signal_ids: List[str]) -> Dict[str, Dict[str, Any]]:
+        if not signal_ids:
+            return {}
+        
+        try:
+            # ✅ Query by custom 'id' field (stores UUID strings)
+            cursor = self.signals.find(
+                {"order_id": {"$in": signal_ids}}  # Not _id!
+            )
+            
+            # Map signal_id → document
+            id_to_doc = {}
+            for doc in cursor:
+                signal_id = doc.get("id")  # String UUID
+                if signal_id:
+                    id_to_doc[signal_id] = doc
+            
+            return id_to_doc
+            
+        except Exception as e:
+            print(f"Batch signal lookup error: {e}")
+            return {}

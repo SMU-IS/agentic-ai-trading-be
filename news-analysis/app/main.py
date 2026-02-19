@@ -21,11 +21,27 @@ def separate_worker_thread():
 
 async def news_worker():
     print("⏳ Worker waiting for server startup...")
-    await asyncio.sleep(60)
-    print("👷🏻‍♂️ News Analysis Worker started")
-    print("👷🏻‍♂️ Running pipeline in a separate thread...")
-    loop = asyncio.get_running_loop()
-    await loop.run_in_executor(None, separate_worker_thread)
+    await asyncio.sleep(10)
+    print("👷🏻‍♂️ News Analysis Worker loop started")
+
+    while True:
+        try:
+            await run_pipeline()
+
+            await asyncio.sleep(1)
+
+        except Exception as e:
+            print(f"❌ Worker Error: {e}")
+            await asyncio.sleep(5)
+
+
+# async def news_worker():
+#     print("⏳ Worker waiting for server startup...")
+#     await asyncio.sleep(60)
+#     print("👷🏻‍♂️ News Analysis Worker started")
+#     print("👷🏻‍♂️ Running pipeline in a separate thread...")
+#     loop = asyncio.get_running_loop()
+#     await loop.run_in_executor(None, separate_worker_thread)
 
 
 @asynccontextmanager
