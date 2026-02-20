@@ -38,6 +38,5 @@ async def get_ticker_events(
             return {"message": "No relevant documents found.", "results": []}
 
         return {"status": "success", "count": len(results), "results": results}
-
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
