@@ -1,20 +1,13 @@
-import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends
 from qdrant_client import models
 
-from app.core.security import get_current_user
+from app.core.logger import logger
 from app.providers.vector.strategy import QdrantGeminiStrategy
 from app.schemas.query_docs_payload import QueryDocsRequest
 
-logger = logging.getLogger(__name__)
-router = APIRouter(
-    tags=["Query Qdrant Documents"], dependencies=[Depends(get_current_user)]
-)
 
-
-class QueryQdrant:
+class QueryQdrantService:
     def __init__(self):
         self.strategy = QdrantGeminiStrategy()
         self.vector_store = self.strategy.get_vector_store()

@@ -36,7 +36,7 @@ async def get_general_news(query: str, tickers: List[str]):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                env_config.news_analysis_query_url, json=payload
+                env_config.qdrant_retrieval_query_url, json=payload
             )
             response.raise_for_status()
             data = response.json()

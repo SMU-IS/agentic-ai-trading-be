@@ -109,3 +109,12 @@ services:
         paths:
           - /api/v1/news-aggregator
         strip_path: true
+
+  # === Qdrant Retrieval Microservice 5009 ===
+  - name: qdrant-retrieval-entry
+    url: http://qdrant-retrieval:5009
+    routes:
+      - name: qdrant-retrieval-routes
+        paths:
+          - /api/v1/qdrant
+        strip_path: true

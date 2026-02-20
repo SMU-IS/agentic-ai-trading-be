@@ -73,7 +73,7 @@ class AgentBotService:
             str: The result of the agent invocation.
         """
 
-        context_query = f"Regarding Order {order_id}: {query}" if order_id else query
+        context_query = f"Regarding Order Id {order_id}: {query}" if order_id else query
 
         try:
             agent = self._create_agent()

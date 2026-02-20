@@ -32,8 +32,9 @@ class EnvConfig(BaseSettings):
     groq_api_key: str = Field(..., validation_alias="GROQ_API_KEY")
 
     # External APIs
-    news_analysis_query_url: str = Field(
-        ..., validation_alias="NEWS_ANALYSIS_QUERY_URL"
+    qdrant_retrieval_query_url: str = Field(
+        ...,
+        validation_alias="QDRANT_RETRIEVAL_QUERY_URL",
     )
     order_details_query_url: str = Field(
         ..., validation_alias="ORDER_DETAILS_QUERY_URL"

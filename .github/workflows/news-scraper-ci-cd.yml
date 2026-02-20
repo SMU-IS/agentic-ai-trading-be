@@ -2,14 +2,14 @@ name: News Scraper CI
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["master"]
-    paths:
-      - "news-scraper/**"
-  pull_request:
-    branches: ["master"]
-    paths:
-      - "news-scraper/**"
+  # push:
+  #   branches: ["master"]
+  #   paths:
+  #     - "news-scraper/**"
+  # pull_request:
+  #   branches: ["master"]
+  #   paths:
+  #     - "news-scraper/**"
 
 jobs:
   build:

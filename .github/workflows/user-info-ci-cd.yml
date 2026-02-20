@@ -2,14 +2,14 @@ name: User Info Service CI
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["master"]
-    paths:
-      - "user-info/**"
-  pull_request:
-    branches: ["master"]
-    paths:
-      - "user-info/**"
+  # push:
+  #   branches: ["master"]
+  #   paths:
+  #     - "user-info/**"
+  # pull_request:
+  #   branches: ["master"]
+  #   paths:
+  #     - "user-info/**"
 
 jobs:
   go-tests:

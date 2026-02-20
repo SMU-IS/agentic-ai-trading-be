@@ -2,14 +2,14 @@ name: News Aggregator CI
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["master"]
-    paths:
-      - "news-aggregator-service/**"
-  pull_request:
-    branches: ["master"]
-    paths:
-      - "news-aggregator-service/**"
+  # push:
+  #   branches: ["master"]
+  #   paths:
+  #     - "news-aggregator-service/**"
+  # pull_request:
+  #   branches: ["master"]
+  #   paths:
+  #     - "news-aggregator-service/**"
 
 jobs:
   python-tests:
