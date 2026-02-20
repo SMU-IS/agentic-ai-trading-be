@@ -1,14 +1,13 @@
-import logging
 from typing import Any
 
 from fastapi import APIRouter, Depends
 from qdrant_client import models
 
+from app.core.logger import logger
 from app.core.security import get_current_user
 from app.providers.vector.strategy import QdrantGeminiStrategy
 from app.schemas.query_docs_payload import QueryDocsRequest
 
-logger = logging.getLogger(__name__)
 router = APIRouter(
     tags=["Query Qdrant Documents"], dependencies=[Depends(get_current_user)]
 )
@@ -59,13 +58,13 @@ class QueryQdrant:
                     }
                 )
 
-            print(
+            logger.info(
                 f"✅ Found {len(formatted_results)} documents for query: '{payload.query}'"
             )
             return formatted_results
 
         except Exception as e:
-            print(f"❌ Error during retrieval: {str(e)}")
+            logger.error(f"❌ Error during retrieval: {str(e)}")
             raise RuntimeError(f"Failed to retrieve documents: {e}") from e
 
     def _build_ticker_event_filter(self, ticker: str, event_type: str) -> models.Filter:

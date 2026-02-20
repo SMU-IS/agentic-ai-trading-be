@@ -63,12 +63,6 @@ class VectorStorageStrategy(ABC):
                     f"⚠️ Dimension mismatch for '{self.collection_name}': "
                     f"Qdrant has {existing_size}, Strategy wants {self.vector_size}. Recreating..."
                 )
-                # In a retrieval service, we might NOT want to delete the collection if it mismatches.
-                # But for consistency with news-analysis, we keep this logic or just log it.
-                # Actually, retrieval service should probably NOT delete collections.
-                # I'll keep it for now to match exactly what you had, but usually retrieval is read-only.
-                # self.client.delete_collection(collection_name=self.collection_name)
-                # self._create_fresh_collection()
             else:
                 logger.info(
                     f"✅ Collection '{self.collection_name}' matches dims ({existing_size})."

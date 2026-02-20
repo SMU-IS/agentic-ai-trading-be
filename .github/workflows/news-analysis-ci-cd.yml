@@ -2,14 +2,14 @@ name: News Analysis CI
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["master"]
-    paths:
-      - "news-analysis/**"
-  pull_request:
-    branches: ["master"]
-    paths:
-      - "news-analysis/**"
+  # push:
+  #   branches: ["master"]
+  #   paths:
+  #     - "news-analysis/**"
+  # pull_request:
+  #   branches: ["master"]
+  #   paths:
+  #     - "news-analysis/**"
 
 jobs:
   python-tests:
