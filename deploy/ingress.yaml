@@ -83,3 +83,10 @@ spec:
                 name: news-aggregator-infra
                 port:
                   number: 5008
+          - path: /api/v1/qdrant
+            pathType: Prefix
+            backend:
+              service:
+                name: qdrant-retrieval-infra
+                port:
+                  number: 5009
