@@ -2,7 +2,7 @@ from typing import Any
 
 from qdrant_client import models
 
-from app.core import logger
+from app.core.logger import logger
 from app.providers.vector.strategy import QdrantGeminiStrategy
 from app.schemas.query_docs_payload import QueryDocsRequest
 
