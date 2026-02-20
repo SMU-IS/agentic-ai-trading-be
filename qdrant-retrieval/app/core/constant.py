@@ -3,6 +3,7 @@ from enum import Enum
 
 class APIPath(str, Enum):
     HEALTH_CHECK = "/healthcheck"
+    VECTORISE = "/vectorise"
     QUERY = "/query"
     QUERY_TICKER_EVENTS = "/query-ticker-events"
 

@@ -7,7 +7,7 @@ from app.providers.vector.strategy import QdrantGeminiStrategy
 from app.schemas.query_docs_payload import QueryDocsRequest
 
 
-class QueryQdrant:
+class QueryQdrantService:
     def __init__(self):
         self.strategy = QdrantGeminiStrategy()
         self.vector_store = self.strategy.get_vector_store()

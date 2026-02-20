@@ -19,6 +19,9 @@ class EnvConfig(BaseSettings):
         default="text-embedding-004", validation_alias="TEXT_EMBEDDING_MODEL"
     )
 
+    # Local LLM (Ollama)
+    ollama_base_url: str = Field(..., validation_alias="OLLAMA_BASE_URL")
+
     # Vector Store
     storage_provider: str = Field(..., validation_alias="STORAGE_PROVIDER")
     qdrant_api_key: str = Field(..., validation_alias="QDRANT_API_KEY")
