@@ -87,6 +87,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: qdrant-retrieval-infra
+                name: qdrant-infra
                 port:
                   number: 5009
