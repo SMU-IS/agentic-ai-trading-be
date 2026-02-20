@@ -1,0 +1,21 @@
+services:
+  qdrant-retrieval:
+    build: .
+    env_file:
+      - .env
+    container_name: qdrant-retrieval-container
+    ports:
+      - "5009:5009"
+    volumes:
+      - .:/code
+    environment:
+      - STORAGE_PROVIDER=${STORAGE_PROVIDER}
+      - LLM_PROVIDER=${LLM_PROVIDER}
+      - LARGE_LANGUAGE_MODEL=${LARGE_LANGUAGE_MODEL}
+      - TEXT_EMBEDDING_MODEL=${TEXT_EMBEDDING_MODEL}
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5009 
+    restart: unless-stopped
+

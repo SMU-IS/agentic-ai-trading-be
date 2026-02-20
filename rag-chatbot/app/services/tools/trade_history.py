@@ -12,35 +12,37 @@ logger = setup_logging()
 async def get_order_details(order_id: str):
     if not order_id:
         logger.error("No order_id provided for trade history query.")
-        raise ValueError("No order_id provided.")
+        raise ValueError("No order_id provided for trade history query.")
 
-    order_detail = f"{env_config.order_details_query_url}/{order_id}"
+    order_detail = f"{env_config.qdrant_retrieval_query_url}/{order_id}"
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(order_detail)
             response.raise_for_status()
             order_details = response.json()
-            logger.info(f"Order details fetched for order {order_id}")
+            logger.info(f"Order details fetched for order id {order_id}")
 
             return (
-                order_details["symbol"],
-                order_details["filled_avg_price"],
-                order_details["side"],
-                order_details["risk_evaluation"],
-                order_details["risk_adjustments_made"],
-                order_details["trading_agent_reasonings"],
+                order_details.get("symbol", "Unknown"),
+                order_details.get("filled_avg_price", 0),
+                order_details.get("side", "Unknown"),
+                order_details.get("risk_evaluation", "Unknown"),
+                order_details.get("risk_adjustments_made", "Unknown"),
+                order_details.get("trading_agent_reasonings", "Unknown"),
             )
 
     except httpx.HTTPStatusError as exc:
         logger.error(
             f"HTTP error {exc.response.status_code} for order {order_id}: {exc.response.text}"
         )
-        error_msg = f"API Error: {exc.response.status_code} while fetching news."
+        error_msg = (
+            f"API Error: {exc.response.status_code} while fetching order details."
+        )
         raise Exception(error_msg)
 
     except httpx.RequestError as exc:
         logger.warning(f"Timeout reaching order service for ID: {order_id}")
-        error_msg = f"Network Error: Could not reach the news service ({exc})."
+        error_msg = f"Network Error: Could not reach the order service ({exc})."
         raise Exception(error_msg)
 
     except Exception as e:
@@ -71,7 +73,9 @@ async def get_trade_history_details(query: str, order_id: str) -> OrderDetailsRe
         - reasoning: The specific technical justification (e.g., RSI/ATR values).
     """
 
-    logger.info(f"User query: {query}. Analysing history for order {order_id}")
+    logger.info(
+        f"User query: {query}. Analysing trade history order details for order id {order_id}"
+    )
 
     try:
         (

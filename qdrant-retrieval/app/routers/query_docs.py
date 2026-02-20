@@ -1,14 +1,16 @@
-from app.schemas.query_docs_payload import QueryDocsRequest
-from app.services.query_qdrant import QueryQdrant
 from fastapi import APIRouter, Depends, HTTPException
 
-router = APIRouter()
+from app.core.constant import APIPath
+from app.schemas.query_docs_payload import QueryDocsRequest
+from app.services.query_qdrant import QueryQdrantService
+
+router = APIRouter(tags=["Query Documents"])
 
 
-@router.post("/query", tags=["Retrieval"])
+@router.post(APIPath.QUERY)
 async def search_news(
     payload: QueryDocsRequest,
-    service: QueryQdrant = Depends(QueryQdrant),
+    service: QueryQdrantService = Depends(QueryQdrantService),
 ):
     try:
         results = await service.retrieve_ticker_insights(payload)
@@ -21,12 +23,12 @@ async def search_news(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/ticker-events", tags=["Retrieval"])
+@router.get(APIPath.QUERY_TICKER_EVENTS)
 async def get_ticker_events(
     ticker: str,
     event_type: str,
     limit: int = 10,
-    service: QueryQdrant = Depends(QueryQdrant),
+    service: QueryQdrantService = Depends(QueryQdrantService),
 ):
     try:
         results = service.retrieved_filtered_ticker_events(

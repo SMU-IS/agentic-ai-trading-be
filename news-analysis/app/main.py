@@ -8,7 +8,6 @@ from fastapi.routing import APIRouter
 
 from app.core.constant import APIPath
 from app.core.logger import logger
-from app.routers import query_docs
 from app.services.orchestration import run_pipeline
 
 # def separate_worker_thread():
@@ -87,5 +86,4 @@ def health_check():
 
 
 # ====== API Endpoints ======
-api_router.include_router(query_docs.router)
 app.include_router(api_router)

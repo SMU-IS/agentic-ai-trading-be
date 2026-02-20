@@ -59,3 +59,8 @@ include:
   - path: ./news-aggregator-service/docker-compose.yml
     env_file: ./news-aggregator-service/.env
     project_directory: ./news-aggregator-service
+
+  # === Qdrant Retrieval Microservice ===
+  - path: ./qdrant-retrieval/docker-compose.yml
+    env_file: ./qdrant-retrieval/.env
+    project_directory: ./qdrant-retrieval

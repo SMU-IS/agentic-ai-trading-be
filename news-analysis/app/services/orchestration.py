@@ -2,13 +2,13 @@ import asyncio
 import json
 from datetime import datetime, timezone
 
+import httpx
 import redis
 from pydantic import ValidationError
 from redis import exceptions
 
 from app.core.config import env_config
 from app.core.logger import logger
-from app.schemas.raw_news_payload import RedditSourcePayload
 from app.scripts.aws_bucket_access import AWSBucket
 from app.scripts.checkpoint import RedisCheckpoint
 from app.scripts.storage import RedisStreamStorage
@@ -345,19 +345,26 @@ async def run_pipeline():
                 for msg_id, data in messages:
                     try:
                         payload_dict = {"id": msg_id, "fields": data}
-                        # Transform pipeline data to NewsAnalysisPayload
-                        payload = RedditSourcePayload(**payload_dict)
-                        if payload:
-                            await vectorisation_service.get_sanitised_news_payload(
-                                payload
+                        vectorisation_url = f"{env_config.vectorise_and_save_to_qdrant}"
+                        async with httpx.AsyncClient() as client:
+                            response = await client.post(
+                                vectorisation_url, json=payload_dict
                             )
-                            vectorisation_checkpoint.save(msg_id)
-                            sentiment_stream.delete(msg_id)
+                            response.raise_for_status()
+                            response_status = response.json()
+                            logger.info(f"✅ Vectorised {response_status}")
 
-                        else:
-                            logger.warning(
-                                f"[Warning] Skipping message {msg_id}: transformation failed"
-                            )
+                        vectorisation_checkpoint.save(msg_id)
+                        sentiment_stream.delete(msg_id)
+
+                        # payload = RedditSourcePayload(**payload_dict)
+                        # if payload:
+                        #     await vectorisation_service.get_sanitised_news_payload(
+                        #         payload
+                        #     )
+                        #     vectorisation_checkpoint.save(msg_id)
+                        #     sentiment_stream.delete(msg_id)
+
                     except ValidationError as e:
                         # Print the post ID and missing fields
                         missing_fields = [err["loc"] for err in e.errors()]

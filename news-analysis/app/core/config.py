@@ -39,7 +39,9 @@ class EnvConfig(BaseSettings):
     # LLM
     # Ollama:
     ollama_base_url: str = Field(..., validation_alias="OLLAMA_BASE_URL")
-    large_language_model_llama: str = Field(default="llama3.1", validation_alias="LARGE_LANGUAGE_MODEL_LLAMA_LOCAL")
+    large_language_model_llama: str = Field(
+        default="llama3.1", validation_alias="LARGE_LANGUAGE_MODEL_LLAMA_LOCAL"
+    )
 
     # Gemini:
     llm_provider_gemini: str = Field(
@@ -71,6 +73,10 @@ class EnvConfig(BaseSettings):
     storage_provider: StorageProviders = Field(..., validation_alias="STORAGE_PROVIDER")
     qdrant_api_key: str = Field(..., validation_alias="QDRANT_API_KEY")
     qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
+
+    vectorise_and_save_to_qdrant: str = Field(
+        ..., validation_alias="VECTORISE_AND_SAVE_TO_QDRANT"
+    )
 
 
 env_config = EnvConfig()  # type: ignore
