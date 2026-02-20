@@ -23,7 +23,7 @@ async def search_news(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get(APIPath.TICKER_EVENTS)
+@router.get(APIPath.QUERY_TICKER_EVENTS)
 async def get_ticker_events(
     ticker: str,
     event_type: str,

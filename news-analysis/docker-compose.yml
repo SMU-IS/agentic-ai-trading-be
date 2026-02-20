@@ -42,5 +42,6 @@ services:
       - REMOVED_KEY=${REMOVED_KEY}
       - TEMPERATURE=${TEMPERATURE}
       - MAX_COMPLETION_TOKEN=${MAX_COMPLETION_TOKEN}
+      - VECTORISE_AND_SAVE_TO_QDRANT=${VECTORISE_AND_SAVE_TO_QDRANT}
     command: uvicorn app.main:app --host 0.0.0.0 --port 5002 --workers 2
     restart: unless-stopped
