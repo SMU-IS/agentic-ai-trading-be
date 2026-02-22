@@ -44,7 +44,6 @@ class SentimentAggregator:
                             "proposed_event_type": event_proposal.get("proposed_event_name") or "",
                             "proposed_event_category": event_proposal.get("event_category") or "",
                             "sentiment_score": meta.get("sentiment_score") or "",
-                            "sentiment_confidence": meta.get("sentiment_confidence") or "",
                             "event_description": meta.get("event_description") or "",
                             "proposed_event_description": event_proposal.get("description") or "",
                             "sentiment_reasoning": meta.get("sentiment_reasoning") or ""
