@@ -26,22 +26,28 @@ class SentimentAggregator:
             )
 
             for _, events in messages:
-                print(events)
+                # print(events)
                 for event_id, data in events:
                     ticker_meta_raw = data.get("ticker_metadata")
-                    print(data)
+                    # print(data)
                     ticker_meta = json.loads(ticker_meta_raw)
                     print(ticker_meta)
 
                     for ticker, meta in ticker_meta.items():
-                        # print(meta)
+                        print(meta)
+                        event_proposal = meta.get("event_proposal") or {}
                         aggregator_data = {
-                            # "event_type": "NEWS_UPDATE",
+                            "event_type": "NEWS_UPDATE",
                             "id": data.get("id"),
                             "ticker": ticker,
-                            "event_type_meta": meta.get("event_type", ""),
-                            "sentiment_score": meta.get("sentiment_score"),
-                            "sentiment_confidence": meta.get("sentiment_confidence"),
+                            "event_type_meta": meta.get("event_type") or "",
+                            "proposed_event_type": event_proposal.get("proposed_event_name") or "",
+                            "proposed_event_category": event_proposal.get("event_category") or "",
+                            "sentiment_score": meta.get("sentiment_score") or "",
+                            "sentiment_confidence": meta.get("sentiment_confidence") or "",
+                            "event_description": meta.get("event_description") or "",
+                            "proposed_event_description": event_proposal.get("description") or "",
+                            "sentiment_reasoning": meta.get("sentiment_reasoning") or ""
                         }
                         print(aggregator_data)
 
