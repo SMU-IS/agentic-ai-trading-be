@@ -156,5 +156,57 @@
         }
       }
     }
+  },
+  "ollama": {
+    "llm": "Ollama (llama3.1:latest)",
+    "model": "llama3.1:latest",
+    "total_posts": 148,
+    "total_tickers_compared": 279,
+    "correct": 151,
+    "metrics": {
+      "accuracy": 0.5412,
+      "macro_precision": 0.5439,
+      "macro_recall": 0.6002,
+      "macro_f1": 0.5159
+    },
+    "confusion_matrix": {
+      "matrix": {
+        "positive": {
+          "positive": 77,
+          "negative": 12,
+          "neutral": 12
+        },
+        "negative": {
+          "positive": 5,
+          "negative": 55,
+          "neutral": 3
+        },
+        "neutral": {
+          "positive": 57,
+          "negative": 39,
+          "neutral": 19
+        }
+      },
+      "per_class": {
+        "positive": {
+          "precision": 0.554,
+          "recall": 0.7624,
+          "f1": 0.6417,
+          "support": 101
+        },
+        "negative": {
+          "precision": 0.5189,
+          "recall": 0.873,
+          "f1": 0.6509,
+          "support": 63
+        },
+        "neutral": {
+          "precision": 0.5588,
+          "recall": 0.1652,
+          "f1": 0.255,
+          "support": 115
+        }
+      }
+    }
   }
 }

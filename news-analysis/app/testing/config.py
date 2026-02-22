@@ -59,6 +59,9 @@ class EnvConfig(BaseSettings):
     ollama_base_url: Optional[str] = Field(
         default=None, validation_alias="OLLAMA_BASE_URL"
     )
+    ollama_model: Optional[str] = Field(
+        default="llama3.1:latest", validation_alias="OLLAMA_MODEL"
+    )
     llm_provider: str = Field(..., validation_alias="LLM_PROVIDER")
     large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
 

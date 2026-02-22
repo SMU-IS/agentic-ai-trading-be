@@ -24,18 +24,18 @@
         "generated_reasoning": "The author identifies NVDA as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
       },
       {
-        "ticker": "AVGO",
-        "ground_truth_label": "neutral",
-        "generated_label": "positive",
-        "generated_score": 0.4,
-        "generated_reasoning": "The author identifies Broadcom (AVGO) as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
-      },
-      {
         "ticker": "RIO",
         "ground_truth_label": "neutral",
         "generated_label": "positive",
         "generated_score": 0.4,
         "generated_reasoning": "The author identifies Rio Tinto (RIO) as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
+      },
+      {
+        "ticker": "AVGO",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.4,
+        "generated_reasoning": "The author identifies Broadcom (AVGO) as a 'big corporation' and a client that spends millions annually, with no expectation of this stopping soon, implying a positive outlook on its business stability and continued success."
       }
     ]
   },
@@ -57,6 +57,13 @@
     "post_text": "SPGI 8% drop! Any AI companies creeping into their area? Earnings is a week away, which other news could cause this drop? Does separation of Mobility global into another unit warrant 8% fall in a day? How does it harm existing shareholders? Fico,mco in similar areas also fell a lot.",
     "ticker_mismatches": [
       {
+        "ticker": "SPGI",
+        "ground_truth_label": "negative",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
+      },
+      {
         "ticker": "FICO",
         "ground_truth_label": "neutral",
         "generated_label": "negative",
@@ -69,13 +76,6 @@
         "generated_label": "negative",
         "generated_score": -0.4,
         "generated_reasoning": "The post reports that MCO 'fell a lot' in the context of a broader discussion about stock drops and potential harm to shareholders, indicating a negative price action."
-      },
-      {
-        "ticker": "SPGI",
-        "ground_truth_label": "negative",
-        "generated_label": null,
-        "generated_score": null,
-        "generated_reasoning": "No event identified - skipped"
       }
     ]
   },
@@ -123,6 +123,13 @@
     "post_text": "Big Tech Capex is accelerating +44% YoY to ~$610B in 2026. What are the best bets to surf this wave (besides Nvidia)? If you compare CAPEX numbers of big hyperscapers, you can still sing \"show must GOOOO OOOONNN!!!!\" |Company|2025 Est|2026 Guidance/Est|YoY Growth| |:-|:-|:-|:-| |Meta|\\~$72B|\\~$125B|+74%| |Amazon|\\~$131B|\\~$200B|+53%| |Alphabet|\\~$120B|\\~$180B|+50%| |Microsoft|\\~$100B|\\~$105B+|+5%| |TOTAL|\\~$423B|\\~$610B|+44%| What do you think are the best companies to surf this wave? Money has ",
     "ticker_mismatches": [
       {
+        "ticker": "META",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.6,
+        "generated_reasoning": "The post highlights Meta's significant projected CAPEX growth (+74% YoY) as a positive indicator for surfing the Big Tech CAPEX wave, suggesting it's a strong bet."
+      },
+      {
         "ticker": "AMZN",
         "ground_truth_label": "neutral",
         "generated_label": "positive",
@@ -135,13 +142,6 @@
         "generated_label": "positive",
         "generated_score": 0.5,
         "generated_reasoning": "Alphabet's strong CAPEX growth (+50% YoY) positions it well to capitalize on the accelerating Big Tech investment, indicating a positive outlook for the stock."
-      },
-      {
-        "ticker": "META",
-        "ground_truth_label": "neutral",
-        "generated_label": "positive",
-        "generated_score": 0.6,
-        "generated_reasoning": "The post highlights Meta's significant projected CAPEX growth (+74% YoY) as a positive indicator for surfing the Big Tech CAPEX wave, suggesting it's a strong bet."
       }
     ]
   },
@@ -242,18 +242,18 @@
     "post_text": "You can own Microsoft at 23x earnings and short Costco at 50x earnings. long AGI, short rotisserie chicken is actually value investing. Buying Microsoft is at this point a no-brainer. GOOG was this cheap while MSFT was in the high 30s. I remind you everyone shat on Google because they were \"behind\" and had looming lawsuits, while justifying Microsofts multiple with their solid position in the business world and their Azure market share. The Google trade seemed too easy to be profitable. And now,",
     "ticker_mismatches": [
       {
-        "ticker": "COST",
-        "ground_truth_label": "negative",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "While initially suggesting to 'short Costco' due to high earnings multiples, the author explicitly states this is 'a joke' and 'just to show the perspective,' negating a serious bearish stance."
-      },
-      {
         "ticker": "GOOGL",
         "ground_truth_label": "neutral",
         "generated_label": "positive",
         "generated_score": 0.3,
         "generated_reasoning": "GOOGL is used as a historical example of a stock that was undervalued and became profitable despite negative sentiment, implying a positive retrospective view."
+      },
+      {
+        "ticker": "COST",
+        "ground_truth_label": "negative",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "While initially suggesting to 'short Costco' due to high earnings multiples, the author explicitly states this is 'a joke' and 'just to show the perspective,' negating a serious bearish stance."
       }
     ]
   },
@@ -262,18 +262,18 @@
     "post_text": "Rebalancing between Hyperscalers. After the recent price action of Microsoft, Amazon, and Google post earnings, I am reconsidering my allocation between the three. Between these three, my current position is 55% in Amazon, 36% in Google, and 9% in Microsoft. Bigger exposure in Amazon is due to potential asymmetric upside from AI adoption due to growing cloud revenue along side vertical expansion in chips and potential operating margin expansion due to existing air pockets in org structures. But ",
     "ticker_mismatches": [
       {
-        "ticker": "AMZN",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.1,
-        "generated_reasoning": "While the author initially had a larger exposure to Amazon due to perceived asymmetric upside, they are now reconsidering this optimism. The planned reduction in allocation suggests a more balanced, less strongly bullish view."
-      },
-      {
         "ticker": "GOOGL",
         "ground_truth_label": "positive",
         "generated_label": "neutral",
         "generated_score": 0.0,
         "generated_reasoning": "Google's allocation remains unchanged, and the author views it as winning in research and model efficiency. The sentiment is neutral as there's no explicit shift in opinion or allocation towards or away from the stock."
+      },
+      {
+        "ticker": "AMZN",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.1,
+        "generated_reasoning": "While the author initially had a larger exposure to Amazon due to perceived asymmetric upside, they are now reconsidering this optimism. The planned reduction in allocation suggests a more balanced, less strongly bullish view."
       }
     ]
   },
@@ -354,18 +354,11 @@
     "post_text": "Stocks to buy at a discount? Microsoft Dominance, Pricing power, and considering the scale of company discount is meaningful. Oracle: oracle has fallen more than microsoft but considering oracles pe and that growth at oracle is capped ; microsoft has the better discount. Service now, has fallen 40 peecent this year but its not a true discount because valuation still rich with a high pe Cloudflare is always expensive. The 30% drop just makes it \"less expensive\" It's an asymmetric play on the futu",
     "ticker_mismatches": [
       {
-        "ticker": "NOTV",
+        "ticker": "NOW",
         "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "Offers an 'absolutely massive discount' but is heavily qualified by the 'current environment does not favor it,' balancing the sentiment."
-      },
-      {
-        "ticker": "SMWB",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "Offers an 'unbelievable discount' and is 'about to turn profitable' with acquisition potential, but significant risks from hyperscalers deepening their own analytics or buying smaller companies create uncertainty."
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "Despite a 40% fall, it's considered not a true discount due to rich valuation and a high PE."
       },
       {
         "ticker": "SNOW",
@@ -375,18 +368,11 @@
         "generated_reasoning": "Acknowledged for a 'substantial discount' but tempered by the expectation it 'could definitely drop more' and is 'worth buying at lower levels,' indicating current caution."
       },
       {
-        "ticker": "DGNX",
+        "ticker": "NOTV",
         "ground_truth_label": "positive",
         "generated_label": "neutral",
         "generated_score": 0.0,
-        "generated_reasoning": ""
-      },
-      {
-        "ticker": "NOW",
-        "ground_truth_label": "positive",
-        "generated_label": "negative",
-        "generated_score": -0.5,
-        "generated_reasoning": "Despite a 40% fall, it's considered not a true discount due to rich valuation and a high PE."
+        "generated_reasoning": "Offers an 'absolutely massive discount' but is heavily qualified by the 'current environment does not favor it,' balancing the sentiment."
       },
       {
         "ticker": "TOST",
@@ -396,18 +382,18 @@
         "generated_reasoning": "Despite expanding TAM and upsell potential, significant concerns are raised about competition squeezing margins and potential pressure from rivals."
       },
       {
+        "ticker": "SMWB",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Offers an 'unbelievable discount' and is 'about to turn profitable' with acquisition potential, but significant risks from hyperscalers deepening their own analytics or buying smaller companies create uncertainty."
+      },
+      {
         "ticker": "RDDT",
         "ground_truth_label": "positive",
         "generated_label": "neutral",
         "generated_score": 0.0,
         "generated_reasoning": "Describes a dip but downplays its significance, suggesting a 'buy on dips' strategy while acknowledging it 'could go much lower could go much higher,' indicating high uncertainty."
-      },
-      {
-        "ticker": "AMPL",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "Praised as a 'clear winner in analytics' but offset by 'low pricing power' and 'too many competitors,' leading to a neutral outlook."
       },
       {
         "ticker": "ORCL",
@@ -422,6 +408,20 @@
         "generated_label": "neutral",
         "generated_score": 0.0,
         "generated_reasoning": "Loved by value investors with potential for new products, but also noted for possible further drops and current growth issues, creating a balanced view."
+      },
+      {
+        "ticker": "DGNX",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": ""
+      },
+      {
+        "ticker": "AMPL",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Praised as a 'clear winner in analytics' but offset by 'low pricing power' and 'too many competitors,' leading to a neutral outlook."
       },
       {
         "ticker": "RIME",
@@ -483,18 +483,18 @@
     "post_text": "Oracle Taking a Beating but Lands Air Force Contract. On Friday, the U.S. Air Force handed Oracle America Inc. a firm-fixed-price task order worth $88,112,197 under its Cloud One program. The work is slated to continue through Dec. 7, 2028, according to a government announcement. I keep seeing news of them landing big companies like IHG, Saudi Heath Cloud deal, Bank of Valletta, Etc. Also potential blackstone funding the build out. Am I missing something or this is going to keep going down? Micr",
     "ticker_mismatches": [
       {
-        "ticker": "ORCL",
-        "ground_truth_label": "neutral",
-        "generated_label": null,
-        "generated_score": null,
-        "generated_reasoning": "No event identified - skipped"
-      },
-      {
         "ticker": "MSFT",
         "ground_truth_label": "negative",
         "generated_label": "positive",
         "generated_score": 0.3,
         "generated_reasoning": "The post explicitly states Microsoft had 'great earnings', which is a strong positive, even though it notes the stock 'got beat' due to higher than expected capex, indicating a market reaction rather than a fundamental flaw."
+      },
+      {
+        "ticker": "ORCL",
+        "ground_truth_label": "neutral",
+        "generated_label": null,
+        "generated_score": null,
+        "generated_reasoning": "No event identified - skipped"
       }
     ]
   },
@@ -529,28 +529,7 @@
     "post_text": "Starting my investment journey and looking for opinions. Hi, I am currently looking at a long term investing plan and as the country I live in has a 8 year tax of 38% on unrealised gains when investing in etfs I don't see this as an option. So the only option to get the best return on compound interest is to invest in individual stocks as a long term investment plan. I have done alot of reading and learning and I like the idea of the moat strategy. I would appreciate some feedback on my 6 picks.",
     "ticker_mismatches": [
       {
-        "ticker": "WPM",
-        "ground_truth_label": "neutral",
-        "generated_label": "positive",
-        "generated_score": 0.25,
-        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
-      },
-      {
-        "ticker": "FNV",
-        "ground_truth_label": "neutral",
-        "generated_label": "positive",
-        "generated_score": 0.25,
-        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
-      },
-      {
-        "ticker": "LIN",
-        "ground_truth_label": "neutral",
-        "generated_label": "positive",
-        "generated_score": 0.25,
-        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
-      },
-      {
-        "ticker": "BN",
+        "ticker": "BRK.B",
         "ground_truth_label": "neutral",
         "generated_label": "positive",
         "generated_score": 0.25,
@@ -564,7 +543,28 @@
         "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
       },
       {
-        "ticker": "BRK.B",
+        "ticker": "FNV",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.25,
+        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
+      },
+      {
+        "ticker": "WPM",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.25,
+        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
+      },
+      {
+        "ticker": "BN",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.25,
+        "generated_reasoning": "The user has selected this ticker as a long-term investment pick, stating it 'matches my moat strategy,' indicating a positive initial assessment."
+      },
+      {
+        "ticker": "LIN",
         "ground_truth_label": "neutral",
         "generated_label": "positive",
         "generated_score": 0.25,

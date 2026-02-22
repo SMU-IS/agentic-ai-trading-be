@@ -76,6 +76,13 @@
     "post_text": "Big Tech Capex is accelerating +44% YoY to ~$610B in 2026. What are the best bets to surf this wave (besides Nvidia)? If you compare CAPEX numbers of big hyperscapers, you can still sing \"show must GOOOO OOOONNN!!!!\" |Company|2025 Est|2026 Guidance/Est|YoY Growth| |:-|:-|:-|:-| |Meta|\\~$72B|\\~$125B|+74%| |Amazon|\\~$131B|\\~$200B|+53%| |Alphabet|\\~$120B|\\~$180B|+50%| |Microsoft|\\~$100B|\\~$105B+|+5%| |TOTAL|\\~$423B|\\~$610B|+44%| What do you think are the best companies to surf this wave? Money has ",
     "ticker_mismatches": [
       {
+        "ticker": "META",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.5,
+        "generated_reasoning": "The post mentions Meta's capex growth of +74% YoY, which is the highest among the listed companies, indicating a positive outlook. The tone suggests optimism about the company's potential to benefit from the accelerating Big Tech capex."
+      },
+      {
         "ticker": "AMZN",
         "ground_truth_label": "neutral",
         "generated_label": "positive",
@@ -88,13 +95,6 @@
         "generated_label": "positive",
         "generated_score": 0.3,
         "generated_reasoning": "The post mentions Alphabet's capex growth of +50% YoY, which is a substantial increase. The tone is positive, but the growth rate is not as remarkable as some other companies, such as Meta."
-      },
-      {
-        "ticker": "META",
-        "ground_truth_label": "neutral",
-        "generated_label": "positive",
-        "generated_score": 0.5,
-        "generated_reasoning": "The post mentions Meta's capex growth of +74% YoY, which is the highest among the listed companies, indicating a positive outlook. The tone suggests optimism about the company's potential to benefit from the accelerating Big Tech capex."
       }
     ]
   },
@@ -220,32 +220,11 @@
     "post_text": "Stocks to buy at a discount? Microsoft Dominance, Pricing power, and considering the scale of company discount is meaningful. Oracle: oracle has fallen more than microsoft but considering oracles pe and that growth at oracle is capped ; microsoft has the better discount. Service now, has fallen 40 peecent this year but its not a true discount because valuation still rich with a high pe Cloudflare is always expensive. The 30% drop just makes it \"less expensive\" It's an asymmetric play on the futu",
     "ticker_mismatches": [
       {
-        "ticker": "PATH",
-        "ground_truth_label": "neutral",
-        "generated_label": "negative",
-        "generated_score": -0.4,
-        "generated_reasoning": "UiPath is best in class for AI integration, but it is very expensive, especially for smaller companies, making it a less attractive investment opportunity."
-      },
-      {
-        "ticker": "DGNX",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "The author mentions that Diginex has a massive discount, and regulatory ESG will ensure some customers will buy, indicating a positive sentimene"
-      },
-      {
         "ticker": "NOW",
         "ground_truth_label": "positive",
         "generated_label": "negative",
         "generated_score": -0.3,
         "generated_reasoning": "ServiceNow has fallen 40% this year, but its valuation is still rich with a high PE, making it not a true discount."
-      },
-      {
-        "ticker": "ETSY",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.2,
-        "generated_reasoning": "The author mentions that Etsy has high margins and is heavily underestimated on growth, indicating a positive sentiment towards the stock"
       },
       {
         "ticker": "TOST",
@@ -255,18 +234,18 @@
         "generated_reasoning": "Toast has fallen 70%, but it's still overpriced, and competition could squeeze margins, making it a less attractive investment opportunity."
       },
       {
+        "ticker": "ETSY",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.2,
+        "generated_reasoning": "The author mentions that Etsy has high margins and is heavily underestimated on growth, indicating a positive sentiment towards the stock"
+      },
+      {
         "ticker": "RDDT",
         "ground_truth_label": "positive",
         "generated_label": "neutral",
         "generated_score": 0.0,
         "generated_reasoning": "Reddit has reached a three-month low, but it's not a significant drop, and the discount isn't a determining factor to buy, making the sentiment neutral."
-      },
-      {
-        "ticker": "AMPL",
-        "ground_truth_label": "positive",
-        "generated_label": "negative",
-        "generated_score": -0.4,
-        "generated_reasoning": "The author mentions that Amplitude is a clear winner in analytics, but it has low pricing power and too many competitors, indicating a negative sentiment"
       },
       {
         "ticker": "ADBE",
@@ -281,6 +260,27 @@
         "generated_label": "negative",
         "generated_score": -0.5,
         "generated_reasoning": "RailVision has regulatory hurdles and long upgrade cycles, making it a less attractive investment opportunity."
+      },
+      {
+        "ticker": "DGNX",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "The author mentions that Diginex has a massive discount, and regulatory ESG will ensure some customers will buy, indicating a positive sentimene"
+      },
+      {
+        "ticker": "AMPL",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "The author mentions that Amplitude is a clear winner in analytics, but it has low pricing power and too many competitors, indicating a negative sentiment"
+      },
+      {
+        "ticker": "PATH",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.4,
+        "generated_reasoning": "UiPath is best in class for AI integration, but it is very expensive, especially for smaller companies, making it a less attractive investment opportunity."
       }
     ]
   },

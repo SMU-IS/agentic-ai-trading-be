@@ -11,18 +11,18 @@
         "generated_reasoning": "The post highlights ongoing client spending by major corporations like NVIDIA, implying sustained demand for their services. The author considers investing in these companies as a strategy, indicating positive sentiment."
       },
       {
-        "ticker": "AVGO",
-        "ground_truth_label": "neutral",
-        "generated_label": "positive",
-        "generated_score": 0.6,
-        "generated_reasoning": "Broadcom is cited as a high-spending client with no indication of declining business. The author's contemplation of investment aligns with bullish sentiment toward the company's stability."
-      },
-      {
         "ticker": "RIO",
         "ground_truth_label": "neutral",
         "generated_label": "positive",
         "generated_score": 0.6,
         "generated_reasoning": "Rio Tinto is mentioned as a long-term client in a billion-dollar industry, suggesting consistent revenue. The author's investment consideration reflects confidence in the company's performance."
+      },
+      {
+        "ticker": "AVGO",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.6,
+        "generated_reasoning": "Broadcom is cited as a high-spending client with no indication of declining business. The author's contemplation of investment aligns with bullish sentiment toward the company's stability."
       }
     ]
   },
@@ -83,18 +83,18 @@
     "post_text": "Long SPY shares, watching tech allocation. The Recession Narrative Doesn't Match the Data Yesterday's Challenger layoff numbers (108,435 for January, highest since 2009) sparked aggressive selling in premarket that carried into the session. The narrative: Fed is \"behind the curve\" and labor weakness is morphing into recession. But the broader data tells a different story. The Disconnect: PMI came in red hot at the start of this week. Atlanta Fed Nowcast is projecting GDP with a 5 handle this qua",
     "ticker_mismatches": [
       {
-        "ticker": "AMZN",
-        "ground_truth_label": "neutral",
-        "generated_label": "negative",
-        "generated_score": -0.5,
-        "generated_reasoning": "Amazon's $200B capex announcement is framed as a market concern regarding AI infrastructure costs, suggesting financial strain despite strong earnings, which introduces bearish sentiment."
-      },
-      {
         "ticker": "MSFT",
         "ground_truth_label": "neutral",
         "generated_label": "negative",
         "generated_score": -0.5,
         "generated_reasoning": "The post highlights concentration risk for Microsoft due to 45% of cloud contracts tied to OpenAI, indicating potential over-reliance and market pricing in this risk as a negative factor."
+      },
+      {
+        "ticker": "AMZN",
+        "ground_truth_label": "neutral",
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "Amazon's $200B capex announcement is framed as a market concern regarding AI infrastructure costs, suggesting financial strain despite strong earnings, which introduces bearish sentiment."
       }
     ]
   },
@@ -116,6 +116,13 @@
     "post_text": "Big Tech Capex is accelerating +44% YoY to ~$610B in 2026. What are the best bets to surf this wave (besides Nvidia)? If you compare CAPEX numbers of big hyperscapers, you can still sing \"show must GOOOO OOOONNN!!!!\" |Company|2025 Est|2026 Guidance/Est|YoY Growth| |:-|:-|:-|:-| |Meta|\\~$72B|\\~$125B|+74%| |Amazon|\\~$131B|\\~$200B|+53%| |Alphabet|\\~$120B|\\~$180B|+50%| |Microsoft|\\~$100B|\\~$105B+|+5%| |TOTAL|\\~$423B|\\~$610B|+44%| What do you think are the best companies to surf this wave? Money has ",
     "ticker_mismatches": [
       {
+        "ticker": "META",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.8,
+        "generated_reasoning": "Meta's Capex growth is highlighted at +74% YoY, indicating strong investor interest and optimism about its position in the tech spending wave."
+      },
+      {
         "ticker": "AMZN",
         "ground_truth_label": "neutral",
         "generated_label": "positive",
@@ -128,13 +135,6 @@
         "generated_label": "positive",
         "generated_score": 0.65,
         "generated_reasoning": "Alphabet's +50% YoY Capex growth is noted, reflecting bullish sentiment about its exposure to the tech spending surge."
-      },
-      {
-        "ticker": "META",
-        "ground_truth_label": "neutral",
-        "generated_label": "positive",
-        "generated_score": 0.8,
-        "generated_reasoning": "Meta's Capex growth is highlighted at +74% YoY, indicating strong investor interest and optimism about its position in the tech spending wave."
       }
     ]
   },
@@ -235,18 +235,18 @@
     "post_text": "Do you \"diamond hand\" anything, or do you have strict sell rules? With the interesting silver movements on Friday, it occured to me I've modified my original technique over the years. On stocks, ill hold the big stuff forever. That is, VOO, or Google, or Coca Cola. That just sits there. For options, I tend to tap out at 50% gains. But over time I've put some cash in long shot calls. An example would be the drone stocks I expect to be associated with the military. Those are LEAPs until 2028. But ",
     "ticker_mismatches": [
       {
-        "ticker": "KO",
-        "ground_truth_label": "neutral",
-        "generated_label": "positive",
-        "generated_score": 0.8,
-        "generated_reasoning": "The author mentions Coca Cola (KO) as a stock they 'hold the big stuff forever,' reflecting long-term holding strategy and positive sentiment."
-      },
-      {
         "ticker": "GOOGL",
         "ground_truth_label": "neutral",
         "generated_label": "positive",
         "generated_score": 0.8,
         "generated_reasoning": "The author explicitly states they 'hold the big stuff forever' including Google (GOOGL), indicating long-term confidence and bullish sentiment."
+      },
+      {
+        "ticker": "KO",
+        "ground_truth_label": "neutral",
+        "generated_label": "positive",
+        "generated_score": 0.8,
+        "generated_reasoning": "The author mentions Coca Cola (KO) as a stock they 'hold the big stuff forever,' reflecting long-term holding strategy and positive sentiment."
       }
     ]
   },
@@ -288,32 +288,11 @@
     "post_text": "Stocks to buy at a discount? Microsoft Dominance, Pricing power, and considering the scale of company discount is meaningful. Oracle: oracle has fallen more than microsoft but considering oracles pe and that growth at oracle is capped ; microsoft has the better discount. Service now, has fallen 40 peecent this year but its not a true discount because valuation still rich with a high pe Cloudflare is always expensive. The 30% drop just makes it \"less expensive\" It's an asymmetric play on the futu",
     "ticker_mismatches": [
       {
-        "ticker": "NOTV",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "Inotiv has a massive discount but faces an unfavorable environment, balancing positive and negative factors."
-      },
-      {
-        "ticker": "DGNX",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "Cites 'massive discount' but counters with competitive disadvantages (scale/credibility). No bullish/bearish framing or WSB slang"
-      },
-      {
         "ticker": "NOW",
         "ground_truth_label": "positive",
         "generated_label": "negative",
         "generated_score": -0.5,
         "generated_reasoning": "ServiceNow's 40% drop is noted, but its valuation remains rich with a high P/E."
-      },
-      {
-        "ticker": "ETSY",
-        "ground_truth_label": "positive",
-        "generated_label": "neutral",
-        "generated_score": 0.0,
-        "generated_reasoning": "Etsy's 10% drop is deemed insignificant for a high-priced company with underestimated growth."
       },
       {
         "ticker": "DAVA",
@@ -323,6 +302,13 @@
         "generated_reasoning": "Endava's TAM is overestimated, and the current environment is unfavorable."
       },
       {
+        "ticker": "NOTV",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Inotiv has a massive discount but faces an unfavorable environment, balancing positive and negative factors."
+      },
+      {
         "ticker": "TOST",
         "ground_truth_label": "positive",
         "generated_label": "neutral",
@@ -330,18 +316,18 @@
         "generated_reasoning": "Toast has expansion potential but faces margin risks from competition."
       },
       {
+        "ticker": "ETSY",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Etsy's 10% drop is deemed insignificant for a high-priced company with underestimated growth."
+      },
+      {
         "ticker": "RDDT",
         "ground_truth_label": "positive",
         "generated_label": "neutral",
         "generated_score": 0.0,
         "generated_reasoning": "Reddit's 16% drop is framed as a 'buy on dips' strategy with uncertain direction."
-      },
-      {
-        "ticker": "AMPL",
-        "ground_truth_label": "positive",
-        "generated_label": "negative",
-        "generated_score": -0.5,
-        "generated_reasoning": "Amplitude is a leader in analytics but suffers from low pricing power and intense competition."
       },
       {
         "ticker": "ORCL",
@@ -356,6 +342,20 @@
         "generated_label": "neutral",
         "generated_score": 0.0,
         "generated_reasoning": "Adobe is noted as loved by value investors but faces growth issues, balancing positive and negative factors"
+      },
+      {
+        "ticker": "DGNX",
+        "ground_truth_label": "positive",
+        "generated_label": "neutral",
+        "generated_score": 0.0,
+        "generated_reasoning": "Cites 'massive discount' but counters with competitive disadvantages (scale/credibility). No bullish/bearish framing or WSB slang"
+      },
+      {
+        "ticker": "AMPL",
+        "ground_truth_label": "positive",
+        "generated_label": "negative",
+        "generated_score": -0.5,
+        "generated_reasoning": "Amplitude is a leader in analytics but suffers from low pricing power and intense competition."
       },
       {
         "ticker": "RIME",

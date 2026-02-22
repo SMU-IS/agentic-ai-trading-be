@@ -67,7 +67,8 @@ RPM_LIMITS = {
     "gemini": 5,      # conservative for free tier
     "llama": 5,       # Groq free tier
     "deepseek": 5,    # OpenRouter
-    "qwen": 5,         # Groq free tier
+    "qwen": 5,        # Groq free tier
+    "ollama": 60,     # local server, no API limit
 }
 
 # Retry config for rate limit (429) and transient errors
@@ -131,6 +132,12 @@ LLM_CONFIGS = {
         "folder_name": "Qwen",
         "model_name": "qwen/qwen3-32b",
         "provider": "groq",
+    },
+    "ollama": {
+        "display_name": f"Ollama ({env_config.ollama_model})",
+        "folder_name": "Ollama",
+        "model_name": env_config.ollama_model,
+        "provider": "ollama",
     },
 }
 
@@ -422,6 +429,18 @@ def create_llm(provider: str, model_name: str, temperature: float = 0, json_mode
             model=model_name,
             api_key=api_key,
             base_url="https://openrouter.ai/api/v1",
+            temperature=temperature,
+            **kwargs,
+        )
+    elif provider == "ollama":
+        from langchain_ollama import ChatOllama
+        base_url = env_config.ollama_base_url or "http://localhost:11434"
+        kwargs = {}
+        if json_mode:
+            kwargs["format"] = "json"
+        return ChatOllama(
+            model=model_name,
+            base_url=base_url,
             temperature=temperature,
             **kwargs,
         )
