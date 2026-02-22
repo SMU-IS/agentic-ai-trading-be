@@ -28,24 +28,31 @@
           "apple"
         ],
         "event_type": "News/Social Media",
-        "sentiment_score": 0.85,
+        "sentiment_score": 0.635,
         "sentiment_label": "positive",
-        "sentiment_confidence": 0.4389,
-        "sentiment_reasoning": "The content explicitly states Apple reported 'strong Q4 earnings' and 'beats expectations,' which are major positive financial catalysts, further reinforced by the rocket emoji."
+        "sentiment_reasoning": "The strong positive sentiment for AAPL is driven by the market impact of beating earnings expectations and the tone of the post, which includes a rocket emoji indicating a bullish outlook. The source quality is moderate due to the reference to a CNBC article, and the context is positive as it discusses a recent earnings report.",
+        "factor_breakdown": {
+          "market_impact": 0.8,
+          "tone": 0.6,
+          "source_quality": 0.4,
+          "context": 0.5
+        }
       }
     },
     "sentiment_analysis": {
-      "overall_sentiment_score": 0.85,
-      "overall_sentiment_label": "positive",
       "analysis_successful": true,
       "ticker_sentiments": {
         "AAPL": {
-          "sentiment_score": 0.85,
+          "sentiment_score": 0.635,
           "sentiment_label": "positive",
-          "confidence": 0.4389,
-          "raw_llm_confidence": 0.95,
-          "reasoning": "The content explicitly states Apple reported 'strong Q4 earnings' and 'beats expectations,' which are major positive financial catalysts, further reinforced by the rocket emoji.",
-          "official_name": "Apple Inc."
+          "reasoning": "The strong positive sentiment for AAPL is driven by the market impact of beating earnings expectations and the tone of the post, which includes a rocket emoji indicating a bullish outlook. The source quality is moderate due to the reference to a CNBC article, and the context is positive as it discusses a recent earnings report.",
+          "factor_breakdown": {
+            "market_impact": 0.8,
+            "tone": 0.6,
+            "source_quality": 0.4,
+            "context": 0.5
+          },
+          "official_name": "AAPL"
         }
       }
     }
@@ -79,24 +86,31 @@
           "microsoft"
         ],
         "event_type": "News/Social Media",
-        "sentiment_score": -0.5,
+        "sentiment_score": -0.385,
         "sentiment_label": "negative",
-        "sentiment_confidence": 0.4961,
-        "sentiment_reasoning": "The news indicates that Microsoft's cloud growth (Azure) slowed in Q4 and was below analyst expectations, which is a negative development for the company's financial performance and outlook."
+        "sentiment_reasoning": "The negative sentiment for MSFT is driven by the market impact of slowing cloud growth, which fell short of analyst expectations, and the tone of the news which implies a negative outcome. The high source quality from Reuters and the contextual implication of cost-cutting by enterprise clients further support this negative sentiment.",
+        "factor_breakdown": {
+          "market_impact": -0.6,
+          "tone": -0.4,
+          "source_quality": 0.8,
+          "context": -0.5
+        }
       }
     },
     "sentiment_analysis": {
-      "overall_sentiment_score": -0.5,
-      "overall_sentiment_label": "negative",
       "analysis_successful": true,
       "ticker_sentiments": {
         "MSFT": {
-          "sentiment_score": -0.5,
+          "sentiment_score": -0.385,
           "sentiment_label": "negative",
-          "confidence": 0.4961,
-          "raw_llm_confidence": 0.9,
-          "reasoning": "The news indicates that Microsoft's cloud growth (Azure) slowed in Q4 and was below analyst expectations, which is a negative development for the company's financial performance and outlook.",
-          "official_name": "Microsoft Corporation"
+          "reasoning": "The negative sentiment for MSFT is driven by the market impact of slowing cloud growth, which fell short of analyst expectations, and the tone of the news which implies a negative outcome. The high source quality from Reuters and the contextual implication of cost-cutting by enterprise clients further support this negative sentiment.",
+          "factor_breakdown": {
+            "market_impact": -0.6,
+            "tone": -0.4,
+            "source_quality": 0.8,
+            "context": -0.5
+          },
+          "official_name": "MSFT"
         }
       }
     }
@@ -130,24 +144,31 @@
           "tsla"
         ],
         "event_type": "News/Social Media",
-        "sentiment_score": -0.85,
+        "sentiment_score": -0.65,
         "sentiment_label": "negative",
-        "sentiment_confidence": 0.4608,
-        "sentiment_reasoning": "The content explicitly states TSLA 'sinks,' is 'down nearly 7%,' and highlights 'margin concerns' and 'ugly margins,' all indicating a strong negative outlook for the company."
+        "sentiment_reasoning": "The negative sentiment for TSLA is driven by the strong negative market impact of margin concerns resurfacing and the tone of the post, which uses a grimacing face emoji and describes margins as 'ugly'. The source quality is somewhat low due to the lack of specific data, but the context of the stock being down nearly 7% today reinforces the negative sentiment.",
+        "factor_breakdown": {
+          "market_impact": -0.7,
+          "tone": -0.8,
+          "source_quality": -0.2,
+          "context": -0.6
+        }
       }
     },
     "sentiment_analysis": {
-      "overall_sentiment_score": -0.85,
-      "overall_sentiment_label": "negative",
       "analysis_successful": true,
       "ticker_sentiments": {
         "TSLA": {
-          "sentiment_score": -0.85,
+          "sentiment_score": -0.65,
           "sentiment_label": "negative",
-          "confidence": 0.4608,
-          "raw_llm_confidence": 0.95,
-          "reasoning": "The content explicitly states TSLA 'sinks,' is 'down nearly 7%,' and highlights 'margin concerns' and 'ugly margins,' all indicating a strong negative outlook for the company.",
-          "official_name": "Tesla Inc."
+          "reasoning": "The negative sentiment for TSLA is driven by the strong negative market impact of margin concerns resurfacing and the tone of the post, which uses a grimacing face emoji and describes margins as 'ugly'. The source quality is somewhat low due to the lack of specific data, but the context of the stock being down nearly 7% today reinforces the negative sentiment.",
+          "factor_breakdown": {
+            "market_impact": -0.7,
+            "tone": -0.8,
+            "source_quality": -0.2,
+            "context": -0.6
+          },
+          "official_name": "TSLA"
         }
       }
     }
@@ -182,24 +203,31 @@
           "amazon"
         ],
         "event_type": "News/Social Media",
-        "sentiment_score": -0.55,
+        "sentiment_score": -0.31,
         "sentiment_label": "negative",
-        "sentiment_confidence": 0.4713,
-        "sentiment_reasoning": "The news explicitly states Amazon is implementing new layoffs in its retail division, cutting hundreds of jobs, which is generally viewed as a negative development for a company's immediate outlook, despite being framed as cost optimization."
+        "sentiment_reasoning": "The negative sentiment for AMZN is primarily driven by the market impact of layoffs and restructuring, indicating a cost optimization effort that may suggest challenges in the retail division. The tone, while not overly negative, is also influenced by the context of job cuts, contributing to the overall negative sentiment.",
+        "factor_breakdown": {
+          "market_impact": -0.6,
+          "tone": -0.2,
+          "source_quality": 0.8,
+          "context": -0.4
+        }
       }
     },
     "sentiment_analysis": {
-      "overall_sentiment_score": -0.55,
-      "overall_sentiment_label": "negative",
       "analysis_successful": true,
       "ticker_sentiments": {
         "AMZN": {
-          "sentiment_score": -0.55,
+          "sentiment_score": -0.31,
           "sentiment_label": "negative",
-          "confidence": 0.4713,
-          "raw_llm_confidence": 0.9,
-          "reasoning": "The news explicitly states Amazon is implementing new layoffs in its retail division, cutting hundreds of jobs, which is generally viewed as a negative development for a company's immediate outlook, despite being framed as cost optimization.",
-          "official_name": "Amazon.com Inc."
+          "reasoning": "The negative sentiment for AMZN is primarily driven by the market impact of layoffs and restructuring, indicating a cost optimization effort that may suggest challenges in the retail division. The tone, while not overly negative, is also influenced by the context of job cuts, contributing to the overall negative sentiment.",
+          "factor_breakdown": {
+            "market_impact": -0.6,
+            "tone": -0.2,
+            "source_quality": 0.8,
+            "context": -0.4
+          },
+          "official_name": "AMZN"
         }
       }
     }
@@ -231,24 +259,31 @@
           "nvidia"
         ],
         "event_type": "News/Social Media",
-        "sentiment_score": 0.9,
+        "sentiment_score": 0.805,
         "sentiment_label": "positive",
-        "sentiment_confidence": 0.4189,
-        "sentiment_reasoning": "The content explicitly states 'NVIDIA demand remains red hot' and 'demand for NVIDIA GPUs continues to surge' due to accelerating AI spending and generative AI adoption, indicating strong positive catalysts and reinforced by bullish rocket emojis."
+        "sentiment_reasoning": "The strong positive sentiment for NVDA is driven by the high market impact of surging data center demand due to generative AI adoption, extremely bullish tone indicated by 'red hot' and ':rocket::rocket:', and a forward-looking context that suggests continued growth.",
+        "factor_breakdown": {
+          "market_impact": 0.8,
+          "tone": 0.9,
+          "source_quality": 0.6,
+          "context": 0.8
+        }
       }
     },
     "sentiment_analysis": {
-      "overall_sentiment_score": 0.9,
-      "overall_sentiment_label": "positive",
       "analysis_successful": true,
       "ticker_sentiments": {
         "NVDA": {
-          "sentiment_score": 0.9,
+          "sentiment_score": 0.805,
           "sentiment_label": "positive",
-          "confidence": 0.4189,
-          "raw_llm_confidence": 0.95,
-          "reasoning": "The content explicitly states 'NVIDIA demand remains red hot' and 'demand for NVIDIA GPUs continues to surge' due to accelerating AI spending and generative AI adoption, indicating strong positive catalysts and reinforced by bullish rocket emojis.",
-          "official_name": "NVIDIA Corporation"
+          "reasoning": "The strong positive sentiment for NVDA is driven by the high market impact of surging data center demand due to generative AI adoption, extremely bullish tone indicated by 'red hot' and ':rocket::rocket:', and a forward-looking context that suggests continued growth.",
+          "factor_breakdown": {
+            "market_impact": 0.8,
+            "tone": 0.9,
+            "source_quality": 0.6,
+            "context": 0.8
+          },
+          "official_name": "NVDA"
         }
       }
     }

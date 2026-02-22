@@ -293,7 +293,7 @@ async def run_pipeline():
                 print("Successfully updated tickers list\n\n\n")
                 all_tickers.clear()
 
-            # Step 5: Sentiment Analysis (LLM-based using Gemini)
+            # Step 5: Sentiment Analysis
             # Rate limiting: process fewer items with delays between calls for testing
             # Set ENABLE_RATE_LIMITING = False for real-time production processing
             sentiment_last_id = sentiment_checkpoint.load()
