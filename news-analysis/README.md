@@ -8,7 +8,7 @@
   <img width="220" height="204" alt="agent" src="https://github.com/user-attachments/assets/82d27a27-f71c-42ac-bf51-5b1a83893e6a" />
 </p>
 
-## 🤖 Agentic AI Trading Portfolio Backend
+## 🤖 Agentic AI Trading Portfolio Backend (News Analysis)
 
 Agent M - A dynamic, fully autonomous trading portfolio companion designed to navigate the complex digital financial landscape. Leveraging a multi-agent AI architecture, the platform transforms real-time market data, traditional news, and internet sentiment into personalised, actionable investment decisions.
 
@@ -17,7 +17,6 @@ The system operates on behalf of users to mitigate information overload and circ
 ## ⚙️ System Architecture
 
 <img width="1442" height="691" alt="Agent M" src="https://github.com/user-attachments/assets/b3e892eb-8d90-4acf-a1cd-13b767843ad1" />
-
 
 ## 👨‍💻 Tech Stack
 
@@ -35,6 +34,7 @@ The system operates on behalf of users to mitigate information overload and circ
 - [☁️ Amazon Web Services](https://aws.amazon.com)
 
 ## ⚙️ Key Features
+
 - **🤖 Multi-Agent AI Architecture**: Utilises a sophisticated multi-agent system to transform market data and sentiment into autonomous investment decisions.
 - **📥 Real-Time Data Ingestion**: Automatically scrapes and aggregates daily financial news and high-volume internet sentiment from sources like Yahoo Finance, Reddit, and X.
 - **🧠 NLP-Powered News Analysis**: Uses advanced Natural Language Processing (via spaCy, NLTK, and FinBERT) to extract investment-relevant events and perform sentiment analysis.
@@ -47,6 +47,7 @@ The system operates on behalf of users to mitigate information overload and circ
 ## 🚀 Getting Started
 
 To get the microservices backend up and running locally, follow these steps:
+
 - Ensure Docker is running
 - Setup Environment Variables: Create a `.env` file in the individual directory and configure keys.
 - Launch Containers: Run the following command to build and start the services in detached mode `docker compose up -d`

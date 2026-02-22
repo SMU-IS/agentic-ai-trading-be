@@ -1,14 +1,15 @@
 name: News Analysis CI
 
 on:
-  push:
-    branches: ["master"]
-    paths:
-      - "news-analysis/**"
-  pull_request:
-    branches: ["master"]
-    paths:
-      - "news-analysis/**"
+  workflow_dispatch:
+  # push:
+  #   branches: ["master"]
+  #   paths:
+  #     - "news-analysis/**"
+  # pull_request:
+  #   branches: ["master"]
+  #   paths:
+  #     - "news-analysis/**"
 
 jobs:
   python-tests:
@@ -81,9 +82,9 @@ jobs:
       - name: Update Kubeconfig
         run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
 
-      - name: Create K8s Secret from NEWS_ANALYSIS_SECRET
+      - name: Create K8s Secret from NEWS_ANALYSIS_SECRETS
         run: |
-          echo "${{ secrets.NEWS_ANALYSIS_SECRET }}" > .env.tmp
+          echo "${{ secrets.NEWS_ANALYSIS_SECRETS }}" > .env.tmp
 
           kubectl create secret generic news-analysis-secrets \
             --from-env-file=.env.tmp \

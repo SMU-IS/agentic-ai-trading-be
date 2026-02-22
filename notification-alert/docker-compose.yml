@@ -4,9 +4,18 @@ services:
     container_name: notification-service
     volumes:
       - .:/code
-    env_file: .env
     ports:
       - "5004:5004"
     restart: unless-stopped
     environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_NOTIFICATION_STREAM=${REDIS_NOTIFICATION_STREAM}
+      - REDIS_SENTIMENT_STREAM=${REDIS_SENTIMENT_STREAM}
+      - REDIS_ANALYSIS_STREAM=${REDIS_ANALYSIS_STREAM}
+      - REDIS_AGGREGATOR_STREAM=${REDIS_AGGREGATOR_STREAM}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - PYTHONUNBUFFERED=1
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5004
+
+

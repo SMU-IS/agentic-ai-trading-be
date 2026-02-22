@@ -1,12 +1,14 @@
 import pymongo
 from typing import List, Dict, Any, Optional
 from copy import deepcopy
+from bson import ObjectId
 
 class MongoDBClient:
     def __init__(self, uri: str = "mongodb://mongo:27017", db_name: str = "trading_db"):
         self.client = pymongo.MongoClient(uri, uuidRepresentation="standard")
         self.db = self.client[db_name]
         self.orders = self.db.orders
+        self.signals = self.db.signals 
         
     def store_orders_bulk(self, orders: List[Dict[str, Any]]) -> Dict[str, int]:
         """Store multiple orders (synchronous)"""
@@ -47,6 +49,71 @@ class MongoDBClient:
             serialized_doc = doc.copy()
             if '_id' in serialized_doc:
                 serialized_doc['_id'] = str(serialized_doc['_id'])
+            
+            # ✅ Check for signal_id and fetch from signals
+            if 'signal_id' in serialized_doc:
+                signal_id = serialized_doc['signal_id']
+                signal_doc = self.signals.find_one({"_id": ObjectId(signal_id)})
+                if signal_doc:
+                    # Convert ObjectId to string
+                    signal_doc = signal_doc.copy()
+                    if '_id' in signal_doc:
+                        signal_doc['_id'] = str(signal_doc['_id'])
+                    serialized_doc['signal_data'] = signal_doc
+            
             result[order_id] = serialized_doc
-        
+
         return result
+    
+    # Signals - From aggregator service
+    def store_signal(self, signal: Dict[str, Any]) -> Dict[str, Any]:
+        """Store single trading signal."""
+        signal_copy = deepcopy(signal)
+        result = self.signals.insert_one(signal_copy)
+        return {"success": bool(result.inserted_id), "id": str(result.inserted_id) if result.inserted_id else None}
+
+    def get_signals(self, ticker: str = None) -> List[Dict[str, Any]]:
+        """Retrieve signals, optionally filtered by ticker. Includes _id as string."""
+        query = {} if ticker is None else {"ticker": ticker}
+        docs = list(self.signals.find(query))  # Remove projection to include _id
+        
+        # Convert ObjectId to string in each doc
+        for doc in docs:
+            if "_id" in doc:
+                doc["id"] = str(doc["_id"])
+        
+        return docs
+    
+    def get_signal_by_id(self, signal_id: str) -> Optional[Dict[str, Any]]:
+        """Retrieve a single signal by MongoDB _id (as hex string)."""
+        try:
+            doc = self.signals.find_one({"_id": ObjectId(signal_id)})
+            if doc:
+                doc["id"] = str(doc["_id"])  # Convert ObjectId to string for JSON
+            return doc
+        except Exception:
+            return None
+        
+
+    def get_batch_signals_by_ids(self, signal_ids: List[str]) -> Dict[str, Dict[str, Any]]:
+        if not signal_ids:
+            return {}
+        
+        try:
+            # ✅ Query by custom 'id' field (stores UUID strings)
+            cursor = self.signals.find(
+                {"order_id": {"$in": signal_ids}}  # Not _id!
+            )
+            
+            # Map signal_id → document
+            id_to_doc = {}
+            for doc in cursor:
+                signal_id = doc.get("id")  # String UUID
+                if signal_id:
+                    id_to_doc[signal_id] = doc
+            
+            return id_to_doc
+            
+        except Exception as e:
+            print(f"Batch signal lookup error: {e}")
+            return {}

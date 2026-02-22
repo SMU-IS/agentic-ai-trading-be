@@ -1,16 +1,43 @@
 import asyncio
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from app.workers.stream_consumer import StreamConsumer
 from app.workers.sentiment_to_notification import SentimentBridge
+from app.workers.sentiment_to_aggregator import SentimentAggregator
+from app.services.notification_service import router as notification_router
+
 
 app = FastAPI()
 
+app.include_router(notification_router)
+
 @app.on_event("startup")
 async def start_consumers():
-    """
-    Start both Redis consumers when FastAPI starts.
-    """
+    app.state.tasks = []
+    
+    # Sentiment -> Aggregator 
+    sentiment_bridge = SentimentAggregator()
+    task1 = asyncio.create_task(sentiment_bridge.async_start())
+    app.state.tasks.append(task1)
+
     # Sentiment -> Notification bridge
     sentiment_bridge = SentimentBridge()
-    asyncio.create_task(sentiment_bridge.async_start())
+    task2 = asyncio.create_task(sentiment_bridge.async_start())
+    app.state.tasks.append(task2)
 
-    # Notification consumer 
+    # Notification stream consumer
+    stream_consumer = StreamConsumer()
+    task3 = asyncio.create_task(stream_consumer.async_start())
+    app.state.tasks.append(task3)
+
+@app.on_event("shutdown")
+async def stop_consumers():
+    for task in app.state.tasks:
+        task.cancel()
+
+    await asyncio.gather(*app.state.tasks, return_exceptions=True)
+
+
+@app.get("/healthcheck")
+def health():
+    return {"status": "Notification service is healthy"}

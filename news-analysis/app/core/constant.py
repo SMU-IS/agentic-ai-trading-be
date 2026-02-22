@@ -16,7 +16,6 @@ class LLMProviders(str, Enum):
 class StorageProviders(str, Enum):
     QDRANT_OLLAMA = "qdrant_ollama"
     QDRANT_GEMINI = "qdrant_gemini"
-    QDRANT_GROQ = "qdrant_groq"
 
 
 DEFAULT_RULES = {

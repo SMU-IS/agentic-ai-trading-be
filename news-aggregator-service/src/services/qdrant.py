@@ -9,7 +9,8 @@ class QdrantManager:
     def get_client(cls):
         if cls._instance is None:
             url = settings.qdrant_url
-            cls._instance = AsyncQdrantClient(url=url, timeout=5)
+            api_key = settings.qdrant_api_key
+            cls._instance = AsyncQdrantClient(url=url, timeout=5, api_key=api_key)
             print(f"   [⚡ Qdrant] Connection initialized to {url}")
         return cls._instance
 

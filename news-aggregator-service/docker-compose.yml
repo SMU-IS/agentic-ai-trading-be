@@ -1,16 +1,23 @@
 services:
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-  
   news-aggregator:
     build: .
-    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file:
+      - .env
+    container_name: news-aggregator-service
     ports:
-      - "8000:8000"
-    depends_on:
-      - redis
+      - "${PORT:-5008}:5008"
     environment:
-      - REDIS_URL=redis://redis:6379
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PPLX_API_KEY=${PPLX_API_KEY}
+      - QDRANT_URL=${QDRANT_URL}
+      - QDRANT_API_KEY=${QDRANT_API_KEY}
+      - QDRANT_NEWS_COLLECTION=${QDRANT_NEWS_COLLECTION}
+      - AGGREGATOR_BASE_URL=${AGGREGATOR_BASE_URL}
+      - REDIS_AGGREGATOR_STREAM=${REDIS_AGGREGATOR_STREAM}
+      - REDIS_NEWS_STREAM=${REDIS_NEWS_STREAM}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - PORT=${PORT:-5008}
+      - TICKER_EVENTS_QDRANT_URL=${TICKER_EVENTS_QDRANT_URL}
+    command: uvicorn src.main:app --host 0.0.0.0 --port 5008
+    restart: unless-stopped

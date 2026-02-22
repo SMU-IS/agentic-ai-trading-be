@@ -3,10 +3,11 @@ import asyncio
 from app.schemas.raw_news_payload import RedditSourcePayload
 from app.services._06_vectorisation import VectorisationService
 
-qdrant_result = {
-    "id": "uuid-v4-generated-id",
+SAMPLE_QDRANT_RESULT = {
+    "page_content": "AVAV down over 15% today. AVAV.....",
     "metadata": {
-        "article_id": "uuid-v4-generated-id",
+        "topic_id": "reddit:1qigodm",
+        "tickers": ["AVAV", "AAPL"],
         "tickers_metadata": {
             "TSLA": {
                 "event_type": "Earnings Report",
@@ -80,10 +81,9 @@ async def run_test():
 
     try:
         service = VectorisationService()
-        await service.setup_indexing()
-        print("✅ Service Initialized (Connected to Qdrant/Ollama)")
+        await service.ensure_indexes()
     except Exception as e:
-        print(f"❌ Connection Failed. Are Qdrant/Ollama running? Error: {e}")
+        print(f"Error: {e}")
         return
 
     try:

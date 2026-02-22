@@ -1,4 +1,4 @@
-from src.models.news import DeepAnalysis
+from src.models.state import DeepAnalysis, TickerSentiment
 from src.services.llm_service import LLMService
 
 system_prompt = """
@@ -9,6 +9,7 @@ TICKER: {insert_ticker_here}
 CURRENT DATE: {insert_date_here}
 ADDITIONAL CONTEXT: {insert_any_prior_info_here}
 
+In the event where no news collection is provided, you should still evaluate the rumor based on the information given in the prompt. Do not assume that the absence of news means there is no information to analyze. Instead, focus on the content of the rumor itself and any relevant context provided in the prompt to make your evaluation.
 Step-by-step evaluation (reason explicitly):
 
 1. **Source Hierarchy & Specificity** (1-10):
@@ -44,26 +45,19 @@ Output ONLY valid JSON:
 }
 """
 
-sample_news_prompt ="""
-Hims & Hers (HIMS.N), said in a statement on Saturday that it will stop offering access to the compounded semaglutide pill after the U.S. Food and Drug Administration said it would take action against the telehealth provider for its $49 weight-loss pill.
-
-"Since launching the compounded semaglutide pill on our platform, we’ve had constructive conversations with stakeholders across the industry. As a result, we have decided to stop offering access to this treatment," the company said.
-
-The FDA said on Friday that it plans to restrict GLP-1 ingredients used in non-approved compounded drugs that companies such as Hims and other compounding pharmacies have marketed as alternatives to authorized treatments, citing concerns over quality, safety and potential violations of federal law.
-
-The FDA said it would refer the company to the Department of Justice but did not make clear whether it could quickly halt the sale of the Hims' product, the cheapest GLP-1 therapy on the U.S. market.
-
-Reuters reported on Thursday that Hims would begin offering copies of Novo Nordisk's (NOVOb.CO), new Wegovy pill at an introductory price of $49 per month, about $100 less than the brand name.
-"""
-
 class DeepAnalyzer:
     def __init__(self, llm: LLMService):
         self.llm = llm
     
-    async def analyze(self, news_content: str) -> DeepAnalysis:
+    async def analyze(self, news_content: str, article: TickerSentiment) -> DeepAnalysis:
         # Generate research questions
         questions_prompt = f"""
-        These are the latest news collected:
+        Incoming news article:
+        {article.ticker} - {article.event_type}
+        {article.event_description}
+
+
+        These are the latest news collected (if any):
         {news_content}
         """
         
@@ -74,6 +68,7 @@ class DeepAnalyzer:
 
     def print_analysis(self,analysis: DeepAnalysis):
         """Print DeepAnalysis in trading terminal format"""
+        print(analysis)
         print("\n" + "="*80)
         print(f"📊 DEEP ANALYSIS REPORT - {analysis.ticker}")
         print("="*80)
@@ -96,16 +91,3 @@ class DeepAnalyzer:
         
         print(f"\n⚙️  TRADE RATIONALE: {analysis.trade_rationale}")
         print("="*80 + "\n")
-
-
-async def test():
-    llm = LLMService()
-    analyzer = DeepAnalyzer(llm)
-    analysis = await analyzer.analyze(sample_news_prompt)
-    analyzer.print_analysis(analysis)
-
-if __name__ == "__main__":
-    import asyncio
-    from dotenv import load_dotenv
-    load_dotenv()
-    asyncio.run(test())

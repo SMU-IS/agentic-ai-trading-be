@@ -1,36 +1,33 @@
-from src.services.qdrant import QdrantManager
-from qdrant_client.http.models import FieldCondition, Filter, MatchValue
+from typing import Any, Dict
 
-async def lookup_qdrant(ticker_symbol: str, limit: int = 10):
+import httpx
+from src.config import settings
+
+TICKER_EVENTS_QDRANT_URL = settings.ticker_events_qdrant_url
+
+
+async def lookup_qdrant(ticker: str, event: str):
     """
     Memory: Fetches historical context or news related to the ticker.
     """
-    print(f"   [🔍 Qdrant] Searching for historical context on {ticker_symbol}...")
+    qdrant_data = await get_qdrant_data(ticker, event)
+    print("Qdrant data:", qdrant_data)
+    return qdrant_data.get("results", [{"text_content": "No results found in qdrant"}])
 
-    qdrant_client = QdrantManager.get_client()
 
-    query_filter = Filter(
-        must=[
-            FieldCondition(
-                key="metadata.ticker",
-                match=MatchValue(value=ticker_symbol.upper())
+async def get_qdrant_data(ticker: str, event: str) -> Dict[str, Any]:
+    """Fetch Qdrant vector search results for ticker + event"""
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        try:
+            response = await client.get(
+                TICKER_EVENTS_QDRANT_URL,
+                params={"ticker": ticker.lower(), "event_type": event, "limit": 10},
             )
-        ]
-    )
-
-    # ✅ CRITICAL: Add await!
-    results = await qdrant_client.scroll(  # ← AWAIT HERE
-        collection_name="news_tickers",
-        scroll_filter=query_filter,
-        limit=limit,
-        with_payload=True,
-        with_vectors=False,
-    )
-
-    # ✅ Now results is tuple (points, next_offset)
-    points, next_offset = results
-    print(f"   [🔍 Qdrant] Found {len(points)} points for {ticker_symbol}")
-
-    payloads = [p.payload for p in points]
-    return payloads
-
+            response.raise_for_status()
+            return response.json()  # ✅ Raw response
+        except httpx.HTTPStatusError as e:
+            print(f"Qdrant HTTP {e.response.status_code}: {e.response.text[:200]}")
+            return {"status": "error", "error": f"HTTP {e.response.status_code}"}
+        except Exception as e:
+            print(f"Qdrant error: {str(e)}")
+            return {"status": "error", "error": str(e)}

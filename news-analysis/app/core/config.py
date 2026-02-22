@@ -37,6 +37,12 @@ class EnvConfig(BaseSettings):
     redis_sentiment_stream: str = Field(..., validation_alias="SENTIMENT_STREAM")
 
     # LLM
+    # Ollama:
+    ollama_base_url: str = Field(..., validation_alias="OLLAMA_BASE_URL")
+    large_language_model_llama: str = Field(
+        default="llama3.1", validation_alias="LARGE_LANGUAGE_MODEL_LLAMA_LOCAL"
+    )
+
     # Gemini:
     llm_provider_gemini: str = Field(
         default="gemini", validation_alias="LLM_PROVIDER_GEMINI"
@@ -47,19 +53,10 @@ class EnvConfig(BaseSettings):
     )
 
     # Groq:
-    groq_api_key: Optional[str] = Field(
-        default=None, validation_alias="GROQ_API_KEY"
-    )
+    groq_api_key: Optional[str] = Field(default=None, validation_alias="GROQ_API_KEY")
     large_language_model_llama: str = Field(
         default="llama-3.3-70b-versatile", validation_alias="LARGE_LANGUAGE_MODEL_LLAMA"
     )
-
-    # Ollama:
-    ollama_base_url: Optional[str] = Field(
-        default=None, validation_alias="OLLAMA_BASE_URL"
-    )
-    llm_provider: str = Field(..., validation_alias="LLM_PROVIDER")
-    large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
 
     # OpenAI:
     open_ai_api_key: Optional[str] = Field(
@@ -76,6 +73,10 @@ class EnvConfig(BaseSettings):
     storage_provider: StorageProviders = Field(..., validation_alias="STORAGE_PROVIDER")
     qdrant_api_key: str = Field(..., validation_alias="QDRANT_API_KEY")
     qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
+
+    vectorise_and_save_to_qdrant: str = Field(
+        ..., validation_alias="VECTORISE_AND_SAVE_TO_QDRANT"
+    )
 
 
 env_config = EnvConfig()  # type: ignore

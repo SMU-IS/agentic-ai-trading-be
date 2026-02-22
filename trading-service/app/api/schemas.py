@@ -81,3 +81,28 @@ class HistoricalPoint(BaseModel):
 
 class PortfolioHistoryResponse(BaseModel):
     historical: List[HistoricalPoint]
+    
+# Trading_db (signals) models
+class Credibility(str, Enum):
+    LOW = "Low"
+    MEDIUM = "Medium" 
+    HIGH = "High"
+
+class TradeSignal(str, Enum):
+    BUY = "BUY"
+    SHORT = "SHORT"
+    NO_TRADE = "NO_TRADE"
+    
+class DeepAnalysis(BaseModel):
+    id: Optional[str] = Field(None, description="Signal ID")
+    ticker: str = Field(..., description="Stock ticker")
+    rumor_summary: str = Field(..., description="1-sentence recap")
+    credibility: Credibility = Field(..., description="Low|Medium|High")
+    credibility_reason: str = Field(..., description="2-3 sentences")
+    references: List[str] = Field(default_factory=list, description="URLs/sources")
+    trade_signal: TradeSignal = Field(..., description="BUY|SHORT|NO_TRADE")
+    confidence: int = Field(..., description="1-10 scale")
+    trade_rationale: str = Field(..., description="Why this signal")
+    position_size_pct: float = Field(..., description="0.5|1|2")
+    stop_loss_pct: float = Field(..., description="8|10|12")
+    target_pct: float = Field(..., description="20|30|50")

@@ -54,3 +54,13 @@ include:
   - path: ./notification-alert/docker-compose.yml
     env_file: ./notification-alert/.env
     project_directory: ./notification-alert
+
+  # === Trading Agent M Microservice ===
+  - path: ./news-aggregator-service/docker-compose.yml
+    env_file: ./news-aggregator-service/.env
+    project_directory: ./news-aggregator-service
+
+  # === Qdrant Retrieval Microservice ===
+  - path: ./qdrant-retrieval/docker-compose.yml
+    env_file: ./qdrant-retrieval/.env
+    project_directory: ./qdrant-retrieval
