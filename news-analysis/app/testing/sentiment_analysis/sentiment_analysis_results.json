@@ -1,0 +1,212 @@
+{
+  "service": "sentiment_analysis",
+  "golden_dataset": "curated_dataset_200.json",
+  "gemini": {
+    "llm": "Gemini 2.5 Flash",
+    "model": "gemini-2.5-flash",
+    "total_posts": 148,
+    "total_tickers_compared": 279,
+    "correct": 224,
+    "metrics": {
+      "accuracy": 0.8029,
+      "macro_precision": 0.7996,
+      "macro_recall": 0.821,
+      "macro_f1": 0.807
+    },
+    "confusion_matrix": {
+      "matrix": {
+        "positive": {
+          "positive": 82,
+          "negative": 4,
+          "neutral": 15
+        },
+        "negative": {
+          "positive": 1,
+          "negative": 58,
+          "neutral": 4
+        },
+        "neutral": {
+          "positive": 17,
+          "negative": 14,
+          "neutral": 84
+        }
+      },
+      "per_class": {
+        "positive": {
+          "precision": 0.82,
+          "recall": 0.8119,
+          "f1": 0.8159,
+          "support": 101
+        },
+        "negative": {
+          "precision": 0.7632,
+          "recall": 0.9206,
+          "f1": 0.8345,
+          "support": 63
+        },
+        "neutral": {
+          "precision": 0.8155,
+          "recall": 0.7304,
+          "f1": 0.7706,
+          "support": 115
+        }
+      }
+    }
+  },
+  "llama": {
+    "llm": "Llama 3.3 70B (Groq)",
+    "model": "llama-3.3-70b-versatile",
+    "total_posts": 148,
+    "total_tickers_compared": 285,
+    "correct": 247,
+    "metrics": {
+      "accuracy": 0.8667,
+      "macro_precision": 0.878,
+      "macro_recall": 0.88,
+      "macro_f1": 0.8776
+    },
+    "confusion_matrix": {
+      "matrix": {
+        "positive": {
+          "positive": 83,
+          "negative": 3,
+          "neutral": 16
+        },
+        "negative": {
+          "positive": 0,
+          "negative": 63,
+          "neutral": 4
+        },
+        "neutral": {
+          "positive": 8,
+          "negative": 5,
+          "neutral": 101
+        }
+      },
+      "per_class": {
+        "positive": {
+          "precision": 0.9121,
+          "recall": 0.8137,
+          "f1": 0.8601,
+          "support": 102
+        },
+        "negative": {
+          "precision": 0.8873,
+          "recall": 0.9403,
+          "f1": 0.913,
+          "support": 67
+        },
+        "neutral": {
+          "precision": 0.8347,
+          "recall": 0.886,
+          "f1": 0.8596,
+          "support": 114
+        }
+      }
+    }
+  },
+  "qwen": {
+    "llm": "Qwen3 32B (Groq)",
+    "model": "qwen/qwen3-32b",
+    "total_posts": 148,
+    "total_tickers_compared": 284,
+    "correct": 246,
+    "metrics": {
+      "accuracy": 0.8662,
+      "macro_precision": 0.8635,
+      "macro_recall": 0.8766,
+      "macro_f1": 0.8686
+    },
+    "confusion_matrix": {
+      "matrix": {
+        "positive": {
+          "positive": 88,
+          "negative": 3,
+          "neutral": 10
+        },
+        "negative": {
+          "positive": 0,
+          "negative": 64,
+          "neutral": 4
+        },
+        "neutral": {
+          "positive": 11,
+          "negative": 10,
+          "neutral": 94
+        }
+      },
+      "per_class": {
+        "positive": {
+          "precision": 0.8889,
+          "recall": 0.8713,
+          "f1": 0.88,
+          "support": 101
+        },
+        "negative": {
+          "precision": 0.8312,
+          "recall": 0.9412,
+          "f1": 0.8828,
+          "support": 68
+        },
+        "neutral": {
+          "precision": 0.8704,
+          "recall": 0.8174,
+          "f1": 0.843,
+          "support": 115
+        }
+      }
+    }
+  },
+  "ollama": {
+    "llm": "Ollama (llama3.1:latest)",
+    "model": "llama3.1:latest",
+    "total_posts": 148,
+    "total_tickers_compared": 279,
+    "correct": 151,
+    "metrics": {
+      "accuracy": 0.5412,
+      "macro_precision": 0.5439,
+      "macro_recall": 0.6002,
+      "macro_f1": 0.5159
+    },
+    "confusion_matrix": {
+      "matrix": {
+        "positive": {
+          "positive": 77,
+          "negative": 12,
+          "neutral": 12
+        },
+        "negative": {
+          "positive": 5,
+          "negative": 55,
+          "neutral": 3
+        },
+        "neutral": {
+          "positive": 57,
+          "negative": 39,
+          "neutral": 19
+        }
+      },
+      "per_class": {
+        "positive": {
+          "precision": 0.554,
+          "recall": 0.7624,
+          "f1": 0.6417,
+          "support": 101
+        },
+        "negative": {
+          "precision": 0.5189,
+          "recall": 0.873,
+          "f1": 0.6509,
+          "support": 63
+        },
+        "neutral": {
+          "precision": 0.5588,
+          "recall": 0.1652,
+          "f1": 0.255,
+          "support": 115
+        }
+      }
+    }
+  }
+}
