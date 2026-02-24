@@ -4,6 +4,9 @@ from pydantic import BaseModel, Field
 class ChatRequest(BaseModel):
     query: str
     order_id: str | None = None
+    session_id: str = Field(
+        ..., description="Unique ID for the chat thread/conversation"
+    )
 
 
 class GeneralNews(BaseModel):

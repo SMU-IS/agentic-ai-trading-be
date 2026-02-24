@@ -46,5 +46,10 @@ class EnvConfig(BaseSettings):
     aws_bucket_name: str = Field(..., validation_alias="AWS_S3_BUCKET_NAME")
     aws_file_name: str = Field(..., validation_alias="AWS_S3_FILE_NAME")
 
+    # Local Postgres Database
+    postgres_user: str = Field(..., validation_alias="POSTGRES_USER")
+    postgres_password: str = Field(..., validation_alias="POSTGRES_PASSWORD")
+    postgres_db: str = Field(..., validation_alias="POSTGRES_DB")
+
 
 env_config = EnvConfig()  # type: ignore

@@ -3,6 +3,7 @@ import json
 from langchain.agents import create_agent
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import HumanMessage
+from langgraph.checkpoint.postgres import PostgresSaver
 from rich.console import Console
 from rich.panel import Panel
 from rich.pretty import Pretty
@@ -12,6 +13,7 @@ from app.core.constant import LangChainEvent
 from app.core.s3_config import S3ConfigService
 from app.services.tools import RAG_BOT_TOOLS
 from app.utils.logger import setup_logging
+from langchain.agents.middleware import SummarizationMiddleware
 
 console = Console(force_terminal=True)
 
@@ -19,8 +21,9 @@ logger = setup_logging()
 
 
 class AgentBotService:
-    def __init__(self, llm: BaseChatModel):
+    def __init__(self, llm: BaseChatModel, checkpointer: PostgresSaver):
         self.llm: BaseChatModel = llm
+        self.checkpointer = checkpointer
 
         self.aws_config: S3ConfigService = S3ConfigService()
         self.aws_s3_bucket_name: str = env_config.aws_bucket_name
@@ -58,10 +61,23 @@ class AgentBotService:
             Agent: The created agent.
         """
         prompt = self._get_llm_prompt()
-        agent = create_agent(model=self.llm, tools=RAG_BOT_TOOLS, system_prompt=prompt)
+        summariser = SummarizationMiddleware(
+            model=self.llm,
+            trigger=("messages", 20),
+            keep=("messages", 5),
+        )
+
+        agent = create_agent(
+            model=self.llm,
+            tools=RAG_BOT_TOOLS,
+            checkpointer=self.checkpointer,
+            middleware=[summariser],
+            system_prompt=prompt,
+        )
+
         return agent
 
-    async def invoke_agent(self, query: str, order_id: str | None):
+    async def invoke_agent(self, query: str, order_id: str | None, session_id: str):
         """
         Invoke the agent with a given query.
 
@@ -73,6 +89,7 @@ class AgentBotService:
             str: The result of the agent invocation.
         """
 
+        config = {"configurable": {"thread_id": session_id}}
         context_query = f"Regarding Order Id {order_id}: {query}" if order_id else query
 
         try:
@@ -80,7 +97,9 @@ class AgentBotService:
             logger.info(f"Invoking agent with query: {context_query[:50]}...")
 
             results = agent.astream_events(
-                {"messages": [HumanMessage(content=context_query)]}, version="v2"
+                {"messages": [HumanMessage(content=context_query)]},
+                version="v2",
+                config=config,
             )
 
             async for event in results:
