@@ -9,6 +9,12 @@ class ChatRequest(BaseModel):
     )
 
 
+class ChatHistoryResponse(BaseModel):
+    history: list[dict] = Field(
+        ..., description="The list of messages in the conversation"
+    )
+
+
 class GeneralNews(BaseModel):
     query: str = Field(
         ...,
