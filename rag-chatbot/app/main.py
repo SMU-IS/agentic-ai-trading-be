@@ -1,17 +1,32 @@
 import logging
 
+from fastapi import FastAPI
 from fastapi.applications import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
-
+from app.core.db import db_manager
 from app.core.constant import APIPath
 from app.routers import agent_bot
+from contextlib import asynccontextmanager
+
 
 logger = logging.getLogger("uvicorn.error")
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("🚀 Starting up Agentic AI Bot Service...")
+    async for checkpointer in db_manager.get_checkpointer():
+        app.state.checkpointer = checkpointer
+        logger.info("🤩 Application is ready to handle requests.")
+        yield
+
+    logger.info("🛑 Shutting down Agentic AI Service...")
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Agentic AI Trading Portfolio Backend",
     description="",
     contact={
@@ -39,6 +54,9 @@ api_router = APIRouter()
 @app.get(APIPath.HEALTH_CHECK, tags=["Healthcheck"])
 def root():
     return {"status": "RAG Chatbot Service is healthy"}
+
+
+from fastapi import Path
 
 
 # ====== API Endpoints ======
