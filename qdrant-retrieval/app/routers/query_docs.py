@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.constant import APIPath
 from app.schemas.query_docs_payload import QueryDocsRequest
 from app.services.query_qdrant import QueryQdrantService
-from fastapi import APIRouter, Query, HTTPException
+
 router = APIRouter(tags=["Query Documents"])
 
 
-@router.get("/news")
+@router.get(APIPath.NEWS)
 async def get_all_news(
     limit: int = Query(20, ge=1, le=100),
     offset: str = Query(None, description="The offset ID for pagination"),
@@ -22,11 +22,12 @@ async def get_all_news(
             "status": "success",
             "count": len(data["results"]),
             "next_offset": data["next_offset"],
-            "data": data["results"]
+            "data": data["results"],
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    
+
+
 @router.post(APIPath.QUERY)
 async def search_news(
     payload: QueryDocsRequest,
