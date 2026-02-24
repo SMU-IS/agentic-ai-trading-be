@@ -15,7 +15,6 @@ langchain-google-genai==4.2.0
 langchain-groq==1.1.2
 langchain-ollama==1.0.1
 langchain-qdrant==1.1.0
-langgraph-checkpoint-postgres==3.0.4
 networkx==3.6.1
 pip==25.0
 pydantic-extra-types==2.11.0
