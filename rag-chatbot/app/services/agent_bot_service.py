@@ -12,6 +12,7 @@ from rich.pretty import Pretty
 from app.core.config import env_config
 from app.core.constant import LangChainEvent
 from app.core.s3_config import S3ConfigService
+from app.schemas.chat import ChatHistoryResponse
 from app.services.tools import RAG_BOT_TOOLS
 from app.utils.logger import setup_logging
 
@@ -129,3 +130,58 @@ class AgentBotService:
 
         finally:
             yield "data: [DONE]\n\n"
+
+    async def get_chat_history(self, session_id: str) -> ChatHistoryResponse:
+        """
+        Fetch chat history from a given session ID.
+
+        Args:
+            session_id (str): The session ID to fetch history for.
+
+        Returns:
+            list: A list of messages in the conversation.
+        """
+
+        config = {"configurable": {"thread_id": session_id}}
+        try:
+            state = await self.checkpointer.aget(config)
+            messages = (
+                state.get("channel_values", {}).get("messages", []) if state else []
+            )
+            return [
+                self._format_message(msg)
+                for msg in messages
+                if self._is_displayable(msg)
+                and (msg.content if hasattr(msg, "content") else msg.get("content"))
+                != ""
+            ]
+
+        except Exception as e:
+            logger.error(f"Error fetching chat history: {e}")
+            return []
+
+    def _is_displayable(self, msg) -> bool:
+        content = msg.content if hasattr(msg, "content") else msg.get("content", "")
+        m_type = msg.type if hasattr(msg, "type") else msg.get("type", "")
+
+        is_empty = content.strip() == ""
+        is_technical = m_type in ["tool", "system"]
+        is_summary = "summary of the conversation" in content.lower()
+
+        return not (is_empty or is_technical or is_summary)
+
+    def _format_message(self, msg):
+        """Converts a message object/dict into a clean API-friendly dictionary."""
+        m = (
+            msg.dict()
+            if hasattr(msg, "dict")
+            else (msg if isinstance(msg, dict) else {})
+        )
+
+        metadata = m.get("response_metadata", {})
+
+        return {
+            "content": m.get("content", ""),
+            "type": m.get("type", "unknown"),
+            "created_at": metadata.get("created_at", "unknown"),
+        }

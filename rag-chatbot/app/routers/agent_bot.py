@@ -3,7 +3,7 @@ from functools import lru_cache
 from app.core.config import env_config
 from app.core.constant import APIPath
 from app.providers.llm.registry import get_strategy
-from app.schemas.chat import ChatRequest
+from app.schemas.chat import ChatHistoryResponse, ChatRequest
 from app.services.agent_bot_service import AgentBotService
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
@@ -29,3 +29,12 @@ async def chat_stream(
         ),
         media_type="text/event-stream",
     )
+
+
+@router.get(APIPath.CHAT_HISTORY, response_model=ChatHistoryResponse)
+async def get_chat_history(
+    session_id: str,
+    agent_bot_service: AgentBotService = Depends(get_agent_bot_service),
+):
+    history = await agent_bot_service.get_chat_history(session_id)
+    return ChatHistoryResponse(history=history)
