@@ -1,15 +1,14 @@
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from fastapi.applications import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
-from app.core.db import db_manager
-from app.core.constant import APIPath
-from app.routers import agent_bot
-from contextlib import asynccontextmanager
 
+from app.core.constant import APIPath
+from app.core.db import db_manager
+from app.routers import agent_bot
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -54,9 +53,6 @@ api_router = APIRouter()
 @app.get(APIPath.HEALTH_CHECK, tags=["Healthcheck"])
 def root():
     return {"status": "RAG Chatbot Service is healthy"}
-
-
-from fastapi import Path
 
 
 # ====== API Endpoints ======

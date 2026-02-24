@@ -1,6 +1,7 @@
 import json
 
 from langchain.agents import create_agent
+from langchain.agents.middleware import SummarizationMiddleware
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.postgres import PostgresSaver
@@ -13,7 +14,6 @@ from app.core.constant import LangChainEvent
 from app.core.s3_config import S3ConfigService
 from app.services.tools import RAG_BOT_TOOLS
 from app.utils.logger import setup_logging
-from langchain.agents.middleware import SummarizationMiddleware
 
 console = Console(force_terminal=True)
 
