@@ -1,6 +1,5 @@
 from functools import lru_cache
 
-
 from app.core.config import env_config
 from app.core.constant import APIPath
 from app.providers.llm.registry import get_strategy
@@ -8,7 +7,6 @@ from app.schemas.chat import ChatRequest
 from app.services.agent_bot_service import AgentBotService
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
-
 
 router = APIRouter(tags=["RAG Chatbot"])
 
