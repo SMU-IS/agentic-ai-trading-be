@@ -10,9 +10,10 @@ from rich.panel import Panel
 from rich.pretty import Pretty
 
 from app.core.config import env_config
-from app.core.constant import LangChainEvent
+from app.core.constant import LangChainEvent, RedisCacheKeys
 from app.core.s3_config import S3ConfigService
 from app.schemas.chat import ChatHistoryResponse
+from app.services.redis_service import RedisService
 from app.services.tools import RAG_BOT_TOOLS
 from app.utils.logger import setup_logging
 
@@ -30,11 +31,14 @@ class AgentBotService:
         self.aws_s3_bucket_name: str = env_config.aws_bucket_name
         self.aws_s3_file_name: str = env_config.aws_file_name
 
+        self.redis_service = RedisService()
+        self.bot_cached_key = RedisCacheKeys.AGENT_BOT_PROMPT.value
         self._prompt_cache = None
 
     def _get_llm_prompt(self) -> str:
         """
-        Fetches the prompt from S3 and caches it.
+        Checks Redis cache for the prompt, if not found,
+        fetches the prompt from S3 and caches it.
 
         Returns:
             str: The prompt.
@@ -42,11 +46,21 @@ class AgentBotService:
         if self._prompt_cache:
             return self._prompt_cache
 
+        cached_prompt = self.redis_service.get_cached_prompt(self.bot_cached_key)
+        if cached_prompt:
+            logger.info("🔴 Prompt loaded from Redis.")
+            self._prompt_cache = cached_prompt
+            return cached_prompt
+
         try:
-            logger.info(f"Fetching fresh prompt from S3: {self.aws_s3_file_name}")
+            logger.info(f"🟢 Fetching fresh prompt from S3: {self.aws_s3_file_name}")
             content = self.aws_config.get_file_content(
                 self.aws_s3_bucket_name, self.aws_s3_file_name
             )
+            self.redis_service.set_cached_prompt(
+                self.bot_cached_key, content, expiry=60 * 60 * 24
+            )  # Cache for 24 hours
+
             self._prompt_cache = content
             return content
 

@@ -20,3 +20,7 @@ class LLMProviders(str, Enum):
     OLLAMA = "ollama"
     GEMINI = "gemini"
     GROQ = "groq"
+
+
+class RedisCacheKeys(str, Enum):
+    AGENT_BOT_PROMPT = "agent_bot_prompt"

@@ -51,5 +51,10 @@ class EnvConfig(BaseSettings):
     postgres_password: str = Field(..., validation_alias="POSTGRES_PASSWORD")
     postgres_db: str = Field(..., validation_alias="POSTGRES_DB")
 
+    # Redis
+    redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
+    redis_host: str = Field(..., validation_alias="REDIS_HOST")
+    redis_port: int = Field(..., validation_alias="REDIS_PORT")
+
 
 env_config = EnvConfig()  # type: ignore
