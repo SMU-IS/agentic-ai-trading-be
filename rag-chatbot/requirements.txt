@@ -22,3 +22,4 @@ pytest-html==4.2.0
 python-multipart==0.0.22
 uvloop==0.22.1
 watchfiles==1.1.1
+redis==5.0.0
