@@ -198,11 +198,20 @@ def normalize_proposed_events(ticker_metadata: dict):
 
         if proposal:
             proposed_event_name = proposal.get("proposed_event_name")
+            proposed_description = proposal.get("description")
+
             if proposed_event_name:
                 logger.info(
                     f"🔄 Converting proposal → event_type for {ticker}: {proposed_event_name}"
                 )
                 info["event_type"] = proposed_event_name
+            
+            if proposed_description:
+                logger.info(
+                    f"🔄 Converting proposed_description → event_description for {ticker}: {proposed_description}"
+                )
+                info["event_description"] = proposed_description
+
 
 
 # ================= MESSAGE PROCESSING =================
