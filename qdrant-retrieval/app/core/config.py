@@ -32,6 +32,8 @@ class EnvConfig(BaseSettings):
     redis_port: int = Field(..., validation_alias="REDIS_PORT")
     redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
     redis_sentiment_stream: str = Field(..., validation_alias="SENTIMENT_STREAM")
+    redis_aggregator_stream: str = Field(..., validation_alias="AGGREGATOR_STREAM")
+
 
 
 env_config = EnvConfig()  # type: ignore

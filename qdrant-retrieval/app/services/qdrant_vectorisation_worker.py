@@ -14,6 +14,8 @@ logger = setup_logging()
 
 # ================= CONFIG =================
 SENTIMENT_STREAM_NAME = env_config.redis_sentiment_stream
+AGGREGATOR_STREAM_NAME = env_config.redis_aggregator_stream
+
 
 CONSUMER_GROUP = "vectorisation_group"
 CONSUMER_NAME = f"vectorisation_{uuid.uuid4().hex[:6]}"
@@ -37,6 +39,7 @@ redis_client = redis.Redis(
 )
 
 sentiment_stream = RedisStreamStorage(SENTIMENT_STREAM_NAME, redis_client)
+aggregator_stream = RedisStreamStorage(AGGREGATOR_STREAM_NAME, redis_client)
 
 vector_service = VectorisationService()
 
@@ -57,11 +60,12 @@ async def setup_consumer_group():
 
 
 # ==========================================================
-# ACK
+# FINALISE MESSAGE - ACK AND DELETE
 # ==========================================================
-async def acknowledge_message(msg_id: str):
-    await sentiment_stream.acknowledge(CONSUMER_GROUP, msg_id)
 
+async def finalize_message(msg_id: str):
+    await sentiment_stream.acknowledge(CONSUMER_GROUP, msg_id)
+    await sentiment_stream.delete(msg_id)
 
 # ==========================================================
 # HEARTBEAT
@@ -130,21 +134,28 @@ async def recover_pending_messages():
         try:
             decoded = decode_message(data)
             if not decoded:
-                await acknowledge_message(msg_id)
+                await finalize_message(msg_id)
                 continue
             
-            payload_dict = {"id": msg_id, "fields": data}
-            print(payload_dict)
+            payload_dict = {"id": msg_id, "fields": decoded}
+            payload = RedditSourcePayload.model_validate(payload_dict)
+            post_id = decoded.get("id")
 
-            result = await vectorise(payload_dict)
+            result = await vectorise(payload)
 
             if not result:
+                await finalize_message(msg_id)
                 continue
+                
+            try:
+                await aggregator_stream.save(decoded)
+            except asyncio.CancelledError:
+                raise
 
             # ✅ ACK after success
-            await acknowledge_message(msg_id)
+            await finalize_message(msg_id)
 
-            logger.info(f"✅ Vectorised (recovered) {decoded.id}")
+            logger.info(f"✅ Vectorised (recovered) Post {post_id}")
 
         except Exception as e:
             logger.error(f"❌ Recovery failed {msg_id}: {e}")
@@ -178,7 +189,6 @@ async def cleanup_dead_consumers():
     except Exception as e:
         logger.error(f"Cleanup error: {e}")
 
-
 # ==========================================================
 # WORKER LOOP
 # ==========================================================
@@ -205,24 +215,30 @@ async def worker_loop():
                 count=BATCH_SIZE,
                 block_ms=5000,
             )
-
             for msg_id, data in entries:
                 try:
                     decoded = decode_message(data)
                     if not decoded:
-                        await acknowledge_message(msg_id)
+                        await finalize_message(msg_id)
                         continue
 
-                    payload_dict = {"id": msg_id, "fields": data}
-                    print(payload_dict)
+                    payload_dict = {"id": msg_id, "fields": decoded}
+                    payload = RedditSourcePayload.model_validate(payload_dict)
+                    post_id = decoded.get("id")
 
-                    result = await vectorise(payload_dict)
+                    result = await vectorise(payload)
                     if not result:
+                        await finalize_message(msg_id)
                         continue
+                    
+                    try:
+                        await aggregator_stream.save(decoded)
+                    except asyncio.CancelledError:
+                        raise
 
-                    await acknowledge_message(msg_id)
+                    await finalize_message(msg_id)
 
-                    logger.info(f"✅ Vectorised Post {decoded.id}")
+                    logger.info(f"✅ Vectorised Post {post_id}")
 
                 except Exception as e:
                     logger.error(f"❌ Error processing {msg_id}: {e}")
@@ -264,7 +280,7 @@ async def main():
 
     logger.info("💨 Starting Vectorisation Service...")
     logger.info(f"📦 Consuming from: {SENTIMENT_STREAM_NAME}")
-    logger.info("📤 Writing to Qdrant")
+    logger.info(f"📤 Writing to Qdrant and {AGGREGATOR_STREAM_NAME}")
     logger.info(f"👥 Consumer Group: {CONSUMER_GROUP}")
     logger.info(f"👤 Consumer Name: {CONSUMER_NAME}")
     logger.info(f"🔑 Heartbeat Key: {HEARTBEAT_KEY}")

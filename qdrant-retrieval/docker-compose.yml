@@ -20,6 +20,7 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - SENTIMENT_STREAM=${SENTIMENT_STREAM}
+      - AGGREGATOR_STREAM=${AGGREGATOR_STREAM}
     command: uvicorn app.main:app --host 0.0.0.0 --port 5009 
     restart: unless-stopped
 
@@ -40,5 +41,6 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - SENTIMENT_STREAM=${SENTIMENT_STREAM}
+      - AGGREGATOR_STREAM=${AGGREGATOR_STREAM}
     command: python -m app.services.qdrant_vectorisation_worker
     restart: unless-stopped
