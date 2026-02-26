@@ -20,10 +20,48 @@ class RedisStreamStorage:
     # Basic Stream Operations
     # ==========================================================
 
-    async def save(self, item: Dict[str, Any]) -> str:
-        """Save a single message and return message ID."""
+    async def save(self, item: Dict[str, Any]) -> Optional[str]:
+        """
+        Save message to stream with built-in dedup (1-day TTL).
+        Returns stream message ID if saved.
+        Returns None if duplicate detected.
+        """
+
+        # ----------------------------------------
+        # Extract unique ID for dedup
+        # ----------------------------------------
+        try:
+            post_id = item.get('id')
+        except KeyError:
+            logger.error("❌ post id missing — cannot deduplicate")
+            return None
+
+        dedup_key = f"ticker_dedup:{post_id}"
+
+        # ----------------------------------------
+        # Try acquiring dedup lock
+        # ----------------------------------------
+        acquired = await self.r.set(
+            dedup_key,
+            "1",
+            nx=True,
+            ex=60 * 60 * 24,  # 1 day
+        )
+
+        if not acquired:
+            logger.info(f"⚠ Duplicate detected for {post_id} — skipping save")
+            return None
+
+        # ----------------------------------------
+        # Save to stream
+        # ----------------------------------------
         json_data = {k: json.dumps(v) for k, v in item.items()}
-        return await self.r.xadd(self.stream_name, json_data)
+        msg_id = await self.r.xadd(self.stream_name, json_data)
+
+        logger.info(f"✅ Saved stream message {msg_id} for {post_id}")
+
+        return msg_id
+
 
     async def save_batch(self, items: List[Dict[str, Any]]) -> List[str]:
         """Save multiple messages using pipeline."""
