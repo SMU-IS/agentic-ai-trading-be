@@ -1,0 +1,30 @@
+services:
+  preprocessing-api:
+    build: .
+    container_name: preprocessing-api-container
+    env_file:
+      - .env
+    ports:
+      - "5011:5011"
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDDIT_STREAM=${REDDIT_STREAM}
+      - PREPROC_STREAM=${PREPROC_STREAM}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5011
+    restart: unless-stopped
+
+  preprocessing-worker:
+    build: .
+    container_name: preprocessing-worker-container
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDDIT_STREAM=${REDDIT_STREAM}
+      - PREPROC_STREAM=${PREPROC_STREAM}
+    command: python -m app.services.preprocessing_worker
+    restart: unless-stopped

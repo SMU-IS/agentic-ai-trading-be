@@ -1,0 +1,44 @@
+services:
+  event-identification-api:
+    build: .
+    container_name: event-identification-api-container
+    env_file:
+      - .env
+    ports:
+      - "5013:5013"
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - TICKER_STREAM=${TICKER_STREAM}
+      - EVENT_STREAM=${EVENT_STREAM}
+      - LARGE_LANGUAGE_MODEL_LLAMA_LOCAL=${LARGE_LANGUAGE_MODEL_LLAMA_LOCAL}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - AWS_BUCKET_ACCESS_KEY=${AWS_BUCKET_ACCESS_KEY}
+      - AWS_BUCKET_SECRET=${AWS_BUCKET_SECRET}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - EVENTS_KEY=${EVENTS_KEY}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5013
+    restart: unless-stopped
+
+  event-identification-worker:
+    build: .
+    container_name: event-identification-worker-container
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - TICKER_STREAM=${TICKER_STREAM}
+      - EVENT_STREAM=${EVENT_STREAM}
+      - LARGE_LANGUAGE_MODEL_LLAMA_LOCAL=${LARGE_LANGUAGE_MODEL_LLAMA_LOCAL}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - AWS_BUCKET_ACCESS_KEY=${AWS_BUCKET_ACCESS_KEY}
+      - AWS_BUCKET_SECRET=${AWS_BUCKET_SECRET}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - EVENTS_KEY=${EVENTS_KEY}
+    command: python -m app.services.event_identification_worker
+    restart: unless-stopped

@@ -1,0 +1,48 @@
+services:
+  ticker-identification-api:
+    build: .
+    container_name: ticker-identification-api-container
+    env_file:
+      - .env
+    ports:
+      - "5012:5012"
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - TICKER_STREAM=${TICKER_STREAM}
+      - PREPROC_STREAM=${PREPROC_STREAM}
+      - LARGE_LANGUAGE_MODEL_LLAMA_LOCAL=${LARGE_LANGUAGE_MODEL_LLAMA_LOCAL}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - AWS_BUCKET_ACCESS_KEY=${AWS_BUCKET_ACCESS_KEY}
+      - AWS_BUCKET_SECRET=${AWS_BUCKET_SECRET}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - CLEANED_KEY=${CLEANED_KEY}
+      - ALIAS_KEY=${ALIAS_KEY}
+      - EVENTS_KEY=${EVENTS_KEY}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5012
+    restart: unless-stopped
+
+  ticker-identification-worker:
+    build: .
+    container_name: ticker-identification-worker-container
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - TICKER_STREAM=${TICKER_STREAM}
+      - PREPROC_STREAM=${PREPROC_STREAM}
+      - LARGE_LANGUAGE_MODEL_LLAMA_LOCAL=${LARGE_LANGUAGE_MODEL_LLAMA_LOCAL}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - AWS_BUCKET_ACCESS_KEY=${AWS_BUCKET_ACCESS_KEY}
+      - AWS_BUCKET_SECRET=${AWS_BUCKET_SECRET}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - CLEANED_KEY=${CLEANED_KEY}
+      - ALIAS_KEY=${ALIAS_KEY}
+      - EVENTS_KEY=${EVENTS_KEY}
+    command: python -m app.services.ticker_identification_worker
+    restart: unless-stopped
