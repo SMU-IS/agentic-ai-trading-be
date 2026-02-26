@@ -12,6 +12,44 @@ class QueryQdrantService:
         self.strategy = QdrantGeminiStrategy()
         self.vector_store = self.strategy.get_vector_store()
 
+    async def retrieve_all_news(self, limit: int = 20, offset: Any = None) -> dict[str, Any]:
+        """
+        Retrieves a page of documents from the collection without any filters.
+        
+        Args:
+            limit (int): Number of documents to return.
+            offset (Any): The ID from which to start scrolling (for pagination).
+            
+        Returns:
+            dict: A dictionary containing the list of documents and the next offset.
+        """
+        try:
+            records, next_offset = self.vector_store.client.scroll(
+                collection_name="news_analysis_compiled",
+                limit=limit,
+                offset=offset,
+                with_payload=True,
+                with_vectors=False
+            )
+
+            formatted_results = []
+            for record in records:
+                payload = record.payload
+                metadata = payload.get("metadata", {})
+                formatted_results.append({
+                    "topic_id": metadata.get("topic_id"),
+                    "text_content": payload.get("page_content") or metadata.get("text_content"),
+                    "metadata": metadata
+                })
+            return {
+                "results": formatted_results,
+                "next_offset": next_offset
+            }
+
+        except Exception as e:
+            logger.error(f"❌ Error retrieving all news: {str(e)}")
+            raise RuntimeError(f"Failed to scroll documents: {e}")
+        
     async def retrieve_ticker_insights(
         self, payload: QueryDocsRequest
     ) -> list[dict[str, Any]]:

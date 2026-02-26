@@ -27,5 +27,11 @@ class EnvConfig(BaseSettings):
     qdrant_api_key: str = Field(..., validation_alias="QDRANT_API_KEY")
     qdrant_url: str = Field(..., validation_alias="QDRANT_URL")
 
+    # Redis
+    redis_host: str = Field(..., validation_alias="REDIS_HOST")
+    redis_port: int = Field(..., validation_alias="REDIS_PORT")
+    redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
+    redis_sentiment_stream: str = Field(..., validation_alias="SENTIMENT_STREAM")
+
 
 env_config = EnvConfig()  # type: ignore
