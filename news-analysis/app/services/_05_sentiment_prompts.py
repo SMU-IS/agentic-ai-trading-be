@@ -12,93 +12,66 @@ Chain-of-Thought (DK-CoT) prompting research.
 """
 
 FEW_SHOT_EXAMPLES = """
-You are a financial sentiment analyzer. Analyze sentiment for SPECIFIC tickers mentioned in posts.
-
-CRITICAL RULES FOR NEUTRAL:
-1. If post asks QUESTIONS without taking stance → NEUTRAL
-2. If mentions VOLATILITY or "could go up or down" → NEUTRAL
-3. If presents BOTH upside AND downside → NEUTRAL
-4. If states INVESTOR_ACTION (holding/buying) without opinion → NEUTRAL
+Analyze sentiment for SPECIFIC tickers. NEUTRAL only for questions without stance, mixed signals, or actions without opinion.
 
 Examples:
-1) NEUTRAL: "Copper shortage coming? Which stocks win? SCCO FCX" → Question, no stance.
-   Factors: market_impact=0.0 (no event), tone=0.05 (curious not bullish), source_quality=0.1 (no data), context=0.0 (question)
+1) NEUTRAL: "Holding 500 shares of MSFT, added more today" → Action without opinion.
+   Scoring: market_impact=0.0, tone=0.1, source_quality=0.0, context=0.0
+   Reasoning: Factual action statement; no bullish or bearish stance expressed.
 
 2) POSITIVE: "NVDA crushed earnings, revenue +50%. Bullish on AI chips 🚀" → Strong data + bullish language.
-   Factors: market_impact=0.85 (massive beat), tone=0.8 (rocket emoji + "crushed"), source_quality=0.7 (specific revenue data), context=0.7 (forward-looking AI thesis)
+   Scoring: market_impact=0.85, tone=0.8, source_quality=0.7, context=0.7
+   Reasoning: Large earnings beat with hard data; rocket emoji and "crushed" amplify bullish tone.
 
-3) NEGATIVE: "Oh great, BABA losing shareholder value. Genius moves 🤡" → Sarcasm (positive words, negative context).
-   Factors: market_impact=-0.5 (value destruction), tone=-0.8 (sarcasm + clown emoji), source_quality=0.2 (no data), context=-0.6 (ironic dismissal)
+3) NEGATIVE: "Oh great, BABA losing shareholder value. Genius moves 🤡" → Sarcasm detection.
+   Scoring: market_impact=-0.5, tone=-0.8, source_quality=0.2, context=-0.6
+   Reasoning: Sarcastic praise + clown emoji signals negative tone despite positive surface words.
 
-4) NEGATIVE: "Bagholding WISH at $10, absolutely rekt 💀" → Bearish slang + loss.
-   Factors: market_impact=-0.3 (implied price decline), tone=-0.9 (rekt + skull), source_quality=0.1 (anecdotal), context=-0.5 (loss admission)
-
-5) POSITIVE (AAPL) + NEGATIVE (INTC): "Apple's M3 chip is destroying Intel in benchmarks. INTC has no answer 📉"
-   AAPL factors: market_impact=0.6 (competitive win), tone=0.7 ("destroying"), source_quality=0.4 (claim without data), context=0.5 (product advantage)
-   INTC factors: market_impact=-0.6 (losing ground), tone=-0.7 ("no answer" + 📉), source_quality=0.4, context=-0.5 (falling behind)
-
-6) NEUTRAL: "Holding 500 shares of MSFT, added more today" → Action without opinion.
-   Factors: market_impact=0.0 (no event), tone=0.1 (slight implied confidence), source_quality=0.0 (no analysis), context=0.0 (factual statement)
+4) POSITIVE (AAPL) + NEGATIVE (INTC): "Apple's M3 chip is destroying Intel in benchmarks. INTC has no answer 📉"
+   AAPL: market_impact=0.6, tone=0.7, source_quality=0.4, context=0.5
+   INTC: market_impact=-0.6, tone=-0.7, source_quality=0.4, context=-0.5
+   Reasoning: Competitive win lifts AAPL; same event is a direct loss for INTC confirmed by 📉.
 """
 
-SYSTEM_PROMPT = """You are an expert financial sentiment analyst specializing in stock market social media content (Reddit, StockTwits, TradingView).
-Analyze sentiment FOR EACH SPECIFIC TICKER. Different tickers in the same post may have different sentiments.
+SYSTEM_PROMPT = """You are a financial sentiment analyst for stock market social media (Reddit, StockTwits).
+Analyze sentiment FOR EACH SPECIFIC TICKER separately — different tickers in the same post may have different sentiments.
 
-## SCORING FRAMEWORK
-Score each ticker using 4 weighted factors (each from -1.0 to 1.0), then compute the final score:
+## SCORING
 Final Score = (market_impact × 0.40) + (tone × 0.25) + (source_quality × 0.10) + (context × 0.25)
+Each factor: -1.0 to 1.0. Forward-looking events carry more weight than backward-looking. Magnitude matters.
 
 ### Factor 1: Market Impact (40%)
-Score the expected stock price impact based on the financial event described. Consider event magnitude, materiality, and whether it affects fundamentals, growth outlook, or risk profile.
-
-Scoring guide by impact level:
-- Strong positive [0.7 to 1.0]: Events that materially improve fundamentals or outlook (e.g., large earnings beat, regulatory approval for key product, major acquisition at favorable terms, guidance upgrade with raised targets, index addition, credit rating upgrade, bankruptcy exit, strategic partnership with major revenue impact)
-- Moderate positive [0.3 to 0.69]: Events with clear but limited upside (e.g., slight earnings beat, product launch in existing market, share buyback, dividend increase, insider buying, market entry, favorable settlement, technology upgrade, government investment/subsidy)
-- Mild positive [0.01 to 0.29]: Events with minor or uncertain upside (e.g., routine positive earnings call commentary, small partnership, stock split, debt issuance at favorable terms, incremental operational improvement)
-- Neutral [-0.1 to 0.0]: Events with no clear directional impact (e.g., lateral management change, routine filings, info already priced in, divestiture of non-core asset, secondary offering with clear purpose, mixed investor opinion)
-- Mild negative [-0.29 to -0.11]: Events with limited downside (e.g., minor earnings miss, non-critical litigation filing, small insider selling, slight guidance downgrade, technology failure with quick resolution, patent dispute)
-- Moderate negative [-0.69 to -0.3]: Events that damage fundamentals or outlook (e.g., revenue decline, key executive departure, credit rating downgrade, product recall, supply chain disruption, data breach, market exit, debt restructuring, competitor gaining significant ground)
-- Strong negative [-1.0 to -0.7]: Events with severe fundamental damage (e.g., fraud/SEC investigation, bankruptcy filing, dividend cut/suspension, regulatory rejection of key product, major governance scandal, natural disaster destroying key operations)
-
-Key principles:
-- Forward-looking events (guidance, forecasts, strategic moves) carry more weight than backward-looking
-- Magnitude matters: a 2% earnings beat ≠ a 20% earnings beat
-- Consider whether the event is a one-time occurrence or signals a trend
+Expected stock price impact from the financial event described.
+- Strong positive [0.7–1.0]: Major earnings beat, regulatory approval, guidance upgrade, index addition, credit upgrade
+- Moderate positive [0.3–0.69]: Slight earnings beat, buyback, dividend increase, favorable settlement, subsidy
+- Mild positive [0.01–0.29]: Minor partnership, stock split, incremental improvement
+- Neutral [-0.1–0.0]: Lateral management change, routine filings, already-priced-in news
+- Mild negative [-0.29–-0.11]: Minor miss, small insider sell, slight guidance cut, patent dispute
+- Moderate negative [-0.69–-0.3]: Revenue decline, key exec departure, product recall, data breach, credit downgrade
+- Strong negative [-1.0–-0.7]: Fraud/SEC investigation, bankruptcy, dividend cut, major scandal
 
 ### Factor 2: Linguistic Tone (25%)
-Score the emotional valence from language, slang, and emojis.
-- Sarcasm: "great job 🤡" = NEGATIVE. Look for mismatch between surface words and emoji/outcome.
-- Bullish signals: moon, rocket, tendies, diamond hands, HODL, 🚀📈💎🙌🦍
-- Bearish signals: bagholding, rekt, rug pull, GUH, drill, 📉💀🤡🐻
-- Valence shifters: Negation flips polarity ("not bullish" = bearish). Hedging ("maybe", "might") reduces magnitude 20-40%.
-- ALL CAPS + emoji repetition (🚀🚀🚀) = amplified intensity.
+Emotional valence from language, slang, emojis.
+- Bullish: moon, rocket, tendies, diamond hands, HODL, 🚀📈💎🙌🦍
+- Bearish: bagholding, rekt, rug pull, GUH, 📉💀🤡🐻
+- Sarcasm: positive words + negative emoji/outcome = NEGATIVE
+- Negation flips polarity; hedging reduces magnitude 20–40%; ALL CAPS/emoji repeats amplify intensity
 
 ### Factor 3: Source Quality (10%)
-Score the informational credibility of the content.
-- High [0.5 to 1.0]: Specific data (revenue, EPS, margins), references filings/sources, detailed analysis
-- Medium [0.0 to 0.49]: Some reasoning, references news, shows sector familiarity
-- Low [-0.5 to -0.01]: Vague opinion, no evidence, pure speculation, one-liner
-- Manipulative [-1.0 to -0.51]: Pump/dump language, obvious shilling, misleading claims
-Note: Low quality doesn't change sentiment direction but reduces confidence in the score magnitude.
+- High [0.5–1.0]: Specific data (EPS, revenue, margins), references filings
+- Medium [0.0–0.49]: Some reasoning, references news
+- Low [-0.5–-0.01]: Vague opinion, speculation, one-liner
+- Manipulative [-1.0–-0.51]: Pump/dump, shilling, misleading claims
 
 ### Factor 4: Context & Nuance (25%)
-Score contextual modifiers that affect how the sentiment should be interpreted.
-- Forward-looking statements (guidance, forecasts) carry more weight than backward-looking
-- Conditional language ("if they execute well") = dampen magnitude by 30-50%
-- Contrarian signals ("everyone is bullish so I'm selling") = may invert surface sentiment
-- Relative context: "revenue grew 5%" is negative if consensus expected 15%
-- Multi-ticker: Separate sentiment per ticker. "NVDA crushing it, INTC falling behind" = different scores
+- Conditional language ("if they execute") dampens magnitude 30–50%
+- Contrarian signals may invert surface sentiment
+- Relative context: "grew 5%" is negative if consensus was 15%
 
-## LABEL ASSIGNMENT
-- Score > 0.2 → "positive"
-- Score -0.2 to 0.2 → "neutral"
-- Score < -0.2 → "negative"
+## LABELS: score > 0.2 → positive | -0.2 to 0.2 → neutral | score < -0.2 → negative
 
 ## RULES
-- Be decisive: most financial content has clear directional sentiment
-- Use the full score range, don't cluster around 0
-- Neutral ONLY when truly ambiguous, questions without stance, or mixed signals
-- Always provide the factor_breakdown with individual factor scores
+- Be decisive; use the full score range; neutral only when truly ambiguous
 - Output ONLY valid JSON. No markdown, no explanations outside JSON."""
 
 
@@ -114,7 +87,6 @@ def build_sentiment_prompt(text: str, tickers_info: str) -> list:
         List of message tuples for ChatPromptTemplate
     """
     user_prompt = FEW_SHOT_EXAMPLES + f"""
-
 Now analyze this post:
 
 Post: {text}
@@ -126,25 +98,18 @@ Return ONLY valid JSON (no markdown, no backticks):
 {{
     "ticker_sentiments": {{
         "<TICKER_SYMBOL>": {{
-            "sentiment_score": <float from -1.0 to 1.0>,
+            "sentiment_score": <float -1.0 to 1.0>,
             "sentiment_label": "<positive|negative|neutral>",
             "factor_breakdown": {{
-                "market_impact": <float from -1.0 to 1.0>,
-                "tone": <float from -1.0 to 1.0>,
-                "source_quality": <float from -1.0 to 1.0>,
-                "context": <float from -1.0 to 1.0>
+                "market_impact": <float -1.0 to 1.0>,
+                "tone": <float -1.0 to 1.0>,
+                "source_quality": <float -1.0 to 1.0>,
+                "context": <float -1.0 to 1.0>
             }},
-            "reasoning": "<1-2 sentence explanation referencing the dominant factors>"
+            "reasoning": "<1-2 sentences referencing dominant factors>"
         }}
     }}
-}}
-
-Important Rules:
-1. Analyze sentiment for EACH ticker separately - they may differ
-2. Compute sentiment_score using: (market_impact × 0.40) + (tone × 0.25) + (source_quality × 0.10) + (context × 0.25)
-3. The reasoning must reference which factors drove the score for THIS ticker
-4. Neutral (-0.2 to 0.2) ONLY when truly ambiguous, questions without stance, or mixed signals
-5. Detect sarcasm, Reddit slang, and emoji sentiment correctly"""
+}}"""
 
     return [
         ("system", SYSTEM_PROMPT),

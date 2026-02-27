@@ -9,6 +9,8 @@ class APIPath(str, Enum):
 
 class LLMProviders(str, Enum):
     OLLAMA = "ollama"
+    GEMINI = "gemini"
+    GROQ = "groq"
 
 
 class StorageProviders(str, Enum):
