@@ -19,6 +19,7 @@ class EnvConfig(BaseSettings):
     redis_analysis_stream: str = Field(..., validation_alias="REDIS_ANALYSIS_STREAM")
     redis_aggregator_stream: str = Field(..., validation_alias="REDIS_AGGREGATOR_STREAM")
     redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
+    base_api: str = Field(..., validation_alias="BASE_API")
 
 env_config = EnvConfig()
 config = env_config 
