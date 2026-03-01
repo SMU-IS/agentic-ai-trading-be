@@ -274,7 +274,8 @@ class LLMSentimentService:
         repaired = json_str.rstrip()
         repaired = re.sub(r',\s*$', '', repaired)
         repaired = re.sub(r':\s*$', ': null', repaired)
-        repaired = re.sub(r'"[^"]*$', '""', repaired)
+        if repaired.count('"') % 2 == 1:  # odd → unterminated string
+            repaired = re.sub(r'"[^"]*$', '""', repaired)
         repaired += ']' * open_brackets + '}' * open_braces
         return repaired
 

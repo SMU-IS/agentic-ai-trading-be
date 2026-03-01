@@ -12,6 +12,7 @@ idna==3.11
 jsonpatch==1.33
 jsonpointer==3.0.0
 langchain-core==1.2.16
+langchain-groq==1.0.1
 langchain-ollama==1.0.1
 langsmith==0.7.7
 ollama==0.6.1
@@ -20,6 +21,9 @@ packaging==26.0
 pydantic==2.12.5
 pydantic-settings==2.13.1
 pydantic_core==2.41.5
+pytest
+pytest-asyncio
+pytest-html==4.2.0
 python-dotenv==1.2.1
 PyYAML==6.0.3
 redis==7.2.0
