@@ -45,6 +45,10 @@ func LoadDBConfig() *DBConfig {
 		TimeZone:    os.Getenv("DB_TIMEZONE"),
 	}
 
+	if dbConfig.SSLMode == "" {
+		dbConfig.SSLMode = "disable"
+	}
+
 	return &dbConfig
 }
 

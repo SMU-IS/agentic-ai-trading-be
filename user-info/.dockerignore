@@ -16,10 +16,6 @@ venv/
 env/
 ENV/
 
-.env
-*.env
-.env.*
-
 .vscode/
 .idea/
 .DS_Store
