@@ -1,6 +1,7 @@
+# Security Group for RDS
 resource "aws_security_group" "rds" {
   name        = "${var.cluster_name}-rds-sg"
-  description = "Allow inbound traffic from EKS nodes"
+  description = "Allow inbound traffic from VPC"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -23,6 +24,7 @@ resource "aws_security_group" "rds" {
   }
 }
 
+# DB Subnet Group
 resource "aws_db_subnet_group" "default" {
   name       = "${var.cluster_name}-db-subnet-group"
   subnet_ids = var.private_subnets
@@ -32,6 +34,7 @@ resource "aws_db_subnet_group" "default" {
   }
 }
 
+# RDS Instance
 resource "aws_db_instance" "default" {
   identifier           = "${var.cluster_name}-db"
   allocated_storage    = 20

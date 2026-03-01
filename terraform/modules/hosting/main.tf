@@ -1,3 +1,4 @@
+# Amplify App
 resource "aws_amplify_app" "trading_frontend" {
   name       = "${var.cluster_name}-frontend"
   repository = var.amplify_repository
@@ -31,8 +32,10 @@ resource "aws_amplify_app" "trading_frontend" {
   }
 }
 
+# Amplify Branch
 resource "aws_amplify_branch" "main" {
-  app_id      = aws_amplify_app.trading_frontend.id
+  app_id = aws_amplify_app.trading_frontend.id
+
   branch_name = "main"
 
   tags = {

@@ -1,35 +1,78 @@
+# =============================================================================
+# Infrastructure Outputs (Infrastructure-Centric Structure)
+# =============================================================================
+
 output "cluster_name" {
-  value = module.eks.cluster_name
+  description = "Name of the EKS cluster"
+  value       = module.compute.cluster_name
 }
 
 output "cluster_endpoint" {
-  value = module.eks.cluster_endpoint
+  description = "Endpoint of the EKS cluster"
+  value       = module.compute.cluster_endpoint
 }
 
 output "vpc_id" {
-  value = module.vpc.vpc_id
+  description = "ID of the VPC"
+  value       = module.networking.vpc_id
+}
+
+output "vpc_cidr_block" {
+  description = "CIDR block of the VPC"
+  value       = module.networking.vpc_cidr_block
+}
+
+output "private_subnet_ids" {
+  description = "List of private subnet IDs"
+  value       = module.networking.private_subnet_ids
+}
+
+output "public_subnet_ids" {
+  description = "List of public subnet IDs"
+  value       = module.networking.public_subnet_ids
 }
 
 output "ecr_repository_urls" {
-  value = module.ecr.repository_urls
+  description = "Map of service names to ECR repository URLs"
+  value       = module.container_registry.repository_urls
 }
 
 output "s3_bucket_names" {
-  value = module.s3_cdn.bucket_names
+  description = "Map of bucket names"
+  value       = module.storage.bucket_names
+}
+
+output "s3_bucket_arns" {
+  description = "Map of bucket ARNs"
+  value       = module.storage.bucket_arns
 }
 
 output "cloudfront_domain_name" {
-  value = module.s3_cdn.cloudfront_domain_name
+  description = "CloudFront distribution domain name"
+  value       = module.storage.cloudfront_domain_name
+}
+
+output "cloudfront_id" {
+  description = "CloudFront distribution ID"
+  value       = module.storage.cloudfront_id
 }
 
 output "rds_endpoint" {
-  value = module.rds.db_endpoint
+  description = "Endpoint of the RDS instance"
+  value       = module.databases.db_endpoint
+}
+
+output "rds_security_group_id" {
+  description = "ID of the RDS security group"
+  value       = module.databases.db_security_group_id
 }
 
 output "amplify_app_id" {
-  value = module.amplify.amplify_app_id
+  description = "ID of the Amplify app"
+  value       = module.hosting.amplify_app_id
 }
 
 output "amplify_default_domain" {
-  value = module.amplify.amplify_default_domain
+  description = "Default domain of the Amplify app"
+  value       = module.hosting.amplify_default_domain
 }

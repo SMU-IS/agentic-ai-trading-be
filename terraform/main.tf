@@ -1,74 +1,91 @@
-# Networking (VPC)
-module "vpc" {
-  source          = "./modules/vpc"
+# =============================================================================
+# Infrastructure-Centric Module Structure
+# =============================================================================
+# networking     - VPC, subnets, NAT gateways, routing
+# compute        - EKS cluster, node groups
+# databases      - RDS, database subnet groups, security groups
+# storage        - S3 buckets, CloudFront CDN
+# container_registry - ECR repositories
+# hosting            - Amplify app, branches
+# =============================================================================
+
+# Networking Module
+module "networking" {
+  source          = "./modules/networking"
   cluster_name    = var.cluster_name
-  vpc_cidr        = "10.0.0.0/16"
-  azs             = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+  vpc_cidr        = var.vpc_cidr
+  azs             = var.azs
+  private_subnets = var.private_subnets
+  public_subnets  = var.public_subnets
   environment     = var.environment
 }
 
-# EKS Cluster
-module "eks" {
-  source       = "./modules/eks"
+# Compute Module (EKS)
+module "compute" {
+  source       = "./modules/compute"
   cluster_name = var.cluster_name
-  vpc_id       = module.vpc.vpc_id
-  subnet_ids   = module.vpc.private_subnets
+  vpc_id       = module.networking.vpc_id
+  subnet_ids   = module.networking.private_subnet_ids
   environment  = var.environment
 }
 
-# ECR Repositories Module
-module "ecr" {
-  source      = "./modules/ecr"
-  services    = var.services
-  environment = var.environment
-}
-
-# S3 Buckets and CDN Module
-module "s3_cdn" {
-  source      = "./modules/s3_cdn"
-  s3_buckets  = var.s3_buckets
-  environment = var.environment
-}
-
-# RDS Database Module
-module "rds" {
-  source          = "./modules/rds"
+# Databases Module
+module "databases" {
+  source          = "./modules/databases"
   cluster_name    = var.cluster_name
-  vpc_id          = module.vpc.vpc_id
-  vpc_cidr_block  = module.vpc.vpc_cidr_block
-  private_subnets = module.vpc.private_subnets
+  vpc_id          = module.networking.vpc_id
+  vpc_cidr_block  = module.networking.vpc_cidr_block
+  private_subnets = module.networking.private_subnets
   db_name         = var.db_name
   db_username     = var.db_username
   db_password     = var.db_password
   environment     = var.environment
 }
 
-# Amplify Frontend Module
-module "amplify" {
-  source               = "./modules/amplify"
+# Storage Module (S3 + CloudFront)
+module "storage" {
+  source      = "./modules/storage"
+  s3_buckets  = var.s3_buckets
+  environment = var.environment
+}
+
+# Container Registry Module (ECR)
+module "container_registry" {
+  source      = "./modules/container_registry"
+  services    = var.services
+  environment = var.environment
+}
+
+# Hosting Module (Amplify)
+module "hosting" {
+  source               = "./modules/hosting"
   cluster_name         = var.cluster_name
   amplify_repository   = var.amplify_repository
   amplify_access_token = var.amplify_access_token
   environment          = var.environment
 }
 
-# Kubernetes and Helm Provider Data
+# =============================================================================
+# Kubernetes and Helm Provider Configuration
+# =============================================================================
+
+# EKS Cluster Authentication
 data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks.cluster_name
+  name = module.compute.cluster_name
 }
 
+# Kubernetes Provider
 provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  host                   = module.compute.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.compute.cluster_certificate_authority_data)
   token                  = data.aws_eks_cluster_auth.cluster.token
 }
 
+# Helm Provider
 provider "helm" {
   kubernetes {
-    host                   = module.eks.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+    host                   = module.compute.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.compute.cluster_certificate_authority_data)
     token                  = data.aws_eks_cluster_auth.cluster.token
   }
 }
