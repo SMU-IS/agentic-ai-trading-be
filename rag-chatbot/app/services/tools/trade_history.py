@@ -14,10 +14,10 @@ async def get_order_details(order_id: str):
         logger.error("No order_id provided for trade history query.")
         raise ValueError("No order_id provided for trade history query.")
 
-    order_detail = f"{env_config.qdrant_retrieval_query_url}/{order_id}"
+    alpacca_broker_api = f"{env_config.order_details_query_url}/{order_id}"
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(order_detail)
+            response = await client.get(alpacca_broker_api)
             response.raise_for_status()
             order_details = response.json()
             logger.info(f"Order details fetched for order id {order_id}")

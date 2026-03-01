@@ -9,11 +9,14 @@ class APIPath(str, Enum):
 
 class LLMProviders(str, Enum):
     OLLAMA = "ollama"
+    GEMINI = "gemini"
+    GROQ = "groq"
 
 
 class StorageProviders(str, Enum):
     QDRANT_OLLAMA = "qdrant_ollama"
     QDRANT_GEMINI = "qdrant_gemini"
+    QDRANT_GROQ = "qdrant_groq"
 
 
 DEFAULT_RULES = {

@@ -3,9 +3,9 @@ package handler
 import (
 	"agentic-ai-users/constant"
 	"agentic-ai-users/internal/domain"
-	"agentic-ai-users/internal/middleware"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/markbates/goth/gothic"
@@ -28,15 +28,13 @@ type UserHandler struct {
 
 func NewUserHandler(r *gin.Engine, uc domain.UserUseCase) {
 	h := &UserHandler{UseCase: uc}
-
-	api := r.Group(constant.Auth)
 	{
-		api.POST(constant.Register, h.Register)
-		api.POST(constant.Login, h.Login)
+		r.POST(constant.Register, h.Register)
+		r.POST(constant.Login, h.Login)
 
 		// OAuth Routes
-		api.GET(constant.Provider, h.StartAuth)
-		api.GET(constant.ProviderCallBack, h.CompleteAuth)
+		r.GET(constant.Provider, h.StartAuth)
+		r.GET(constant.ProviderCallBack, h.CompleteAuth)
 	}
 }
 
@@ -62,6 +60,11 @@ func (h *UserHandler) Register(c *gin.Context) {
 		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
 		return
 	}
+
+	token, err := h.UseCase.Login(c.Request.Context(), req.Email, req.Password)
+	if err == nil {
+		h.setAuthCookie(c, token)
+	}
 	c.JSON(http.StatusCreated, user)
 }
 
@@ -81,11 +84,14 @@ func (h *UserHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 	token, err := h.UseCase.Login(c.Request.Context(), req.Email, req.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
+
+	h.setAuthCookie(c, token)
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
@@ -97,23 +103,29 @@ func (h *UserHandler) Login(c *gin.Context) {
 // @Security     BearerAuth
 // @Success      200      {object}  domain.User
 // @Failure      401      {object}  map[string]string
-// @Router       /api/v1/profile [get]
+// @Router       /api/v1/user/profile [get]
 func UserProfile(r *gin.Engine, uc domain.UserUseCase) {
-	protected := r.Group("")
-	jwtSecret := os.Getenv("JWT_SECRET")
+	r.GET(constant.Profile, func(c *gin.Context) {
+		consumerID := c.GetHeader("X-Consumer-Custom-ID")
+		if consumerID == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized by Gateway"})
+			return
+		}
 
-	protected.Use(middleware.AuthMiddleware(jwtSecret))
-	{
-		protected.GET(constant.Profile, func(c *gin.Context) {
-			uid, _ := c.Get("userID")
-			user, err := uc.GetProfile(c.Request.Context(), uid.(uint))
-			if err != nil {
-				c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-				return
-			}
-			c.JSON(http.StatusOK, user)
-		})
-	}
+		uid64, err := strconv.ParseUint(consumerID, 10, 32)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
+			return
+		}
+
+		user, err := uc.GetProfile(c.Request.Context(), uint(uid64))
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return
+		}
+
+		c.JSON(http.StatusOK, user)
+	})
 }
 
 // StartAuth godoc
@@ -166,4 +178,16 @@ func (h *UserHandler) CompleteAuth(c *gin.Context) {
 
 	xRedirectFrontend := os.Getenv("X_REDIRECT_FRONTEND")
 	c.Redirect(http.StatusFound, xRedirectFrontend+token)
+}
+
+func (h *UserHandler) setAuthCookie(c *gin.Context, token string) {
+	c.SetCookie(
+		"auth_token",
+		token,
+		3600*24, // 1 day
+		"/",
+		os.Getenv("FRONT_END_DOMAIN"),
+		os.Getenv("SECURE_COOKIE") == "true",
+		true,
+	)
 }

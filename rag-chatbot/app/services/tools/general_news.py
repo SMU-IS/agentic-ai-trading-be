@@ -10,21 +10,24 @@ from app.schemas.chat import GeneralNews
 @tool(args_schema=GeneralNews)
 async def get_general_news(query: str, tickers: List[str]):
     """
-    Search and analyse recent financial news, market sentiment, and hot stocks.
+    Search and analyze real-time financial news, market sentiment, and sector trends.
 
-    Use this tool when:
-    - The user asks about general market trends or "what is happening today."
-    - The user mentions "hot stocks," "top gainers," or "market sentiment."
-    - The user asks about news specific to one or more tickers (e.g., "What's the news on NVDA and TSLA?").
+    CRITICAL USAGE RULES:
+    1. Use ONLY for market-related research (e.g., "What's the news on AAPL?", "Why is the market down?").
+    2. DO NOT use for meta-questions about the conversation history.
+    3. DO NOT use for general greetings or non-financial chitchat.
+    4. If the user mentions specific tickers, they MUST be passed in the 'tickers' list.
+    5. If the query is about general market "vibes" or "hot stocks," pass an empty list [] for tickers.
 
     Args:
-        query (str): The specific topic or question to search news for.
-        tickers (List[str]): A list of stock symbols (e.g. ["AAPL", "TSLA"]).
-                                       Pass an empty list [] if no specific tickers are mentioned.
+        query (str): The search phrase. Focus on technical events (e.g., "earnings beat," "fed rate hike").
+        tickers (List[str]): Stock symbols in uppercase (e.g. ["NVDA", "PLTR"]). Empty list if N/A.
 
     Returns:
-        A dictionary containing a structured 'context' string for final responses
-        and the raw 'results' list for deeper technical analysis.
+        dict: {
+            "context": "A human-readable summary of headlines and content for immediate response.",
+            "results": "Raw list of news objects for deeper technical/sentiment cross-referencing."
+        }
     """
 
     payload = {

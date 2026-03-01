@@ -5,14 +5,14 @@ services:
     env_file:
       - .env
     ports:
-      - "5011:5011"
+      - 5002:5002
     environment:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDDIT_STREAM=${REDDIT_STREAM}
       - PREPROC_STREAM=${PREPROC_STREAM}
-    command: uvicorn app.main:app --host 0.0.0.0 --port 5011
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5002
     restart: unless-stopped
 
   preprocessing-worker:

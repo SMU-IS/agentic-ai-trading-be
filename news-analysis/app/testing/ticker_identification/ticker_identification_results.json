@@ -1,0 +1,40 @@
+{
+  "service": "ticker_identification",
+  "golden_dataset": "curated_dataset_200.json",
+  "llama": {
+    "llm": "Llama 3.3 70B (Groq)",
+    "model": "llama-3.3-70b-versatile",
+    "total_posts": 200,
+    "posts_evaluated": 160,
+    "metrics": {
+      "avg_precision": 0.73,
+      "avg_recall": 0.7612,
+      "avg_f1": 0.7258
+    },
+    "no_ticker_detection": {
+      "true_negative": 38,
+      "false_positive": 2,
+      "false_negative": 23,
+      "true_positive": 137,
+      "accuracy": 0.95
+    }
+  },
+  "deepseek": {
+    "llm": "DeepSeek R1 0528 (OpenRouter)",
+    "model": "deepseek/deepseek-r1-0528",
+    "total_posts": 200,
+    "posts_evaluated": 160,
+    "metrics": {
+      "avg_precision": 0.3194,
+      "avg_recall": 0.2872,
+      "avg_f1": 0.2909
+    },
+    "no_ticker_detection": {
+      "true_negative": 40,
+      "false_positive": 0,
+      "false_negative": 96,
+      "true_positive": 64,
+      "accuracy": 1.0
+    }
+  }
+}

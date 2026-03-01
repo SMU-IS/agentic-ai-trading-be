@@ -28,17 +28,17 @@ class SentimentAggregator:
             for _, events in messages:
                 for event_id, data in events:
                     ticker_meta_raw = data.get("ticker_metadata")
-
-                    ticker_meta = json.loads(ticker_meta_raw.strip('"'))
+                    ticker_meta = json.loads(ticker_meta_raw)
 
                     for ticker, meta in ticker_meta.items():
                         aggregator_data = {
                             "event_type": "NEWS_UPDATE",
-                            "id": (meta.get("id") or "").strip('"'),
+                            "id": data.get("id"),
                             "ticker": ticker,
                             "event_type_meta": meta.get("event_type") or "",
-                            "sentiment_score": meta.get("sentiment_score") or "",
-                            "sentiment_confidence": meta.get("sentiment_confidence") or "",
+                            "sentiment_score": meta.get("sentiment_score") or 0.0,
+                            "event_description": meta.get("event_description") or "",
+                            "sentiment_reasoning": meta.get("sentiment_reasoning") or ""
                         }
 
                         await self.r.xadd(
