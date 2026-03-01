@@ -1,0 +1,1493 @@
+[
+  {
+    "id": "reddit:1qxbhgs",
+    "post_text": "AI demand quotes from big tech earnings calls. Edit: Right on cue. Nvidia up 8% today. I also told you so a few days ago: https://www.reddit.com/r/stocks/comments/1qvguyx/why_did_ai_hardware_companies_drop_if_wallstreet// Amazon: \"We are monetizing capacity as fast as we can install it.\" \"I think ev...",
+    "ticker_metadata": {
+      "AMZN": {
+        "event_type": "EARNINGS_CALL",
+        "sentiment_score": 0.785,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "Amazon's earnings call quotes indicate high demand for AI capacity, with a 40% year-over-year increase in backlog, driving a strongly positive sentiment. The high source quality from direct earnings call quotes amplifies the positive tone.",
+        "factor_breakdown": {
+          "market_impact": 0.8,
+          "tone": 0.7,
+          "source_quality": 0.9,
+          "context": 0.8
+        }
+      },
+      "NVDA": {
+        "event_type": "EARNINGS_CALL",
+        "sentiment_score": 0.79,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "Nvidia's 8% stock increase and the overall AI demand discussed in the post contribute to a strongly positive sentiment, with the tone and market impact being the dominant factors. The context of AI growth supports this positive outlook.",
+        "factor_breakdown": {
+          "market_impact": 0.8,
+          "tone": 0.8,
+          "source_quality": 0.7,
+          "context": 0.8
+        }
+      },
+      "GOOGL": {
+        "event_type": "EARNINGS_CALL",
+        "sentiment_score": 0.735,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "Google's supply-constrained situation and significant backlog growth indicate strong demand for AI products, leading to a positive sentiment. The high source quality from the earnings call quotes and the context of AI demand support this positive sentiment.",
+        "factor_breakdown": {
+          "market_impact": 0.7,
+          "tone": 0.7,
+          "source_quality": 0.9,
+          "context": 0.8
+        }
+      },
+      "MSFT": {
+        "event_type": "EARNINGS_CALL",
+        "sentiment_score": 0.785,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "Microsoft's earnings call highlights the high demand for AI, with customer demand exceeding supply and significant growth in paid Copilot subscribers, contributing to a strongly positive sentiment. The high source quality and context of AI growth amplify this positive sentiment.",
+        "factor_breakdown": {
+          "market_impact": 0.8,
+          "tone": 0.7,
+          "source_quality": 0.9,
+          "context": 0.8
+        }
+      },
+      "META": {
+        "event_type": "EARNINGS_CALL",
+        "sentiment_score": 0.685,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "Meta's capacity constraints and plans for significant capital expenditures to support AI efforts indicate a positive sentiment, driven by the high demand for AI and the company's efforts to meet this demand. The tone is somewhat less positive due to the challenges in meeting current demand.",
+        "factor_breakdown": {
+          "market_impact": 0.7,
+          "tone": 0.6,
+          "source_quality": 0.8,
+          "context": 0.7
+        }
+      }
+    },
+    "generated_metadata": {
+      "AMZN": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.785
+      },
+      "NVDA": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.79
+      },
+      "GOOGL": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.735
+      },
+      "MSFT": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.785
+      },
+      "META": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.685
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qwqc5d",
+    "post_text": "Forgent (FPS) S-1 filing. Hey guys, I was reading through the background on Forgent Power since it IPO'd today. I found a court case in LA (25STCP00746) where the PE firm is getting sued for 50% ownership of the main factory. Seems sketchy hiding a $200M lawsuit and then how much stock Neos is selli...",
+    "ticker_metadata": {
+      "FPS": {
+        "event_type": "LITIGATION",
+        "sentiment_score": -0.615,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The discovery of a $200M lawsuit and the judge's denial of the dismissal motion are significant negative factors, indicating potential major risks for Forgent Power Solutions, while the tone is cautious and inquiring but overall bearish due to the 'sketchy' and 'sus' descriptions.",
+        "factor_breakdown": {
+          "market_impact": -0.8,
+          "tone": -0.6,
+          "source_quality": 0.4,
+          "context": -0.7
+        }
+      }
+    },
+    "generated_metadata": {
+      "FPS": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.615
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qxyclo",
+    "post_text": "Take-two stock is a no brainer. I wish i had more money to buy in this dip. I was able to scoop up some cheap shares after that 10% dip from project Genie's overreaction. I don't get that. Clair Obscur used a bit AI and it was already scrutinized. No one's gonna play games generated by AI texts. Thi...",
+    "ticker_metadata": {
+      "TTWO": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.79,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor expresses a strong bullish stance on TTWO, citing the upcoming GTA6 launch as a major catalyst and viewing the recent dip as a buying opportunity, with a tone amplified by phrases like 'no brainer' and 'this will blow pass 300 soon'.",
+        "factor_breakdown": {
+          "market_impact": 0.8,
+          "tone": 0.9,
+          "source_quality": 0.6,
+          "context": 0.7
+        }
+      }
+    },
+    "generated_metadata": {
+      "TTWO": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.79
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qsswqe",
+    "post_text": "SLV and GLD down but not out. The extraordinary price action in metals on Friday was plastered with comments from ex JPM global head Marko Kolanovic warning of massive correction in Silver prices due this year. Interestingly his latest post on X intraday Jan 30 when the price action was unfolding wa...",
+    "ticker_metadata": {},
+    "generated_metadata": {},
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qu1ox0",
+    "post_text": "Kratos Defense : I miss something ? Hi everyone I try to understand why all my stock get red. So I've got Astera labs, Credo, and now Kratos. I buy some stock to bet on the defense investment from US and Europe (they like to buy american stuff). What happens to the stock to fall like that ? I try to...",
+    "ticker_metadata": {
+      "KTOS": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.445,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The investor expresses frustration and confusion over the decline in stock price, indicating a negative sentiment towards KTOS. The tone is further amplified by the negative emotions expressed.",
+        "factor_breakdown": {
+          "market_impact": -0.4,
+          "tone": -0.6,
+          "source_quality": -0.2,
+          "context": -0.5
+        }
+      },
+      "ALAB": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.445,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "Similar to KTOS, the investor's negative emotions and confusion over the decline in ALAB's stock price contribute to the negative sentiment. The investor's overall frustration with their investments also affects the sentiment.",
+        "factor_breakdown": {
+          "market_impact": -0.4,
+          "tone": -0.6,
+          "source_quality": -0.2,
+          "context": -0.5
+        }
+      },
+      "CRDO": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.445,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The investor's disappointment and frustration with CRDO's stock performance, along with the overall negative tone of the post, result in a negative sentiment. The investor's emotional state and lack of understanding of the decline also contribute to the negative sentiment.",
+        "factor_breakdown": {
+          "market_impact": -0.4,
+          "tone": -0.6,
+          "source_quality": -0.2,
+          "context": -0.5
+        }
+      }
+    },
+    "generated_metadata": {
+      "KTOS": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.445
+      },
+      "ALAB": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.445
+      },
+      "CRDO": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.445
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qxqxhh",
+    "post_text": "AI memory storage companies and potential futures. There's huge hype now regarding SNDK, WDC, and STX. All three have had parabolic growth in this past year or so, especially so for SNDK. All three seem to fit well into this current push for AI sector. Yet all three had been relatively \"old\" compani...",
+    "ticker_metadata": {
+      "SNDK": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.05,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post expresses uncertainty about SNDK's potential, questioning whether its growth is due to hype or genuine progress, leading to a neutral sentiment. The tone is cautious, lacking strong bullish or bearish language.",
+        "factor_breakdown": {
+          "market_impact": 0.1,
+          "tone": 0.0,
+          "source_quality": 0.0,
+          "context": 0.0
+        }
+      },
+      "WDC": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.0,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post mentions WDC alongside SNDK and STX, noting their recent growth and fit into the AI sector, but does not express a clear opinion on WDC's potential, resulting in a neutral sentiment. The discussion is speculative and open to hearing others' perspectives.",
+        "factor_breakdown": {
+          "market_impact": 0.0,
+          "tone": 0.0,
+          "source_quality": 0.0,
+          "context": 0.0
+        }
+      },
+      "STX": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.0,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "Similar to WDC, STX is mentioned as part of the group benefiting from the AI sector push, but without any specific positive or negative commentary, leading to a neutral sentiment. The post seeks comparison and contrast, indicating a lack of a firm stance on STX.",
+        "factor_breakdown": {
+          "market_impact": 0.0,
+          "tone": 0.0,
+          "source_quality": 0.0,
+          "context": 0.0
+        }
+      }
+    },
+    "generated_metadata": {
+      "SNDK": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.05
+      },
+      "WDC": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0
+      },
+      "STX": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.0
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qx2f7o",
+    "post_text": "Why are stocks falling? Let me preface I made a post talking about Silver and Gold and how they were going to dump 16 days ago. My reason was *China and the USA /big Business doesn't want to pay 6x the price for metals forever. My reasoning isn't complicated but I do have a hypothesis Hypothesis- Tr...",
+    "ticker_metadata": {
+      "CRM": {
+        "event_type": "INVESTOR_ACTION",
+        "sentiment_score": 0.455,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor's decision to take a position in CRM and implement a dollar-cost averaging strategy indicates a bullish stance, with the mention of an 'incredible margin of safety' further supporting a positive tone. The overall context suggests a long-term investment approach, which contributes to the positive sentiment.",
+        "factor_breakdown": {
+          "market_impact": 0.4,
+          "tone": 0.6,
+          "source_quality": 0.3,
+          "context": 0.5
+        }
+      }
+    },
+    "generated_metadata": {
+      "CRM": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.455
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qudoph",
+    "post_text": "WTH happened to MSFT? I thought it was a safe company to invest and forget. I just checked my portfolio which is mostly boring companies. What the heck happened to Microsoft? Should I get out? I like big, boring companies that are reliable and I thought they were the tech version. What happened?",
+    "ticker_metadata": {
+      "MSFT": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.315,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The investor's concern and questioning of Microsoft's reliability indicates a negative tone, while the lack of specific data or reasoning reduces the source quality, contributing to the overall negative sentiment.",
+        "factor_breakdown": {
+          "market_impact": -0.2,
+          "tone": -0.5,
+          "source_quality": -0.3,
+          "context": -0.4
+        }
+      }
+    },
+    "generated_metadata": {
+      "MSFT": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.315
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qsq8wz",
+    "post_text": "Stocks to buy at a discount? Microsoft Dominance, Pricing power, and considering the scale of company discount is meaningful. Oracle: oracle has fallen more than microsoft but considering oracles pe and that growth at oracle is capped ; microsoft has the better discount. Service now, has fallen 40 p...",
+    "ticker_metadata": {
+      "MSFT": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.615,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion highlights Microsoft's dominance, pricing power, and scale, indicating a strong market impact and positive tone, with a moderate source quality due to the lack of specific data.",
+        "factor_breakdown": {
+          "market_impact": 0.6,
+          "tone": 0.7,
+          "source_quality": 0.5,
+          "context": 0.6
+        }
+      },
+      "ORCL": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.35,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The investor opinion mentions Oracle's high PE ratio and capped growth, resulting in a negative market impact and tone, with a low source quality due to the lack of specific data.",
+        "factor_breakdown": {
+          "market_impact": -0.4,
+          "tone": -0.5,
+          "source_quality": 0.2,
+          "context": -0.3
+        }
+      },
+      "NET": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.1,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The investor opinion states that Cloudflare is always expensive, but the 30% drop makes it 'less expensive', resulting in a neutral sentiment score due to the lack of strong positive or negative factors.",
+        "factor_breakdown": {
+          "market_impact": 0.1,
+          "tone": 0.1,
+          "source_quality": 0.1,
+          "context": 0.1
+        }
+      },
+      "NOW": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.17,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The investor opinion mentions that ServiceNow's valuation is still rich despite a 40% drop, resulting in a mildly negative market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": -0.2,
+          "tone": -0.2,
+          "source_quality": 0.1,
+          "context": -0.2
+        }
+      },
+      "SNOW": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.39,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion highlights Snowflake's substantial discount, making it a potential buy at lower levels, resulting in a positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.4,
+          "tone": 0.4,
+          "source_quality": 0.3,
+          "context": 0.4
+        }
+      },
+      "DAVA": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.29,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion mentions that Endava's TAM was overestimated, but now it's underestimated, resulting in a mildly positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.3,
+          "tone": 0.3,
+          "source_quality": 0.2,
+          "context": 0.3
+        }
+      },
+      "NOTV": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.58,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion highlights Inotiv's massive discount, with a 96% drop from its high, resulting in a strongly positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.6,
+          "tone": 0.6,
+          "source_quality": 0.4,
+          "context": 0.6
+        }
+      },
+      "ADBE": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.2,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The investor opinion mentions that Adobe has fallen over 30%, but a new product in the future may surprise investors, resulting in a mildly positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.2,
+          "tone": 0.2,
+          "source_quality": 0.2,
+          "context": 0.2
+        }
+      },
+      "FIG": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.49,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion highlights Figma's strong growth potential, making it a potential buy, especially if Adobe doesn't surprise with new products, resulting in a positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.5,
+          "tone": 0.5,
+          "source_quality": 0.4,
+          "context": 0.5
+        }
+      },
+      "TOST": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.1,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The investor opinion mentions that Toast is at a one-year low, but competition may squeeze margins, resulting in a neutral sentiment score due to the lack of strong positive or negative factors.",
+        "factor_breakdown": {
+          "market_impact": 0.1,
+          "tone": 0.1,
+          "source_quality": 0.1,
+          "context": 0.1
+        }
+      },
+      "AMPL": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.25,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The investor opinion mentions that Amplitude is a clear winner in analytics, but has low pricing power and too many competitors, resulting in a mildly negative market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": -0.3,
+          "tone": -0.3,
+          "source_quality": 0.2,
+          "context": -0.3
+        }
+      },
+      "SMWB": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.68,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion highlights Similarweb's unbelievable discount of 70%, making it a potential buy, especially since it's about to turn profitable, resulting in a strongly positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.7,
+          "tone": 0.7,
+          "source_quality": 0.5,
+          "context": 0.7
+        }
+      },
+      "RDDT": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.1,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The investor opinion mentions that Reddit reached a three-month low, but it's not a significant drop, and the investor suggests buying on dips, resulting in a neutral sentiment score due to the lack of strong positive or negative factors.",
+        "factor_breakdown": {
+          "market_impact": 0.1,
+          "tone": 0.1,
+          "source_quality": 0.1,
+          "context": 0.1
+        }
+      },
+      "ETSY": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.39,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion highlights Etsy's high margins and potential for growth, making it an attractive investment, resulting in a positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.4,
+          "tone": 0.4,
+          "source_quality": 0.3,
+          "context": 0.4
+        }
+      },
+      "PINS": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.59,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion mentions that Pinterest is at a year low, but has massive growth potential, making it a potential buy, resulting in a strongly positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.6,
+          "tone": 0.6,
+          "source_quality": 0.5,
+          "context": 0.6
+        }
+      },
+      "ROOT": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.16,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The investor opinion mentions that Root's advantage may be limited if all insurers add telematics, resulting in a mildly negative market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": -0.2,
+          "tone": -0.2,
+          "source_quality": 0.2,
+          "context": -0.2
+        }
+      },
+      "RZLV": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.78,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion highlights Rezolve's potential to tenfold, as it moves from R&D to sales, resulting in a strongly positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.8,
+          "tone": 0.8,
+          "source_quality": 0.6,
+          "context": 0.8
+        }
+      },
+      "UPWK": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.69,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion mentions that Upwork has a strong moat, improving margins, and a low PE ratio, making it a favorite for value, resulting in a strongly positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.7,
+          "tone": 0.7,
+          "source_quality": 0.6,
+          "context": 0.7
+        }
+      },
+      "RIME": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.49,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion highlights Rime's potential to fix logistics issues, making it an attractive investment, resulting in a positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.5,
+          "tone": 0.5,
+          "source_quality": 0.4,
+          "context": 0.5
+        }
+      },
+      "WKSP": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.34,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The investor opinion mentions that Worksport is down 80%, but it's hard to say if it's a buy, resulting in a mildly negative market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": -0.4,
+          "tone": -0.4,
+          "source_quality": 0.2,
+          "context": -0.4
+        }
+      },
+      "ARAI": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.2,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The investor opinion mentions that Arrive AI is used for high-value deliveries, but integration with legacy systems is a challenge, resulting in a mildly positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.2,
+          "tone": 0.2,
+          "source_quality": 0.2,
+          "context": 0.2
+        }
+      },
+      "DUOL": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.39,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor opinion highlights Duolingo's massive discount, making it a potential buy, resulting in a positive market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": 0.4,
+          "tone": 0.4,
+          "source_quality": 0.3,
+          "context": 0.4
+        }
+      },
+      "PATH": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.25,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The investor opinion mentions that UiPath is expensive, especially for smaller companies, resulting in a mildly negative market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": -0.3,
+          "tone": -0.3,
+          "source_quality": 0.2,
+          "context": -0.3
+        }
+      },
+      "RVSN": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.16,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The investor opinion mentions that Rail Vision faces regulatory hurdles and long upgrade cycles, resulting in a mildly negative market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": -0.2,
+          "tone": -0.2,
+          "source_quality": 0.2,
+          "context": -0.2
+        }
+      },
+      "DGNX": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.1,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The investor opinion mentions that Diginex has a massive discount, but its competitors have an advantage, resulting in a neutral sentiment score due to the lack of strong positive or negative factors.",
+        "factor_breakdown": {
+          "market_impact": 0.1,
+          "tone": 0.1,
+          "source_quality": 0.1,
+          "context": 0.1
+        }
+      },
+      "JTAI": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.43,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The investor opinion mentions that Jet AI has no real moat, no pricing power, and high costs, resulting in a negative market impact and tone.",
+        "factor_breakdown": {
+          "market_impact": -0.5,
+          "tone": -0.5,
+          "source_quality": 0.2,
+          "context": -0.5
+        }
+      }
+    },
+    "generated_metadata": {
+      "MSFT": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.615
+      },
+      "ORCL": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.35
+      },
+      "NET": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.1
+      },
+      "NOW": {
+        "sentiment_label": "neutral",
+        "sentiment_score": -0.17
+      },
+      "SNOW": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.39
+      },
+      "DAVA": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.29
+      },
+      "NOTV": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.58
+      },
+      "ADBE": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.2
+      },
+      "FIG": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.49
+      },
+      "TOST": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.1
+      },
+      "AMPL": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.25
+      },
+      "SMWB": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.68
+      },
+      "RDDT": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.1
+      },
+      "ETSY": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.39
+      },
+      "PINS": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.59
+      },
+      "ROOT": {
+        "sentiment_label": "neutral",
+        "sentiment_score": -0.16
+      },
+      "RZLV": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.78
+      },
+      "UPWK": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.69
+      },
+      "RIME": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.49
+      },
+      "WKSP": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.34
+      },
+      "ARAI": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.2
+      },
+      "DUOL": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.39
+      },
+      "PATH": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.25
+      },
+      "RVSN": {
+        "sentiment_label": "neutral",
+        "sentiment_score": -0.16
+      },
+      "DGNX": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.1
+      },
+      "JTAI": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.43
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qyghnq",
+    "post_text": "Big Tech companies are starting to look like IBM in the 1960s. Just as the emergence of computers pushed IBM toward vertical integration, the popularization of AI since the launch of ChatGPT in late 2022 has put today's cloud giants on a similar trajectory. In particular, the steep costs of Nvidia's...",
+    "ticker_metadata": {
+      "NVDA": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.275,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The post mentions the steep costs and limited availability of Nvidia's chips, which could negatively impact the company, and the tone suggests that this might push tech giants to develop their own AI chip efforts, potentially reducing NVDA's market share.",
+        "factor_breakdown": {
+          "market_impact": -0.4,
+          "tone": -0.2,
+          "source_quality": 0.2,
+          "context": -0.3
+        }
+      },
+      "IBM": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.045,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post uses IBM as a historical example, drawing a parallel between its past and the current situation of Big Tech companies, without expressing a clear opinion or sentiment towards IBM's current performance or prospects.",
+        "factor_breakdown": {
+          "market_impact": 0.0,
+          "tone": 0.1,
+          "source_quality": 0.2,
+          "context": 0.0
+        }
+      }
+    },
+    "generated_metadata": {
+      "NVDA": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.275
+      },
+      "IBM": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.045
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qwxeeb",
+    "post_text": "mrk hits ath today. it's such a natural negative correlation to tech. i ve been holding my mrk stocks for 2 years. once 35%-40% under water. i strongly believe it would come back and it was massively undervalued. lly and mrk were once my top losers and they both have recovered from massive losses. s...",
+    "ticker_metadata": {
+      "MRK": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.59,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor's personal experience of holding MRK stocks for 2 years and seeing them recover from losses, combined with the mention of MRK hitting an all-time high, contributes to a positive sentiment. The tone is further amplified by the investor's strong belief in MRK's undervaluation and subsequent recovery.",
+        "factor_breakdown": {
+          "market_impact": 0.6,
+          "tone": 0.7,
+          "source_quality": 0.4,
+          "context": 0.5
+        }
+      },
+      "LLY": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.315,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The mention of LLY recovering from massive losses alongside MRK implies a positive sentiment, although the tone is less intense due to fewer details provided about LLY. The overall context suggests a positive outlook due to sector rotation.",
+        "factor_breakdown": {
+          "market_impact": 0.3,
+          "tone": 0.4,
+          "source_quality": 0.2,
+          "context": 0.3
+        }
+      },
+      "MSFT": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.195,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The investor sold their MSFT stocks and bought gold, indicating a lack of confidence in MSFT's performance. Although there's a mention of heavy buying at MSFT, the overall tone and action suggest a negative sentiment towards MSFT.",
+        "factor_breakdown": {
+          "market_impact": -0.2,
+          "tone": -0.3,
+          "source_quality": 0.1,
+          "context": -0.2
+        }
+      }
+    },
+    "generated_metadata": {
+      "MRK": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.59
+      },
+      "LLY": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.315
+      },
+      "MSFT": {
+        "sentiment_label": "neutral",
+        "sentiment_score": -0.195
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qr9fw0",
+    "post_text": "13k from an old 401k, FI told me to throw it in the stock market. Hi everyone, I have 13k from an old 401k that I plan to roll over to a traditional IRA to a Roth IRA in the end, my financial advisor said to throw it in the stock market as I already have an Roth IRA and contribute to that. I've been...",
+    "ticker_metadata": {
+      "PLTR": {
+        "event_type": "INVESTOR_ACTION",
+        "sentiment_score": 0.025,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post mentions investing in PLTR as part of a diversified portfolio, but does not express a specific opinion or sentiment towards the company, resulting in a neutral sentiment score. The tone is mildly positive due to the investment action, but lacks significant bullish or bearish language.",
+        "factor_breakdown": {
+          "market_impact": 0.0,
+          "tone": 0.1,
+          "source_quality": 0.0,
+          "context": 0.0
+        }
+      },
+      "TSLA": {
+        "event_type": "INVESTOR_ACTION",
+        "sentiment_score": 0.025,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "Similar to PLTR, the post includes TSLA in the investment portfolio without expressing a specific opinion or sentiment, leading to a neutral sentiment score. The investment action implies a mildly positive tone, but it is not sufficient to override the overall neutral stance.",
+        "factor_breakdown": {
+          "market_impact": 0.0,
+          "tone": 0.1,
+          "source_quality": 0.0,
+          "context": 0.0
+        }
+      },
+      "ASTS": {
+        "event_type": "INVESTOR_ACTION",
+        "sentiment_score": 0.025,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post mentions ASTS as one of the investments, but does not provide any opinion or sentiment towards the company, resulting in a neutral sentiment score. The tone is slightly positive due to the investment, but it is not significant enough to shift the sentiment away from neutral.",
+        "factor_breakdown": {
+          "market_impact": 0.0,
+          "tone": 0.1,
+          "source_quality": 0.0,
+          "context": 0.0
+        }
+      }
+    },
+    "generated_metadata": {
+      "PLTR": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.025
+      },
+      "TSLA": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.025
+      },
+      "ASTS": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.025
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qyluch",
+    "post_text": "Enough with the opinions. Here is the actual math and analysis on Reddit's Fair Value. Reasonable Fair Value: $183. FAIR VALUE PRICE TARGETS There are a lot of noises surrounding Reddit's fair value. Many people have offered their bullish and bearish opinions but very few are rooting their claims in...",
+    "ticker_metadata": {
+      "RDDT": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.375,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The detailed analysis and fair value calculation provide a positive outlook for RDDT, with a reasonable fair value estimate of $183.88, supported by strong data and a well-reasoned approach, despite acknowledging potential risks and downsides.",
+        "factor_breakdown": {
+          "market_impact": 0.4,
+          "tone": 0.2,
+          "source_quality": 0.8,
+          "context": 0.3
+        }
+      },
+      "META": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.02,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "META is used as a benchmark for ARPU and ad tech stack, with no direct opinion or sentiment expressed towards the company, resulting in a neutral sentiment score.",
+        "factor_breakdown": {
+          "market_impact": 0.0,
+          "tone": 0.0,
+          "source_quality": 0.2,
+          "context": 0.0
+        }
+      },
+      "SNAP": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.05,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "SNAP is mentioned as a reference point for ARPU growth and saturation, but no opinion or sentiment is expressed towards the company, resulting in a neutral sentiment score.",
+        "factor_breakdown": {
+          "market_impact": 0.0,
+          "tone": 0.0,
+          "source_quality": 0.0,
+          "context": 0.0
+        }
+      }
+    },
+    "generated_metadata": {
+      "RDDT": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.375
+      },
+      "META": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.02
+      },
+      "SNAP": {
+        "sentiment_label": "neutral",
+        "sentiment_score": -0.05
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qqhptj",
+    "post_text": "META +10% post-earnings: the $115-135B 2026 capex deserves some reflection. META reported solid Q4 2025 results yesterday: EPS of ($8.88 vs $8.19 expected), revenue of $59.9 billion (above expectations), and particularly strong Q1 2026 guidance (projected revenue of $53.5-56.5 billion, well above th...",
+    "ticker_metadata": {
+      "META": {
+        "event_type": "EARNINGS_BEAT",
+        "sentiment_score": 0.27,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The post reports a strong earnings beat for META with significant capex investments, but the author's cautious tone and concerns about the sustainability of such investments temper the overall sentiment, leading to a neutral assessment despite the positive market impact.",
+        "factor_breakdown": {
+          "market_impact": 0.6,
+          "tone": -0.2,
+          "source_quality": 0.8,
+          "context": -0.4
+        }
+      }
+    },
+    "generated_metadata": {
+      "META": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.27
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1r0hhh0",
+    "post_text": "CRDO just reported their Preliminary results. Credo expects to report third quarter fiscal year 2026 revenue in the range of $404 million to $408 million, above the high-end of Credo's previously announced third quarter guidance range of $335 million and $345 million. Looking towards the end of fisc...",
+    "ticker_metadata": {
+      "CRDO": {
+        "event_type": "GUIDANCE_UPGRADE",
+        "sentiment_score": 0.785,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The strong guidance upgrade with specific revenue numbers and high year-over-year growth expectations significantly boosts the market impact, while the factual and optimistic tone, combined with high source quality from preliminary results, further supports the positive sentiment.",
+        "factor_breakdown": {
+          "market_impact": 0.9,
+          "tone": 0.6,
+          "source_quality": 0.8,
+          "context": 0.7
+        }
+      }
+    },
+    "generated_metadata": {
+      "CRDO": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.785
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qth6yz",
+    "post_text": "NKE at $61... am i missing something? Been looking at nike since it's down so much. on the chart it looks like a steal being down 50%, but the valuation makes zero sense to me. It's trading at 36x earnings which is higher than its historical average, but revenue is basically flat or negative. usuall...",
+    "ticker_metadata": {
+      "NKE": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": -0.49,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The investor's detailed analysis and valuation concerns, such as high PE ratio and low ROIC, contribute to the negative sentiment, indicating a potential value trap. The tone is further amplified by the investor's decision to wait for a lower price, $45, to consider buying.",
+        "factor_breakdown": {
+          "market_impact": -0.6,
+          "tone": -0.7,
+          "source_quality": 0.6,
+          "context": -0.5
+        }
+      }
+    },
+    "generated_metadata": {
+      "NKE": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.49
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qrer40",
+    "post_text": "What is everyone's take on DXYZ? DXYZ is a closed-end fund giving exposure to many companies that will IPO in 2026. This could be a huge opportunity as it gives PE exposure to companies with massive valuations pre-IPO. One company is SpaceX with a 34.6% exposure. What does everyone think about buyin...",
+    "ticker_metadata": {
+      "DXYZ": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.34,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The post presents a potential investment opportunity in DXYZ, highlighting its exposure to pre-IPO companies with massive valuations, which suggests a mildly positive market impact and tone. The source quality is low due to the speculative nature of the discussion.",
+        "factor_breakdown": {
+          "market_impact": 0.4,
+          "tone": 0.3,
+          "source_quality": 0.2,
+          "context": 0.3
+        }
+      }
+    },
+    "generated_metadata": {
+      "DXYZ": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.34
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qwqudt",
+    "post_text": "Dan Ives: I think software rips higher from here because of how oversold it is. Dan Ives said that today on Bloomberg Surveillance. It seems like when I watch Bloomberg, most of the interviews that ask about the AI and software stocks keep saying that it is far too oversold and far too overexaggerat...",
+    "ticker_metadata": {},
+    "generated_metadata": {},
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qr8smf",
+    "post_text": "Help me understand SOFI's price action. SOFI reported earnings that beat expectations today, yet the stock sold off sharply afterward. I'm trying to understand what the market may be reacting to that I missed in my due diligence. Additionally, the stock appeared to rally near $26 in pre-market tradi...",
+    "ticker_metadata": {
+      "SOFI": {
+        "event_type": "EARNINGS_BEAT",
+        "sentiment_score": 0.085,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The post mentions SOFI's earnings beat, which is a positive event, but the stock sold off sharply, indicating a disconnect between the earnings and market reaction, leading to a neutral sentiment due to the questioning and seeking of insight.",
+        "factor_breakdown": {
+          "market_impact": 0.2,
+          "tone": 0.0,
+          "source_quality": 0.0,
+          "context": -0.1
+        }
+      }
+    },
+    "generated_metadata": {
+      "SOFI": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.085
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qrnu6o",
+    "post_text": "I Finally Sold My Tesla shares... I invested in the stock in 2023 in the lows of 180s, when the market sentiment was negative and the last time valuation made any coherent sense and their financials were yet solid. One of my research strategy is the management quality. I lost faith in Elon and his c...",
+    "ticker_metadata": {
+      "TSLA": {
+        "event_type": "INVESTOR_ACTION",
+        "sentiment_score": -0.545,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The investor's loss of faith in Elon Musk and concerns over Tesla's financials, combined with a strongly negative tone and specific data analysis, contribute to the negative sentiment. The decision to sell shares after a significant gain also indicates a bearish outlook on the company's future.",
+        "factor_breakdown": {
+          "market_impact": -0.6,
+          "tone": -0.8,
+          "source_quality": 0.6,
+          "context": -0.7
+        }
+      }
+    },
+    "generated_metadata": {
+      "TSLA": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.545
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qv4rfj",
+    "post_text": "AMD posts better than anticpated Q4 earnings and Q1 outlook, but stock falls. AMD (AMD) reported its fourth quarter earnings on Tuesday, beating expectations on the top and bottom line, and providing a better than anticipated Q1 outlook. Despite the beat, shares fell on the news. AMD reported earnin...",
+    "ticker_metadata": {
+      "AMD": {
+        "event_type": "EARNINGS_BEAT",
+        "sentiment_score": 0.22,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The earnings beat and better-than-anticipated Q1 outlook contribute to a positive market impact, but the stock's fall despite the beat and the neutral tone of the post lead to an overall neutral sentiment. High-quality sources like Bloomberg analyst consensus estimates support the earnings data.",
+        "factor_breakdown": {
+          "market_impact": 0.4,
+          "tone": 0.0,
+          "source_quality": 0.8,
+          "context": -0.4
+        }
+      }
+    },
+    "generated_metadata": {
+      "AMD": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.22
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qrnnph",
+    "post_text": "Oracle Taking a Beating but Lands Air Force Contract. On Friday, the U.S. Air Force handed Oracle America Inc. a firm-fixed-price task order worth $88,112,197 under its Cloud One program. The work is slated to continue through Dec. 7, 2028, according to a government announcement. I keep seeing news ...",
+    "ticker_metadata": {
+      "ORCL": {
+        "event_type": null,
+        "sentiment_score": 0.405,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The government contract win is a significant positive event, but the overall tone is cautious due to concerns about the stock's downward trend and AI fears, resulting in a moderately positive sentiment score.",
+        "factor_breakdown": {
+          "market_impact": 0.6,
+          "tone": 0.1,
+          "source_quality": 0.5,
+          "context": 0.2
+        }
+      },
+      "MSFT": {
+        "event_type": "EARNINGS_BEAT",
+        "sentiment_score": -0.35,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "Despite beating earnings, Microsoft's higher-than-expected capex led to a negative reaction, indicating that the earnings beat was not enough to overcome concerns about the company's spending, resulting in a mildly negative sentiment score.",
+        "factor_breakdown": {
+          "market_impact": -0.4,
+          "tone": -0.3,
+          "source_quality": 0.0,
+          "context": -0.5
+        }
+      }
+    },
+    "generated_metadata": {
+      "ORCL": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.405
+      },
+      "MSFT": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.35
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qv4608",
+    "post_text": "What's everyone been picking up on the recent pullbacks? Markets taking a hit at the moment, despite this I think we're in for a solid 2026! What is everyone currently picking up and why? For me it's been some Pagaya (PGY) and Rubrik (RBRK). PGY turning profitable and undervalued to its peers in the...",
+    "ticker_metadata": {
+      "PGY": {
+        "event_type": "INVESTOR_ACTION",
+        "sentiment_score": 0.515,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The post mentions PGY turning profitable and being undervalued, which suggests a positive market impact and tone, with the author providing some reasoning for their investment choice.",
+        "factor_breakdown": {
+          "market_impact": 0.5,
+          "tone": 0.6,
+          "source_quality": 0.4,
+          "context": 0.5
+        }
+      },
+      "RBRK": {
+        "event_type": "INVESTOR_ACTION",
+        "sentiment_score": 0.415,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The author mentions RBRK filling a needed cyber security niche and growing fast, indicating a positive tone and market impact, although with less specific data than for PGY.",
+        "factor_breakdown": {
+          "market_impact": 0.4,
+          "tone": 0.5,
+          "source_quality": 0.3,
+          "context": 0.4
+        }
+      },
+      "INOD": {
+        "event_type": "INVESTOR_ACTION",
+        "sentiment_score": 0.615,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The post highlights INOD's partnerships with major hyperscalers for AI data, shield contracts, and a Palantir deal, which suggests significant positive market impact and a strong tone.",
+        "factor_breakdown": {
+          "market_impact": 0.6,
+          "tone": 0.7,
+          "source_quality": 0.5,
+          "context": 0.6
+        }
+      }
+    },
+    "generated_metadata": {
+      "PGY": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.515
+      },
+      "RBRK": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.415
+      },
+      "INOD": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.615
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qt138n",
+    "post_text": "Adobe stock to mix up my portfolio. So since last year I didn't invest any money although I made like 5k due to intel and NVidia going up pretty decent as well as Voo and a few others I had. Now I am looking deeply into Adobe, Paypal and Netflix. I know its the talk right now but I have my eyes more...",
+    "ticker_metadata": {
+      "ADBE": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.38,
+        "sentiment_label": "positive",
+        "sentiment_reasoning": "The investor expresses a positive opinion about Adobe, stating that 'everything seems right about it', indicating a bullish tone, although the source quality is low due to the lack of specific data or references.",
+        "factor_breakdown": {
+          "market_impact": 0.3,
+          "tone": 0.6,
+          "source_quality": 0.2,
+          "context": 0.4
+        }
+      },
+      "PYPL": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.025,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The mention of PayPal is neutral, as the investor only mentions it as one of the companies they are looking into, without expressing a specific opinion or providing any relevant information.",
+        "factor_breakdown": {
+          "market_impact": 0.0,
+          "tone": 0.1,
+          "source_quality": 0.0,
+          "context": 0.0
+        }
+      },
+      "NFLX": {
+        "event_type": "INVESTOR_OPINION",
+        "sentiment_score": 0.025,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "Similar to PayPal, the mention of Netflix is neutral, as the investor only mentions it as one of the companies they are looking into, without expressing a specific opinion or providing any relevant information.",
+        "factor_breakdown": {
+          "market_impact": 0.0,
+          "tone": 0.1,
+          "source_quality": 0.0,
+          "context": 0.0
+        }
+      },
+      "INTC": {
+        "event_type": "INVESTOR_ACTION",
+        "sentiment_score": 0.115,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "The mention of Intel is neutral, as the investor only mentions that their stock went up, which is a factual statement without expressing a specific opinion or providing any relevant information.",
+        "factor_breakdown": {
+          "market_impact": 0.1,
+          "tone": 0.2,
+          "source_quality": 0.0,
+          "context": 0.1
+        }
+      },
+      "NVDA": {
+        "event_type": "INVESTOR_ACTION",
+        "sentiment_score": 0.115,
+        "sentiment_label": "neutral",
+        "sentiment_reasoning": "Similar to Intel, the mention of NVIDIA is neutral, as the investor only mentions that their stock went up, which is a factual statement without expressing a specific opinion or providing any relevant information.",
+        "factor_breakdown": {
+          "market_impact": 0.1,
+          "tone": 0.2,
+          "source_quality": 0.0,
+          "context": 0.1
+        }
+      }
+    },
+    "generated_metadata": {
+      "ADBE": {
+        "sentiment_label": "positive",
+        "sentiment_score": 0.38
+      },
+      "PYPL": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.025
+      },
+      "NFLX": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.025
+      },
+      "INTC": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.115
+      },
+      "NVDA": {
+        "sentiment_label": "neutral",
+        "sentiment_score": 0.115
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  },
+  {
+    "id": "reddit:1qxrpri",
+    "post_text": "Justice Department Casts Wide Net on Netflix's Business Practices in Merger Probe. https://www.wsj.com/business/media/justice-department-casts-wide-net-on-netflixs-business-practices-in-merger-probe-fd30d7f8: https://www.wsj.com/business/media/justice-department-casts-wide-net-on-netflixs-business-p...",
+    "ticker_metadata": {
+      "NFLX": {
+        "event_type": "REGULATORY_APPROVAL",
+        "sentiment_score": -0.395,
+        "sentiment_label": "negative",
+        "sentiment_reasoning": "The regulatory probe into Netflix's business practices casts a negative outlook on the company's potential merger, indicating a moderate negative market impact. The tone is also bearish due to the implication of potential pressure from the DOJ, although the source quality is relatively high due to the reference to a Wall Street Journal article.",
+        "factor_breakdown": {
+          "market_impact": -0.6,
+          "tone": -0.4,
+          "source_quality": 0.5,
+          "context": -0.3
+        }
+      }
+    },
+    "generated_metadata": {
+      "NFLX": {
+        "sentiment_label": "negative",
+        "sentiment_score": -0.395
+      }
+    },
+    "weight_combo": 2,
+    "weight_config": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    }
+  }
+]
