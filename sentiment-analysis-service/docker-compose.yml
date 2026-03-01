@@ -5,7 +5,7 @@ services:
     env_file:
       - .env
     ports:
-      - "5012:5012"
+      - "5014:5014"
     environment:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
@@ -14,7 +14,9 @@ services:
       - SENTIMENT_STREAM=${SENTIMENT_STREAM}
       - LARGE_LANGUAGE_MODEL_LLAMA_LOCAL=${LARGE_LANGUAGE_MODEL_LLAMA_LOCAL}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
-    command: uvicorn app.main:app --host 0.0.0.0 --port 5012
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - LARGE_LANGUAGE_MODEL_LLAMA=${LARGE_LANGUAGE_MODEL_LLAMA}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5014
     restart: unless-stopped
 
   sentiment-analysis-worker:
@@ -30,5 +32,7 @@ services:
       - SENTIMENT_STREAM=${SENTIMENT_STREAM}
       - LARGE_LANGUAGE_MODEL_LLAMA_LOCAL=${LARGE_LANGUAGE_MODEL_LLAMA_LOCAL}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - LARGE_LANGUAGE_MODEL_LLAMA=${LARGE_LANGUAGE_MODEL_LLAMA}
     command: python -m app.services.sentiment_analysis_worker
     restart: unless-stopped

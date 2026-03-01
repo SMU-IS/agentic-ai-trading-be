@@ -1,0 +1,152 @@
+{
+  "1": {
+    "combo_num": 1,
+    "name": "Balanced       (0.25/0.25/0.25/0.25)",
+    "weights": {
+      "market_impact": 0.25,
+      "tone": 0.25,
+      "source_quality": 0.25,
+      "context": 0.25
+    },
+    "total_pairs": 70,
+    "correct": 51,
+    "accuracy_pct": 72.86,
+    "by_class": {
+      "positive": {
+        "total": 32,
+        "correct": 22,
+        "accuracy_pct": 68.75
+      },
+      "negative": {
+        "total": 12,
+        "correct": 8,
+        "accuracy_pct": 66.67
+      },
+      "neutral": {
+        "total": 26,
+        "correct": 21,
+        "accuracy_pct": 80.77
+      }
+    }
+  },
+  "2": {
+    "combo_num": 2,
+    "name": "Event-Driven   (0.50/0.25/0.10/0.15)",
+    "weights": {
+      "market_impact": 0.5,
+      "tone": 0.25,
+      "source_quality": 0.1,
+      "context": 0.15
+    },
+    "total_pairs": 70,
+    "correct": 53,
+    "accuracy_pct": 75.71,
+    "by_class": {
+      "positive": {
+        "total": 32,
+        "correct": 25,
+        "accuracy_pct": 78.12
+      },
+      "negative": {
+        "total": 12,
+        "correct": 11,
+        "accuracy_pct": 91.67
+      },
+      "neutral": {
+        "total": 26,
+        "correct": 17,
+        "accuracy_pct": 65.38
+      }
+    }
+  },
+  "3": {
+    "combo_num": 3,
+    "name": "Tone-Heavy     (0.30/0.40/0.10/0.20)",
+    "weights": {
+      "market_impact": 0.3,
+      "tone": 0.4,
+      "source_quality": 0.1,
+      "context": 0.2
+    },
+    "total_pairs": 70,
+    "correct": 56,
+    "accuracy_pct": 80.0,
+    "by_class": {
+      "positive": {
+        "total": 32,
+        "correct": 26,
+        "accuracy_pct": 81.25
+      },
+      "negative": {
+        "total": 12,
+        "correct": 11,
+        "accuracy_pct": 91.67
+      },
+      "neutral": {
+        "total": 26,
+        "correct": 19,
+        "accuracy_pct": 73.08
+      }
+    }
+  },
+  "4": {
+    "combo_num": 4,
+    "name": "Context-First  (0.30/0.20/0.10/0.40)",
+    "weights": {
+      "market_impact": 0.3,
+      "tone": 0.2,
+      "source_quality": 0.1,
+      "context": 0.4
+    },
+    "total_pairs": 69,
+    "correct": 54,
+    "accuracy_pct": 78.26,
+    "by_class": {
+      "positive": {
+        "total": 32,
+        "correct": 25,
+        "accuracy_pct": 78.12
+      },
+      "negative": {
+        "total": 11,
+        "correct": 10,
+        "accuracy_pct": 90.91
+      },
+      "neutral": {
+        "total": 26,
+        "correct": 19,
+        "accuracy_pct": 73.08
+      }
+    }
+  },
+  "5": {
+    "combo_num": 5,
+    "name": "Quality Aware  (0.30/0.25/0.25/0.20)",
+    "weights": {
+      "market_impact": 0.3,
+      "tone": 0.25,
+      "source_quality": 0.25,
+      "context": 0.2
+    },
+    "total_pairs": 70,
+    "correct": 53,
+    "accuracy_pct": 75.71,
+    "by_class": {
+      "positive": {
+        "total": 32,
+        "correct": 25,
+        "accuracy_pct": 78.12
+      },
+      "negative": {
+        "total": 12,
+        "correct": 9,
+        "accuracy_pct": 75.0
+      },
+      "neutral": {
+        "total": 26,
+        "correct": 19,
+        "accuracy_pct": 73.08
+      }
+    }
+  }
+}

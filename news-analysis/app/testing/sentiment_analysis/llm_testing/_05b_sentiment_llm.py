@@ -8,7 +8,7 @@ Supports sarcasm detection, financial slang (Reddit/WSB), and emoji interpretati
 Uses few-shot prompting from _05_sentiment_prompts.py.
 
 Sentiment scores are computed via a weighted factor breakdown:
-  Final = (market_impact × 0.40) + (tone × 0.25) + (source_quality × 0.10) + (context × 0.25)
+  Final = (market_impact × 0.40) + (tone × 0.25) + (source_quality × 0.20) + (context × 0.15)
 """
 
 import asyncio
@@ -36,8 +36,8 @@ logger = logging.getLogger(__name__)
 FACTOR_WEIGHTS = {
     'market_impact': 0.40,
     'tone': 0.25,
-    'source_quality': 0.10,
-    'context': 0.25,
+    'source_quality': 0.20,
+    'context': 0.15,
 }
 
 

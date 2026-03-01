@@ -22,9 +22,13 @@ class EnvConfig(BaseSettings):
     redis_sentiment_stream: str = Field(..., validation_alias="SENTIMENT_STREAM")
     redis_event_stream: str = Field(..., validation_alias="EVENT_STREAM")
 
-    # Ollama
-    ollama_modelname: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL_LLAMA_LOCAL")
-    ollama_baseurl: str = Field(..., validation_alias="OLLAMA_BASE_URL")
+    # Ollama (local)
+    ollama_modelname: str = Field(default="llama3:8b", validation_alias="LARGE_LANGUAGE_MODEL_LLAMA_LOCAL")
+    ollama_baseurl: str = Field(default="http://localhost:11434", validation_alias="OLLAMA_BASE_URL")
+
+    # Groq
+    groq_api_key: Optional[str] = Field(default=None, validation_alias="GROQ_API_KEY")
+    groq_model_name: str = Field(default="llama-3.3-70b-versatile", validation_alias="LARGE_LANGUAGE_MODEL_LLAMA")
 
 env_config = EnvConfig()  # type: ignore
 config = env_config  # Alias for backward compatibility
