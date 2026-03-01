@@ -305,7 +305,7 @@ class LLMSentimentService:
 
             sentiments[ticker] = {
                 'sentiment_score': round(score, 4),
-                'sentiment_label': 'positive' if score > 0.1 else 'negative' if score < -0.1 else 'neutral',
+                'sentiment_label': 'positive' if score > 0.2 else 'negative' if score < -0.2 else 'neutral',
                 'reasoning': ticker_raw.get('reasoning', 'No reasoning provided'),
                 'factor_breakdown': factors,
                 'official_name': official_name,

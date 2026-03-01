@@ -1,6 +1,6 @@
 """
 Few-Shot Prompting for Sentiment Analysis
-File: news-analysis/app/services/_05_sentiment_prompts.py
+File: news-analysis/app/testing/sentiment_analysis/llm_testing/_05_sentiment_prompts.py
 
 Contains edge-case examples and prompt templates for LLM-based
 per-ticker sentiment analysis. Designed for Reddit financial content
