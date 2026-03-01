@@ -4,6 +4,15 @@ from pydantic import BaseModel, Field
 class ChatRequest(BaseModel):
     query: str
     order_id: str | None = None
+    session_id: str = Field(
+        ..., description="Unique ID for the chat thread/conversation"
+    )
+
+
+class ChatHistoryResponse(BaseModel):
+    history: list[dict] = Field(
+        ..., description="The list of messages in the conversation"
+    )
 
 
 class GeneralNews(BaseModel):

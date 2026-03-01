@@ -4,6 +4,7 @@ from enum import Enum
 class APIPath(str, Enum):
     HEALTH_CHECK = "/healthcheck"
     CHAT = "/chat"
+    CHAT_HISTORY = "/chat/history/{session_id}"
 
 
 class LangChainEvent(str, Enum):
@@ -19,3 +20,7 @@ class LLMProviders(str, Enum):
     OLLAMA = "ollama"
     GEMINI = "gemini"
     GROQ = "groq"
+
+
+class RedisCacheKeys(str, Enum):
+    AGENT_BOT_PROMPT = "agent_bot_prompt"

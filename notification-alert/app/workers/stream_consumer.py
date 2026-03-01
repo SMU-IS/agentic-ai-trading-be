@@ -1,4 +1,5 @@
 import asyncio
+import httpx
 from redis.asyncio import Redis
 from app.core.config import env_config
 from app.services.notification_service import notify_users
@@ -21,11 +22,10 @@ class StreamConsumer:
     async def create_groups(self):
         for stream_name, group_name in self.streams.items():
             try:
-                start_id = "0" if stream_name == env_config.redis_analysis_stream else "$"
                 await self.r.xgroup_create(
                     name=stream_name,
                     groupname=group_name,
-                    id=start_id,
+                    id="0",
                     mkstream=True 
                 )
                 print(f"✅ Created group {group_name} for {stream_name}")
@@ -103,19 +103,30 @@ class StreamConsumer:
 
                                 elif stream_name == env_config.redis_analysis_stream:
                                     # Trade / signal notifications
-                                    notification_payload = {
-                                        "type": "SIGNAL_GENERATED",
-                                        "signal_id": data.get("signal_id")
-                                    }
-                                    delivered = await notify_users(notification_payload)
-                                    if delivered:
-                                        print("✅ Sent signal notification:", notification_payload)
-                                    else:
-                                        print("ℹ️ Notification queued (no client connected):", notification_payload)
+                                    signal_id = data.get("signal_id")
+                                    try:
+                                        async with httpx.AsyncClient() as client:
+                                            response = await client.get(
+                                                f"{env_config.base_api}/trading/decisions/signals/{signal_id}"
+                                            )
+                                            
+                                        full_signal = response.json()
+                                        notification_payload = {
+                                            "type": "SIGNAL_GENERATED",
+                                            "signal_id": full_signal
+                                        }
+                                        delivered = await notify_users(notification_payload)
+                                        if delivered:
+                                            print("✅ Sent signal notification:", notification_payload)
+                                        else:
+                                            print("ℹ️ Notification queued (no client connected):", notification_payload)
 
-                            
+                                    except Exception as e:
+                                        print(f"Failed processing signal {signal_id}: {e}")
+
                                 if delivered:
                                     await self.r.xack(stream_name, group_name, event_id)
+
 
                             except Exception as e:
                                 print(f"Failed processing {event_id} from {stream_name}: {e}")

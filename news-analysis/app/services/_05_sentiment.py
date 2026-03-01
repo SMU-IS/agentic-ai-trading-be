@@ -1,720 +1,475 @@
 """
-Sentiment Analysis Service - Integrated with News Analysis Pipeline
-File: news-analysis/app/services/_05_sentiment.py
+LLM-Based Sentiment Analysis Service
+File: news-analysis/app/services/_05b_sentiment_llm.py
 
-IMPROVED VERSION with Adaptive Emoji Weighting
+Uses Groq LLM (Llama 3.3 70B Versatile) for per-ticker sentiment analysis with detailed reasoning.
+Analyzes sentiment for each ticker mentioned in financial news/social media posts.
+Supports sarcasm detection, financial slang (Reddit/WSB), and emoji interpretation.
+Uses few-shot prompting from _05_sentiment_prompts.py.
+
+Sentiment scores are computed via a weighted factor breakdown:
+  Final = (market_impact × 0.40) + (tone × 0.25) + (source_quality × 0.10) + (context × 0.25)
 """
 
-import re
-import emoji
+import asyncio
+import json
 import logging
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 from dataclasses import dataclass
-from enum import Enum
 
-import numpy as np
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import torch
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from langchain_groq import ChatGroq
+from langchain_core.messages import SystemMessage, HumanMessage
+from langchain_core.output_parsers import JsonOutputParser
 
-# Import config from your existing structure
+# Import config
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+from core.config import env_config
 
-# Configure logging
+# Import few-shot prompts (relative import to avoid circular import via __init__.py)
+from ._05_sentiment_prompts import build_sentiment_prompt
+
 logger = logging.getLogger(__name__)
 
-
-class SentimentLabel(Enum):
-    """Sentiment classification labels"""
-    POSITIVE = "positive"
-    NEGATIVE = "negative"
-    NEUTRAL = "neutral"
+# Factor weights for sentiment score computation
+FACTOR_WEIGHTS = {
+    'market_impact': 0.40,
+    'tone': 0.25,
+    'source_quality': 0.10,
+    'context': 0.25,
+}
 
 
 @dataclass
-class SentimentResult:
-    """Structured sentiment analysis result matching your JSON schema"""
-    sentiment_label: str
-    sentiment_score: float  # Range: -1.0 to 1.0
-    confidence: float
-    positive_prob: float
-    negative_prob: float
-    neutral_prob: float
-    emoji_influence: float
-    models_used: List[str]
-    method_used: str
-    reasoning: str = ""  # Explanation of sentiment factors
+class TickerSentiment:
+    """Sentiment analysis result for a single ticker"""
+    ticker: str
+    official_name: str
+    sentiment_score: float  # -1.0 to 1.0
+    sentiment_label: str  # positive, negative, neutral
+    reasoning: str
+    factor_breakdown: Dict[str, float]  # Individual factor scores
 
 
-class EmojiSentimentAnalyzer:
-    """Handles emoji-specific sentiment analysis for financial content"""
-
-    # Financial/trading emoji sentiment mappings (curated for Reddit WSB, r/stocks)
-    EMOJI_SENTIMENT_MAP = {
-        # Bullish emojis
-        '📈': 0.8, '🚀': 0.9, '💎': 0.7, '🙌': 0.6, '💰': 0.7,
-        '🤑': 0.8, '💵': 0.6, '💸': 0.5, '📊': 0.4, '✅': 0.6,
-        '👍': 0.5, '🔥': 0.7, '🌙': 0.6, '⬆️': 0.7, '🐂': 0.7,
-        '💪': 0.6, '🎉': 0.6, '🎊': 0.6, '⭐': 0.5, '🏆': 0.7,
-
-        # Bearish emojis
-        '📉': -0.8, '💩': -0.8, '🤡': -0.7, '⬇️': -0.7, '😭': -0.6,
-        '😢': -0.5, '💀': -0.7, '🩸': -0.8, '🔻': -0.7, '❌': -0.6,
-        '👎': -0.5, '🚨': -0.6, '⚠️': -0.5, '🐻': -0.7, '😡': -0.6,
-        '🤮': -0.7, '😱': -0.6, '💔': -0.6, '⚰️': -0.8, '🧻': -0.5,
-        '👋': -0.3,
-
-        # Neutral
-        '🤔': 0.0, '👀': 0.0, '💭': 0.0, '❓': 0.0, '🤷': 0.0,
-        '😐': 0.0, '😶': 0.0, '🧐': 0.0,
-    }
-
-    def __init__(self):
-        self.vader = SentimentIntensityAnalyzer()
-
-        # Update VADER lexicon with Reddit financial slang
-        financial_slang = {
-            # WSB/Reddit specific - INCREASED SCORES
-            'moon': 3.5, 'mooning': 4.0, 'rocket': 3.5, 'rockets': 3.5,
-            'tendies': 3.0, 'stonks': 2.5, 'stonk': 2.5,
-            'diamond hands': 3.5, 'diamondhands': 3.5,
-            'paper hands': -3.0, 'paperhands': -3.0,
-            'hodl': 2.5, 'hodling': 2.5,
-            'yolo': 2.5, 'ape': 2.0, 'apes': 2.0,
-            'dd': 1.5, 'btfd': 2.5,
-            'bagholder': -3.0, 'bagholding': -3.0, 'bags': -2.5,
-            'fud': -3.0, 'fomo': 2.0,
-            'rekt': -3.5, 'rug': -3.5, 'rugpull': -3.5,
-            'pump': 2.5, 'dump': -3.0,
-            'short squeeze': 3.0, 'gamma squeeze': 3.0, 'squeeze': 2.5,
-
-            # Financial terms
-            'bullish': 3.0, 'bearish': -3.0, 'bull': 2.5, 'bear': -2.5,
-            'rally': 2.5, 'crash': -3.5, 'dip': -1.5, 'rip': 3.0,
-            'moon shot': 3.5, 'to the moon': 4.0,
-            'buy the dip': 2.0, 'btd': 2.0,
-        }
-        self.vader.lexicon.update(financial_slang)
-
-    def extract_emojis(self, text: str) -> List[str]:
-        """Extract all emojis from text"""
-        return [char for char in text if char in emoji.EMOJI_DATA]
-
-    def calculate_emoji_sentiment(self, emojis: List[str]) -> tuple[float, int]:
-        """Calculate aggregate emoji sentiment. Returns (score, count)"""
-        if not emojis:
-            return 0.0, 0
-
-        scores = []
-        for em in emojis:
-            if em in self.EMOJI_SENTIMENT_MAP:
-                scores.append(self.EMOJI_SENTIMENT_MAP[em])
-            else:
-                # Fallback to VADER for unmapped emojis
-                vader_score = self.vader.polarity_scores(em)['compound']
-                scores.append(vader_score)
-
-        return np.mean(scores) if scores else 0.0, len(emojis)
-
-    def analyze_with_vader(self, text: str) -> float:
-        """Analyze text with VADER for slang detection"""
-        scores = self.vader.polarity_scores(text)
-        return scores['compound']
-
-    def remove_emojis(self, text: str) -> str:
-        """Remove emojis from text"""
-        text = emoji.replace_emoji(text, replace='')
-        text = re.sub(r':[a-z_]+:', '', text)
-        return text
+@dataclass
+class LLMSentimentResult:
+    """Complete sentiment analysis result for a news item (per-ticker only)"""
+    ticker_sentiments: Dict[str, Dict]  # Per-ticker sentiment data
+    analysis_successful: bool = True
+    error_message: Optional[str] = None
 
 
-class SentimentAnalysisService:
-    """Main sentiment analysis service with Adaptive Weighting"""
+class LLMSentimentService:
+    """
+    Per-ticker sentiment analysis using Groq LLM (Llama 3.3 70B) with few-shot prompting.
+
+    Analyzes financial news/social media content (especially Reddit) and generates
+    sentiment scores for each ticker mentioned. Designed to handle sarcasm,
+    financial slang, and emojis common in Reddit/WSB posts.
+
+    Uses clean_combined_withurl and ticker_metadata from upstream pipeline.
+    """
 
     _instance = None
 
     def __new__(cls):
-        """Singleton pattern"""
         if cls._instance is None:
-            cls._instance = super(SentimentAnalysisService, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self):
+    def __init__(
+        self,
+        model_name: str = env_config.large_language_model_llama or "llama-3.3-70b-versatile",
+        temperature: float = 0.1
+    ):
         if self._initialized:
             return
 
-        logger.info("Initializing Sentiment Analysis Service...")
+        logger.info("Initializing LLM Sentiment Service...")
 
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        logger.info(f"Using device: {self.device}")
-
-        model_name = "ProsusAI/finbert"
-        logger.info(f"Loading model: {model_name}")
+        self.model_name = model_name
 
         try:
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-            self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
-            self.model.to(self.device)
-            self.model.eval()
-            logger.info("FinBERT model loaded successfully")
+            self.llm = ChatGroq(
+                model=model_name,
+                api_key=env_config.groq_api_key,
+                temperature=temperature,
+            )
+            self.parser = JsonOutputParser()
+            logger.info(f"Groq LLM initialized: {model_name}")
         except Exception as e:
-            logger.error(f"Failed to load FinBERT model: {e}")
-            raise
-
-        self.emoji_analyzer = EmojiSentimentAnalyzer()
-        self.id2label = {0: "positive", 1: "negative", 2: "neutral"}
+            logger.error(f"Failed to initialize Groq LLM: {e}")
+            self.llm = None
+            self.parser = None
 
         self._initialized = True
-        logger.info("Sentiment Analysis Service initialized successfully")
+        logger.info("LLM Sentiment Service initialized")
 
-    def preprocess_text(self, text: str) -> str:
-        """Clean and normalize text"""
-        if not text:
-            return ""
-        text = ' '.join(text.split())
-        return text.strip()
-
-    def calculate_adaptive_weights(
-        self,
-        text: str,
-        emoji_count: int,
-        base_emoji_weight: float = 0.3
-    ) -> tuple[float, float]:
+    async def analyse(self, item: Dict) -> Dict:
         """
-        Calculate adaptive weights based on text characteristics
+        Analyze sentiment for each ticker in the news item.
 
-        Rules:
-        1. High emoji density → Increase emoji weight
-        2. Short text with emojis → Increase emoji weight
-        3. Long formal text → Decrease emoji weight
-        """
-        text_length = len(text.split())
-
-        # Calculate emoji density (emojis per 10 words)
-        emoji_density = (emoji_count / max(text_length, 1)) * 10
-
-        # Adaptive weighting rules
-        if emoji_count == 0:
-            # No emojis - pure text
-            return 0.0, 1.0
-
-        elif text_length <= 5 and emoji_count >= 2:
-            # Very short text with multiple emojis (e.g., "🚀🚀🚀")
-            # Give emojis much more weight
-            emoji_weight = 0.6
-            text_weight = 0.4
-
-        elif text_length <= 10 and emoji_count >= 3:
-            # Short text with many emojis (e.g., "To the moon! 🚀🚀🚀")
-            # Boost emoji influence
-            emoji_weight = 0.55
-            text_weight = 0.45
-
-        elif emoji_density >= 2.0:
-            # High emoji density
-            emoji_weight = 0.5
-            text_weight = 0.5
-
-        elif emoji_density >= 1.0:
-            # Moderate emoji density
-            emoji_weight = 0.4
-            text_weight = 0.6
-
-        elif text_length > 50:
-            # Long text - reduce emoji influence
-            emoji_weight = 0.2
-            text_weight = 0.8
-
-        else:
-            # Default balanced
-            emoji_weight = base_emoji_weight
-            text_weight = 1.0 - base_emoji_weight
-
-        # Normalize
-        total = emoji_weight + text_weight
-        return emoji_weight / total, text_weight / total
-
-    def analyze_with_finbert(self, text: str) -> Dict[str, float]:
-        """Analyze text using FinBERT model"""
-        if not text or not text.strip():
-            return {'positive': 0.33, 'negative': 0.33, 'neutral': 0.34}
-
-        try:
-            inputs = self.tokenizer(
-                text,
-                return_tensors="pt",
-                truncation=True,
-                max_length=512,
-                padding=True
-            )
-            inputs = {k: v.to(self.device) for k, v in inputs.items()}
-
-            with torch.no_grad():
-                outputs = self.model(**inputs)
-                probs = torch.nn.functional.softmax(outputs.logits, dim=-1)
-
-            probs = probs.cpu().numpy()[0]
-
-            return {
-                'positive': float(probs[0]),
-                'negative': float(probs[1]),
-                'neutral': float(probs[2])
-            }
-        except Exception as e:
-            logger.error(f"FinBERT analysis failed: {e}")
-            return {'positive': 0.33, 'negative': 0.33, 'neutral': 0.34}
-
-    def analyze_text(
-        self,
-        text: str,
-        emoji_weight: Optional[float] = None,
-        text_weight: Optional[float] = None,
-        use_adaptive_weights: bool = True
-    ) -> SentimentResult:
-        """
-        Main analysis method with adaptive weighting
+        Uses clean_combined_withurl as the text input and ticker_metadata
+        from upstream ticker identification for per-ticker analysis.
 
         Args:
-            text: Input text to analyze
-            emoji_weight: Manual emoji weight (overrides adaptive)
-            text_weight: Manual text weight (overrides adaptive)
-            use_adaptive_weights: Use adaptive weighting system
-        """
-        if not text or not text.strip():
-            logger.warning("Empty text provided")
-            return self._create_neutral_result()
-
-        processed_text = self.preprocess_text(text)
-
-        # Extract emojis
-        emojis = self.emoji_analyzer.extract_emojis(processed_text)
-        emoji_score, emoji_count = self.emoji_analyzer.calculate_emoji_sentiment(emojis)
-
-        # Remove emojis for text analysis
-        text_only = self.emoji_analyzer.remove_emojis(processed_text)
-
-        # Determine weights
-        if emoji_weight is not None and text_weight is not None:
-            # Manual weights provided
-            total = emoji_weight + text_weight
-            final_emoji_weight = emoji_weight / total
-            final_text_weight = text_weight / total
-            method_suffix = "_manual"
-        elif use_adaptive_weights and emoji_count > 0:
-            # Use adaptive weighting
-            final_emoji_weight, final_text_weight = self.calculate_adaptive_weights(
-                text_only, emoji_count
-            )
-            method_suffix = "_adaptive"
-        else:
-            # Default weights
-            final_emoji_weight = 0.3 if emoji_count > 0 else 0.0
-            final_text_weight = 0.7 if emoji_count > 0 else 1.0
-            method_suffix = "_default"
-
-        models_used = []
-
-        # Analyze text with FinBERT
-        if text_only.strip():
-            finbert_scores = self.analyze_with_finbert(text_only)
-            models_used.append("FinBERT")
-
-            # ALSO analyze with VADER for slang detection
-            vader_compound = self.emoji_analyzer.analyze_with_vader(text_only)
-
-            # If VADER detects strong sentiment in slang, boost it
-            if abs(vader_compound) > 0.5:
-                models_used.append("VADER")
-                # Blend FinBERT with VADER for slang-heavy text
-
-                if vader_compound > 0:
-                    finbert_scores['positive'] = (
-                        0.7 * finbert_scores['positive'] +
-                        0.3 * (0.5 + vader_compound/2)
-                    )
-                    finbert_scores['negative'] = (
-                        0.7 * finbert_scores['negative'] +
-                        0.3 * 0.25
-                    )
-                else:
-                    finbert_scores['negative'] = (
-                        0.7 * finbert_scores['negative'] +
-                        0.3 * (0.5 - vader_compound/2)
-                    )
-                    finbert_scores['positive'] = (
-                        0.7 * finbert_scores['positive'] +
-                        0.3 * 0.25
-                    )
-
-                # Renormalize
-                total = sum(finbert_scores.values())
-                finbert_scores = {k: v/total for k, v in finbert_scores.items()}
-
-            method_used = f"finbert+emoji{method_suffix}" if emojis else "finbert_only"
-        else:
-            finbert_scores = {'positive': 0.33, 'negative': 0.33, 'neutral': 0.34}
-            method_used = "emoji_only"
-
-        if emoji_count > 0:
-            models_used.append("Emoji")
-
-        # Combine scores
-        if emoji_count > 0 and text_only.strip():
-            emoji_probs = self._emoji_score_to_probs(emoji_score, strength=1.5)
-
-            final_positive = (final_text_weight * finbert_scores['positive'] +
-                            final_emoji_weight * emoji_probs['positive'])
-            final_negative = (final_text_weight * finbert_scores['negative'] +
-                            final_emoji_weight * emoji_probs['negative'])
-            final_neutral = (final_text_weight * finbert_scores['neutral'] +
-                           final_emoji_weight * emoji_probs['neutral'])
-            emoji_influence = final_emoji_weight
-
-        elif emoji_count > 0:
-            emoji_probs = self._emoji_score_to_probs(emoji_score, strength=1.5)
-            final_positive = emoji_probs['positive']
-            final_negative = emoji_probs['negative']
-            final_neutral = emoji_probs['neutral']
-            emoji_influence = 1.0
-
-        else:
-            final_positive = finbert_scores['positive']
-            final_negative = finbert_scores['negative']
-            final_neutral = finbert_scores['neutral']
-            emoji_influence = 0.0
-
-        # Determine label with more aggressive thresholds
-        label, confidence = self._determine_label_and_confidence(
-            final_positive, final_negative, final_neutral,
-            threshold=0.05  # Reduced from 0.1 for more decisive results
-        )
-
-        # Calculate sentiment score with explicit clamping to [-1, 1]
-        sentiment_score = max(-1.0, min(1.0, final_positive - final_negative))
-
-        # Build reasoning string
-        reasoning_parts = []
-
-        # Emoji influence reasoning
-        if emoji_count > 0:
-            emoji_sentiment_desc = "bullish" if emoji_score > 0.2 else "bearish" if emoji_score < -0.2 else "mixed"
-            reasoning_parts.append(
-                f"Found {emoji_count} emojis ({emoji_sentiment_desc}, influence: {emoji_influence:.0%})"
-            )
-
-        # VADER slang detection reasoning
-        if "VADER" in models_used:
-            reasoning_parts.append("Financial slang detected (VADER boost applied)")
-
-        # FinBERT reasoning
-        if "FinBERT" in models_used:
-            if finbert_scores['positive'] > 0.7:
-                reasoning_parts.append(f"Strong positive language (FinBERT: {finbert_scores['positive']:.2f})")
-            elif finbert_scores['negative'] > 0.7:
-                reasoning_parts.append(f"Strong negative language (FinBERT: {finbert_scores['negative']:.2f})")
-            elif finbert_scores['neutral'] > 0.6:
-                reasoning_parts.append(f"Neutral/factual language (FinBERT: {finbert_scores['neutral']:.2f})")
-            else:
-                reasoning_parts.append(f"Mixed signals (pos: {finbert_scores['positive']:.2f}, neg: {finbert_scores['negative']:.2f})")
-
-        # Final sentiment reasoning
-        if label == "positive":
-            reasoning_parts.append(f"Overall positive sentiment (score: {sentiment_score:.2f})")
-        elif label == "negative":
-            reasoning_parts.append(f"Overall negative sentiment (score: {sentiment_score:.2f})")
-        else:
-            reasoning_parts.append(f"Neutral/uncertain sentiment (score: {sentiment_score:.2f})")
-
-        reasoning = "; ".join(reasoning_parts) if reasoning_parts else "Standard analysis"
-
-        return SentimentResult(
-            sentiment_label=label,
-            sentiment_score=sentiment_score,
-            confidence=confidence,
-            positive_prob=final_positive,
-            negative_prob=final_negative,
-            neutral_prob=final_neutral,
-            emoji_influence=emoji_influence,
-            models_used=models_used,
-            method_used=method_used,
-            reasoning=reasoning
-        )
-
-    def _emoji_score_to_probs(self, emoji_score: float, strength: float = 1.0) -> Dict[str, float]:
-        """
-        Convert emoji score to probability distribution
-        strength: multiplier for emoji influence (>1 = stronger)
-        """
-        # Apply strength multiplier
-        emoji_score = emoji_score * strength
-
-        if emoji_score > 0.15:  # Lowered threshold
-            return {
-                'positive': min(0.5 + emoji_score/2, 0.95),
-                'negative': max(0.025, 0.2 - emoji_score/2),
-                'neutral': 0.025
-            }
-        elif emoji_score < -0.15:  # Lowered threshold
-            return {
-                'positive': max(0.025, 0.2 + emoji_score/2),
-                'negative': min(0.5 - emoji_score/2, 0.95),
-                'neutral': 0.025
-            }
-        else:
-            return {'positive': 0.35, 'negative': 0.35, 'neutral': 0.30}
-
-    def _determine_label_and_confidence(
-        self,
-        positive: float,
-        negative: float,
-        neutral: float,
-        threshold: float = 0.05
-    ) -> tuple[str, float]:
-        """Determine sentiment label and confidence score"""
-        max_score = max(positive, negative, neutral)
-
-        # More aggressive classification
-        if neutral == max_score:
-            # Only return neutral if it significantly dominates
-            if neutral - max(positive, negative) > threshold * 2:
-                return "neutral", neutral
-            # Otherwise, pick the stronger of pos/neg
-            elif positive > negative:
-                return "positive", positive
-            else:
-                return "negative", negative
-
-        # If pos/neg difference is tiny, check if we should default to neutral
-        if abs(positive - negative) < threshold and neutral > 0.3:
-            return "neutral", neutral
-
-        if positive == max_score:
-            return "positive", positive
-        elif negative == max_score:
-            return "negative", negative
-        else:
-            return "neutral", neutral
-
-    def _create_neutral_result(self) -> SentimentResult:
-        """Create neutral result for edge cases"""
-        return SentimentResult(
-            sentiment_label="neutral",
-            sentiment_score=0.0,
-            confidence=0.34,
-            positive_prob=0.33,
-            negative_prob=0.33,
-            neutral_prob=0.34,
-            emoji_influence=0.0,
-            models_used=[],
-            method_used="default"
-        )
-
-    def process_batch(self, items: List[Dict]) -> List[Dict]:
-        """Process batch of items from pipeline"""
-        logger.info(f"Processing batch of {len(items)} items for sentiment analysis")
-
-        results = []
-        for item in items:
-            try:
-                text = item.get('clean_combined', '') or item.get('clean_title', '')
-
-                sentiment = self.analyze_text(text, use_adaptive_weights=True)
-
-                item['sentiment_score'] = round(sentiment.sentiment_score, 6)
-                item['sentiment_label'] = sentiment.sentiment_label
-                item['confidence'] = round(sentiment.confidence, 6)
-                item['models_used'] = sentiment.models_used
-
-                results.append(item)
-
-            except Exception as e:
-                logger.error(f"Failed to analyze item {item.get('Post_ID', 'unknown')}: {e}")
-                item['sentiment_score'] = 0.0
-                item['sentiment_label'] = "neutral"
-                item['confidence'] = 0.0
-                item['models_used'] = []
-                results.append(item)
-
-        logger.info(f"Completed sentiment analysis for {len(results)} items")
-        return results
-
-    def analyse(self, item: Dict) -> Dict:
-        """
-        Analyze a single item for sentiment (synchronous).
-        Returns the item enriched with sentiment scores.
-        Handles nested pipeline data structure.
-        """
-        try:
-            # Extract text from nested structure
-            content = item.get('content', {})
-            text = (
-                content.get('clean_combined_withurl', '') or
-                content.get('clean_combined_withouturl', '') or
-                content.get('clean_combined', '') or
-                item.get('clean_combined', '') or
-                item.get('clean_title', '') or
-                ''
-            )
-
-            sentiment = self.analyze_text(text, use_adaptive_weights=True)
-
-            # Enrich item with sentiment data
-            item['sentiment_score'] = round(sentiment.sentiment_score, 6)
-            item['sentiment_label'] = sentiment.sentiment_label
-            item['sentiment_confidence'] = round(sentiment.confidence, 6)
-            item['positive_prob'] = round(sentiment.positive_prob, 6)
-            item['negative_prob'] = round(sentiment.negative_prob, 6)
-            item['neutral_prob'] = round(sentiment.neutral_prob, 6)
-            item['emoji_influence'] = round(sentiment.emoji_influence, 6)
-            item['models_used'] = sentiment.models_used
-            item['method_used'] = sentiment.method_used
-            item['sentiment_reasoning'] = sentiment.reasoning
-
-            return item
-
-        except Exception as e:
-            logger.error(f"Sentiment analysis failed for {item.get('Post_ID', 'unknown')}: {e}")
-            item['sentiment_score'] = 0.0
-            item['sentiment_label'] = "neutral"
-            item['sentiment_confidence'] = 0.0
-            item['models_used'] = []
-            item['sentiment_reasoning'] = f"Analysis error: {str(e)}"
-            return item
-
-    def _extract_ticker_context(
-        self,
-        text: str,
-        ticker: str,
-        ticker_info: Dict,
-        context_sentences: int = 2
-    ) -> str:
-        """
-        Extract sentences mentioning a specific ticker or company.
-
-        Args:
-            text: Full text to search
-            ticker: Stock ticker symbol (e.g., "AAPL")
-            ticker_info: Ticker metadata with OfficialName and NameIdentified
-            context_sentences: Number of sentences around mention to include
+            item: Pipeline data with 'content' and 'ticker_metadata'
 
         Returns:
-            Extracted context text for this ticker
+            Item enriched with per-ticker sentiment scores and factor breakdowns
         """
-        if not text:
-            return ""
+        # Extract text from nested structure
+        content = item.get('content', {})
+        text = content.get('clean_combined_withurl', '')
 
-        # Build search terms from ticker info
-        search_terms = [ticker.upper(), ticker.lower(), f"${ticker.upper()}"]
-
-        # Add official name and identified names
-        official_name = ticker_info.get('OfficialName', '')
-        if official_name:
-            search_terms.append(official_name)
-            # Also add partial name (first word for multi-word companies)
-            first_word = official_name.split()[0] if official_name else ''
-            if len(first_word) > 3:
-                search_terms.append(first_word)
-
-        names_identified = ticker_info.get('NameIdentified', [])
-        if isinstance(names_identified, list):
-            search_terms.extend(names_identified)
-
-        # Split into sentences
-        sentences = re.split(r'[.!?]+', text)
-        sentences = [s.strip() for s in sentences if s.strip()]
-
-        # Find sentences containing any search term
-        relevant_indices = set()
-        for i, sentence in enumerate(sentences):
-            sentence_lower = sentence.lower()
-            for term in search_terms:
-                if term.lower() in sentence_lower:
-                    # Add this sentence and context
-                    for j in range(max(0, i - context_sentences), min(len(sentences), i + context_sentences + 1)):
-                        relevant_indices.add(j)
-                    break
-
-        if not relevant_indices:
-            # No specific mention found, return full text (ticker may be implied)
-            return text
-
-        # Build context from relevant sentences
-        relevant_sentences = [sentences[i] for i in sorted(relevant_indices)]
-        return ". ".join(relevant_sentences)
-
-    def analyse_per_ticker(self, item: Dict) -> Dict:
-        """
-        Analyze sentiment for each ticker mentioned in the post.
-        Processes ALL tickers with no limit.
-
-        Args:
-            item: Post data with ticker_metadata
-
-        Returns:
-            Item enriched with ticker_sentiments dict
-        """
+        # Get ticker metadata from upstream ticker identification
         ticker_metadata = item.get('ticker_metadata', {})
 
-        # Extract full text
-        content = item.get('content', {})
-        full_text = (
-            content.get('clean_combined_withurl', '') or
-            content.get('clean_combined_withouturl', '') or
-            content.get('clean_combined', '') or
-            item.get('clean_combined', '') or
-            ''
-        )
-
         if not ticker_metadata:
-            # No tickers identified - just do overall sentiment
-            item['ticker_sentiments'] = {}
-            return self.analyse(item)
+            logger.warning("No ticker_metadata found in item")
+            item['sentiment_analysis'] = {
+                'error': 'No tickers identified',
+                'ticker_sentiments': {}
+            }
+            return item
 
-        ticker_sentiments = {}
+        if not text or not text.strip():
+            logger.warning("Empty text content")
+            item['sentiment_analysis'] = {
+                'error': 'Empty content',
+                'ticker_sentiments': self._create_fallback_sentiments(ticker_metadata)
+            }
+            return item
 
+        # Split tickers: process those with event_type OR event_proposal, skip reference tickers
+        tickers_to_process = {}
         for ticker, info in ticker_metadata.items():
-            try:
-                # Extract context for this ticker
-                ticker_context = self._extract_ticker_context(full_text, ticker, info)
+            event_type = info.get('event_type')
+            event_proposal = info.get('event_proposal')
+            if event_type or event_proposal:
+                tickers_to_process[ticker] = info
 
-                # Analyze sentiment for this context
-                sentiment = self.analyze_text(ticker_context, use_adaptive_weights=True)
+        if not tickers_to_process:
+            logger.info("No tickers with events to analyze sentiment for")
+            item['sentiment_analysis'] = {
+                'analysis_successful': True,
+                'ticker_sentiments': {}
+            }
+            return item
 
-                ticker_sentiments[ticker] = {
-                    'sentiment_label': sentiment.sentiment_label,
-                    'sentiment_score': round(sentiment.sentiment_score, 6),
-                    'confidence': round(sentiment.confidence, 6),
-                    'reasoning': sentiment.reasoning,
-                    'context_length': len(ticker_context.split()),
-                    'official_name': info.get('OfficialName', ticker)
-                }
+        # Analyze sentiment only for tickers with events
+        result = await self._analyze_tickers(text, tickers_to_process)
 
-            except Exception as e:
-                logger.error(f"Per-ticker sentiment failed for {ticker}: {e}")
-                ticker_sentiments[ticker] = {
-                    'sentiment_label': 'neutral',
-                    'sentiment_score': 0.0,
-                    'confidence': 0.0,
-                    'reasoning': f"Analysis error: {str(e)}",
-                    'official_name': info.get('OfficialName', ticker)
-                }
+        # Enrich ticker_metadata with sentiment data (only processed tickers)
+        for ticker, sentiment_data in result.ticker_sentiments.items():
+            if ticker in ticker_metadata:
+                ticker_metadata[ticker]['sentiment_score'] = sentiment_data['sentiment_score']
+                ticker_metadata[ticker]['sentiment_label'] = sentiment_data['sentiment_label']
+                ticker_metadata[ticker]['sentiment_reasoning'] = sentiment_data['reasoning']
+                ticker_metadata[ticker]['factor_breakdown'] = sentiment_data['factor_breakdown']
 
-        item['ticker_sentiments'] = ticker_sentiments
+        # Update item with enriched data (per-ticker only, no overall)
+        item['ticker_metadata'] = ticker_metadata
+        item['sentiment_analysis'] = {
+            'analysis_successful': result.analysis_successful,
+            'ticker_sentiments': result.ticker_sentiments
+        }
 
-        # Also compute overall sentiment
-        item = self.analyse(item)
-
-        # Add summary stats
-        if ticker_sentiments:
-            scores = [ts['sentiment_score'] for ts in ticker_sentiments.values()]
-            item['ticker_sentiment_avg'] = round(sum(scores) / len(scores), 6)
-            item['ticker_sentiment_count'] = len(ticker_sentiments)
+        if result.error_message:
+            item['sentiment_analysis']['error'] = result.error_message
 
         return item
 
+    async def _analyze_tickers(
+        self,
+        text: str,
+        ticker_metadata: Dict
+    ) -> LLMSentimentResult:
+        """
+        Perform LLM-based sentiment analysis for all tickers using few-shot prompting.
+
+        Args:
+            text: The news/post content (clean_combined_withurl)
+            ticker_metadata: Dict of ticker -> metadata from ticker identification
+
+        Returns:
+            LLMSentimentResult with per-ticker sentiments
+        """
+        if not self.llm:
+            logger.error("LLM not initialized")
+            return LLMSentimentResult(
+                ticker_sentiments=self._create_fallback_sentiments(ticker_metadata),
+                analysis_successful=False,
+                error_message="LLM not initialized"
+            )
+
+        # Truncate very long text
+        max_chars = 3000
+        if len(text) > max_chars:
+            text = text[:max_chars] + "..."
+
+        # Format ticker info for the prompt
+        tickers_info = self._format_tickers_for_prompt(ticker_metadata)
+
+        try:
+            # Build few-shot prompt from external prompts file
+            # Use Message objects directly to avoid ChatPromptTemplate re-parsing
+            # curly braces in the JSON schema as template variables
+            prompt_messages = build_sentiment_prompt(text, tickers_info)
+            messages = []
+            for role, content in prompt_messages:
+                if role == "system":
+                    messages.append(SystemMessage(content=content))
+                else:
+                    messages.append(HumanMessage(content=content))
+
+            chain = self.llm | self.parser
+            result = await chain.ainvoke(messages)
+
+            # Parse and validate the response
+            ticker_sentiments = self._parse_sentiment_response(result, ticker_metadata, text)
+
+            return LLMSentimentResult(
+                ticker_sentiments=ticker_sentiments,
+                analysis_successful=True
+            )
+
+        except Exception as e:
+            logger.error(f"LLM sentiment analysis failed: {e}")
+            return LLMSentimentResult(
+                ticker_sentiments=self._create_fallback_sentiments(ticker_metadata),
+                analysis_successful=False,
+                error_message=f"Analysis error: {str(e)[:100]}"
+            )
+
+    def _format_tickers_for_prompt(self, ticker_metadata: Dict) -> str:
+        """Format ticker metadata for the LLM prompt."""
+        lines = []
+        for ticker, info in ticker_metadata.items():
+            official_name = info.get('official_name', ticker)
+            event_type = info.get('event_type')
+            event_proposal = info.get('event_proposal')
+            event_label = event_type or event_proposal or 'Unknown'
+            lines.append(f"- {ticker} ({official_name}) - Event: {event_label}")
+        return "\n".join(lines)
+
+    def _parse_sentiment_response(
+        self,
+        response: Dict,
+        ticker_metadata: Dict,
+        text: str = ""
+    ) -> Dict[str, Dict]:
+        """
+        Parse and validate the LLM response including factor breakdown.
+
+        Args:
+            response: Raw LLM response
+            ticker_metadata: Original ticker metadata for validation
+            text: Original text for confidence calibration
+
+        Returns:
+            Validated per-ticker sentiment dict with factor breakdowns
+        """
+        ticker_sentiments = {}
+        raw_sentiments = response.get('ticker_sentiments', {})
+
+        for ticker in ticker_metadata.keys():
+            if ticker in raw_sentiments:
+                raw = raw_sentiments[ticker]
+
+                # Parse and validate factor breakdown
+                factor_breakdown = self._parse_factor_breakdown(raw.get('factor_breakdown', {}))
+
+                # Recompute sentiment score from factors for consistency
+                computed_score = self._compute_score_from_factors(factor_breakdown)
+
+                # Also get the LLM's reported score for comparison
+                llm_score = float(raw.get('sentiment_score', 0.0))
+                llm_score = max(-1.0, min(1.0, llm_score))
+
+                # Use computed score from factors (authoritative), fall back to LLM score
+                # if factor breakdown was missing/invalid
+                if self._has_valid_factors(factor_breakdown):
+                    score = computed_score
+                else:
+                    score = llm_score
+                    logger.warning(
+                        f"Factor breakdown missing/invalid for {ticker}, "
+                        f"using LLM-reported score: {llm_score}"
+                    )
+
+                # Determine label based on score thresholds
+                label = self._score_to_label(score)
+
+                # Get reasoning
+                reasoning = raw.get('reasoning', 'No reasoning provided')
+
+                ticker_sentiments[ticker] = {
+                    'sentiment_score': round(score, 4),
+                    'sentiment_label': label,
+                    'reasoning': reasoning,
+                    'factor_breakdown': factor_breakdown,
+                    'official_name': ticker_metadata[ticker].get('official_name', ticker)
+                }
+            else:
+                # Ticker not in response - use fallback
+                ticker_sentiments[ticker] = self._create_fallback_ticker_sentiment(
+                    ticker,
+                    ticker_metadata[ticker].get('official_name', ticker)
+                )
+
+        return ticker_sentiments
+
+    def _parse_factor_breakdown(self, raw_factors: Dict) -> Dict[str, float]:
+        """
+        Parse and validate factor breakdown from LLM response.
+        Clamps each factor to [-1.0, 1.0].
+
+        Args:
+            raw_factors: Raw factor dict from LLM response
+
+        Returns:
+            Validated factor breakdown dict
+        """
+        factors = {}
+        for factor_name in FACTOR_WEIGHTS.keys():
+            try:
+                value = float(raw_factors.get(factor_name, 0.0))
+                factors[factor_name] = max(-1.0, min(1.0, round(value, 4)))
+            except (TypeError, ValueError):
+                factors[factor_name] = 0.0
+        return factors
+
+    def _compute_score_from_factors(self, factor_breakdown: Dict[str, float]) -> float:
+        """
+        Compute the weighted sentiment score from factor breakdown.
+
+        Formula: (market_impact × 0.40) + (tone × 0.25) + (source_quality × 0.10) + (context × 0.25)
+
+        Args:
+            factor_breakdown: Dict of factor_name -> score
+
+        Returns:
+            Weighted composite score clamped to [-1.0, 1.0]
+        """
+        score = sum(
+            factor_breakdown.get(factor, 0.0) * weight
+            for factor, weight in FACTOR_WEIGHTS.items()
+        )
+        return max(-1.0, min(1.0, round(score, 4)))
+
+    def _has_valid_factors(self, factor_breakdown: Dict[str, float]) -> bool:
+        """
+        Check if the factor breakdown contains meaningful (non-zero) values.
+        Returns False if all factors are exactly 0.0 (likely missing/unparsed).
+        """
+        return any(v != 0.0 for v in factor_breakdown.values())
+
+    def _score_to_label(self, score: float) -> str:
+        """
+        Convert sentiment score to label.
+        Neutral zone: -0.2 to 0.2
+        """
+        if score > 0.2:
+            return "positive"
+        elif score < -0.2:
+            return "negative"
+        else:
+            return "neutral"
+
+    def _create_fallback_sentiments(self, ticker_metadata: Dict) -> Dict[str, Dict]:
+        """Create fallback neutral sentiments for all tickers."""
+        return {
+            ticker: self._create_fallback_ticker_sentiment(
+                ticker,
+                info.get('official_name', ticker)
+            )
+            for ticker, info in ticker_metadata.items()
+        }
+
+    def _create_fallback_ticker_sentiment(
+        self,
+        ticker: str,
+        official_name: str
+    ) -> Dict:
+        """Create a neutral fallback sentiment for a single ticker."""
+        return {
+            'sentiment_score': 0.0,
+            'sentiment_label': 'neutral',
+            'reasoning': 'Analysis failed - using neutral fallback',
+            'factor_breakdown': {
+                'market_impact': 0.0,
+                'tone': 0.0,
+                'source_quality': 0.0,
+                'context': 0.0,
+            },
+            'official_name': official_name
+        }
+
 
 # Singleton instance
-sentiment_service = SentimentAnalysisService()
+llm_sentiment_service = LLMSentimentService()
+
+
+# Main for testing
+async def main():
+    print("=" * 80)
+    print("LLM SENTIMENT SERVICE TEST - Per-Ticker Analysis with Factor Breakdown")
+    print("=" * 80)
+
+    # Test case: 3 tickers with Reddit-style content (sarcasm, slang, emojis)
+    test_item = {
+        'content': {
+            'clean_combined_withurl': """
+            Apple just crushed earnings! Revenue up 15% YoY, diamond hands on AAPL 🚀🚀🚀
+            Meanwhile MSFT cloud growth is slowing down, looks bearish short-term.
+            Oh and TSLA? Great job Elon, another recall. Really genius moves 🤡🤡
+            Bagholding TSLA at $300 avg, this is absolutely rekt.
+            """
+        },
+        'ticker_metadata': {
+            'AAPL': {
+                'OfficialName': 'Apple Inc.',
+                'event_type': 'EARNINGS_REPORT'
+            },
+            'MSFT': {
+                'OfficialName': 'Microsoft Corporation',
+                'event_type': 'EARNINGS_REPORT'
+            },
+            'TSLA': {
+                'OfficialName': 'Tesla Inc.',
+                'event_type': 'PRODUCT_RECALL'
+            }
+        }
+    }
+
+    service = LLMSentimentService()
+
+    print("\nAnalyzing test item...\n")
+    result = await service.analyse(test_item)
+
+    print("Results:")
+    print("-" * 80)
+
+    sentiment_analysis = result.get('sentiment_analysis', {})
+    print(f"Analysis Successful: {sentiment_analysis.get('analysis_successful')}")
+
+    print("\nPer-Ticker Sentiments:")
+    for ticker, data in sentiment_analysis.get('ticker_sentiments', {}).items():
+        print(f"\n  {ticker} ({data.get('official_name')}):")
+        print(f"    Score: {data.get('sentiment_score')}")
+        print(f"    Label: {data.get('sentiment_label')}")
+        print(f"    Factor Breakdown:")
+        fb = data.get('factor_breakdown', {})
+        print(f"      Market Impact (40%): {fb.get('market_impact')}")
+        print(f"      Tone (25%):          {fb.get('tone')}")
+        print(f"      Source Quality (10%): {fb.get('source_quality')}")
+        print(f"      Context (25%):        {fb.get('context')}")
+        print(f"    Reasoning: {data.get('reasoning')}")
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(main())

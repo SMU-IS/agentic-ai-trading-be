@@ -1,0 +1,34 @@
+services:
+  sentiment-analysis-api:
+    build: .
+    container_name: sentiment-analysis-api-container
+    env_file:
+      - .env
+    ports:
+      - "5012:5012"
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - EVENT_STREAM=${EVENT_STREAM}
+      - SENTIMENT_STREAM=${SENTIMENT_STREAM}
+      - LARGE_LANGUAGE_MODEL_LLAMA_LOCAL=${LARGE_LANGUAGE_MODEL_LLAMA_LOCAL}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5012
+    restart: unless-stopped
+
+  sentiment-analysis-worker:
+    build: .
+    container_name: sentiment-analysis-worker-container
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - EVENT_STREAM=${EVENT_STREAM}
+      - SENTIMENT_STREAM=${SENTIMENT_STREAM}
+      - LARGE_LANGUAGE_MODEL_LLAMA_LOCAL=${LARGE_LANGUAGE_MODEL_LLAMA_LOCAL}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+    command: python -m app.services.sentiment_analysis_worker
+    restart: unless-stopped

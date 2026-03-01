@@ -1,10 +1,10 @@
 from urllib.parse import urlparse
+import uuid
 
 from langchain_core.documents import Document
 from qdrant_client import models
-
+from app.providers.vector.strategy import QdrantOllamaStrategy
 from app.core.logger import logger
-from app.providers.vector.strategy import QdrantGeminiStrategy
 from app.schemas.compiled_news_payload import NewsAnalysisPayload
 from app.schemas.raw_news_payload import RedditSourcePayload
 
@@ -13,7 +13,9 @@ class VectorisationService:
     def __init__(
         self,
     ):
-        self.strategy = QdrantGeminiStrategy()
+        self.strategy = (
+            QdrantOllamaStrategy()
+        )  # TODO: Make this dynamic based on config/env
         self.vector_store = self.strategy.get_vector_store()
 
     async def _setup_indexing(
@@ -104,13 +106,18 @@ class VectorisationService:
         is_success = await self._save_vectorised_payload(vector, final_payload)
         return is_success
 
+    def _string_to_uuid(self, value: str) -> str:
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, value))
+
     async def _save_vectorised_payload(self, vector: str, payload: NewsAnalysisPayload):
         """
         Saves payload to Qdrant.
         """
 
         try:
-            doc = Document(page_content=vector, metadata=payload.metadata.model_dump())
+            post_id = payload.metadata.topic_id
+            post_id_uuid = self._string_to_uuid(post_id)
+            doc = Document(page_content=vector, metadata=payload.metadata.model_dump(), id=post_id_uuid)
             ids = await self.vector_store.aadd_documents(documents=[doc])
             logger.info(f"✅ Saved document with id: {ids[0]}")  # type: ignore
             return {"status": "success", "id": ids[0]}  # type: ignore
