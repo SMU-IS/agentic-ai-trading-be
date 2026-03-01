@@ -12,11 +12,13 @@ services:
       ports:
         - "5432:5432"
       volumes:
-        - postgres_data:/var/lib/postgresql/data
+        - rag_chatbot_postgres_data:/var/lib/postgresql/data
   rag-chatbot-service:
     build: .
     env_file:
       - .env
+    depends_on:
+      - rag-bot-conversation-db
     container_name: rag-agentic-app
     ports:
       - "5001:5001"
@@ -41,4 +43,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  rag_chatbot_postgres_data:

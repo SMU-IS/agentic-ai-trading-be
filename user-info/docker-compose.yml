@@ -12,7 +12,7 @@ services:
       ports:
         - "5433:5432"
       volumes:
-        - postgres_data:/var/lib/postgresql/data
+        - user_info_postgres_data:/var/lib/postgresql/data
   user-info-service:
     build: .
     env_file:
@@ -46,4 +46,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  user_info_postgres_data:

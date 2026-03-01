@@ -21,14 +21,14 @@ services:
 
 include:
   # === News Scraper Microservice ===
-  - path: ./news-scraper/docker-compose.yml
-    env_file: ./news-scraper/.env
-    project_directory: ./news-scraper
+  # - path: ./news-scraper/docker-compose.yml
+  #   env_file: ./news-scraper/.env
+  #   project_directory: ./news-scraper
 
   # === News Analysis Microservice ===
-  - path: ./news-analysis/docker-compose.yml
-    env_file: ./news-analysis/.env
-    project_directory: ./news-analysis
+  # - path: ./news-analysis/docker-compose.yml
+  #   env_file: ./news-analysis/.env
+  #   project_directory: ./news-analysis
 
   # === User Info Microservice ===
   - path: ./user-info/docker-compose.yml
