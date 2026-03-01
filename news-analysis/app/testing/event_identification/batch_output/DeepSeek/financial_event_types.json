@@ -1,0 +1,194 @@
+{
+  "EARNINGS_BEAT": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Reported earnings exceed market consensus expectations."
+  },
+  "EARNINGS_MISS": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Reported earnings fall below market consensus expectations."
+  },
+  "INSIDER_BUYING": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company executives or board members purchase company shares, signaling confidence in the company."
+  },
+  "INSIDER_SELLING": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company executives or board members sell company shares, potentially signaling reduced confidence or personal liquidity needs."
+  },
+  "GUIDANCE_UPGRADE": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company raises forward-looking financial guidance."
+  },
+  "GUIDANCE_DOWNGRADE": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company lowers forward-looking financial guidance."
+  },
+  "MERGER": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Two companies combine to form a single entity."
+  },
+  "ACQUISITION": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company acquires controlling interest in another company."
+  },
+  "DIVESTITURE": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company sells or spins off a business unit or asset."
+  },
+  "IPO": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company offers shares to the public for the first time."
+  },
+  "SECONDARY_OFFERING": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company issues additional shares after an initial public offering."
+  },
+  "SHARE_BUYBACK": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company repurchases its own shares from the market."
+  },
+  "DIVIDEND_INCREASE": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company increases its dividend payout to shareholders."
+  },
+  "DIVIDEND_CUT": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company reduces or suspends its dividend payout."
+  },
+  "MANAGEMENT_CHANGE": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Change in senior management or executive leadership."
+  },
+  "GOVERNANCE_CHANGE": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Change in corporate governance structure or board oversight."
+  },
+  "REGULATORY_APPROVAL": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company receives approval from a regulatory authority."
+  },
+  "REGULATORY_PENALTY": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company is fined or sanctioned by a regulatory authority."
+  },
+  "PRODUCT_LAUNCH": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company introduces a new product or service to the market."
+  },
+  "PRODUCT_RECALL": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company recalls products due to safety or quality issues."
+  },
+  "STRATEGIC_PARTNERSHIP": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company enters a formal partnership to pursue strategic objectives."
+  },
+  "DEBT_ISSUANCE": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company raises capital by issuing debt instruments."
+  },
+  "DEBT_RESTRUCTURING": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company renegotiates or modifies existing debt obligations."
+  },
+  "BANKRUPTCY": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company files for legal bankruptcy protection."
+  },
+  "RESTRUCTURING": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company reorganizes operations to improve financial or operational performance."
+  },
+  "LITIGATION": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company is involved in a legal dispute or lawsuit."
+  },
+  "SETTLEMENT": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company resolves a legal dispute through an agreed settlement."
+  },
+  "PATENT_DISPUTE": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company is involved in a legal dispute over intellectual property rights."
+  },
+  "STOCK_SPLIT": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company increases share count by splitting existing shares."
+  },
+  "REVERSE_STOCK_SPLIT": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company reduces share count by consolidating existing shares."
+  },
+  "SUPPLY_CHAIN_DISRUPTION": {
+    "event_category": "EXTERNAL_EVENT",
+    "meaning": "Significant external disruptions to sourcing, logistics, or manufacturing inputs affecting the company."
+  },
+  "GOVERNMENT_INVESTMENT": {
+    "event_category": "EXTERNAL_EVENT",
+    "meaning": "Government takes equity stakes, provides bailouts, or makes strategic investments in a company, potentially impacting its operations, market perception, or valuation."
+  },
+"COMPANY_INVESTMENT": {
+  "event_category": "COMPANY_EVENT",
+  "meaning": "Company allocates significant capital to strategic projects, initiatives, or infrastructure that could impact growth or operations."
+},
+  "DATA_BREACH": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Unauthorized access to or exposure of company or customer data."
+  },
+  "NATURAL_DISASTER_IMPACT": {
+    "event_category": "EXTERNAL_EVENT",
+    "meaning": "Company operations are materially affected by a natural disaster."
+  },
+  "CREDIT_RATING_UPGRADE": {
+    "event_category": "EXTERNAL_EVENT",
+    "meaning": "Credit rating agency raises the company\u2019s credit rating."
+  },
+  "CREDIT_RATING_DOWNGRADE": {
+    "event_category": "EXTERNAL_EVENT",
+    "meaning": "Credit rating agency lowers the company\u2019s credit rating."
+  },
+  "TECHNOLOGY_UPGRADE": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company implements significant improvements to technology systems or platforms."
+  },
+  "TECHNOLOGY_FAILURE": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company experiences a material technology or system outage."
+  },
+  "MARKET_ENTRY": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company enters a new geographic or product market."
+  },
+  "MARKET_EXIT": {
+    "event_category": "COMPANY_EVENT",
+    "meaning": "Company exits a geographic or product market."
+  },
+  "INDEX_ADDITION": {
+    "event_category": "EXTERNAL_EVENT",
+    "meaning": "Company is added to a major stock market index by an index provider."
+  },
+  "INDEX_REMOVAL": {
+    "event_category": "EXTERNAL_EVENT",
+    "meaning": "Company is removed from a major stock market index by an index provider."
+  },
+  "COMPETITOR_ANNOUNCEMENT": {
+    "event_category": "EXTERNAL_EVENT",
+    "meaning": "Action or announcement by a competitor that may materially affect investor perception of the company."
+  },
+  "EXTERNAL_INDUSTRY_GROWTH": {
+    "event_category": "EXTERNAL_EVENT",
+    "meaning": "Investors may adjust valuations and expectations for companies due to projected growth in the broader industry or sector."
+  },
+  "INVESTOR_ACTION": {
+    "event_category": "INVESTOR_EVENT",
+    "meaning": "Observable investor activity related to the stock, including buying, selling, holding, or reporting realized or unrealized gains/losses."
+  },
+  "INVESTOR_OPINION": {
+    "event_category": "INVESTOR_EVENT",
+    "meaning": "Investor sentiment, predictions, or subjective opinions about the stock."
+  },
+"EARNINGS_CALL": {
+  "event_category": "COMPANY_EVENT",
+  "meaning": "Statements, metrics, or forward-looking commentary made by company executives during an official earnings call following a quarterly or annual financial results release."
+}, 
+}

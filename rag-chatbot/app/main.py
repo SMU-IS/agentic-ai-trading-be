@@ -1,17 +1,31 @@
 import logging
+from contextlib import asynccontextmanager
 
-from fastapi.applications import FastAPI
+from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 
 from app.core.constant import APIPath
+from app.core.db import db_manager
 from app.routers import agent_bot
 
 logger = logging.getLogger("uvicorn.error")
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("🚀 Starting up Agentic AI Bot Service...")
+    async for checkpointer in db_manager.get_checkpointer():
+        app.state.checkpointer = checkpointer
+        logger.info("🤩 Application is ready to handle requests.")
+        yield
+
+    logger.info("🛑 Shutting down Agentic AI Service...")
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Agentic AI Trading Portfolio Backend",
     description="",
     contact={

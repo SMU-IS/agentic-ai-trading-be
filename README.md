@@ -10,9 +10,9 @@
 
 ## 🤖 Agent M | Agentic AI Trading Portfolio Backend
 
-Agent M - A dynamic, fully autonomous trading portfolio companion designed to navigate the complex digital financial landscape. Leveraging a multi-agent AI architecture, the platform transforms real-time market data, traditional news, and internet sentiment into personalised, actionable investment decisions.
+A dynamic, fully autonomous trading portfolio companion designed to navigate the complex digital financial landscape. Leveraging a multi-agent AI architecture, the platform transforms real-time market data, traditional news, and internet sentiment into personalised, actionable investment decisions.
 
-The system operates on behalf of users to mitigate information overload and circumvent human emotional bias, executing optimised buy or sell orders via external brokerage APIs within user-defined risk guardrails
+The system operates on behalf of users to mitigate information overload and circumvent human emotional bias, executing optimised buy or sell orders via external brokerage APIs within user-defined risk guardrails.
 
 ## ⚙️ Key Features
 
@@ -34,21 +34,34 @@ The system operates on behalf of users to mitigate information overload and circ
 <img width="1442" height="691" alt="Agent M" src="https://github.com/user-attachments/assets/d4e42a75-0ea0-4020-9746-6925d36defa1" />
 
 ## 🔄 CI/CD Pipeline & Deployment
+
 <img width="8192" height="2138" alt="CI_CD Workflow for AWS-2026-02-16-014537" src="https://github.com/user-attachments/assets/629bc777-bbff-4e38-93c6-401d594e8d1b" />
 
 ## 👨‍💻 Tech Stack
 
-- [🐍 FastAPI (Python)](https://fastapi.tiangolo.com)
-- [🐹 Gin (Golang)](https://gin-gonic.com/en/)
-- [🔴 Redis](https://redis.io)
+### 🌐 API & Gateway Layer
+
 - [🦍 Kong Gateway](https://konghq.com/products/kong-gateway)
-- [🧠 FinBERT](https://huggingface.co/yiyanghkust/finbert-tone)
+- [🐹 Gin, Golang](https://gin-gonic.com/en/)
+- [🐍 FastAPI, FastAPI](https://fastapi.tiangolo.com)
+
+### 🧠 Intelligence & Agentic Logic
+
 - [🔗 LangChain](https://langchain.com)
 - [🦜 LangGraph](https://langchain.com/langgraph)
 - [✨ Google Gemini](https://ai.google.dev)
 - [🦙 Ollama](https://ollama.com)
+- [🧠 FinBERT](https://huggingface.co/yiyanghkust/finbert-tone)
+
+### 💾 Persistence & Memory
+
 - [📂 Qdrant](https://qdrant.tech)
-- [🐘 PostgreSQL ](https://postgresql.org)
+- [🐘 PostgreSQL](https://postgresql.org)
+- [🍃 MongoDB](https://www.mongodb.com)
+
+### ☁️ Infrastructure & DevOps
+
+- [🔨 Terraform](https://developer.hashicorp.com/terraform)
 - [☁️ Amazon Web Services](https://aws.amazon.com)
 
 ## 🚀 Getting Started
@@ -58,10 +71,10 @@ To get the microservices backend up and running locally, follow these steps:
 - Ensure Docker is running
 - Setup Environment Variables: Create a `.env` file in the individual directory and configure keys.
 - Launch Containers: Run the following command to build and start the services in detached mode `docker compose up -d`
-- Access the Server: Once the containers are healthy, the server is available at `http://localhost:8000`
+- Access the Server: Once the containers are healthy, the server is available at `http://localhost:8000/api/v1/<microservice>`
 - Refer to Swagger API documentation for the API routes
 
-## 🤝 Acknowledgement
+## 🗳️ Acknowledgement
 
 Developed by Mvidia (Team 2), IS484 Project Experience <br />
 In Collaboration With UBS.

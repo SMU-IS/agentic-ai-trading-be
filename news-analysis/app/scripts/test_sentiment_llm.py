@@ -15,7 +15,7 @@ import sys
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from app.services._05b_sentiment_llm import LLMSentimentService
+from app.services._05_sentiment import LLMSentimentService
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -63,8 +63,6 @@ async def test_single_ticker_sentiment():
             print(f"\n  {ticker} ({data.get('official_name')}):")
             print(f"    Score: {data.get('sentiment_score')}")
             print(f"    Label: {data.get('sentiment_label')}")
-            print(f"    Raw LLM Confidence: {data.get('raw_llm_confidence')}")
-            print(f"    Calibrated Confidence: {data.get('confidence')}")
             print(f"    Reasoning: {data.get('reasoning')}")
 
         # Validation
@@ -128,8 +126,6 @@ async def test_multi_ticker_sentiment():
             print(f"\n  {ticker} ({data.get('official_name')}):")
             print(f"    Score: {data.get('sentiment_score')}")
             print(f"    Label: {data.get('sentiment_label')}")
-            print(f"    Raw LLM Confidence: {data.get('raw_llm_confidence')}")
-            print(f"    Calibrated Confidence: {data.get('confidence')}")
             print(f"    Reasoning: {data.get('reasoning')}")
 
         # Validation: AAPL should be positive, MSFT should be negative
@@ -238,7 +234,6 @@ async def test_strong_negative_sentiment():
         print("\nResults:")
         print(f"  XYZ Score: {xyz.get('sentiment_score')}")
         print(f"  XYZ Label: {xyz.get('sentiment_label')}")
-        print(f"  Confidence: {xyz.get('confidence')}")
         print(f"  Reasoning: {xyz.get('reasoning')}")
 
         # Should be strongly negative
@@ -610,7 +605,7 @@ async def run_json_test_only(max_posts: int = 5):
     """Run only the cleaned_dummy.json test"""
     print("\n" + "=" * 80)
     print(" " * 15 + "LLM SENTIMENT - cleaned_dummy.json TEST")
-    print(" " * 20 + "(Gemini 2.5 Flash Lite)")
+    print(" " * 20 + "(llama-3.3-70b-versatile)")
     print("=" * 80)
 
     result = await test_cleaned_dummy_json(max_posts=max_posts)

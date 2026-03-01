@@ -107,3 +107,4 @@ postgres_data/
 .claude/
 
 pyrightconfig.json
+.terraform

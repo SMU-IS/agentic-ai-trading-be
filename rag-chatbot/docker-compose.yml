@@ -1,8 +1,24 @@
 services:
+  rag-bot-conversation-db:
+      image: postgres:16-alpine
+      container_name: rag-bot-conversation-db
+      restart: always
+      env_file:
+        - .env
+      environment:
+        - POSTGRES_USER=${POSTGRES_USER}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+        - POSTGRES_DB=${POSTGRES_DB}
+      ports:
+        - "5432:5432"
+      volumes:
+        - rag_chatbot_postgres_data:/var/lib/postgresql/data
   rag-chatbot-service:
     build: .
     env_file:
       - .env
+    depends_on:
+      - rag-bot-conversation-db
     container_name: rag-agentic-app
     ports:
       - "5001:5001"
@@ -25,3 +41,6 @@ services:
       - PYTHONUNBUFFERED=1
     command: uvicorn app.main:app --host 0.0.0.0 --port 5001
     restart: unless-stopped
+
+volumes:
+  rag_chatbot_postgres_data:

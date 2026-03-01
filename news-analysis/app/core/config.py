@@ -33,7 +33,7 @@ class EnvConfig(BaseSettings):
     redis_preproc_stream: str = Field(..., validation_alias="PREPROC_STREAM")
     redis_ticker_stream: str = Field(..., validation_alias="TICKER_STREAM")
     redis_event_stream: str = Field(..., validation_alias="EVENT_STREAM")
-    redis_credibility_stream: str = Field(..., validation_alias="CREDIBILITY_STREAM")
+    # redis_credibility_stream: str = Field(..., validation_alias="CREDIBILITY_STREAM")
     redis_sentiment_stream: str = Field(..., validation_alias="SENTIMENT_STREAM")
 
     # LLM

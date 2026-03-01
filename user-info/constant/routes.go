@@ -3,7 +3,6 @@ package constant
 const (
 	HealthCheck      = "/healthcheck"
 	Doc              = "/docs/*any"
-	Auth             = "/auth"
 	Register         = "/register"
 	Login            = "/login"
 	Provider         = "/:provider"
