@@ -6,9 +6,9 @@ from redis import Redis
 from app.core.config import env_config
 from app.core.constant import APIPath
 from app.core.logger import logger
-from app.routers import query_docs, vectorise_docs
 
 
+# ================= Redis (Health Only) =================
 redis_client = Redis(
     host=env_config.redis_host,
     port=env_config.redis_port,
@@ -17,40 +17,36 @@ redis_client = Redis(
 )
 
 app = FastAPI(
-    title="Qdrant Retrieval Service",
-    description="Handles semantic search and document retrieval from Qdrant",
-    contact={
-        "name": "SMU IS484 - Mvidia",
-        "url": "https://github.com/SMU-IS/agentic-ai-trading-be",
-    },
-    root_path="/api/v1/qdrant",
+    title="Preprocessing Service",
+    description="API Service",
+    root_path="/api/v1/preprocessing",
 )
 
 api_router = APIRouter()
 
 
+# ================= GLOBAL ERROR =================
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Internal Server Error at {request.url}: {exc}", exc_info=True)
+    logger.error(f"Internal Error: {exc}", exc_info=True)
     return JSONResponse(
         status_code=500,
-        content={
-            "detail": "An internal server error occurred. Please try again later."
-        },
+        content={"detail": "Internal server error"},
     )
 
 
-@app.get(APIPath.HEALTH_CHECK.value, tags=["Health Check"])
+# ================= HEALTH CHECK =================
+@app.get(APIPath.HEALTH_CHECK)
 def health_check():
     try:
-        # 1️⃣ Check Redis connection
         redis_client.ping()
 
-        # 2️⃣ Scan for worker heartbeats
+        # 🔎 Discover workers via heartbeat keys
         cursor = 0
-        pattern = "vectorisation:heartbeat:*"
+        pattern = "preprocessing:heartbeat:*"
         heartbeat_keys = []
 
+        # Use SCAN (production safe)
         while True:
             cursor, keys = redis_client.scan(
                 cursor=cursor,
@@ -62,19 +58,17 @@ def health_check():
             if cursor == 0:
                 break
 
-        # 3️⃣ Extract worker IDs
+        # Extract worker IDs from key names
         active_workers = [
-            key.replace("vectorisation:heartbeat:", "")
+            key.replace("preprocessing:heartbeat:", "")
             for key in heartbeat_keys
         ]
 
-        worker_alive = len(active_workers) > 0
-
         return {
-            "status": "Qdrant Retrieval Service is healthy",
+            "status": "healthy" if active_workers else "worker_unreachable",
             "redis": True,
-            "worker_alive": worker_alive,
             "active_workers": active_workers,
+            "worker_alive": len(active_workers) > 0,
             "total_active_workers": len(active_workers),
         }
 
@@ -86,6 +80,6 @@ def health_check():
             "worker_alive": False,
         }
 
-api_router.include_router(query_docs.router)
-api_router.include_router(vectorise_docs.router)
+
 app.include_router(api_router)
+
