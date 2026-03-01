@@ -19,7 +19,7 @@ redis_client = Redis(
 app = FastAPI(
     title="Preprocessing Service",
     description="API Service",
-    root_path="/api/v1/preprocessing-service",
+    root_path="/api/v1/preprocessing",
 )
 
 api_router = APIRouter()

@@ -45,7 +45,7 @@ class RedisStreamStorage:
             dedup_key,
             "1",
             nx=True,
-            ex=60 * 60 * 24,  # 1 day
+            ex=60 * 60 * 24 * 2,  # 2 days
         )
 
         if not acquired:
