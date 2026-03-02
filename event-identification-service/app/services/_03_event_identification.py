@@ -1,110 +1,65 @@
-from app.core.logger import logger
-import json
-from difflib import SequenceMatcher
+from app.core.config import env_config
 from typing import Dict
+import json
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
-from langchain_ollama import ChatOllama
+from langchain_groq import ChatGroq
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from difflib import SequenceMatcher
+from app.core.logger import logger
 
-from app.core.config import env_config
 
 
 class EventIdentifierService:
     """
     Event Identification Service that extracts events from posts by LLM and a defined list of events.
-    If event is not identified, LLM will propose a new company/external event (impacting stock)
+    If event is not identified, LLM will propose a new company/external event (impacting stock) 
     and update the list of defined events accordingly.
     """
 
     def __init__(
         self,
         event_list: dict,
-        model_name: str = "llama3.1:latest",
-        # groq_api_key: str = env_config.groq_api_key,
-        similarity_threshold: float = 0.6,  # threshold to reject duplicate events
-        testflag: bool = False,
+        model_name: str = env_config.groq_model_name,
+        groq_api_key: str = env_config.groq_api_key,
+        similarity_threshold: float = 0.7,  # threshold to reject duplicate events
+        testflag: bool = False
     ):
         self.model_name = model_name
-        # self.groq_api_key = groq_api_key
+        self.groq_api_key = groq_api_key
         self.event_list = event_list
         # event_name : event_category mapping to be sent to llm
-        self.event_list_simple = {
-            k: v["event_category"] for k, v in self.event_list.items()
-        }
+        self.event_list_simple = {k: v["event_category"] for k, v in self.event_list.items()}
         self.neweventcount: int = 0
         self.similarity_threshold = similarity_threshold
         self.testflag = testflag
         self.event_category_map = {}
 
-        self.known_events_str = "\n".join(
-            [f"- {k}: {v}" for k, v in self.event_list_simple.items()]
-        )
+        self.known_events_str = "\n".join([f"- {k}: {v}" for k, v in self.event_list_simple.items()])
         # map event_data to a list of associated event_names - for similarity checking
         for event_name, data in self.event_list.items():
-            category = data.get("event_category", "EXTERNAL_EVENT")
-            self.event_category_map.setdefault(category, []).append(event_name)
-        
+            self.event_category_map.setdefault("EXTERNAL_EVENT", []).append(event_name)
+            self.event_category_map.setdefault("COMPANY_EVENT", []).append(event_name)
+
         try:
-            self.llm = ChatOllama(
-                model=env_config.ollama_modelname,
-                base_url=env_config.ollama_baseurl,
+            logger.info("Initializing LLM Ticker Identification Service...")
+
+            self.llm = ChatGroq(
+                model=self.model_name,
+                api_key=self.groq_api_key,
                 temperature=0.1,
-                format="json",
             )
             self.parser = JsonOutputParser()
-            logger.info(f"Ollama LLM initialized: {model_name}")
+            logger.info(f"Groq LLM initialized: {model_name}")
         except Exception as e:
-            logger.error(f"Failed to initialize Ollama LLM: {e}")
+            logger.error(f"Failed to initialize Groq LLM: {e}")
             self.llm = None
             self.parser = None
 
 
-    def _propose_new_event_with_llm(self, text: str, ticker: str) -> dict:
-        """
-        Ask LLM to propose a new company/external event if it affects stock price,
-        ignoring investor actions/opinions and events already represented.
-        """
-
-        format_instructions = (
-            "Output a JSON object with the following fields:\n"
-            "- description (string): Plain-language description of the company/external event.\n"
-            "- proposed_event_name (string): Concise UPPER_SNAKE_CASE name for the event, or null if it exists already or is irrelevant.\n"
-            "- event_category (string): One of 'COMPANY_EVENT' or 'EXTERNAL_EVENT'.\n"
-            "- meaning (string): Explain the meaning or impact of the event in plain language.\n"
-            "- difference_reason (string): Why this event is materially different from existing ones.\n"
-            "- confidence (float): 0 to 1 confidence that this event is significant and accurate.\n\n"
-            "Rules:\n"
-            "- Only propose COMPANY_EVENT or EXTERNAL_EVENT that could materially affect the company's stock price.\n"
-            "- Do NOT propose events for investor actions, opinions, minor operational updates, or social chatter; return null in these cases.\n"
-            "- proposed_event_name must be generic and descriptive. Do NOT include specific tickers or company names in the event name.\n"
-            "- Compare against existing event types. If the event is already represented (even with a different wording or name), return the existing event instead.\n"
-            f"Known investment event types (event_name: event_category):\n{self.known_events_str}\n"
-            "- Use double quotes, valid JSON, and no extra commentary.\n"
-        )
-
-        prompt = PromptTemplate(
-            template=(
-                "You identified a potentially investment-relevant event that is not in the current taxonomy.\n\n"
-                "Ticker: {ticker}\n\n"
-                "Text:\n{text}\n\n"
-                "{format_instructions}"
-            ),
-            input_variables=["text", "ticker"],
-            partial_variables={"format_instructions": format_instructions},
-        )
-
-        chain = prompt | self.llm | self.parser
-
-        try:
-            result = chain.invoke({"text": text, "ticker": ticker})
-            return result
-        except Exception as e:
-            logger.warning(f"[LLM Event Proposal Error] {e}")
-            return None
-
-    def is_similar(
-        self, event_name_1: str, event_name_2: str, threshold: float = None
-    ) -> bool:
+    def is_similar(self, event_name_1: str, event_name_2: str, threshold: float = None) -> bool:
         """Returns True if two strings are more similar than threshold."""
         if threshold is None:
             threshold = self.similarity_threshold
@@ -112,85 +67,173 @@ class EventIdentifierService:
         logger.info(f"Similarity between {event_name_1} and {event_name_2}: {ratio}")
         return ratio >= threshold
 
-    def _analyse_events_with_llm(self, text: str, ticker_metadata: dict) -> dict:
+
+
+    def _propose_new_events_with_llm(
+        self,
+        text: str,
+        unmatched_tickers: dict,
+    ) -> dict:
         """
-        Classify known events and propose new company/external events if needed.
+        Propose new taxonomy events for unmatched tickers.
+
+        unmatched_tickers = {
+            TICKER: {
+                "primary_event_category": "COMPANY_EVENT" or "EXTERNAL_EVENT"
+            }
+        }
+
+        Returns:
+        {
+            TICKER: {
+                "primary_event_category": str,
+                "proposed_event_name": str or null,
+                "proposed_description": str or null,
+                "meaning": str or null,
+                "confidence": float
+            }
+        }
         """
 
-        tickers_json = json.dumps(ticker_metadata, indent=2)
+        if not unmatched_tickers:
+            return {}
+
+
+        unmatched_json = json.dumps(unmatched_tickers, indent=2)
+
         format_instructions = (
-            "You are analyzing a financial/social media post. Do NOT speculate or infer events."
-            "Return a valid JSON object with EXACTLY three fields:\n\n"
-            "1. `global_category`: One of 'COMPANY_EVENT', 'EXTERNAL_EVENT', or 'INVESTOR_EVENT'. "
-            "Determine this FIRST based on the dominant theme of the post.\n\n"
-            "2. `primary_tickers`: List of tickers directly affected by the described action or event.\n"
-            "Rules for primary_tickers:\n"
-            "- Identify the specific sentence/line describing the action or event.\n"
-            "- Include ONLY tickers directly involved in that action.\n"
-            "- Ignore tickers mentioned for comparison, background, industry context, or commentary.\n"
-            "- If the line describes investor behavior (e.g., buying, selling, long, short, trimming, adding, portfolio rebalancing), "
-            "ALL tickers mentioned in that action line MUST be included as primary_tickers.\n"
-            "- Do NOT omit tickers simply because they appear later in a list.\n\n"
-            "3. `tickers`: JSON object keyed ONLY by primary_tickers. Each ticker must contain:\n"
-            "- event_category: 'COMPANY_EVENT', 'EXTERNAL_EVENT', or 'INVESTOR_EVENT'.\n"
-            "- event_type: Known event type consistent with event_category. "
-            "For INVESTOR_EVENT use:\n"
-            "    * 'INVESTOR_ACTION' for observable behavior (buying, selling, holding, trimming, adding).\n"
-            "    * 'INVESTOR_OPINION' for analysis, sentiment, forecasts, or valuation views.\n"
-            "- event_description: Short factual summary of the action/event from the text.\n\n"
-            "Additional Rules:\n"
-            "- Assign events ONLY to primary_tickers.\n"
-            "- If multiple primary_tickers are involved in the same action, they MUST share the same event_type and event_description.\n"
-            "- event_type MUST match event_category.\n"
-            "- event_type MUST be one of the Known investment event types provided below.\n"
-            "- Do NOT invent new event types.\n"
-            "- If no matching event_type exists in the Known investment event types, set event_type to null.\n"
-            "- If no material event is present, return an empty primary_tickers list and an empty tickers object.\n"
-            "- Focus only on material events likely to impact stock price.\n\n"
-            f"Known investment event types (event_name: event_category):\n{self.known_events_str}\n"
-            "Only classify events as one of these known types.\n"
-            "Do not invent new event types unless proposing a new company/external event.\n"
-            "Examples:\n"
-            "1) Investor Action:\n"
-            "Post: 'Investors are buying TSLA and AAPL shares.'\n"
+            "For each ticker below:\n"
+            "- Only propose a NEW event within its provided primary_event_category.\n"
+            "- You MUST return the same primary_event_category in your output.\n"
+            "- Do NOT switch categories.\n"
+            "- Only propose events that could materially affect stock price.\n"
+            "- Do NOT propose events for investor sentiment, opinions, "
+            "minor operational updates, or social chatter.\n"
+            "- If no meaningful new event exists, return null for that ticker.\n\n"
+
+            "Return JSON structured exactly as:\n"
             "{\n"
-            "  'global_category': 'INVESTOR_EVENT',\n"
-            "  'primary_tickers': ['TSLA', 'AAPL'],\n"
-            "  'tickers': {\n"
-            "    'TSLA': {'event_category': 'INVESTOR_EVENT', 'event_type': 'INVESTOR_ACTION', 'event_description': 'Investors are buying shares.'},\n"
-            "    'AAPL': {'event_category': 'INVESTOR_EVENT', 'event_type': 'INVESTOR_ACTION', 'event_description': 'Investors are buying shares.'}\n"
+            '  "TICKER": {\n'
+            '    "primary_event_category": "COMPANY_EVENT or EXTERNAL_EVENT",\n'
+            '    "proposed_event_name": "UPPER_SNAKE_CASE" or null,\n'
+            '    "proposed_description": Short factual summary,\n'
+            '    "meaning": "plain language explanation" or null,\n'
+            '    "confidence": float (0 to 1)\n'
             "  }\n"
             "}\n\n"
-            "2) Investor Opinion:\n"
-            "Post: 'Author revises previous valuation model for META.'\n"
-            "{\n"
-            "  'global_category': 'INVESTOR_EVENT',\n"
-            "  'primary_tickers': ['META'],\n"
-            "  'tickers': {\n"
-            "    'META': {'event_category': 'INVESTOR_EVENT', 'event_type': 'INVESTOR_OPINION', 'event_description': 'Author revises valuation analysis.'}\n"
-            "  }\n"
-            "}\n\n"
-            "3) Company Event (Multiple Tickers):\n"
-            "Post: 'Company A and Company B announced a merger. Company C was mentioned for comparison.'\n"
-            "{\n"
-            "  'global_category': 'COMPANY_EVENT',\n"
-            "  'primary_tickers': ['COMPANY_A', 'COMPANY_B'],\n"
-            "  'tickers': {\n"
-            "    'COMPANY_A': {'event_category': 'COMPANY_EVENT', 'event_type': 'MERGER', 'event_description': 'Two companies announced a merger.'},\n"
-            "    'COMPANY_B': {'event_category': 'COMPANY_EVENT', 'event_type': 'MERGER', 'event_description': 'Two companies announced a merger.'}\n"
-            "  }\n"
-            "}\n"
+
+            "Rules:\n"
+            "- proposed_event_name must be generic and reusable.\n"
+            "- Do NOT include ticker symbols or company names in the event name.\n"
+            "- An event must refer to a specific, identifiable occurrence.\n"
+            "- Do NOT classify broad industry trends, long-term cycles, or thematic narratives as events.\n"
+            "- primary_event_category must EXACTLY match the input category.\n"
+            "- Use valid JSON with double quotes only.\n"
+            "- No extra commentary.\n"
         )
 
         prompt = PromptTemplate(
             template=(
-                "You are a financial event extraction engine.\n"
-                "Your task is to analyze the following text and extract structured investment events.\n\n"
+                "You are reviewing financial text that contains events "
+                "not currently represented in the taxonomy.\n\n"
+                "Full Post:\n{text}\n\n"
+                "Unmatched Tickers (with fixed primary categories):\n"
+                "{unmatched}\n\n"
+                "{format_instructions}\n"
+                "Return strictly valid JSON."
+            ),
+            input_variables=["text"],
+            partial_variables={
+                "unmatched": unmatched_json,
+                "format_instructions": format_instructions,
+            },
+        )
+
+        chain = prompt | self.llm | self.parser
+
+        try:
+            result = chain.invoke({"text": text})
+
+            if not isinstance(result, dict):
+                return {}
+
+            # Optional: Hard validation safeguard
+            for ticker, data in result.items():
+                input_category = unmatched_tickers.get(ticker, {}).get("primary_event_category")
+                if data.get("primary_event_category") != input_category:
+                    # Force correction if model drifts
+                    data["primary_event_category"] = input_category
+
+            return result
+
+        except Exception as e:
+            logger.error(f"[LLM Event Proposal Error] {e}")
+            return {}
+
+    def _identify_primary_tickers(self, text: str, ticker_metadata: dict) -> dict:
+        """
+        Identify primary tickers and classify dominant event category per ticker.
+        Returns:
+            {
+                "primary_tickers": [...],
+                "tickers": {
+                    TICKER: {
+                        "primary_event_category": ...,
+                        "event_description": ...
+                    }
+                }
+            }
+        """
+
+        tickers_json = json.dumps(ticker_metadata, indent=2)
+
+        format_instructions = (
+            "You are a financial event classification system.\n\n"
+
+            "Return a valid JSON object with EXACTLY two fields:\n\n"
+
+            "1. \"primary_tickers\": List of materially affected tickers.\n"
+            "- Select ONLY tickers from the provided Tickers list.\n"
+            "- Include a ticker ONLY if the post's main purpose centers on that company.\n"
+            "- Include only companies whose fundamentals or capital allocation are directly affected.\n"
+            "- Exclude tickers mentioned casually, hypothetically, metaphorically, or as background history.\n"
+            "- If no company is materially discussed, return an empty list.\n\n"
+
+            "2. \"tickers\": JSON object keyed ONLY by primary_tickers.\n"
+            "   For EACH ticker return:\n"
+            "   - primary_event_category: ONE of:\n"
+            "     INVESTOR_ACTION: A trade already executed and central to the post.\n"
+            "     INVESTOR_OPINION: Belief, speculation, advice, analysis, or planned trade.\n"
+            "     COMPANY_EVENT: A recent or newly announced corporate action or operational change initiated or controlled by the company, including insider transactions by executives or directors (e.g., CEO stock sales or purchases).\n"
+            "     EXTERNAL_EVENT: A catalyst initiated by a government, regulator, court, competitor, or macro force.\n"
+            "   - event_description: Short factual summary.\n\n"
+
+            "Dominance Rules:\n"
+            "- First determine the dominant intent of the post.\n"
+            "- Events must describe a discrete, identifiable occurrence.\n"
+            "- Do NOT classify historical facts, existing products, long-standing strategy, broad themes, or ongoing industry narratives as events.\n"
+            "- Use INVESTOR_ACTION only if an executed trade is the main focus.\n"
+            "- If the post asks for advice, classify as INVESTOR_OPINION.\n"
+            "- Hypothetical or planned trades = INVESTOR_OPINION.\n"
+            "- If multiple signals exist, choose the category matching dominant intent.\n"
+            "- If unsure between ACTION and OPINION, choose INVESTOR_OPINION.\n\n"
+
+            "Constraints:\n"
+            "- primary_event_category must be EXACTLY one of the four provided values. Any other value is invalid.\n"
+            "- Assign events ONLY to primary_tickers.\n"
+            "- If no clear category, exclude the ticker.\n\n"
+
+            "Return strictly valid JSON. No explanations."
+        )
+
+        prompt = PromptTemplate(
+            template=(
+                "You are a financial entity extraction system.\n\n"
+                "Post:\n{text}\n\n"
                 "Tickers:\n{ticker_metadata_json}\n\n"
-                "Text:\n{input_text}\n\n"
                 "{format_instructions}"
             ),
-            input_variables=["input_text"],
+            input_variables=["text"], 
             partial_variables={
                 "ticker_metadata_json": tickers_json,
                 "format_instructions": format_instructions,
@@ -198,106 +241,225 @@ class EventIdentifierService:
         )
 
         chain = prompt | self.llm | self.parser
+        try:
+            # Initialize defaults
+            for data in ticker_metadata.values():
+                data["event_type"] = None
+                data["event_description"] = None
+                data["event_proposal"] = None
+            ticker_keys = ticker_metadata.keys()
+            result = chain.invoke({"text": text})
 
-        # Initialize defaults
-        for data in ticker_metadata.values():
-            data["event_type"] = None
-            data["event_description"] = None
-            data["event_proposal"] = None
+            if not isinstance(result, dict):
+                return {"primary_tickers": [], "tickers": {}}
+
+            primary = result.get("primary_tickers") or []
+            tickers = result.get("tickers") or {}
+            valid_tickers_for_taxonomy = {}
+            unmatched = {}
+            category_present = set()
+
+
+            for ticker, data in tickers.items():
+                event_type = data.get("primary_event_category")
+                event_description = data.get("event_description")
+
+                if ticker not in ticker_keys:
+                    continue
+
+                if not event_type:
+                    continue
+
+                # Handle behavioral events immediately
+                if event_type in {"INVESTOR_ACTION", "INVESTOR_OPINION"}:
+                    ticker_metadata[ticker]["event_type"] = event_type
+                    ticker_metadata[ticker]["event_description"] = event_description
+                    continue
+
+                # Company / External → send to taxonomy stage
+                category_present.add(event_type)
+                valid_tickers_for_taxonomy[ticker] = data
+
+            # Build taxonomy map once
+
+            event_category_map = {
+                category: [
+                    event_name
+                    for event_name, meta in self.event_list.items()
+                    if meta.get("event_category") == category
+                ]
+                for category in category_present
+            }
+        
+            # Pass only company/external tickers to taxonomy stage
+            if valid_tickers_for_taxonomy:
+
+                event_results = self._analyse_events_with_llm(
+                    valid_tickers_for_taxonomy,
+                    event_category_map
+                )
+            else:
+                event_results = {"tickers": {}}
+
+            # ---------------------------------------------------
+            # Merge refined taxonomy results back
+            # ---------------------------------------------------
+            if isinstance(event_results, dict):
+                refined = event_results.get("tickers", {})
+
+                for ticker, data in refined.items():
+                    if ticker in ticker_metadata:
+                        refined_event_type = data.get("event_type")
+                        refined_description = data.get("event_description")
+                        if refined_event_type and refined_description:
+                            ticker_metadata[ticker]["event_type"] = refined_event_type
+                            ticker_metadata[ticker]["event_description"] = refined_description
+                        if refined_event_type is None:
+                            unmatched[ticker] = {"primary_event_category": data.get("primary_event_category")}
+                if unmatched:
+                    proposals = self._propose_new_events_with_llm(text, unmatched)
+                    for ticker, proposal in proposals.items():
+                        final_proposal = None
+
+                        if isinstance(proposal, dict):
+                            prop_name = proposal.get("proposed_event_name")
+                            event_category = proposal.get("primary_event_category")
+                            confidence = proposal.get("confidence", 0)
+
+                            if confidence >= 0.75 and prop_name and proposal.get("meaning"):
+                                prop_name = prop_name.replace(" ", "_").upper()
+
+                                # Ensure category exists in map
+                                category_events = self.event_category_map.setdefault(event_category, [])
+                                
+                                # Check for existing similar event
+                                existing_similar_event = next(
+                                    (e for e in category_events if self.is_similar(prop_name, e)), None
+                                )
+
+                                if existing_similar_event:
+                                    # Use the existing event
+                                    prop_name = existing_similar_event
+                                    proposal["proposed_event_name"] = prop_name
+                                    proposal["similar_event_found"] = True
+                                    logger.info(f"[INFO] Similar event found for {ticker}, using existing: {prop_name}")
+                                else:
+                                    # Add as new event
+                                    self.event_list[prop_name] = {
+                                        "event_category": event_category,
+                                        "meaning": proposal["meaning"],
+                                    }
+                                    category_events.append(prop_name)
+                                    self.neweventcount += 1
+                                    logger.info(f"[INFO] New event added ({self.neweventcount}): {prop_name}")
+                                    proposal["similar_event_found"] = False
+
+
+                                final_proposal = proposal
+
+                        # Assign proposal to ticker once
+                        if final_proposal:
+                            ticker_metadata[ticker]["event_proposal"] = final_proposal
+
+
+            return ticker_metadata
+        
+        except Exception as e:
+            logger.error(f"[LLM Event Extraction Error] {e}")
+            return ticker_metadata
+
+
+    def _analyse_events_with_llm(
+        self,
+        ticker_inputs: dict,
+        event_category_map: dict,
+    ) -> dict:
+        """
+        Second-stage refinement.
+
+        Input:
+            ticker_inputs = {
+                TICKER: {
+                    "primary_event_category": ...,
+                    "event_description": ...
+                }
+            }
+
+            event_category_map = {
+                CATEGORY: [event_type_1, event_type_2, ...]
+            }
+
+        Goal:
+            For each ticker, pick the most specific event_type
+            from its detected category taxonomy.
+        """
+
+        if not ticker_inputs:
+            return {}
+
+
+        taxonomy_str = json.dumps(event_category_map, indent=2)
+        ticker_str = json.dumps(ticker_inputs, indent=2)
+
+        format_instructions = (
+            "You are refining event classification.\n\n"
+
+            "You are given:\n"
+            "1) Tickers requiring refinement\n"
+            "2) A filtered taxonomy per category\n\n"
+
+            "For each ticker:\n"
+            "- Select the most specific event_type from the provided taxonomy\n"
+            "- Match it against the event description\n"
+            "- Interpret the description in relation to the company's role in the value chain.\n"
+            "- The same industry development may be positive or negative depending on whether the company is a producer, consumer, or intermediary.\n"
+            "- If no match fits, return null\n\n"
+
+            "Return JSON:\n"
+            "{\n"
+            "  \"tickers\": {\n"
+            "     TICKER: {\n"
+            "        \"primary_event_category\": from ticker_inputs\n"
+            "        \"event_type\": <string or null>,\n"
+            "        \"event_description\": \"refined description\"\n"
+            "     }\n"
+            "  }\n"
+            "}\n\n"
+
+            f"Taxonomy:\n{taxonomy_str}\n\n"
+            f"Tickers to classify:\n{ticker_str}\n\n"
+            "Return strictly valid JSON."
+        )
+
+        prompt = PromptTemplate(
+            template=(
+                "You are a financial event resolver.\n\n"
+                "{format_instructions}"
+            ),
+            input_variables=[],
+            partial_variables={
+                "format_instructions": format_instructions,
+            },
+        )
+
+        chain = prompt | self.llm | self.parser
 
         try:
-            llm_result = chain.invoke({"input_text": text})
-            if not isinstance(llm_result, dict):
-                return ticker_metadata
+            result = chain.invoke({})
 
-            primary_tickers = llm_result.get("primary_tickers", [])
-            tickers_data = llm_result.get("tickers", {})
-            if not isinstance(tickers_data, dict):
-                return ticker_metadata
+            if (
+                not isinstance(result, dict)
+                or "tickers" not in result
+                or not isinstance(result["tickers"], dict)
+            ):
+                return ticker_inputs
 
-            for ticker, result in tickers_data.items():
-                if ticker not in ticker_metadata or not isinstance(result, dict):
-                    continue
-                if ticker not in primary_tickers:
-                    continue  # only process primary tickers
-
-                event_type = result.get("event_type")
-                event_desc = result.get("event_description")
-
-                if event_type and event_type.upper() not in {
-                    "NONE",
-                    "NULL",
-                    "NO_EVENT",
-                }:
-                    ticker_metadata[ticker]["event_type"] = event_type
-                    ticker_metadata[ticker]["event_description"] = event_desc
-                    continue
-
-                # Propose new event if nothing matched
-                proposal = self._propose_new_event_with_llm(text, ticker)
-                final_proposal = None
-
-                if isinstance(proposal, dict):
-                    prop_name = proposal.get("proposed_event_name")
-                    confidence = proposal.get("confidence", 0)
-
-                    if (
-                        confidence >= 0.75
-                        and prop_name
-                        and proposal.get("meaning")
-                        and proposal.get("event_category")
-                    ):
-                        prop_name = prop_name.replace(" ", "_").upper()
-                        category = proposal["event_category"]
-
-                        # Ensure category exists in map
-                        category_events = self.event_category_map.setdefault(
-                            category, []
-                        )
-
-                        # Check for existing similar event
-                        existing_similar_event = next(
-                            (
-                                e
-                                for e in category_events
-                                if self.is_similar(prop_name, e)
-                            ),
-                            None,
-                        )
-
-                        if existing_similar_event:
-                            # Use the existing event
-                            prop_name = existing_similar_event
-                            proposal["proposed_event_name"] = prop_name
-                            proposal["similar_event_found"] = True
-                            logger.info(
-                                f"[INFO] Similar event found for {ticker}, using existing: {prop_name}"
-                            )
-                        else:
-                            # Add as new event
-                            self.event_list[prop_name] = {
-                                "event_category": category,
-                                "meaning": proposal["meaning"],
-                            }
-                            category_events.append(prop_name)
-                            self.known_events_str += f"\n- {prop_name}: {category}"
-                            self.neweventcount += 1
-                            logger.info(
-                                f"[INFO] New event added ({self.neweventcount}): {prop_name}"
-                            )
-                            proposal["similar_event_found"] = False
-
-                        final_proposal = proposal
-
-                # Assign proposal to ticker once
-                if final_proposal:
-                    ticker_metadata[ticker]["event_proposal"] = final_proposal
-
-            return ticker_metadata
-
+            return result
+        
         except Exception as e:
-            logger.warning(f"[LLM Event Extraction Error] {e}")
-            return ticker_metadata
+            logger.error(f"[Event Refinement Error] {e}")
+            return ticker_inputs
+
 
     def analyse_event(self, post: Dict) -> Dict:
         """
@@ -307,7 +469,7 @@ class EventIdentifierService:
         full_text = post["content"].get("clean_combined_withurl", "")
         ticker_metadata = post.get("ticker_metadata", {})
 
-        post["ticker_metadata"] = self._analyse_events_with_llm(
+        post["ticker_metadata"] = self._identify_primary_tickers(
             full_text, ticker_metadata
         )
 

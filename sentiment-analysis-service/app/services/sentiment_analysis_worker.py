@@ -105,6 +105,9 @@ async def process_message(msg_id: str, data: dict):
         return
 
     sentiment_result = await sentiment_service.analyse(decoded)
+    
+    await asyncio.sleep(1)
+    logger.debug("LLM throttle sleep (1s)")
 
     if not sentiment_result:
         await finalize_message(msg_id)
@@ -248,6 +251,8 @@ async def main():
     logger.info(f"👥 Consumer Group: {CONSUMER_GROUP}")
     logger.info(f"👤 Consumer Name: {CONSUMER_NAME}")
     logger.info(f"🔑 Heartbeat Key: {HEARTBEAT_KEY}")
+    logger.info("💨 LLM throttle enabled: 1 call/sec")
+
 
     worker_task = asyncio.create_task(worker_loop())
 
