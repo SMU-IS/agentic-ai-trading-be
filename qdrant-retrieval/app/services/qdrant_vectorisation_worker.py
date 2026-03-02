@@ -28,6 +28,8 @@ BATCH_SIZE = 10
 RECOVER_BATCH_SIZE = 100
 MIN_IDLE_MS = 5000
 CLEANUP_INTERVAL = 300
+PROCESSED_POSTS_COUNTER = "vectorisation:processed_posts_count"
+
 
 
 # ================= INIT =================
@@ -153,6 +155,7 @@ async def recover_pending_messages():
                 raise
 
             # ✅ ACK after success
+            await redis_client.incr(PROCESSED_POSTS_COUNTER)
             await finalize_message(msg_id)
 
             logger.info(f"✅ Vectorised (recovered) Post {post_id}")
@@ -235,7 +238,9 @@ async def worker_loop():
                         await aggregator_stream.save(decoded)
                     except asyncio.CancelledError:
                         raise
+                    
 
+                    await redis_client.incr(PROCESSED_POSTS_COUNTER)
                     await finalize_message(msg_id)
 
                     logger.info(f"✅ Vectorised Post {post_id}")

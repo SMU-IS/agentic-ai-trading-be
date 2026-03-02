@@ -20,13 +20,13 @@ REMOVED_POSTS_COUNTER = "eventidentification:removed_posts_count"
 CONSUMER_GROUP = "eventidentification_group"
 CONSUMER_NAME = f"eventidentification_{uuid.uuid4().hex[:6]}"
 
-HEARTBEAT_KEY = f"event_identification:heartbeat:{CONSUMER_NAME}"
+HEARTBEAT_KEY = f"eventidentification:heartbeat:{CONSUMER_NAME}"
 HEARTBEAT_INTERVAL = 30
 HEARTBEAT_TTL = HEARTBEAT_INTERVAL * 3
 
-EVENT_LIST_REDIS_KEY = "event_service:event_list"
+EVENT_LIST_REDIS_KEY = "eventidentification:event_list"
 
-EVENT_LIST_LOCK_KEY = "event_service:event_list:lock"
+EVENT_LIST_LOCK_KEY = "eventidentification:event_list:lock"
 EVENT_LIST_LOCK_TTL = 30
 
 PERSIST_INTERVAL = 1800
@@ -121,7 +121,7 @@ async def flush_tickers(event_service: EventIdentifierService):
 
     for ticker in all_tickers:
         await redis_client.hset(
-            "event_service:all_identified_tickers",
+            "eventidentification:all_identified_tickers",
             ticker,
             "1",  # or store metadata if needed
         )
