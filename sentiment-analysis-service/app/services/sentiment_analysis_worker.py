@@ -115,6 +115,15 @@ async def process_message(msg_id: str, data: dict):
 
     post_id = sentiment_result.get("id")
 
+    result = sentiment_result.get("sentiment_analysis", "")
+    reasoning = result.get("reasoning", "")
+
+
+    if "Analysis failed" in reasoning:
+        logger.info("Skipping fallback sentiment result")
+        await finalize_message(msg_id)
+        return
+
     try:
         await sentiment_stream.save(sentiment_result)
     except asyncio.CancelledError:
