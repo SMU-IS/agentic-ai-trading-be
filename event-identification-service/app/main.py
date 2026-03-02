@@ -43,7 +43,7 @@ def health_check():
 
         # 🔎 Discover workers via heartbeat keys
         cursor = 0
-        pattern = "event_identification:heartbeat:*"
+        pattern = "eventidentification:heartbeat:*"
         heartbeat_keys = []
 
         # Use SCAN (production safe)
@@ -60,7 +60,7 @@ def health_check():
 
         # Extract worker IDs from key names
         active_workers = [
-            key.replace("event_identification:heartbeat:", "")
+            key.replace("eventidentification:heartbeat:", "")
             for key in heartbeat_keys
         ]
 
