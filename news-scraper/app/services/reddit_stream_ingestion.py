@@ -9,11 +9,10 @@ class RedditStreamService:
         self.storage = storage
         self.redis = redis_client
 
-    def run(self, base_subreddits):
+    def run(self, base_subreddits, stop_event):
         print("[*] Reddit stream service started")
         
-
-        while True:
+        while not stop_event.is_set():
             try:
                 subreddits = self.build_subreddit_list(base_subreddits)
                 subreddit_str = "+".join(subreddits)
@@ -24,6 +23,10 @@ class RedditStreamService:
                 subreddit = self.reddit_client.subreddit(subreddit_str)
                 
                 for post in subreddit.stream.submissions(skip_existing=True):
+                    if stop_event.is_set():
+                        print("[*] Stream stopping...")
+                        break
+                    
                     if self.redis.get("stream_version") != stream_version:
                         print("[*] Stream version changed → rebuilding stream")
                         break

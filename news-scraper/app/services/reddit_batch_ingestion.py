@@ -9,13 +9,20 @@ class RedditBatchService:
         self.storage = storage
         self.redis = redis_client
 
-    def run_worker(self, days=180, batch_size=50):
+    def run_worker(self, stop_event, days=180, batch_size=50):
         print("[*] Batch worker started, waiting for tickers...")
 
         processed_key = "batch_processed_tickers"
 
-        while True:
-            _, ticker = self.redis.brpop("batch_queue")
+        while not stop_event.is_set():
+            result = self.redis.brpop("batch_queue", timeout=5)
+            
+            if stop_event.is_set():
+                break
+            if result is None:
+                continue
+
+            _, ticker = result
             ticker = ticker.decode() if isinstance(ticker, bytes) else ticker
 
             if self.redis.sismember(processed_key, ticker):
@@ -24,10 +31,11 @@ class RedditBatchService:
 
             print(f"[+] Running batch for ticker: {ticker}")
             subreddits = self.resolve_subreddits_for_ticker(ticker)
-            
-            # print(subreddits)
+
             self.run(subreddits, days, batch_size)
             self.redis.sadd(processed_key, ticker)
+        
+        print("[*] Batch worker stopped")
 
     def resolve_subreddits_for_ticker(self, ticker):
 
