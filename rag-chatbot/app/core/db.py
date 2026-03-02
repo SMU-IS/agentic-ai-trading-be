@@ -1,10 +1,10 @@
 import logging
 from typing import AsyncGenerator
 
-from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
 from psycopg_pool import AsyncConnectionPool
 
 from app.core.config import env_config
+from app.services.bot_memory import BotMemory
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -12,9 +12,9 @@ logger = logging.getLogger("uvicorn.error")
 class DatabaseManager:
     def __init__(self):
         self.pool: AsyncConnectionPool | None = None
-        self.checkpointer: AsyncPostgresSaver | None = None
+        self.checkpointer: BotMemory | None = None
 
-    async def get_checkpointer(self) -> AsyncGenerator[AsyncPostgresSaver, None]:
+    async def get_checkpointer(self) -> AsyncGenerator[BotMemory, None]:
         """Manages the lifecycle of the Postgres checkpointer pool."""
         conninfo = (
             f"postgresql://{env_config.postgres_user}:"
@@ -30,9 +30,10 @@ class DatabaseManager:
             ) as pool:
                 logger.info("🔗 Database connection pool created.")
                 self.pool = pool
-                self.checkpointer = AsyncPostgresSaver(pool)
+                self.checkpointer = BotMemory(pool)
                 await self.checkpointer.setup()
-                logger.info("✅ Checkpointer tables verified/created.")
+                logger.info("✅ Checkpointer Tables Created.")
+                logger.info("✅ Thread Views Table Created.")
 
                 yield self.checkpointer
         except Exception as e:

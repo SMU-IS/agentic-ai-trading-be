@@ -4,7 +4,6 @@ from langchain.agents import create_agent
 from langchain.agents.middleware import SummarizationMiddleware
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import HumanMessage
-from langgraph.checkpoint.postgres import PostgresSaver
 from rich.console import Console
 from rich.panel import Panel
 from rich.pretty import Pretty
@@ -13,6 +12,7 @@ from app.core.config import env_config
 from app.core.constant import LangChainEvent, RedisCacheKeys
 from app.core.s3_config import S3ConfigService
 from app.schemas.chat import ChatHistoryResponse
+from app.services.bot_memory import BotMemory
 from app.services.redis_service import RedisService
 from app.services.tools import RAG_BOT_TOOLS
 from app.utils.logger import setup_logging
@@ -23,7 +23,7 @@ logger = setup_logging()
 
 
 class AgentBotService:
-    def __init__(self, llm: BaseChatModel, checkpointer: PostgresSaver):
+    def __init__(self, llm: BaseChatModel, checkpointer: BotMemory):
         self.llm: BaseChatModel = llm
         self.checkpointer = checkpointer
 
@@ -92,7 +92,33 @@ class AgentBotService:
 
         return agent
 
-    async def invoke_agent(self, query: str, order_id: str | None, session_id: str):
+    async def _generate_title(self, query: str) -> str:
+        """
+        Generate a concise title for the conversation using the LLM.
+
+        Args:
+            query (str): The initial query to base the title on.
+
+        Returns:
+            str: A generated title (6-8 words max).
+        """
+
+        prompt = f"""Generate a concise title (max 6 words) for this query:
+"{query}"
+
+Title:"""
+
+        try:
+            response = await self.llm.ainvoke(prompt)
+            title = response.content.strip().strip('"').strip("'")
+            title = title.split("\n")[0].strip()
+            return title if title else query[:30]
+        except Exception:
+            return query[:30]
+
+    async def invoke_agent(
+        self, query: str, order_id: str | None, user_id: str, session_id: str
+    ):
         """
         Invoke the agent with a given query.
 
@@ -104,8 +130,13 @@ class AgentBotService:
             str: The result of the agent invocation.
         """
 
-        config = {"configurable": {"thread_id": session_id}}
         context_query = f"Regarding Order Id {order_id}: {query}" if order_id else query
+        title = await self._generate_title(context_query)
+
+        config = {
+            "configurable": {"thread_id": session_id},
+            "metadata": {"user_id": user_id, "title": title},
+        }
 
         try:
             agent = self._create_agent()
