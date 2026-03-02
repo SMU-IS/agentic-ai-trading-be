@@ -106,3 +106,4 @@ class DeepAnalysis(BaseModel):
     position_size_pct: float = Field(..., description="0.5|1|2")
     stop_loss_pct: float = Field(..., description="8|10|12")
     target_pct: float = Field(..., description="20|30|50")
+    timestamp: Optional[str] = Field(None, description="ISO creation timestamp (YYYY-MM-DDTHH:MM:SSZ)")

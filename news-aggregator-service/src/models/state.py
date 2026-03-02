@@ -65,7 +65,7 @@ class TickerSentiment:
     event_proposal: Optional[str] = None
     sentiment_score: float = 0.0
     sentiment_label: SentimentLabel = SentimentLabel.NEUTRAL
-    sentiment_confidence: float = 0.0
+    # sentiment_confidence: float = 0.0
     sentiment_reasoning: str = ""
 
     # Optional metadata
@@ -142,7 +142,7 @@ class TickerSentiment:
         init['event_type'] = data.get('event_type_meta', '')
         init['event_description'] = data.get('event_description', '')
         init['sentiment_score'] = float(data.get('sentiment_score', 0.0))
-        init['sentiment_confidence'] = float(data.get('sentiment_confidence', 0.0))
+        # init['sentiment_confidence'] = float(data.get('sentiment_confidence', 0.0))
         init['sentiment_reasoning'] = data.get('sentiment_reasoning', '')
 
         # optional: use stream id as OfficialName or just ignore

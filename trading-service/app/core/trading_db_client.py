@@ -72,16 +72,30 @@ class MongoDBClient:
         result = self.signals.insert_one(signal_copy)
         return {"success": bool(result.inserted_id), "id": str(result.inserted_id) if result.inserted_id else None}
 
+    # def get_signals(self, ticker: str = None) -> List[Dict[str, Any]]:
+    #     """Retrieve signals, optionally filtered by ticker. Includes _id as string."""
+    #     query = {} if ticker is None else {"ticker": ticker}
+    #     docs = list(self.signals.find(query))  # Remove projection to include _id
+        
+    #     # Convert ObjectId to string in each doc
+    #     for doc in docs:
+    #         if "_id" in doc:
+    #             doc["id"] = str(doc["_id"])
+        
+    #     return docs
+
     def get_signals(self, ticker: str = None) -> List[Dict[str, Any]]:
-        """Retrieve signals, optionally filtered by ticker. Includes _id as string."""
+        """Retrieve signals, optionally filtered by ticker. Includes id (str) and timestamp (ISO)."""
         query = {} if ticker is None else {"ticker": ticker}
         docs = list(self.signals.find(query))  # Remove projection to include _id
-        
-        # Convert ObjectId to string in each doc
+        print("GETTING SIGNALS")
+        # Convert ObjectId to string and add timestamp in each doc
         for doc in docs:
             if "_id" in doc:
-                doc["id"] = str(doc["_id"])
-        
+                oid = doc["_id"]
+                doc["id"] = str(oid)
+                doc["timestamp"] = oid.generation_time.isoformat()  # ISO string like "2026-02-13T10:30:00"
+                
         return docs
     
     def get_signal_by_id(self, signal_id: str) -> Optional[Dict[str, Any]]:

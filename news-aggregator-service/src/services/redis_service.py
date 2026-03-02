@@ -48,9 +48,11 @@ class RedisService:
                 for stream, msgs in messages:
                     for msg_id, fields in msgs:
                         decoded = {k.decode(): v.decode() for k, v in fields.items()}
+                        print()
+                        print("🚀🚀🚀🚀🚀")
                         print("📨 Ingesting News:", decoded)
                         tickers = self._extract_tickers_from_message(decoded)
-                        print(f"   Extracted {tickers} tickers from message ID {msg_id}"   )
+                        # print(f"   Extracted {tickers} tickers from message ID {msg_id}"   )
                         for ticker_sentiment in tickers:
                             yield ticker_sentiment
 
@@ -97,6 +99,17 @@ class RedisService:
         count = await self.redis.incr(key)
         await self.redis.expire(key, settings.hours_window * 3600)
         return count
+    
+    # Checks if topic has been ran in the past 24h (to make sure no duplicate news)
+    async def mark_digested(self, ticker_topic: str) -> None:
+        """Mark ticker:topic as digested for 24h."""
+        key = f"digested:{ticker_topic}"
+        await self.redis.setex(key, 86400, "1")  # 24h TTL
+
+    async def is_digested(self, ticker_topic: str) -> bool:
+        """Check if ticker:topic was already digested (within 24h)."""
+        key = f"digested:{ticker_topic}"
+        return await self.redis.exists(key) == 1
 
     async def close(self):
         if self.redis:

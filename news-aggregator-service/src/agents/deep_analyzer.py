@@ -68,7 +68,7 @@ class DeepAnalyzer:
 
     def print_analysis(self,analysis: DeepAnalysis):
         """Print DeepAnalysis in trading terminal format"""
-        print(analysis)
+        # print(analysis)
         print("\n" + "="*80)
         print(f"📊 DEEP ANALYSIS REPORT - {analysis.ticker}")
         print("="*80)

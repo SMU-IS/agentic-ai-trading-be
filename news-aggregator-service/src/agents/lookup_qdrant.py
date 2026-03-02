@@ -3,7 +3,7 @@ from typing import Any, Dict
 import httpx
 from src.config import settings
 
-TICKER_EVENTS_QDRANT_URL = settings.ticker_events_qdrant_url
+TICKER_EVENTS_QDRANT_URL = settings.news_analysis_qdrant_url
 
 
 async def lookup_qdrant(ticker: str, event: str):
@@ -12,7 +12,7 @@ async def lookup_qdrant(ticker: str, event: str):
     """
     qdrant_data = await get_qdrant_data(ticker, event)
     print("Qdrant data:", qdrant_data)
-    return qdrant_data.get("results", [{"text_content": "No results found in qdrant"}])
+    return qdrant_data.get("results", [])
 
 
 async def get_qdrant_data(ticker: str, event: str) -> Dict[str, Any]:
