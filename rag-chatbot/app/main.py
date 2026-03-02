@@ -8,7 +8,7 @@ from fastapi.routing import APIRouter
 
 from app.core.constant import APIPath
 from app.core.db import db_manager
-from app.routers import agent_bot
+from app.routers import agent_bot, threads
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -17,7 +17,7 @@ logger = logging.getLogger("uvicorn.error")
 async def lifespan(app: FastAPI):
     logger.info("🚀 Starting up Agentic AI Bot Service...")
     async for checkpointer in db_manager.get_checkpointer():
-        app.state.checkpointer = checkpointer
+        app.state.bot_memory = checkpointer
         logger.info("🤩 Application is ready to handle requests.")
         yield
 
@@ -57,5 +57,6 @@ def root():
 
 # ====== API Endpoints ======
 api_router.include_router(agent_bot.router)
+api_router.include_router(threads.router)
 
 app.include_router(api_router)

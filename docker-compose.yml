@@ -25,25 +25,25 @@ include:
   #   env_file: ./news-scraper/.env
   #   project_directory: ./news-scraper
 
-  # === Preprocessing Service Microservice ===
-  - path: ./preprocessing-service/docker-compose.yml
-    env_file: ./preprocessing-service/.env
-    project_directory: ./preprocessing-service
+  # # === Preprocessing Service Microservice ===
+  # - path: ./preprocessing-service/docker-compose.yml
+  #   env_file: ./preprocessing-service/.env
+  #   project_directory: ./preprocessing-service
 
-  # === Ticker Identification Service Microservice ===
-  - path: ./ticker-identification-service/docker-compose.yml
-    env_file: ./ticker-identification-service/.env
-    project_directory: ./ticker-identification-service
+  # # === Ticker Identification Service Microservice ===
+  # - path: ./ticker-identification-service/docker-compose.yml
+  #   env_file: ./ticker-identification-service/.env
+  #   project_directory: ./ticker-identification-service
 
-  # === Event Identification Service Microservice ===
-  - path: ./event-identification-service/docker-compose.yml
-    env_file: ./event-identification-service/.env
-    project_directory: ./event-identification-service
+  # # === Event Identification Service Microservice ===
+  # - path: ./event-identification-service/docker-compose.yml
+  #   env_file: ./event-identification-service/.env
+  #   project_directory: ./event-identification-service
 
-  # === Sentiment Analysis Service Microservice ===
-  - path: ./sentiment-analysis-service/docker-compose.yml
-    env_file: ./sentiment-analysis-service/.env
-    project_directory: ./sentiment-analysis-service
+  # # === Sentiment Analysis Service Microservice ===
+  # - path: ./sentiment-analysis-service/docker-compose.yml
+  #   env_file: ./sentiment-analysis-service/.env
+  #   project_directory: ./sentiment-analysis-service
 
   # === User Info Microservice ===
   - path: ./user-info/docker-compose.yml

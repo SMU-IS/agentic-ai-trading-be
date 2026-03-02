@@ -1,9 +1,14 @@
+import datetime
+
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
 class ChatRequest(BaseModel):
     query: str
     order_id: str | None = None
+    user_id: str = Field(..., description="Unique ID of the user")
     session_id: str = Field(
         ..., description="Unique ID for the chat thread/conversation"
     )
@@ -12,6 +17,14 @@ class ChatRequest(BaseModel):
 class ChatHistoryResponse(BaseModel):
     history: list[dict] = Field(
         ..., description="The list of messages in the conversation"
+    )
+
+
+class ThreadResponse(BaseModel):
+    thread_id: str = Field(..., description="Unique ID of the thread")
+    title: str | None = Field(None, description="Title of the thread")
+    updated_at: datetime = Field(
+        ..., description="Timestamp when thread was last updated"
     )
 
 

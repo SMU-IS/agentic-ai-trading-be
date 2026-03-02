@@ -15,7 +15,7 @@ router = APIRouter(tags=["RAG Chatbot"])
 def get_agent_bot_service(request: Request):
     strategy = get_strategy(env_config.llm_provider)
     llm_model = strategy.create_model()
-    return AgentBotService(llm_model, checkpointer=request.app.state.checkpointer)
+    return AgentBotService(llm_model, checkpointer=request.app.state.bot_memory)
 
 
 @router.post(APIPath.CHAT)
@@ -25,7 +25,7 @@ async def chat_stream(
 ):
     return StreamingResponse(
         agent_bot_service.invoke_agent(
-            chat_data.query, chat_data.order_id, session_id=chat_data.session_id
+            chat_data.query, chat_data.order_id, chat_data.user_id, chat_data.session_id
         ),
         media_type="text/event-stream",
     )
