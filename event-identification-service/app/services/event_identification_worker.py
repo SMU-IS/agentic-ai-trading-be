@@ -198,7 +198,7 @@ def normalize_proposed_events(ticker_metadata: dict):
 
         if proposal:
             proposed_event_name = proposal.get("proposed_event_name")
-            proposed_description = proposal.get("description")
+            proposed_description = proposal.get("proposed_description")
 
             if proposed_event_name:
                 logger.info(
@@ -226,6 +226,10 @@ async def process_message(
         return
 
     event_data = event_service.analyse_event(decoded)
+
+    await asyncio.sleep(1)
+    logger.debug("LLM throttle sleep (1s)")
+
     if not event_data:
         await finalize_message(msg_id)
         return
@@ -411,6 +415,8 @@ async def main():
     logger.info(f"👥 Consumer Group: {CONSUMER_GROUP}")
     logger.info(f"👤 Consumer Name: {CONSUMER_NAME}")
     logger.info(f"🔑 Heartbeat Key: {HEARTBEAT_KEY}")
+    logger.info("💨 LLM throttle enabled: 1 call/sec")
+
 
     worker_task = asyncio.create_task(worker_loop(event_service))
 

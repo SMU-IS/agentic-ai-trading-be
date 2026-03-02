@@ -26,7 +26,6 @@ jmespath==1.1.0
 jsonpatch==1.33
 jsonpointer==3.0.0
 langchain-core==1.2.14
-langchain-ollama==1.0.1
 langsmith==0.7.6
 markdown-it-py==4.0.0
 MarkupSafe==3.0.3
@@ -82,3 +81,4 @@ wrapt==2.1.1
 xxhash==3.6.0
 yfinance==1.2.0
 zstandard==0.25.0
+langchain-groq==1.0.1
