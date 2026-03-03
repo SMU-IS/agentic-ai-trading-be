@@ -29,8 +29,8 @@ func (r *userRepository) GetByEmail(ctx context.Context, email string) (*domain.
 	return &user, err
 }
 
-func (r *userRepository) GetByID(ctx context.Context, id uint) (*domain.User, error) {
+func (r *userRepository) GetByID(ctx context.Context, userID string) (*domain.User, error) {
 	var user domain.User
-	err := r.db.WithContext(ctx).First(&user, id).Error
+	err := r.db.WithContext(ctx).First(&user, "user_id = ?", userID).Error
 	return &user, err
 }

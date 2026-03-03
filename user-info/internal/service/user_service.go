@@ -33,7 +33,7 @@ func NewUserUseCase(ur domain.UserRepository, rc *redis.Client, ttl time.Duratio
 	}
 }
 
-func (s *userUseCase) generateToken(userID uint) (string, error) {
+func (s *userUseCase) generateToken(userID string) (string, error) {
 	jwtExpiration := os.Getenv("JWT_EXPIRATION_HOURS")
 	jwtExpirationInt, err := strconv.Atoi(jwtExpiration)
 	if err != nil {
@@ -92,7 +92,7 @@ func (s *userUseCase) Login(ctx context.Context, email, password string) (string
 		return "", errors.New("invalid credentials")
 	}
 
-	return s.generateToken(user.ID)
+	return s.generateToken(user.UserID)
 }
 
 func (s *userUseCase) LoginOrRegisterOAuth(ctx context.Context, provider string, profile domain.OAuthProfile) (string, error) {
@@ -114,10 +114,10 @@ func (s *userUseCase) LoginOrRegisterOAuth(ctx context.Context, provider string,
 		}
 	}
 
-	return s.generateToken(user.ID)
+	return s.generateToken(user.UserID)
 }
 
-func (s *userUseCase) GetProfile(ctx context.Context, userID uint) (*domain.User, error) {
+func (s *userUseCase) GetProfile(ctx context.Context, userID string) (*domain.User, error) {
 	cacheKey := fmt.Sprintf(constant.UserProfileCacheKey, userID)
 	val, err := s.redisClient.Get(ctx, cacheKey).Result()
 	if err == nil {
