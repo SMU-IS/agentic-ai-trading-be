@@ -76,3 +76,12 @@ class RedisService:
     async def close(self):
         if self.redis:
             await self.redis.close()
+
+async def test():
+    redis_service = RedisService()
+    await redis_service.connect()
+    await redis_service.publish_order_timestamp("reddit:1qwymfr", "PLTR")
+    
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(test())
