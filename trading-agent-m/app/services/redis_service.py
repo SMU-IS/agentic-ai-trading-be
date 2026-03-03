@@ -6,20 +6,23 @@ import redis.asyncio as aioredis
 from app.agents.state import Signal
 from app.core.config import env_config as settings
 
+# Redis timestamp
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 class RedisService:
     def __init__(self):
         self.redis = None
-        self.redis_news_stream = None
         self.redis_signal_stream = None
-        self.redis_aggregator_stream = None
-
+        self.redis_trade_noti_stream = None
+        
     async def connect(self):
         redis_con = f"redis://:{settings.redis_password}@{settings.redis_host}:{settings.redis_port}"
         self.redis = await aioredis.from_url(redis_con)
 
         self.redis_signal_stream = settings.redis_signal_stream
-
+        self.redis_trade_noti_stream = settings.redis_trading_noti_stream
+        
         print(f"✅ Redis: {redis_con}")
         print(f"📡 Listening to Signal Stream: '{self.redis_signal_stream}'")
 
@@ -54,7 +57,22 @@ class RedisService:
                 print(f"❌ Stream error: {e}")
                 print(f"   Stream name: '{self.redis_signal_stream}'")
                 await asyncio.sleep(1)
+                
+    async def publish_trade_noti(self, order_id: str):
+        """Publish to trading notification stream"""
+        await self.redis.xadd(self.redis_trade_noti_stream, {"order_id": order_id})
+        
+    async def publish_order_timestamp(self, post_id, ticker):
 
+        POST_TIMESTAMP = "post_timestamps"
+        sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+
+        await self.redis.hset(
+                f"{POST_TIMESTAMP}:{post_id}",
+                f"order_timestamp:{ticker}",
+                sg_now
+            )
+        
     async def close(self):
         if self.redis:
             await self.redis.close()

@@ -1,6 +1,6 @@
 import json
 import re
-
+import asyncio
 from langchain_core.prompts import ChatPromptTemplate
 from app.agents.state import AgentState, TradingDecision, TradeAction
 
@@ -121,39 +121,42 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
 
     # 3. Invoke LLM
     chain = prompt | llm
-    try:
-        response = await chain.ainvoke(input_vars)
-        decision = parse_llm_json(response.content)
-        print("   [✅ LLM Response Parsed] successfully parsed trade decision.")
-        ### Ensure ticker is included in decision for downstream nodes
-        decision.ticker = signal_data.ticker 
+    MAX_RETRIES = 2  # number of retries after first attempt
 
-        ### [DEBUG] For testing, hardcoding decision
-        # decision = TradingDecision(
-        #     action=TradeAction.BUY, 
-        #     confidence=0.3, 
-        #     entry_price=202.93, 
-        #     stop_loss=195.54, 
-        #     take_profit=210.91, 
-        #     qty=0, 
-        #     risk_reward='1.2:1', 
-        #     thesis="DEBUG ON; Testing mode enabled.", 
-        #     current_stock_price=202.69, 
-        #     ticker='AMZN')
-    except Exception as e:
-        print(f"   [❌ LLM Error] {e}")
-        decision = TradingDecision(
-            action=TradeAction.HOLD,
-            confidence=0.0,
-            entry_price=0.0,
-            stop_loss=0.0,
-            take_profit=0.0,
-            qty=0.0,
-            risk_reward="0:1",
-            thesis="LLM error - no trade",
-            current_stock_price=0.0,
-            ticker=signal_data.ticker
-        )
+    decision = None
+
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            response = await chain.ainvoke(input_vars)
+            decision = parse_llm_json(response.content)
+
+            print(f"   [✅ LLM Response Parsed] Success on attempt {attempt + 1}")
+
+            # Ensure ticker is included in decision for downstream nodes
+            decision.ticker = signal_data.ticker
+            break  # exit loop if successful
+
+        except Exception as e:
+            print(f"   [⚠️ LLM Error] Attempt {attempt + 1} failed: {e}")
+
+            if attempt < MAX_RETRIES:
+                await asyncio.sleep(1.5 * (attempt + 1))  # simple backoff
+            else:
+                print("   [❌ LLM Failed After Retries] Defaulting to HOLD")
+
+                decision = TradingDecision(
+                    action=TradeAction.HOLD,
+                    confidence=0.0,
+                    entry_price=0.0,
+                    stop_loss=0.0,
+                    take_profit=0.0,
+                    qty=0.0,
+                    risk_reward="0:1",
+                    thesis="LLM error - no trade",
+                    current_stock_price=0.0,
+                    ticker=signal_data.ticker
+                )
+        
 
     if decision.action == TradeAction.HOLD:
         print("   [🧠 Brain Decision] No trade opportunity identified. Action: HOLD")

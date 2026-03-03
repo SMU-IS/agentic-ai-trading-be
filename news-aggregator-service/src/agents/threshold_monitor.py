@@ -30,6 +30,9 @@ class ThresholdMonitor:
             if await self.redis.is_digested(ticker_event):
                 continue
             
+            if abs(sentiment.sentiment_score) <= settings.sentiment_min_threshold:
+                continue
+            
             # 1. Extreme sentiment trigger (|score| >= threshold)
             if abs(sentiment.sentiment_score) >= settings.sentiment_threshold:
                 print(f"🚨 EXTREME: {sentiment.ticker} {sentiment.event_type} ({sentiment.sentiment_score:.2f})")

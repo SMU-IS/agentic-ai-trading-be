@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     redis_aggregator_stream: str = os.getenv(
         "REDIS_AGGREGATOR_STREAM", "news_aggregator_stream"
     )
-
+    sentiment_min_threshold: float = 0.2
     sentiment_threshold: float = 0.75
     volume_threshold: int = 8
     hours_window: int = 1

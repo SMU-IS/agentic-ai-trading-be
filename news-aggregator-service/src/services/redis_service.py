@@ -4,6 +4,9 @@ from typing import AsyncGenerator, List
 import redis.asyncio as aioredis
 from src.config import settings
 from src.models.state import TickerSentiment
+# Redis timestamp
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 class RedisService:
     def __init__(self):
@@ -47,17 +50,20 @@ class RedisService:
 
                 for stream, msgs in messages:
                     for msg_id, fields in msgs:
+                        # Ack message - skip if error
+                        await self.redis.xdel(self.redis_aggregator_stream, msg_id)
                         decoded = {k.decode(): v.decode() for k, v in fields.items()}
                         print()
                         print("🚀🚀🚀🚀🚀")
                         print("📨 Ingesting News:", decoded)
                         tickers = self._extract_tickers_from_message(decoded)
                         # print(f"   Extracted {tickers} tickers from message ID {msg_id}"   )
+                        
+                        
+                        # Run message
                         for ticker_sentiment in tickers:
                             yield ticker_sentiment
 
-                        # Ack message
-                        await self.redis.xdel(self.redis_aggregator_stream, msg_id)
                         
             except Exception as e:
                 print(f"❌ Stream error: {e}")
@@ -110,6 +116,16 @@ class RedisService:
         """Check if ticker:topic was already digested (within 24h)."""
         key = f"digested:{ticker_topic}"
         return await self.redis.exists(key) == 1
+    
+    async def publish_signal_timestamp(self, post_id, ticker):
+        POST_TIMESTAMP = "post_timestamps"
+        sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+
+        await self.redis.hset(
+                f"{POST_TIMESTAMP}:{post_id}",
+                f"signal_timestamp:{ticker}",
+                sg_now
+            )
 
     async def close(self):
         if self.redis:

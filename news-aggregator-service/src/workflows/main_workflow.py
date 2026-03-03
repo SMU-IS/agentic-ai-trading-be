@@ -187,8 +187,10 @@ class WorkflowManager:
         print(f"Analyzing article: {article.ticker} {article.event_type}")
         analysis = await analyzer.analyze(news_content, article)
         analyzer.print_analysis(analysis)
+        analysis.news_id = article.news_id.strip('"') # Remove inproper quotes
         state["deep_analysis"] = analysis
-    
+        
+
         # Post the analysis
         response = post_deepanalysis(analysis)
 
@@ -218,6 +220,9 @@ class WorkflowManager:
         # Publish to Redis for real-time consumers
         if signal_id:
             await self.redis_service.publish_signal(signal_id)
+            news_id = state["deep_analysis"].news_id
+            ticker = state["deep_analysis"].ticker
+            await self.redis_service.publish_signal_timestamp(news_id, ticker)
             print(f"📡 Signal published to Redis: {signal_id}")
         return state
 

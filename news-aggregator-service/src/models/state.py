@@ -26,6 +26,10 @@ class DeepAnalysis(BaseModel):
     position_size_pct: float = Field(..., description="0.5|1|2")
     stop_loss_pct: float = Field(..., description="8|10|12")
     target_pct: float = Field(..., description="20|30|50")
+    news_id: Optional[str] = Field(
+        default=None,
+        description="reddit post id"
+    )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert DeepAnalysis to dictionary, recursively handling nested models."""
@@ -67,7 +71,7 @@ class TickerSentiment:
     sentiment_label: SentimentLabel = SentimentLabel.NEUTRAL
     # sentiment_confidence: float = 0.0
     sentiment_reasoning: str = ""
-
+    news_id: Optional[str] = None
     # Optional metadata
     timestamp: Optional[datetime] = None
 
@@ -144,6 +148,7 @@ class TickerSentiment:
         init['sentiment_score'] = float(data.get('sentiment_score', 0.0))
         # init['sentiment_confidence'] = float(data.get('sentiment_confidence', 0.0))
         init['sentiment_reasoning'] = data.get('sentiment_reasoning', '')
+        init['news_id'] = data.get('id', '')
 
         # optional: use stream id as OfficialName or just ignore
         # init['OfficialName'] = data.get('id', '')
