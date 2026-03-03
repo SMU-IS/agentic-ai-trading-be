@@ -10,6 +10,7 @@ from app.services.entity_watcher import EntityWatcherService
 from app.services.reddit_batch_ingestion import RedditBatchService
 from app.services.reddit_stream_ingestion import RedditStreamService
 from app.services.storage import RedisStreamStorage
+from app.router.scraper import router as scraper_router
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -49,6 +50,8 @@ def run_watcher_mode(redis_client):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("[*] Initialising app dependencies...")
+
     storage = RedisStreamStorage()
     redis_client = storage.r
 
@@ -65,31 +68,16 @@ async def lifespan(app: FastAPI):
         "options",
         "stockmarket",
     ]
-    if env_config.auto_scrape:
-        print("Auto scrape is enabled")
-        threading.Thread(
-            target=run_stream_mode,
-            args=(reddit, storage, redis_client, base_subreddits),
-            daemon=True,
-        ).start()
+    app.state.storage = storage
+    app.state.redis_client = redis_client
+    app.state.reddit = reddit
+    app.state.base_subreddits = base_subreddits
 
-        threading.Thread(
-            target=run_batch_mode,
-            args=(reddit, storage, redis_client, base_subreddits),
-            daemon=True,
-        ).start()
-
-        threading.Thread(
-            target=run_watcher_mode,
-            args=(redis_client,),
-            daemon=True,
-        ).start()
-
-    else:
-        print("Auto scrape disabled")
+    print("[*] App ready. Scraper not running.")
 
     yield
 
+    print("[*] Shutting down application...")    
 
 app = FastAPI(
     title="News Scraper Service",
@@ -97,6 +85,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.include_router(scraper_router)
 
 @app.get("/healthcheck")
 def healthcheck():

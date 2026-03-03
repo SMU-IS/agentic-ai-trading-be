@@ -27,8 +27,8 @@ HEARTBEAT_KEY = f"tickeridentification:heartbeat:{CONSUMER_NAME}"
 HEARTBEAT_INTERVAL = 30
 HEARTBEAT_TTL = HEARTBEAT_INTERVAL * 3
 
-CLEANED_REDIS_KEY = "ticker_service:cleaned_tickers"
-ALIAS_REDIS_KEY = "ticker_service:alias_mapping"
+CLEANED_REDIS_KEY = "tickeridentification:cleaned_tickers"
+ALIAS_REDIS_KEY = "tickeridentification:alias_mapping"
 
 PERSIST_INTERVAL = 1800
 TICKER_FLUSH_INTERVAL = 900  
@@ -288,6 +288,10 @@ async def process_message(msg_id: str, data: dict, ticker_service):
         return
 
     tickers_post = ticker_service.process_post(decoded)
+
+    await asyncio.sleep(1)
+    logger.debug("LLM throttle sleep (1s)")
+
     if not tickers_post:
         await finalize_message(msg_id)
         return
@@ -445,6 +449,7 @@ async def main():
     logger.info(f"👥 Consumer Group: {CONSUMER_GROUP}")
     logger.info(f"👤 Consumer Name: {CONSUMER_NAME}")
     logger.info(f"🔑 Heartbeat Key: {HEARTBEAT_KEY}")
+    logger.info("💨 LLM throttle enabled: 1 call/sec")
 
     worker_task = asyncio.create_task(worker_loop(ticker_service))
 

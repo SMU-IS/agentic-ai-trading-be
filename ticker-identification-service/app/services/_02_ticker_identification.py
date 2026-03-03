@@ -5,9 +5,7 @@ import json
 import re
 import spacy
 from app.core.config import env_config
-# from langchain_groq import ChatGroq
-from langchain_ollama import ChatOllama
-
+from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import PromptTemplate
 import yfinance as yf
@@ -32,13 +30,13 @@ class TickerIdentificationService:
         self,
         cleaned_tickers: dict,
         alias_to_canonical: dict,
-        # groq_api_key: str = env_config.groq_api_key,
+        groq_api_key: str = env_config.groq_api_key,
         spacy_model: str = "en_core_web_lg",
-        model_name: str = "llama3.1:latest",
+        model_name: str = env_config.groq_model_name,
 
     ):
         self.model_name = model_name
-        # self.groq_api_key = groq_api_key
+        self.groq_api_key = groq_api_key
         self.new_alias_count = 0
         self.new_type_count = 0
         self.cleaned_tickers = cleaned_tickers
@@ -49,21 +47,17 @@ class TickerIdentificationService:
         self.nlp = spacy.load(spacy_model)
         
         try:
-            # self.llm = ChatGroq(
-            #     model=self.model_name,
-            #     api_key=env_config.groq_api_key,
-            #     temperature=0,
-            # )
-            self.llm = ChatOllama(
-                model=env_config.ollama_modelname,
-                base_url=env_config.ollama_baseurl,
-                temperature=0.1,
-                format="json",
+            logger.info("Initializing LLM Ticker Identification Service...")
+
+            self.llm = ChatGroq(
+                model=self.model_name,
+                api_key=self.groq_api_key,
+                temperature=0,
             )
             self.parser = JsonOutputParser()
-            logger.info(f"Ollama LLM initialized: {model_name}")
+            logger.info(f"Groq LLM initialized: {model_name}")
         except Exception as e:
-            logger.error(f"Failed to initialize Ollama LLM: {e}")
+            logger.error(f"Failed to initialize Groq LLM: {e}")
             self.llm = None
             self.parser = None
 
@@ -110,23 +104,20 @@ class TickerIdentificationService:
             ticker_type = cleaned_type
         return ticker_type
 
-    def _extract_company_ticker_llm(self, text: str, orgs: list):
+    def _extract_company_ticker_llm(self, text: str):
         format_instructions = (
             "Output a JSON array of objects. Each object must contain:\n"
             '- "company_name": string\n'
             '- "ticker": string or null\n'
             "Example:\n"
-            '[{"company_name": "Apple Inc.", "ticker": "AAPL"."}]'
+            '[{"company_name": "Apple Inc.", "ticker": "AAPL"}]\n'
+            'Return strictly valid json array output. DO NOT include comments.'
         )
-
-        org_hint_text = ", ".join(orgs) if orgs else "None detected"
 
         prompt = PromptTemplate(
             template=(
                 "You are a financial entity extraction system used by a bank.\n"
                 "Your task is to identify all publicly traded companies mentioned in the text and map each to its correct stock ticker.\n\n"
-                "Detected organization mentions from an NER system (may help as hints):\n"
-                "{org_hints}\n\n"
                 "Instructions:\n"
                 "1. Extract ALL publicly traded companies or tickers mentioned.\n"
                 "2. Provide for each company:\n"
@@ -135,19 +126,20 @@ class TickerIdentificationService:
                 "3. Use NER hints, but verify and match to official ticker.\n"
                 "4. Do NOT guess tickers or include private companies.\n"
                 "5. Return each company only once.\n"
+                "6. If multiple ticker symbols represent the same company (e.g., share classes), return the normalized SEC ticker. (e.g., Return GOOGL for GOOG which is an Alphabet class share)."
                 "6. Output strictly as JSON array.\n\n"
                 "{format_instructions}\n\n"
                 "Text to analyze:\n"
                 "{input_text}"
             ),
-            input_variables=["input_text", "org_hints"],
+            input_variables=["input_text"],
             partial_variables={"format_instructions": format_instructions},
         )
 
         chain = prompt | self.llm | self.parser
 
         try:
-            result = chain.invoke({"input_text": text, "org_hints": org_hint_text})
+            result = chain.invoke({"input_text": text})
 
             if isinstance(result, str):
                 try:
@@ -258,7 +250,7 @@ class TickerIdentificationService:
                         ticker_metadata[ticker]["name_identified"].append(match)
 
         # 3. LLM
-        llm_result = self._extract_company_ticker_llm(text, orgs)
+        llm_result = self._extract_company_ticker_llm(text)
         if llm_result:
             for company in llm_result:
                 if company:

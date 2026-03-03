@@ -132,17 +132,11 @@ class QueryQdrantService:
                 remaining_count,
                 seen_topic_ids={r["topic_id"] for r in formatted_results},
             )
-            for fallback in fallback_results:
-                formatted_results.append(
-                    {
-                        "topic_id": fallback["topic_id"],
-                        "text_content": fallback["text_content"],
-                        "event_details": {
-                            "ticker": ticker,
-                            "event_type": event_type,
-                        },
-                    }
-                )
+
+            formatted_fallback = self._format_results(
+                fallback_results, ticker, event_type
+            )
+            formatted_results.extend(formatted_fallback)
 
         logger.info(
             f"✅ Found {len(formatted_results)} documents for ticker: '{ticker}' and event type: '{event_type}'"

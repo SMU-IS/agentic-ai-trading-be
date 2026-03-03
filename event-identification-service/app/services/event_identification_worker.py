@@ -20,13 +20,13 @@ REMOVED_POSTS_COUNTER = "eventidentification:removed_posts_count"
 CONSUMER_GROUP = "eventidentification_group"
 CONSUMER_NAME = f"eventidentification_{uuid.uuid4().hex[:6]}"
 
-HEARTBEAT_KEY = f"event_identification:heartbeat:{CONSUMER_NAME}"
+HEARTBEAT_KEY = f"eventidentification:heartbeat:{CONSUMER_NAME}"
 HEARTBEAT_INTERVAL = 30
 HEARTBEAT_TTL = HEARTBEAT_INTERVAL * 3
 
-EVENT_LIST_REDIS_KEY = "event_service:event_list"
+EVENT_LIST_REDIS_KEY = "eventidentification:event_list"
 
-EVENT_LIST_LOCK_KEY = "event_service:event_list:lock"
+EVENT_LIST_LOCK_KEY = "eventidentification:event_list:lock"
 EVENT_LIST_LOCK_TTL = 30
 
 PERSIST_INTERVAL = 1800
@@ -121,7 +121,7 @@ async def flush_tickers(event_service: EventIdentifierService):
 
     for ticker in all_tickers:
         await redis_client.hset(
-            "event_service:all_identified_tickers",
+            "eventidentification:all_identified_tickers",
             ticker,
             "1",  # or store metadata if needed
         )
@@ -198,7 +198,7 @@ def normalize_proposed_events(ticker_metadata: dict):
 
         if proposal:
             proposed_event_name = proposal.get("proposed_event_name")
-            proposed_description = proposal.get("description")
+            proposed_description = proposal.get("proposed_description")
 
             if proposed_event_name:
                 logger.info(
@@ -226,6 +226,10 @@ async def process_message(
         return
 
     event_data = event_service.analyse_event(decoded)
+
+    await asyncio.sleep(1)
+    logger.debug("LLM throttle sleep (1s)")
+
     if not event_data:
         await finalize_message(msg_id)
         return
@@ -411,6 +415,8 @@ async def main():
     logger.info(f"👥 Consumer Group: {CONSUMER_GROUP}")
     logger.info(f"👤 Consumer Name: {CONSUMER_NAME}")
     logger.info(f"🔑 Heartbeat Key: {HEARTBEAT_KEY}")
+    logger.info("💨 LLM throttle enabled: 1 call/sec")
+
 
     worker_task = asyncio.create_task(worker_loop(event_service))
 

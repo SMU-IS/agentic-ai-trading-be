@@ -65,6 +65,11 @@ func InitDB(cfg *DBConfig) *gorm.DB {
 		sqlDB.SetConnMaxLifetime(time.Hour)
 	}
 
+	err = db.Exec("CREATE EXTENSION IF NOT EXISTS pgcrypto").Error
+	if err != nil {
+		log.Fatalf("Failed to create pgcrypto extension: %v", err)
+	}
+
 	err = db.AutoMigrate(&domain.User{})
 	if err != nil {
 		log.Fatalf("DB Migration failed: %v", err)

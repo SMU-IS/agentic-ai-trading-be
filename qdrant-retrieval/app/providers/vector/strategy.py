@@ -13,7 +13,7 @@ from qdrant_client.http import models
 
 
 class VectorStorageStrategy(ABC):
-    vector_size = 1024
+    vector_size = 768
 
     def __init__(self):
         self.client = QdrantClient(
@@ -86,7 +86,7 @@ class VectorStorageStrategy(ABC):
 
 
 class QdrantOllamaStrategy(VectorStorageStrategy):
-    vector_size = 1024
+    vector_size = 768
 
     @override
     def get_embeddings(self) -> Embeddings:
