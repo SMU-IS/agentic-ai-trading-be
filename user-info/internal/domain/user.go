@@ -9,7 +9,7 @@ import (
 
 // User Model
 type User struct {
-	ID         uint           `gorm:"primaryKey" json:"id"`
+	UserID     string         `gorm:"primaryKey;type:uuid;default:gen_random_uuid()" json:"user_id"`
 	Email      string         `gorm:"uniqueIndex;not null" json:"email"`
 	Password   string         `json:"-"` // Empty for OAuth users
 	FullName   string         `json:"full_name"`
@@ -34,12 +34,12 @@ type UserUseCase interface {
 	Register(ctx context.Context, email, password, fullName string) (*User, error)
 	Login(ctx context.Context, email, password string) (string, error)
 	LoginOrRegisterOAuth(ctx context.Context, provider string, profile OAuthProfile) (string, error)
-	GetProfile(ctx context.Context, userID uint) (*User, error)
+	GetProfile(ctx context.Context, userID string) (*User, error)
 }
 
 // UserRepository (Data Interface)
 type UserRepository interface {
 	Create(ctx context.Context, user *User) error
 	GetByEmail(ctx context.Context, email string) (*User, error)
-	GetByID(ctx context.Context, id uint) (*User, error)
+	GetByID(ctx context.Context, userID string) (*User, error)
 }

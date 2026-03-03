@@ -1,5 +1,5 @@
 package constant
 
 const (
-	UserProfileCacheKey = "user:profile:%d"
+	UserProfileCacheKey = "user:profile:%s"
 )

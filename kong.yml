@@ -87,6 +87,15 @@ services:
         paths:
           - /api/v1/user
         strip_path: true
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
+              secret_is_base64: false
+              run_on_preflight: false
+              header_names:
+                - authorization
 
   # === Trading Agent M Microservice 5006 ===
   - name: trading-agent-m-service-entry

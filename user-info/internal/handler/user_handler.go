@@ -5,9 +5,10 @@ import (
 	"agentic-ai-users/internal/domain"
 	"net/http"
 	"os"
-	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/markbates/goth/gothic"
 )
 
@@ -106,19 +107,33 @@ func (h *UserHandler) Login(c *gin.Context) {
 // @Router       /api/v1/user/profile [get]
 func UserProfile(r *gin.Engine, uc domain.UserUseCase) {
 	r.GET(constant.Profile, func(c *gin.Context) {
-		consumerID := c.GetHeader("X-Consumer-Custom-ID")
-		if consumerID == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized by Gateway"})
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Missing or invalid token"})
 			return
 		}
 
-		uid64, err := strconv.ParseUint(consumerID, 10, 32)
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		token, _, err := new(jwt.Parser).ParseUnverified(tokenString, jwt.MapClaims{})
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to parse token payload"})
 			return
 		}
 
-		user, err := uc.GetProfile(c.Request.Context(), uint(uid64))
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid claims"})
+			return
+		}
+
+		sub, ok := claims["sub"].(string)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User ID (sub) missing or not a string"})
+			return
+		}
+
+		userID := sub
+		user, err := uc.GetProfile(c.Request.Context(), userID)
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 			return

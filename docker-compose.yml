@@ -3,6 +3,8 @@ services:
   kong:
     image: kong:3.4
     container_name: kong-gateway
+    env_file:
+      - .env
     environment:
       - KONG_DATABASE=off
       - KONG_DECLARATIVE_CONFIG=/usr/local/kong/declarative/kong.yml
@@ -12,11 +14,14 @@ services:
       - KONG_ADMIN_ERROR_LOG=/dev/stderr
       - KONG_ADMIN_LISTEN=0.0.0.0:8001
       - KONG_PROXY_LISTEN=0.0.0.0:8000
+      - KONG_VAULT_CONFIGURATION_RESOLVE=on
+      - KONG_VAULT_ENV_PREFIX=KONG_VAR_
     volumes:
       - ./kong.yml:/usr/local/kong/declarative/kong.yml
     ports:
-      - "8000:8000" # Frontend port /8000
-      - "8001:8001" # Admin port
+      - "8000:8000" # Proxy
+      - "8001:8001" # Admin API
+      - "8002:8002" # Admin GUI
     restart: always
 
 include:
