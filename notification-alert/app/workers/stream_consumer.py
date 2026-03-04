@@ -3,6 +3,7 @@ import httpx
 from redis.asyncio import Redis
 from app.core.config import env_config
 from app.services.notification_service import notify_users
+from app.core.logger import logger
 
 class StreamConsumer:
     def __init__(self):
@@ -15,7 +16,8 @@ class StreamConsumer:
 
         self.streams = {
             env_config.redis_notification_stream: "news_notification_group",
-            env_config.redis_analysis_stream: "analysis_notification_group"
+            env_config.redis_analysis_stream: "analysis_notification_group",
+            env_config.redis_trade_stream: "trade_notification_group"
         }
         self.consumer_name = "ws_consumer_1"
 
@@ -28,10 +30,10 @@ class StreamConsumer:
                     id="0",
                     mkstream=True 
                 )
-                print(f"✅ Created group {group_name} for {stream_name}")
+                logger.info(f"✅ Created group {group_name} for {stream_name}")
             except Exception as e:
                 if "BUSYGROUP" in str(e):
-                    print(f"ℹ️ Group {group_name} already exists")
+                    logger.info(f"ℹ️ Group {group_name} already exists")
                 else:
                     raise    
 
@@ -96,13 +98,13 @@ class StreamConsumer:
                                     }
                                     delivered = await notify_users(notification_payload)
                                     if delivered:
-                                        print("✅ Sent news notification:", notification_payload)
+                                        logger.info("✅ Sent news notification: %s", notification_payload)
                                     else:
-                                        print("ℹ️ Notification queued (no client connected):", notification_payload)
+                                        logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)
 
 
                                 elif stream_name == env_config.redis_analysis_stream:
-                                    # Trade / signal notifications
+                                    # Signal notifications
                                     signal_id = data.get("signal_id")
                                     try:
                                         async with httpx.AsyncClient() as client:
@@ -117,23 +119,45 @@ class StreamConsumer:
                                         }
                                         delivered = await notify_users(notification_payload)
                                         if delivered:
-                                            print("✅ Sent signal notification:", notification_payload)
+                                            logger.info("✅ Sent signal notification: %s", notification_payload)
                                         else:
-                                            print("ℹ️ Notification queued (no client connected):", notification_payload)
+                                            logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)
+                                    except Exception as e:
+                                        logger.exception(f"Failed processing signal {signal_id}")                                            
+
+                                if stream_name == env_config.redis_trade_stream:
+                                    # Trade placed from agent-m notifications
+                                    order_id = data.get("order_id")
+                                    try:
+                                        async with httpx.AsyncClient() as client:
+                                            response = await client.get(
+                                                f"{env_config.base_api}/trading/orders/{order_id}"
+                                            )
+                                            
+                                        full_signal = response.json()
+                                        notification_payload = {
+                                            "type": "TRADE_PLACED",
+                                            "signal_id": full_signal
+                                        }
+                                        delivered = await notify_users(notification_payload)
+                                        if delivered:
+                                            logger.info("✅ Sent signal notification: %s", notification_payload)
+                                        else:
+                                            logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)                                            
 
                                     except Exception as e:
-                                        print(f"Failed processing signal {signal_id}: {e}")
+                                        logger.exception(f"Failed processing signal {order_id}")
 
                                 if delivered:
                                     await self.r.xack(stream_name, group_name, event_id)
 
 
                             except Exception as e:
-                                print(f"Failed processing {event_id} from {stream_name}: {e}")
+                                logger.exception(f"Failed processing {event_id} from {stream_name}")
                 
             except asyncio.CancelledError:
-                print("🛑 StreamConsumer shutting...")
+                logger.info("🛑 StreamConsumer shutting...")
                 raise
             except Exception as e:
-                print(f"StreamConsumer error: {e}")
+                logger.exception(f"StreamConsumer error")
                 await asyncio.sleep(2)
