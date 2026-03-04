@@ -125,7 +125,7 @@ class StreamConsumer:
                                     except Exception as e:
                                         logger.exception(f"Failed processing signal {signal_id}")                                            
 
-                                if stream_name == env_config.redis_trade_stream:
+                                elif stream_name == env_config.redis_trade_stream:
                                     # Trade placed from agent-m notifications
                                     order_id = data.get("order_id")
                                     try:
@@ -134,10 +134,10 @@ class StreamConsumer:
                                                 f"{env_config.base_api}/trading/orders/{order_id}"
                                             )
                                             
-                                        full_signal = response.json()
+                                        full_order = response.json()
                                         notification_payload = {
                                             "type": "TRADE_PLACED",
-                                            "signal_id": full_signal
+                                            "order": full_order
                                         }
                                         delivered = await notify_users(notification_payload)
                                         if delivered:
