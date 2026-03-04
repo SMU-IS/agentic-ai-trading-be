@@ -30,18 +30,19 @@ class ScraperController:
 
         batch_thread = threading.Thread(
             target=self._run_batch,
-            args=(reddit, storage, redis_client),
+            args=(reddit, storage, redis_client, base_subreddits),
             daemon=True,
         )
 
-        watcher_thread = threading.Thread(
-            target=self._run_watcher,
-            args=(redis_client,),
-            daemon=True,
-        )
+        # watcher_thread = threading.Thread(
+        #     target=self._run_watcher,
+        #     args=(redis_client,),
+        #     daemon=True,
+        # )
 
-        self._threads = [stream_thread, batch_thread, watcher_thread]
+        # self._threads = [stream_thread, batch_thread, watcher_thread]
 
+        self._threads = [stream_thread, batch_thread]
         for t in self._threads:
             t.start()
 
@@ -51,15 +52,16 @@ class ScraperController:
         service = RedditStreamService(reddit, storage, redis_client)
         service.run(base_subreddits, self._stop_event)
 
-    def _run_batch(self, reddit, storage, redis_client):
+    def _run_batch(self, reddit, storage, redis_client, base_subreddits):
         service = RedditBatchService(reddit, storage, redis_client)
-        service.run_worker(self._stop_event)
+        # service.run_worker(self._stop_event)
+        service.run(base_subreddits)
 
-    def _run_watcher(self, redis_client):
-        service = EntityWatcherService(redis_client, "all_identified_tickers")
+    # def _run_watcher(self, redis_client):
+    #     service = EntityWatcherService(redis_client, "all_identified_tickers")
 
-        while not self._stop_event.is_set():
-            service.run()
+    #     while not self._stop_event.is_set():
+    #         service.run()
 
     async def stop(self):
         if not self._running:
