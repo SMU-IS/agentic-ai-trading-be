@@ -17,11 +17,12 @@ class SentimentBridge:
     async def async_start(self):
         print("🔄 Sentiment stream → notification stream")
 
-        last_id = "0"
+        # last_id = "0"
 
         while True:
             messages = await self.r.xread(
-                streams={self.sentiment_stream: last_id},
+                # streams={self.sentiment_stream: last_id},
+                streams={self.sentiment_stream: "$"},
                 block=5000,
             )
 
@@ -52,4 +53,4 @@ class SentimentBridge:
                     )
                     print("🔁 News event:", notification_data)
 
-                    last_id = event_id
+                    # last_id = event_id
