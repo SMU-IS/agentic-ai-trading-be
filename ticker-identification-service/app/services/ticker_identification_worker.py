@@ -41,6 +41,8 @@ CLEANUP_INTERVAL = 300
 TICKER_LIST_LOCK_KEY="ticker_static_state_write_lock"
 TICKER_LIST_LOCK_TTL=30
 
+POST_TIMESTAMP = "post_timestamps"
+
 # ==========================================================
 # INIT
 # ==========================================================
@@ -241,7 +243,7 @@ async def load_all_tickers_from_event_service():
     """
 
     tickers = await redis_client.hkeys(
-        "event_service:all_identified_tickers"
+        "eventidentification:all_identified_tickers"
     )
 
     logger.info(f"📥 Loaded {len(tickers)} tickers from event service")
@@ -300,12 +302,18 @@ async def process_message(msg_id: str, data: dict, ticker_service):
     post_id = tickers_post.get("id")
 
     if not ticker_metadata:
-        logger.info(f"🗑 Post {post_id} removed — no ticker identified.")
+        logger.info(f"🗑 Removing post {post_id} as there is no ticker identified.")
         await redis_client.incr(REMOVED_POSTS_COUNTER)
         await finalize_message(msg_id)
+        await redis_client.delete(f"{POST_TIMESTAMP}:{post_id}")
+        logger.info(f"🗑 Removing timestamp for {post_id} as there is no ticker identified.")
         return
 
-    await ticker_stream.save(tickers_post)
+    try:
+        await ticker_stream.save(tickers_post)
+    except asyncio.CancelledError:
+        raise
+
     await finalize_message(msg_id)
     logger.info(f"✅ Processed Post {post_id}")
 
