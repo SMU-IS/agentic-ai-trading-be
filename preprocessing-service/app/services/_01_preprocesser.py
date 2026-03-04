@@ -61,38 +61,41 @@ class PreprocessingService:
 
     def preprocess_post(self, post: Dict) -> Dict:
         """Processes a single post, returns cleaned text with metadata."""
-        raw_title = post.get("content", {}).get("title", "")
-        raw_body  = post.get("content", {}).get("body", "")
-        post_url = post.get("url")
+        if post:
+            raw_title = post.get("content", {}).get("title", "")
+            raw_body  = post.get("content", {}).get("body", "")
+            post_url = post.get("url")
 
-        # Extract URLs and images
-        urls = self.URL_PATTERN.findall(raw_title) + self.URL_PATTERN.findall(raw_body)
-        images = (
-            self.IMAGE_PATTERN.findall(raw_title)
-            + self.IMAGE_PATTERN.findall(raw_body)
-            + self.IMAGE_PATTERN.findall(post_url or "")
-        )
-        urls = [url.rstrip(".,)]+") for url in urls]
-        images = [url.rstrip(".,)]+") for url in images]
-        # Remove URLs that are also in images
-        urls = [url for url in urls if url not in images]
+            # Extract URLs and images
+            urls = self.URL_PATTERN.findall(raw_title) + self.URL_PATTERN.findall(raw_body)
+            images = (
+                self.IMAGE_PATTERN.findall(raw_title)
+                + self.IMAGE_PATTERN.findall(raw_body)
+                + self.IMAGE_PATTERN.findall(post_url or "")
+            )
+            urls = [url.rstrip(".,)]+") for url in urls]
+            images = [url.rstrip(".,)]+") for url in images]
+            # Remove URLs that are also in images
+            urls = [url for url in urls if url not in images]
 
-        # Clean text
-        clean_title = self.clean_text(raw_title) 
-        clean_body_withurl = self.clean_text(raw_body, remove_urls=False)
-        clean_body_withouturl = self.clean_text(raw_body, remove_urls=True)
-        separator = ""
-        if clean_title:
-            separator = " " if clean_title[-1] in string.punctuation else ". "
-        
-        clean_combined_withurl = f"{clean_title}{separator}{clean_body_withurl}".strip()
-        clean_combined_withouturl = f"{clean_title}{separator}{clean_body_withouturl}".strip()
-        clean_combined_withouturl = emoji.demojize(clean_combined_withouturl)
-        post["content"]["clean_title"] = clean_title
-        post["content"]["clean_body"] = clean_body_withurl
-        post["content"]["clean_combined_withurl"] = clean_combined_withurl
-        post["content"]["clean_combined_withouturl"] = clean_combined_withouturl
-        post["images"] = images
-        post["links"] = urls
+            # Clean text
+            clean_title = self.clean_text(raw_title) 
+            clean_body_withurl = self.clean_text(raw_body, remove_urls=False)
+            clean_body_withouturl = self.clean_text(raw_body, remove_urls=True)
+            separator = ""
+            if clean_title:
+                separator = " " if clean_title[-1] in string.punctuation else ". "
+            
+            clean_combined_withurl = f"{clean_title}{separator}{clean_body_withurl}".strip()
+            clean_combined_withouturl = f"{clean_title}{separator}{clean_body_withouturl}".strip()
+            clean_combined_withouturl = emoji.demojize(clean_combined_withouturl)
+            post["content"]["clean_title"] = clean_title
+            post["content"]["clean_body"] = clean_body_withurl
+            post["content"]["clean_combined_withurl"] = clean_combined_withurl
+            post["content"]["clean_combined_withouturl"] = clean_combined_withouturl
+            post["images"] = images
+            post["links"] = urls
 
-        return post
+            return post
+        else:
+            return None
