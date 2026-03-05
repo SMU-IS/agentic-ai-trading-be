@@ -1,6 +1,7 @@
 import logging
 import threading
 from contextlib import asynccontextmanager
+from app.services.scraper_controller import scraper_controller
 
 import praw
 from fastapi import FastAPI
@@ -77,7 +78,8 @@ async def lifespan(app: FastAPI):
     app.state.reddit = reddit
     app.state.base_subreddits = base_subreddits
 
-    print("[*] App ready. Scraper not running.")
+    print("[*] App ready. Scraper starting.")
+    await scraper_controller.start(app)
 
     yield
 
