@@ -1,6 +1,8 @@
 import json
+import asyncio
 from redis.asyncio import Redis
 from app.core.config import env_config
+from app.core.logger import logger
 
 
 class SentimentBridge:
@@ -20,11 +22,16 @@ class SentimentBridge:
         # last_id = "0"
 
         while True:
-            messages = await self.r.xread(
-                # streams={self.sentiment_stream: last_id},
-                streams={self.sentiment_stream: "$"},
-                block=5000,
-            )
+            try:
+                messages = await self.r.xread(
+                    # streams={self.sentiment_stream: last_id},
+                    streams={self.sentiment_stream: "$"},
+                    block=5000,
+                )
+            except Exception as e:
+                logger.error(f"xread failed: {e}")
+                await asyncio.sleep(5)
+                continue
 
             for _, events in messages:
                 for event_id, data in events:
