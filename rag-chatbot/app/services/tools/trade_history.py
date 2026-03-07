@@ -9,7 +9,7 @@ from app.utils.logger import setup_logging
 logger = setup_logging()
 
 
-async def get_order_details(order_id: str):
+async def _get_order_details(order_id: str):
     if not order_id:
         logger.error("No order_id provided for trade history query.")
         raise ValueError("No order_id provided for trade history query.")
@@ -51,7 +51,7 @@ async def get_order_details(order_id: str):
 
 
 @tool(args_schema=TradeHistory)
-async def get_trade_history_details(query: str, order_id: str) -> OrderDetailsResponse:
+async def get_trade_history_details(order_id: str) -> OrderDetailsResponse:
     """
     Retrieve deep-dive technical details and trade reasoning for a specific past transaction.
 
@@ -73,9 +73,7 @@ async def get_trade_history_details(query: str, order_id: str) -> OrderDetailsRe
         - reasoning: The specific technical justification (e.g., RSI/ATR values).
     """
 
-    logger.info(
-        f"User query: {query}. Analysing trade history order details for order id {order_id}"
-    )
+    logger.info(f"Analysing trade history order details for order id {order_id}")
 
     try:
         (
@@ -85,7 +83,7 @@ async def get_trade_history_details(query: str, order_id: str) -> OrderDetailsRe
             _,
             _,
             trading_agent_reasoning,
-        ) = await get_order_details(order_id)
+        ) = await _get_order_details(order_id)
     except Exception as e:
         logger.error(f"Failed to fetch order details for {order_id}: {e}")
         raise Exception(
