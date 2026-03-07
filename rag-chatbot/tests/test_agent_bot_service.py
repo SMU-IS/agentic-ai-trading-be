@@ -130,7 +130,7 @@ async def test_invoke_agent_streaming(agent_bot_service, mock_dependencies):
     mock_agent.astream_events = mock_astream_events
 
     # Execute
-    gen = agent_bot_service.invoke_agent("Hello", None, "session_123")
+    gen = agent_bot_service.invoke_agent("Hello", None, "user_123", "session_123")
     events = []
     async for event in gen:
         events.append(event)
