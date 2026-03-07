@@ -11,7 +11,7 @@ is instantiated at import time in app/core/config.py.
 import os
 
 os.environ.setdefault("LANGSMITH_TRACING", "true")
-os.environ.setdefault("LANGSMITH_ENDPOINT", "mock-endpoint")
+os.environ.setdefault("LANGSMITH_ENDPOINT", "http://mock-endpoint")
 os.environ.setdefault("LANGSMITH_API_KEY", "mock-api-key")
 os.environ.setdefault("LANGSMITH_PROJECT", "mock-proj")
 os.environ.setdefault("LLM_PROVIDER", "gemini")

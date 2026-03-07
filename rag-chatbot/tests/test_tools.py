@@ -2,10 +2,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
-
 from app.services.tools.general_news import get_general_news
 from app.services.tools.trade_history import (
-    get_order_details,
+    _get_order_details,
     get_trade_history_details,
 )
 
@@ -63,7 +62,7 @@ async def test_get_order_details_success():
         mock_get.return_value.json.return_value = mock_response
         mock_get.return_value.raise_for_status = MagicMock()
 
-        result = await get_order_details("order123")
+        result = await _get_order_details("order123")
 
         assert result == ("AAPL", 150.0, "buy", "low", "none", "RSI oversold")
 
@@ -73,7 +72,7 @@ async def test_get_trade_history_details_success():
     mock_order_details = ("AAPL", 150.0, "buy", "low", "none", "RSI oversold")
 
     with patch(
-        "app.services.tools.trade_history.get_order_details", new_callable=AsyncMock
+        "app.services.tools.trade_history._get_order_details", new_callable=AsyncMock
     ) as mock_get_details:
         mock_get_details.return_value = mock_order_details
 
@@ -90,7 +89,7 @@ async def test_get_trade_history_details_success():
 @pytest.mark.asyncio
 async def test_get_trade_history_details_failure():
     with patch(
-        "app.services.tools.trade_history.get_order_details",
+        "app.services.tools.trade_history._get_order_details",
         side_effect=Exception("API Error"),
     ):
         with pytest.raises(Exception) as excinfo:
