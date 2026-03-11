@@ -19,7 +19,7 @@ def to_serializable(obj: Any) -> Any:
     return obj
 
 # Update your graph edge to return state
-async def node_trade_logging(state: AgentState) -> AgentState:
+async def node_trade_logging(redis_service, state: AgentState) -> AgentState:
     """Wrapper to mutate state."""
     print("   [📝 Trade Logging] Starting trade logging node...")
     # [DEBUG] Log trade decision
@@ -89,6 +89,14 @@ async def node_trade_logging(state: AgentState) -> AgentState:
     result = await post_order_to_db(db_payload)
     print("   [✅ Trade Logging] DB Response:", result)
 
+    # Push to redis
+    if execution_order_id:
+        print("   [📢] Publishing trade to notification stream")
+        await redis_service.publish_trade_noti(execution_order_id)
+        news_id = state["signal_data"].news_id
+        await redis_service.publish_order_timestamp(news_id, order_details.ticker)
+        await redis_service.pipeline_counter()
+        pass
 
     # Save all trade decision
     return state

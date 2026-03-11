@@ -1,4 +1,3 @@
-import os
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -29,8 +28,9 @@ from alpaca.trading.requests import (
     StopLossRequest,
     StopOrderRequest,
     TakeProfitRequest,
+    GetPortfolioHistoryRequest
 )
-
+from app.config import settings
 
 @dataclass
 class BrokerConfig:
@@ -40,9 +40,9 @@ class BrokerConfig:
 
 
 def _load_config_from_env() -> BrokerConfig:
-    api_key = os.getenv("ALPACA_API_KEY")
-    api_secret = os.getenv("ALPACA_API_SECRET")
-    paper_flag = os.getenv("ALPACA_PAPER", "true").lower() == "true"
+    api_key = settings.alpaca_api_key
+    api_secret = settings.alpaca_api_secret
+    paper_flag = settings.alpaca_paper
 
     if not api_key or not api_secret:
         raise RuntimeError(
@@ -478,10 +478,17 @@ class AlpacaBrokerClient:
         Get portfolio performance history using Alpaca TradingClient.
         """
         try:
-            history = self.client.get_portfolio_history()
-
+            history_filter = GetPortfolioHistoryRequest(
+                period='1A',
+                extended_hours=True
+            )
+                
+            history = self.client.get_portfolio_history(history_filter)
             historical = []
             for i, ts in enumerate(history.timestamp):
+                equity_value = float(history.equity[i])
+                if equity_value == 0.0:
+                    continue
                 historical.append(
                     {
                         "date": datetime.fromtimestamp(ts).isoformat() + "Z"
@@ -491,10 +498,40 @@ class AlpacaBrokerClient:
                     }
                 )
 
-            return {"historical": historical}
+            return {
+                "historical": historical
+            }
 
         except Exception as e:
             return {"error": f"Portfolio history failed: {str(e)}"}
+    
+    
+    def get_overall_pnl(self) -> Dict[str, Optional[float]]:
+        """
+        Compute 1-year PnL using portfolio history equity.
+        """
+        history_filter = GetPortfolioHistoryRequest(
+            period='1A',
+            extended_hours=True
+        )
+        history = self.client.get_portfolio_history(history_filter)
+        print(history)
+        
+        equity = getattr(history, "equity", None)
+        if not equity or len(equity) < 2:
+            return {"pnl": None, "pnl_pct": None}
+
+        start_equity = getattr(history, "base_value", 0)
+        end_equity = float(equity[-1])
+        pnl = end_equity - start_equity
+        pnl_pct = (pnl / start_equity * 100) if start_equity != 0 else None
+
+        return {
+            "pnl": pnl,
+            "pnl_pct": pnl_pct,
+            "start_equity": start_equity,
+            "end_equity": end_equity
+        }
 
     # Check for conflicting positions
     # ---------------------------------

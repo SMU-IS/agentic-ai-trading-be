@@ -60,7 +60,14 @@ class ConflictCheckRequest(BaseModel):
     intended_qty: float = Field(..., gt=0)
     auto_resolve: bool = Field(False, description="Auto close/cancel conflicts")
 
-
+class PnLResponse(BaseModel):
+    pnl: Optional[float] = None
+    pnl_pct: Optional[float] = None
+    start_equity: Optional[float] = None
+    end_equity: Optional[float] = None
+    timeframe: Optional[str] = None
+    error: Optional[str] = None
+    
 router = APIRouter()
 
 
@@ -503,3 +510,18 @@ async def get_portfolio_history(
         raise HTTPException(status_code=500, detail=result["error"])
 
     return PortfolioHistoryResponse(**result)
+
+@router.get("/pnl", response_model=PnLResponse)  # Changed endpoint to /pnl
+async def get_overall_pnl(
+    broker: AlpacaBrokerClient = Depends(get_broker),
+) -> PnLResponse:
+    """
+    1-year overall PnL (start vs end equity).
+    Uses portfolio history with period="1Year".
+    """
+    result = broker.get_overall_pnl()
+
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+
+    return PnLResponse(**result)

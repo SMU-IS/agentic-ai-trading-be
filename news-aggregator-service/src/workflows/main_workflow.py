@@ -49,9 +49,14 @@ class WorkflowManager:
         # Edges
         workflow.set_entry_point("parse")
         workflow.add_edge("parse", "monitor")
-        workflow.add_edge("qdrant_lookup", "analyze")
+        # workflow.add_edge("qdrant_lookup", "analyze")
 
         # Conditional edges
+        workflow.add_conditional_edges(
+            "qdrant_lookup",
+            self.has_qdrant_points,
+            {True: "analyze", False: END}
+        )
         workflow.add_conditional_edges(
             "monitor", 
             self.has_triggered_topics,
@@ -87,6 +92,12 @@ class WorkflowManager:
         print("🔀 Router: No actionable trade signal found")
         return False
     
+    def has_qdrant_points(self, state: AgentState) -> str:
+        """Skip analysis if no qdrant data found on topic"""
+        qdrant_points = len(state.get("qdrant_context", []))
+        print(f"🔀 Has Qdrant Points: {qdrant_points > 0} ({qdrant_points})")
+        return  qdrant_points > 0
+    
     async def export_graph(self):
         """Simple PNG export - just get the PNG file"""
         if not self.app:
@@ -118,6 +129,7 @@ class WorkflowManager:
         
         all_articles = []
         for article in state["articles"]:
+            print(article)
             # Convert dict back to model if needed
             if isinstance(article, dict):
                 article = TickerSentiment(**article)    
@@ -129,7 +141,7 @@ class WorkflowManager:
     async def monitor_thresholds(self, state: AgentState) -> AgentState:
         """Check sentiment/volume triggers"""
         print("🚦 Monitoring thresholds for topics")
-        print(state["articles"])
+        # print(state["articles"])
 
         monitor = ThresholdMonitor(self.redis_service)
         triggered = await monitor.check_triggers(state["articles"])
@@ -168,15 +180,17 @@ class WorkflowManager:
         """Deep analysis → Complete trading decisions"""
         print("🔬 Deep analysis of triggered topics")
         analyzer = DeepAnalyzer(self.llm_service)
-        print(state.keys())
+        # print(state.keys())
         news_content_compile = [a.get("text_content", "") for a in state["qdrant_context"]]
         news_content = "\n".join(news_content_compile)
         article = state["articles"][0]
         print(f"Analyzing article: {article.ticker} {article.event_type}")
         analysis = await analyzer.analyze(news_content, article)
         analyzer.print_analysis(analysis)
+        analysis.news_id = article.news_id.strip('"') # Remove inproper quotes
         state["deep_analysis"] = analysis
-    
+        
+
         # Post the analysis
         response = post_deepanalysis(analysis)
 
@@ -206,6 +220,10 @@ class WorkflowManager:
         # Publish to Redis for real-time consumers
         if signal_id:
             await self.redis_service.publish_signal(signal_id)
+            news_id = state["deep_analysis"].news_id
+            ticker = state["deep_analysis"].ticker
+            await self.redis_service.publish_signal_timestamp(news_id, ticker)
+            await self.redis_service.pipeline_counter()
             print(f"📡 Signal published to Redis: {signal_id}")
         return state
 

@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
         model=env_config.perplexity_model or "llama-3.1-sonar-small-128k-online",
         temperature=env_config.perplexity_temperature or 0.2,
     )
-    workflow = TradingWorkflow(llm_client=llm)
+    workflow = TradingWorkflow(llm_client=llm, redis_service=redis_service)
 
     # Start signal processing task
     async def process_signals():

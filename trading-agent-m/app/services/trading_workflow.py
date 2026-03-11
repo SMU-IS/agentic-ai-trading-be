@@ -15,22 +15,24 @@ from app.agents.state import AgentState
 
 
 class TradingWorkflow:
-    def __init__(self, llm_client):
+    def __init__(self, llm_client, redis_service):
         self.llm = llm_client
+        self.redis_service = redis_service
         self.graph = self._build_graph()
 
     def _build_graph(self):
         graph = StateGraph(AgentState)
 
         reasoning_with_llm = partial(node_decide_trade, self.llm)
-
+        node_trade_logging_with_redis = partial(node_trade_logging, self.redis_service)
+        
         # 1. Nodes
         graph.add_node("lookup_context", node_fetch_signal_data)
         graph.add_node("fetch_market_data", node_fetch_market_data)
         graph.add_node("reasoning", reasoning_with_llm)
         graph.add_node("node_risk_adjust_trade", node_risk_adjust_trade)
         graph.add_node("execute", node_execute_trade)
-        graph.add_node("trade_logging", node_trade_logging)
+        graph.add_node("trade_logging", node_trade_logging_with_redis)
 
         # 2. Edges
         graph.add_edge(START, "lookup_context")
