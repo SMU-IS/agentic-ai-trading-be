@@ -2,15 +2,20 @@ import time
 import json
 from datetime import datetime, timedelta, timezone
 import prawcore
+from zoneinfo import ZoneInfo
+from app.core.logger import logger
+
+POST_TIMESTAMP = "post_timestamps"
 
 class RedditBatchService:
     def __init__(self, reddit_client, storage, redis_client):
         self.reddit_client = reddit_client
         self.storage = storage
         self.redis = redis_client
+        self.sg_tz = timezone(timedelta(hours=8))
 
     def run_worker(self, stop_event, days=180, batch_size=50):
-        print("[*] Batch worker started, waiting for tickers...")
+        logger.info("[*] Batch worker started, waiting for tickers...")
 
         processed_key = "batch_processed_tickers"
 
@@ -26,16 +31,16 @@ class RedditBatchService:
             ticker = ticker.decode() if isinstance(ticker, bytes) else ticker
 
             if self.redis.sismember(processed_key, ticker):
-                print(f"[~] Ticker {ticker} already processed, skipping")
+                logger.info(f"[~] Ticker {ticker} already processed, skipping")
                 continue
 
-            print(f"[+] Running batch for ticker: {ticker}")
+            logger.info(f"[+] Running batch for ticker: {ticker}")
             subreddits = self.resolve_subreddits_for_ticker(ticker)
 
             self.run(subreddits, days, batch_size)
             self.redis.sadd(processed_key, ticker)
         
-        print("[*] Batch worker stopped")
+        logger.info("[*] Batch worker stopped")
 
     def resolve_subreddits_for_ticker(self, ticker):
 
@@ -59,17 +64,21 @@ class RedditBatchService:
     def normalise(self, name):
         return "".join(c for c in name.lower() if c.isalnum())
 
-    def run(self, subreddits, days=180, batch_size=50, sleep_seconds=0.1):
+    def run(self, subreddits, days=5, batch_size=50, sleep_seconds=0.1):
+        new_post_counter = "newsscraper:post_ingested"
+        self.redis.set("newsscraper:ingestion_start_time", datetime.now().timestamp())
         cutoff = datetime.now(tz=timezone.utc) - timedelta(days=days)
         buffer = []
+        logger.info(f"[*] Batch scraping subreddits: {subreddits}")
         for sub in subreddits:
-            try:
+            try:  
                 subreddit = self.reddit_client.subreddit(sub)
-                print(f"Fetching posts from r/{sub}...")
+                logger.info(f"Fetching posts from r/{sub}...")
 
                 for post in subreddit.new(limit=None):
                     try:
-                        post_time = datetime.fromtimestamp(post.created_utc, tz=timezone.utc)
+                        sg_tz = timezone(timedelta(hours=8))
+                        post_time = datetime.fromtimestamp(post.created_utc, tz=timezone.utc).astimezone(sg_tz)
                         if post_time < cutoff:
                             break
 
@@ -97,27 +106,51 @@ class RedditBatchService:
                         }
 
                         buffer.append(row)
+                        self.redis.incr(new_post_counter)
+                        total = int(self.redis.get("newsscraper:post_ingested"))
+                        start = float(self.redis.get("newsscraper:ingestion_start_time"))
+
+                        hours = (datetime.now().timestamp() - start) / 3600
+
+                        avg = total / hours
+                        self.redis.set("newsscraper:avg_per_hour", avg)
+
+                        sg_now = datetime.now(self.sg_tz).isoformat()
+
+                        self.redis.hset(
+                            f"{POST_TIMESTAMP}:reddit:{post.id}",
+                            mapping={
+                                "scraped_timestamp": sg_now,
+                                "vectorised_timestamp": ""
+                            }
+                        )
+
+                        logger.info(
+                            "⏱️ Post %s timestamped at scraping stage (batch)",
+                            post.id,
+                        )
+
 
                         if len(buffer) >= batch_size:
                             try:
                                 self.storage.save_batch(buffer)
-                                print(f"Flushed {len(buffer)} posts to Redis.")
+                                logger.info(f"Flushed {len(buffer)} posts to Redis.")
                                 buffer.clear()
                             except Exception as e:
-                                print(f"Redis batch write failed: {e}")
+                                logger.exception(f"Redis batch write failed")
                                 buffer.clear()
 
                         if sleep_seconds:
                             time.sleep(sleep_seconds)
                     except Exception as e:
-                        print(f"Failed to process post in r/{sub}: {e}")
+                        logger.exception(f"Failed to process post in r/{sub}")
                         continue
 
             except prawcore.exceptions.PrawcoreException as e:
-                print(f"Reddit API error for r/{sub}: {e}")
+                logger.exception(f"Reddit API error for r/{sub}")
                 time.sleep(5)
                 continue
             
         if buffer:
             self.storage.save_batch(buffer)
-            print(f"Flushed {len(buffer)} posts to Redis (final).")
+            logger.info(f"Flushed {len(buffer)} posts to Redis (final).")

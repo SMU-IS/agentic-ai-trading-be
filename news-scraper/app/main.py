@@ -1,6 +1,7 @@
 import logging
 import threading
 from contextlib import asynccontextmanager
+from app.services.scraper_controller import scraper_controller
 
 import praw
 from fastapi import FastAPI
@@ -16,36 +17,40 @@ logger = logging.getLogger("uvicorn.error")
 
 
 def run_stream_mode(reddit, storage, redis_client, base_subreddits):
-    print("[*] STREAM MODE: Starting RedditStreamService")
+    logger.info("[*] STREAM MODE: Starting RedditStreamService")
     stream_service = RedditStreamService(reddit, storage, redis_client)
     stream_service.run(base_subreddits)
 
 
 def run_batch_mode(reddit, storage, redis_client, base_subreddits):
-    hash_key = "all_identified_tickers"
-    existing_tickers = [
-        t.decode() if isinstance(t, bytes) else t for t in redis_client.hkeys(hash_key)
-    ]
+    # hash_key = "all_identified_tickers"
+    # existing_tickers = [
+    #     t.decode() if isinstance(t, bytes) else t for t in redis_client.hkeys(hash_key)
+    # ]
 
+    # batch_service = RedditBatchService(reddit, storage, redis_client)
+    # resolved_subs = set(base_subreddits)
+
+    # for ticker in existing_tickers:
+    #     subs_for_ticker = batch_service.resolve_subreddits_for_ticker(ticker)
+    #     resolved_subs.update(subs_for_ticker)
+
+    # initial_batch_subs = list(resolved_subs)
+    # print(f"[*] Running initial batch for: {initial_batch_subs}")
+    # batch_service.run(initial_batch_subs)
+
+    # batch_service.run_worker()
+
+    logger.info("[*] BATCH MODE: Running batch ingestion")
     batch_service = RedditBatchService(reddit, storage, redis_client)
-    resolved_subs = set(base_subreddits)
-
-    for ticker in existing_tickers:
-        subs_for_ticker = batch_service.resolve_subreddits_for_ticker(ticker)
-        resolved_subs.update(subs_for_ticker)
-
-    initial_batch_subs = list(resolved_subs)
-    print(f"[*] Running initial batch for: {initial_batch_subs}")
-    batch_service.run(initial_batch_subs)
-
-    batch_service.run_worker()
+    batch_service.run(base_subreddits)    
 
 
-def run_watcher_mode(redis_client):
-    print("[*] WATCHER MODE: Starting EntityWatcherService")
-    hash_key = "all_identified_tickers"
-    entity_watcher = EntityWatcherService(redis_client, hash_key)
-    entity_watcher.run()
+# def run_watcher_mode(redis_client):
+#     print("[*] WATCHER MODE: Starting EntityWatcherService")
+#     hash_key = "all_identified_tickers"
+#     entity_watcher = EntityWatcherService(redis_client, hash_key)
+#     entity_watcher.run()
 
 
 @asynccontextmanager
@@ -73,7 +78,8 @@ async def lifespan(app: FastAPI):
     app.state.reddit = reddit
     app.state.base_subreddits = base_subreddits
 
-    print("[*] App ready. Scraper not running.")
+    print("[*] App ready. Scraper starting.")
+    await scraper_controller.start(app)
 
     yield
 

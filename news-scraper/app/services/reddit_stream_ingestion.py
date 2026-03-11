@@ -1,5 +1,7 @@
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
+from app.core.logger import logger
 import prawcore
 import json
 
@@ -9,37 +11,39 @@ class RedditStreamService:
         self.storage = storage
         self.redis = redis_client
 
+        self.sg_tz = timezone(timedelta(hours=8))
+
     def run(self, base_subreddits, stop_event):
-        print("[*] Reddit stream service started")
-        
+
+        logger.info("[*] Reddit stream service started")
+        subreddit_str = "+".join(base_subreddits)
+        subreddit = self.reddit_client.subreddit(subreddit_str) 
+              
         while not stop_event.is_set():
             try:
-                subreddits = self.build_subreddit_list(base_subreddits)
-                subreddit_str = "+".join(subreddits)
-                stream_version = self.redis.get("stream_version")
+                # stream_version = self.redis.get("stream_version")
 
-                print(f"[*] Streaming subreddits: {subreddits}")
-
-                subreddit = self.reddit_client.subreddit(subreddit_str)
+                logger.info(f"[*] Streaming subreddits: {base_subreddits}")
                 
                 for post in subreddit.stream.submissions(skip_existing=True):
                     if stop_event.is_set():
-                        print("[*] Stream stopping...")
+                        logger.info("[*] Stream stopping...")
                         break
                     
-                    if self.redis.get("stream_version") != stream_version:
-                        print("[*] Stream version changed → rebuilding stream")
-                        break
+                    # if self.redis.get("stream_version") != stream_version:
+                    #     print("[*] Stream version changed → rebuilding stream")
+                    #     break
 
                     self.handle_post(post)
 
             except prawcore.exceptions.PrawcoreException as e:
-                print(f"Reddit API error: {e}")
+                logger.exception(f"Reddit API error")
                 time.sleep(5)
 
     def handle_post(self, post):
+        POST_TIMESTAMP = "post_timestamps"
         try:
-            post_time = datetime.fromtimestamp(post.created_utc, tz=timezone.utc)
+            post_time = datetime.fromtimestamp(post.created_utc, tz=timezone.utc).astimezone(self.sg_tz)
 
             row = {
                 "id": f"reddit:{post.id}",
@@ -60,20 +64,29 @@ class RedditStreamService:
                 },
                 "metadata":{
                     "subreddit": post.subreddit.display_name,
-                    "category": None
+                    "category": None,
                 }
             }
 
-            try:
-                self.storage.save(row)
-                print(f"Flushed r/{post.subreddit} posts to Redis.")
-            except Exception as e:
-                print(f"Redis write failed for post {post.id}: {e}")
+            self.storage.save(row)
+            logger.info(f"Flushed r/{post.subreddit} posts to Redis.")
+
+
+            sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+
+            self.redis.hset(
+                f"{POST_TIMESTAMP}:reddit:{post.id}",
+                mapping={
+                    "scraped_timestamp": sg_now,
+                    "vectorised_timestamp": "",
+                }
+            )
+            logger.info(f"⏱️ Post {post.id}: Timestamped at Scraping Stage")
             
             time.sleep(0.1)
 
         except Exception as e:
-            print(f"Failed to process post {post.id}: {e}")
+            logger.exception(f"Failed to process post {post.id}")
 
     def build_subreddit_list(self, base_subreddits):
         subs = set(base_subreddits)

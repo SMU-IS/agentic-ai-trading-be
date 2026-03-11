@@ -17,7 +17,7 @@ class EnvConfig(BaseSettings):
     redis_host: str = Field(..., validation_alias="REDIS_HOST")
     redis_port: int = Field(..., validation_alias="REDIS_PORT")
     redis_stream_name: str = Field(..., validation_alias="REDIS_STREAM")
-    redis_password: str = Field(..., validate_alias="REDIS_PASSWORD")
+    redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
 
     # Reddit API
     reddit_client_id: str = Field(..., validation_alias="REDDIT_CLIENT_ID")

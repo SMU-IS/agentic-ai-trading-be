@@ -37,6 +37,8 @@ RECOVER_BATCH_SIZE = 100
 MIN_IDLE_MS = 5000
 CLEANUP_INTERVAL = 300
 
+POST_TIMESTAMP = "post_timestamps"
+
 
 # ================= INIT (Infrastructure Only) =================
 bucket = AWSBucket()
@@ -249,8 +251,11 @@ async def process_message(
     }
 
     if not ticker_metadata:
+        logger.info(f"🗑 Removing post {post_id} as there is no event identified.")
         await redis_client.incr(REMOVED_POSTS_COUNTER)
         await finalize_message(msg_id)
+        await redis_client.delete(f"{POST_TIMESTAMP}:{post_id}")
+        logger.info(f"🗑 Removing timestamp for {post_id} as there is no event identified.")
         return
 
     event_data["ticker_metadata"] = ticker_metadata
