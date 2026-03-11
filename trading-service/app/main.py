@@ -1,9 +1,6 @@
-from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from .api.routes import brokerage, trading_db, yahoo
-
-load_dotenv()
 
 
 app = FastAPI(
