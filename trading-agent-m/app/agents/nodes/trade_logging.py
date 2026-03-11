@@ -95,6 +95,7 @@ async def node_trade_logging(redis_service, state: AgentState) -> AgentState:
         await redis_service.publish_trade_noti(execution_order_id)
         news_id = state["signal_data"].news_id
         await redis_service.publish_order_timestamp(news_id, order_details.ticker)
+        await redis_service.pipeline_counter()
         pass
 
     # Save all trade decision

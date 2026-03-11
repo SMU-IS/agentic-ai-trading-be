@@ -72,18 +72,6 @@ class MongoDBClient:
         result = self.signals.insert_one(signal_copy)
         return {"success": bool(result.inserted_id), "id": str(result.inserted_id) if result.inserted_id else None}
 
-    # def get_signals(self, ticker: str = None) -> List[Dict[str, Any]]:
-    #     """Retrieve signals, optionally filtered by ticker. Includes _id as string."""
-    #     query = {} if ticker is None else {"ticker": ticker}
-    #     docs = list(self.signals.find(query))  # Remove projection to include _id
-        
-    #     # Convert ObjectId to string in each doc
-    #     for doc in docs:
-    #         if "_id" in doc:
-    #             doc["id"] = str(doc["_id"])
-        
-    #     return docs
-
     def get_signals(self, ticker: str = None) -> List[Dict[str, Any]]:
         """Retrieve signals, optionally filtered by ticker. Includes id (str) and timestamp (ISO)."""
         query = {} if ticker is None else {"ticker": ticker}

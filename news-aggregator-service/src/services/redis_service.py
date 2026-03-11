@@ -127,6 +127,10 @@ class RedisService:
                 sg_now
             )
 
+    async def pipeline_counter(self):
+        signal_pipeline_key = "pipeline:signal"
+        await self.redis.incr(signal_pipeline_key)
+        
     async def close(self):
         if self.redis:
             await self.redis.close()

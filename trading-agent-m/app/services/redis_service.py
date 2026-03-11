@@ -73,6 +73,10 @@ class RedisService:
                 sg_now
             )
         
+    async def pipeline_counter(self):
+        agent_pipeline_key = "pipeline:agent"
+        await self.redis.incr(agent_pipeline_key)
+        
     async def close(self):
         if self.redis:
             await self.redis.close()

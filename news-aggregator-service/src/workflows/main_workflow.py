@@ -223,6 +223,7 @@ class WorkflowManager:
             news_id = state["deep_analysis"].news_id
             ticker = state["deep_analysis"].ticker
             await self.redis_service.publish_signal_timestamp(news_id, ticker)
+            await self.redis_service.pipeline_counter()
             print(f"📡 Signal published to Redis: {signal_id}")
         return state
 
