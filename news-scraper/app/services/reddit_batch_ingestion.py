@@ -99,6 +99,12 @@ class RedditBatchService:
                     if self.should_stop(stop_event):
                         logger.info("🛑 Batch scraper stopped mid-stream")
                         return
+                    
+                    post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
+
+                    if self.redis.exists(post_key):
+                        continue
+                    
                     try:
                         sg_tz = timezone(timedelta(hours=8))
                         post_time = datetime.fromtimestamp(post.created_utc, tz=timezone.utc).astimezone(sg_tz)
