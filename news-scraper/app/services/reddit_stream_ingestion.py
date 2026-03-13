@@ -13,22 +13,38 @@ class RedditStreamService:
 
         self.sg_tz = timezone(timedelta(hours=8))
 
+    def should_stop(self, stop_event):
+        if stop_event and stop_event.is_set():
+            return True
+
+        running_flag = self.redis.get("newsscraper:running")
+
+        if running_flag is None or running_flag != "1":
+            return True
+
+        return False
+
     def run(self, base_subreddits, stop_event):
 
         logger.info("[*] Reddit stream service started")
         subreddit_str = "+".join(base_subreddits)
         subreddit = self.reddit_client.subreddit(subreddit_str) 
               
-        while not stop_event.is_set():
+        while True:
+
+            if self.should_stop(stop_event):
+                logger.info("🛑 Stream scraper stopped")
+                return
+            
             try:
                 # stream_version = self.redis.get("stream_version")
 
                 logger.info(f"[*] Streaming subreddits: {base_subreddits}")
                 
                 for post in subreddit.stream.submissions(skip_existing=True):
-                    if stop_event.is_set():
-                        logger.info("[*] Stream stopping...")
-                        break
+                    if self.should_stop(stop_event):
+                        logger.info("🛑 Stream stopping immediately...")
+                        return
                     
                     # if self.redis.get("stream_version") != stream_version:
                     #     print("[*] Stream version changed → rebuilding stream")

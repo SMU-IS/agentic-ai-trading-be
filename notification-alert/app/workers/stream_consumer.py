@@ -27,13 +27,14 @@ class StreamConsumer:
                 await self.r.xgroup_create(
                     name=stream_name,
                     groupname=group_name,
-                    id="0",
+                    id="$",
                     mkstream=True 
                 )
                 logger.info(f"✅ Created group {group_name} for {stream_name}")
             except Exception as e:
                 if "BUSYGROUP" in str(e):
                     logger.info(f"ℹ️ Group {group_name} already exists")
+                    await self.r.xgroup_setid(stream_name, group_name, "$")
                 else:
                     raise    
 
@@ -87,23 +88,23 @@ class StreamConsumer:
                                 data = dict(data)
                             try:
                                 delivered = False
-                                if stream_name == env_config.redis_notification_stream:
-                                    # News notifications
-                                    notification_payload = {
-                                        "type": "NEWS_RECEIVED",
-                                        "news_id": data.get("id"),
-                                        "headline": data.get("headline"),
-                                        "tickers": data.get("tickers"),
-                                        "event_description": data.get("event_description")
-                                    }
-                                    delivered = await notify_users(notification_payload)
-                                    if delivered:
-                                        logger.info("✅ Sent news notification: %s", notification_payload)
-                                    else:
-                                        logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)
+                                # if stream_name == env_config.redis_notification_stream:
+                                #     # News notifications
+                                #     notification_payload = {
+                                #         "type": "NEWS_RECEIVED",
+                                #         "news_id": data.get("id"),
+                                #         "headline": data.get("headline"),
+                                #         "tickers": data.get("tickers"),
+                                #         "event_description": data.get("event_description")
+                                #     }
+                                #     delivered = await notify_users(notification_payload)
+                                #     if delivered:
+                                #         logger.info("✅ Sent news notification: %s", notification_payload)
+                                #     else:
+                                #         logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)
 
 
-                                elif stream_name == env_config.redis_analysis_stream:
+                                if stream_name == env_config.redis_analysis_stream:
                                     # Signal notifications
                                     signal_id = data.get("signal_id")
                                     try:

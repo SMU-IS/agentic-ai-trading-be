@@ -14,9 +14,9 @@ async def start_scraper(request: Request):
 
 
 @router.post(APIPath.SCRAPER_STOP)
-async def stop_scraper():
+async def stop_scraper(request: Request):
     try:
-        return await scraper_controller.stop()
+        return await scraper_controller.stop(request.app)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
