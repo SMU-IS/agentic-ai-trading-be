@@ -20,6 +20,7 @@ class SignalData(BaseModel):
     position_size_pct: float
     stop_loss_pct: float
     target_pct: float
+    news_id: str
 
 @dataclass
 class YahooData:

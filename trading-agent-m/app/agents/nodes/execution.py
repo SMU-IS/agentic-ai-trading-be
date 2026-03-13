@@ -1,12 +1,9 @@
 import httpx
-import os
-from dotenv import load_dotenv
 from typing import Dict, Any
 from app.agents.state import AgentState, TradingDecision
+from app.core.config import env_config
 
-# Load env vars
-load_dotenv()
-BROKER_URL = os.getenv("BROKER_URL", "http://localhost:8000/api/v1")
+BROKER_URL = env_config.trading_service_url
 
 
 async def node_execute_trade_logic(state: AgentState) -> Dict[str, Any]:
@@ -36,7 +33,7 @@ async def node_execute_trade_logic(state: AgentState) -> Dict[str, Any]:
         "entry_type": "market",  # or "limit" if entry_price provided
         "take_profit_price": order_details.take_profit,
         "stop_loss_price": order_details.stop_loss,
-        "time_in_force": "day",  # or state.get("time_in_force", "day")
+        "time_in_force": "gtc",  # or state.get("time_in_force", "day")
     }
 
     if hasattr(order_details, "entry_price") and order_details.entry_price is not None:
@@ -44,13 +41,13 @@ async def node_execute_trade_logic(state: AgentState) -> Dict[str, Any]:
         payload["entry_type"] = "limit"
         payload["entry_price"] = order_details.entry_price
 
-    print(f"   [📤 API] POST {BROKER_URL}/trading/orders/bracket")
+    print(f"   [📤 API] POST {BROKER_URL}/orders/bracket")
     print(f"   [📤 Payload] {payload}")
 
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
             resp = await client.post(
-                f"{BROKER_URL}/trading/orders/bracket", json=payload
+                f"{BROKER_URL}/orders/bracket", json=payload
             )
 
             if resp.status_code in [200, 201]:

@@ -1,78 +1,105 @@
 import json
 import os
 import re
-from typing import List
+from typing import List, Optional, Type, Any, Union
 
-import httpx
 from pydantic import BaseModel
-from src.services.json_parser import safe_parse
+from langchain_perplexity import ChatPerplexity
+from langchain_groq import ChatGroq
 
+from src.services.json_parser import safe_parse
+from langchain_core.messages import HumanMessage, SystemMessage  # Add this import
+from src.config import settings
 
 class LLMService:
-    def __init__(self, api_key: str = None):
-        self.api_key = api_key or os.getenv("PPLX_API_KEY")
-        if not self.api_key:
-            raise ValueError("PPLX_API_KEY not set")
-        self.base_url = "https://api.perplexity.ai/chat/completions"
-        self.client = httpx.AsyncClient(timeout=30.0)
+    def __init__(self):
+        self.model = settings.model
+        self.provider = settings.llm_provider
+        self.llm = self._init_llm()
+
+    # Provider toggle
+    def _init_llm(self) -> Union[ChatGroq, ChatPerplexity]:
+        if self.provider == "groq":
+            key = settings.groq_api_key
+            if not key:
+                raise ValueError("GROQ_API_KEY required for Groq")
+            return ChatGroq(
+                groq_api_key=key,
+                model=self.model,
+                temperature=0.1,
+            )
+        elif self.provider == "perplexity":
+            key = settings.pplx_api_key
+            if not key:
+                raise ValueError("PPLX_API_KEY required for Perplexity")
+            return ChatPerplexity(
+                pplx_api_key=key,
+                model=self.model,
+                temperature=0.1,
+            )
+        else:
+            raise ValueError(f"Unsupported provider: {self.provider}")
+            
 
     async def generate(
-        self, prompt: str, system_prompt: str = None, model: str = "sonar"
+        self,
+        prompt: str,
+        system_prompt: Optional[str] = None,
     ) -> str:
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-        messages = [{"role": "user", "content": prompt}]
+        messages = []
         if system_prompt:
-            messages.insert(0, {"role": "system", "content": system_prompt})
+            messages.append(SystemMessage(content=system_prompt))
+        messages.append(HumanMessage(content=prompt))
 
-        payload = {
-            "model": model,
-            "messages": messages,
-            "temperature": 0.1,
-            "max_tokens": 2048,
-            "stream": False,
-        }
+        result = await self.llm.ainvoke(messages)
+        return result.content
 
-        try:
-            response = await self.client.post(
-                self.base_url, headers=headers, json=payload
-            )
-            response.raise_for_status()
-
-            result = response.json()
-            return result["choices"][0]["message"]["content"]
-
-        except httpx.HTTPStatusError as e:
-            print(f"❌ API Error {e.response.status_code}: {e.response.text}")
-            raise
-        except Exception as e:
-            print(f"❌ Request failed: {str(e)}")
-            raise
-
-    async def generate_list(self, prompt: str) -> List[dict]:
+    async def generate_list(self, prompt: str) -> List[dict[str, Any]]:
         response = await self.generate(prompt)
         return self.parse_json_list(response)
 
     async def generate_parse_json(
         self,
         prompt: str,
-        system_prompt: str = None,
-        model_class: type[BaseModel] = None,
+        model_class: Type[BaseModel],
+        system_prompt: Optional[str] = None,
     ) -> BaseModel:
-        """Generate + auto-parse into Pydantic model"""
+        """Generate + auto-parse into Pydantic v2 model"""
         response = await self.generate(prompt, system_prompt)
+        if not model_class:
+            raise ValueError("model_class must be provided")
         return safe_parse(model_class, response)
 
-    def parse_json_list(self, response: str) -> List[dict]:
+    def parse_json_list(self, response: str) -> List[dict[str, Any]]:
         json_match = re.search(r"\[.*\]", response, re.DOTALL)
         if json_match:
             try:
                 return json.loads(json_match.group())
-            except Exception as e:
-                print(e)
+            except json.JSONDecodeError as e:
+                print(f"JSON parse error: {e}")
         return []
 
     async def close(self):
-        await self.client.aclose()
+        """No-op for ChatPerplexity compatibility"""
+        pass
+
+
+async def test():
+    """Test LLMService integration."""
+    llm = LLMService()
+    
+    try:
+        result = await llm.generate(
+            "what is the latest news on NVDA", 
+            "You are a debug agent testing my trading/news script. Confirm integration works."
+        )
+        print("✅ LLMService WORKS!")
+        print(result)
+    except Exception as e:
+        print(f"❌ Test failed: {e}")
+    finally:
+        await llm.close()
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(test())

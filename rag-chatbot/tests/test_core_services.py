@@ -52,13 +52,13 @@ async def test_database_manager_get_checkpointer():
 
     with (
         patch("app.core.db.AsyncConnectionPool", return_value=mock_pool_instance),
-        patch("app.core.db.AsyncPostgresSaver") as mock_saver,
+        patch("app.core.db.BotMemory") as mock_bot_memory,
     ):
-        mock_saver_instance = mock_saver.return_value
-        mock_saver_instance.setup = AsyncMock()
+        mock_bot_memory_instance = mock_bot_memory.return_value
+        mock_bot_memory_instance.setup = AsyncMock()
 
         manager = DatabaseManager()
         async for checkpointer in manager.get_checkpointer():
-            assert checkpointer == mock_saver_instance
-            mock_saver_instance.setup.assert_called_once()
+            assert checkpointer == mock_bot_memory_instance
+            mock_bot_memory_instance.setup.assert_called_once()
             break

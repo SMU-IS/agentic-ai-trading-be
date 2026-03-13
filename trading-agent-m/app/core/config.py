@@ -16,6 +16,7 @@ class EnvConfig(BaseSettings):
     redis_port: str = os.getenv("REDIS_PORT", "17989")
     redis_password: str = os.getenv("REDIS_PASSWORD", "password")
     redis_signal_stream: str = os.getenv("REDIS_SIGNAL_STREAM", "trading_signal_stream")
+    redis_trading_noti_stream: str = os.getenv("REDIS_TRADING_NOTI_STREAM", "trade_notification_stream")
 
     # Perplexity
     perplexity_api_key: str = os.getenv("PERPLEXITY_API_KEY", "your-default-api-key")

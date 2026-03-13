@@ -16,6 +16,10 @@ class EnvConfig(BaseSettings):
         env_file=ENV_PATH, env_file_encoding="utf-8", extra="ignore"
     )
 
+    # Logs
+    langsmith_api_key: str = Field(..., validation_alias="LANGSMITH_API_KEY")
+    langsmith_tracing: str = Field(..., validation_alias="LANGSMITH_TRACING")
+
     llm_provider: LLMProviders = Field(..., validation_alias="LLM_PROVIDER")
     large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
     max_completion_tokens: int = Field(..., validation_alias="MAX_COMPLETION_TOKEN")

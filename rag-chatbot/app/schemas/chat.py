@@ -1,5 +1,4 @@
 import datetime
-
 from datetime import datetime
 
 from pydantic import BaseModel, Field
@@ -40,14 +39,6 @@ class GeneralNews(BaseModel):
 
 
 class TradeHistory(BaseModel):
-    query: str = Field(
-        ...,
-        description=(
-            "A detailed summary of the position to be analysed, including the "
-            "ticker/symbol, current price, shares, average entry price, and "
-            "Profit/Loss (P/L) data provided by the user."
-        ),
-    )
     order_id: str = Field(
         ..., description="The order ID to get the previously executed trade history"
     )

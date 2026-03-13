@@ -95,6 +95,7 @@ class TradeSignal(str, Enum):
     
 class DeepAnalysis(BaseModel):
     id: Optional[str] = Field(None, description="Signal ID")
+    news_id: Optional[str] = Field(None, description="Original news / reddit post ID")
     ticker: str = Field(..., description="Stock ticker")
     rumor_summary: str = Field(..., description="1-sentence recap")
     credibility: Credibility = Field(..., description="Low|Medium|High")
@@ -106,3 +107,4 @@ class DeepAnalysis(BaseModel):
     position_size_pct: float = Field(..., description="0.5|1|2")
     stop_loss_pct: float = Field(..., description="8|10|12")
     target_pct: float = Field(..., description="20|30|50")
+    timestamp: Optional[str] = Field(None, description="ISO creation timestamp (YYYY-MM-DDTHH:MM:SSZ)")

@@ -16,14 +16,18 @@ class Settings(BaseSettings):
     redis_aggregator_stream: str = os.getenv(
         "REDIS_AGGREGATOR_STREAM", "news_aggregator_stream"
     )
-
-    sentiment_threshold: float = 0.85
-    volume_threshold: int = 5
+    sentiment_min_threshold: float = 0.2
+    sentiment_threshold: float = 0.75
+    volume_threshold: int = 8
     hours_window: int = 1
+    ## LLM
+    model: str = os.getenv("MODEL", "sonar")
     pplx_api_key: str = os.getenv("PPLX_API_KEY", "your-default-api-key")
-
-    ticker_events_qdrant_url: str = os.getenv(
-        "TICKER_EVENTS_QDRANT_URL",
+    groq_api_key: str = os.getenv("GROQ_API_KEY", "your-default-api-key")
+    llm_provider: str = os.getenv("LLM_PROVIDER", "groq")
+    
+    news_analysis_qdrant_url: str = os.getenv(
+        "NEWS_ANALYSIS_QDRANT_URL",
         "http://localhost:8000/api/v1/qdrant/ticker-events",
     )
     aggregator_base_url: str = os.getenv(

@@ -81,6 +81,8 @@ async def stream_processor():
         except Exception as e:
             print(f"Stream error: {e}, reconnecting...")
             await asyncio.sleep(5)
+        # break
+        # exit()
 
 
 async def main():

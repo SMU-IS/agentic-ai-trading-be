@@ -55,11 +55,8 @@ async def node_risk_adjust_trade_logic(state: AgentState) -> AgentState:
             should_execute = False
             
     # should_execute = not conflict_resolve_summary.get("has_conflict", False) and evaluation_result.risk_status == "APPROVED"
-    # should_execute = not conflict_resolve_summary.get("has_conflict", False)
 
     print ("   [🛡️ Risk Layer] Should Execute? ", should_execute)
-    
-    # state["conflict_resolution"] = conflict_resolve_summary.get("conflict_resolution", {})
     state["should_execute"] = should_execute
     state["adjusted_order_details"] = evaluation_result.adjusted_trade
     state["risk_evaluation"] = evaluation_result

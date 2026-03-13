@@ -1,6 +1,6 @@
 import json
 import re
-
+import asyncio
 from langchain_core.prompts import ChatPromptTemplate
 from app.agents.state import AgentState, TradingDecision, TradeAction
 
@@ -39,20 +39,32 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
                 """You are an expert short-term swing trader (2-5 day horizon) specializing in news-driven volatility.
 
             STRATEGY: Capture short-term swings from news sentiment shocks. Trade against overreactions.
+            You do NOT invest long term.  
+            You do NOT speculate without catalysts.  
+            You trade reactions — not stories.
 
-            CRITERIA FOR SWING TRADES:
-            1. NEWS IMPACT: Strong sentiment shift (>0.4 absolute score) OR high-impact event (earnings, downgrade, etc.)
-            2. TECHNICAL CONFIRMATION:
-            - BUY: Price near support, RSI < 40 (oversold), bullish divergence
-            - SELL: Price near resistance, RSI > 70 (overbought), bearish divergence
-            3. VOLATILITY: ATR > 20-day average (swing opportunity exists)
-            4. REGIME: Avoid if VIX > 25 (too chaotic for swings)
+            1. Detect news-driven sentiment shocks.
+            2. Evaluate whether the market reaction is:
+                - Rational continuation  
+                - Emotional overreaction (bullish or bearish)
+            3. Trade against extreme sentiment when risk/reward is asymmetric.
+            4. If reaction is proportional and no edge exists return NO_TRADE.
 
-            IGNORE if:
-            - Weak news (<0.3 sentiment score)
-            - No technical confirmation
-            - Poor R:R (< 1.5:1)
-
+            Evaluate:
+            - Recent price movement (gap up/down, range expansion)
+            - Relative strength vs broader market
+            - Volume spike (institutional participation)
+            - Options flow extremes (if available)
+            - Proximity to support/resistance
+            - Overextension from moving averages (short-term exhaustion)
+            
+            Interpretation Rules:
+            - Strong catalyst + strong volume breakout → continuation bias
+            - Weak catalyst + parabolic move → fade bias
+            - Panic flush into support → mean reversion BUY
+            - Euphoric spike into resistance → mean reversion SHORT
+            - No technical confirmation → `NO_TRADE`
+            
             Return ONLY valid JSON. Never return invalid trades.
             """,
             ),
@@ -109,11 +121,6 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
             
             
             if you think there should not be any trade, return action as HOLD with qty 0.
-
-            DEBUG FEATURE: If you are unsure about the trade, return a HOLD with a detailed thesis explaining why you are uncertain. This will help improve the model over time.
-            TESTING NOTE: For testing purpose, you can return a BUY with entry price just slightly above current stock price, and stop loss just below current stock price, to simulate a valid swing trade.
-            
-            CURRENT MODE: TESTING
             """,
             ),
         ]
@@ -121,39 +128,42 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
 
     # 3. Invoke LLM
     chain = prompt | llm
-    try:
-        response = await chain.ainvoke(input_vars)
-        decision = parse_llm_json(response.content)
-        print("   [✅ LLM Response Parsed] successfully parsed trade decision.")
-        ### Ensure ticker is included in decision for downstream nodes
-        decision.ticker = signal_data.ticker 
+    MAX_RETRIES = 2  # number of retries after first attempt
 
-        ### [DEBUG] For testing, hardcoding decision
-        # decision = TradingDecision(
-        #     action=TradeAction.BUY, 
-        #     confidence=0.3, 
-        #     entry_price=202.93, 
-        #     stop_loss=195.54, 
-        #     take_profit=210.91, 
-        #     qty=0, 
-        #     risk_reward='1.2:1', 
-        #     thesis="DEBUG ON; Testing mode enabled.", 
-        #     current_stock_price=202.69, 
-        #     ticker='AMZN')
-    except Exception as e:
-        print(f"   [❌ LLM Error] {e}")
-        decision = TradingDecision(
-            action=TradeAction.HOLD,
-            confidence=0.0,
-            entry_price=0.0,
-            stop_loss=0.0,
-            take_profit=0.0,
-            qty=0.0,
-            risk_reward="0:1",
-            thesis="LLM error - no trade",
-            current_stock_price=0.0,
-            ticker=signal_data.ticker
-        )
+    decision = None
+
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            response = await chain.ainvoke(input_vars)
+            decision = parse_llm_json(response.content)
+
+            print(f"   [✅ LLM Response Parsed] Success on attempt {attempt + 1}")
+
+            # Ensure ticker is included in decision for downstream nodes
+            decision.ticker = signal_data.ticker
+            break  # exit loop if successful
+
+        except Exception as e:
+            print(f"   [⚠️ LLM Error] Attempt {attempt + 1} failed: {e}")
+
+            if attempt < MAX_RETRIES:
+                await asyncio.sleep(1.5 * (attempt + 1))  # simple backoff
+            else:
+                print("   [❌ LLM Failed After Retries] Defaulting to HOLD")
+
+                decision = TradingDecision(
+                    action=TradeAction.HOLD,
+                    confidence=0.0,
+                    entry_price=0.0,
+                    stop_loss=0.0,
+                    take_profit=0.0,
+                    qty=0.0,
+                    risk_reward="0:1",
+                    thesis="LLM error - no trade",
+                    current_stock_price=0.0,
+                    ticker=signal_data.ticker
+                )
+        
 
     if decision.action == TradeAction.HOLD:
         print("   [🧠 Brain Decision] No trade opportunity identified. Action: HOLD")
