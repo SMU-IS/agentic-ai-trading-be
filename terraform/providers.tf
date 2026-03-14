@@ -13,6 +13,10 @@ terraform {
       source  = "hashicorp/helm"
       version = "~> 2.15"
     }
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = ">= 1.14.0"
+    }
   }
 }
 
@@ -20,5 +24,5 @@ provider "aws" {
   region = var.aws_region
 }
 
-# The Kubernetes and Helm providers are configured in main.tf 
+# The Kubernetes and Helm providers are configured in main.tf
 # to ensure they depend on the EKS cluster being ready.

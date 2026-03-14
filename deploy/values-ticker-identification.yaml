@@ -1,0 +1,40 @@
+replicaCount: 1
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/ticker-identification-service
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 5010
+  targetPort: 5010
+
+startupProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5010
+  failureThreshold: 30
+  periodSeconds: 10
+
+livenessProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5010
+  initialDelaySeconds: 60
+
+readinessProbe:
+  httpGet:
+    path: /healthcheck
+    port: 5010
+  initialDelaySeconds: 30
+
+secretName: preprocessing-service-secrets
