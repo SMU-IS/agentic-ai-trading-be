@@ -37,4 +37,4 @@ readinessProbe:
     port: 5011
   initialDelaySeconds: 30
 
-secretName: preprocessing-service-secrets
+secretName: event-identification-secrets

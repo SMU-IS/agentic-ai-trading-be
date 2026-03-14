@@ -37,4 +37,4 @@ readinessProbe:
     port: 5010
   initialDelaySeconds: 30
 
-secretName: preprocessing-service-secrets
+secretName: ticker-identification-secrets
