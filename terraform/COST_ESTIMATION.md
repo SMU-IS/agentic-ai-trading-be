@@ -10,12 +10,12 @@ This report provides a granular cost breakdown for the `agentic-ai-trading-be` p
 | AWS Service | Monthly Est. | Daily Est. | Hourly Est. | Technical Notes |
 | :--- | :--- | :--- | :--- | :--- |
 | **Amazon EKS Control Plane** | $73.00 | $2.43 | $0.10 | Fixed cluster management fee; non-scalable. |
-| **Amazon EC2 Spot Instances** | ~$12.00 | ~$0.40 | ~$0.016 | 1x `t4g.small` (system) + scaling `t4g.micro/small` (apps) via Karpenter. |
+| **Amazon EC2 Spot Instances** | ~$18.25 | ~$0.61 | ~$0.025 | 5x `t4g.small` (Spot) to support current workload requirements. |
 | **Amazon RDS (PostgreSQL)** | ~$13.90 | ~$0.46 | ~$0.02 | `db.t4g.micro` + 20GB gp3; Graviton-based instance. |
 | **AWS Amplify + CloudFront** | < $2.00 | < $0.06 | < $0.002 | Frontend hosting + manual CDN; includes data transfer. |
 | **Amazon Application Load Balancer** | ~$18.00 | ~$0.60 | ~$0.025 | Single ALB for all 11 microservices using path-based routing. |
 | **Amazon S3 & Amazon ECR** | < $0.50 | < $0.02 | < $0.01 | Combined storage costs after lifecycle pruning. |
-| **TOTAL** | **~$119.40** | **~$3.98** | **~$0.17** | |
+| **TOTAL** | **~$125.65** | **~$4.19** | **~$0.18** | |
 
 ---
 

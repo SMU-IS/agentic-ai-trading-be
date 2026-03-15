@@ -294,7 +294,7 @@ resource "kubectl_manifest" "karpenter_node_class" {
       ]
       securityGroupSelectorTerms = [
         {
-          id = module.compute.cluster_security_group_id
+          id = module.compute.node_security_group_id
         }
       ]
       tags = {
@@ -331,8 +331,8 @@ resource "kubectl_manifest" "karpenter_node_pool" {
         }
       }
       limits = {
-        cpu    = 10
-        memory = "10Gi"
+        cpu    = 20
+        memory = "40Gi"
       }
       disruption = {
         consolidationPolicy = "WhenEmptyOrUnderutilized"
