@@ -15,7 +15,7 @@ resource "aws_amplify_app" "trading_frontend" {
           commands:
             - npm run build
       artifacts:
-        baseDirectory: build
+        baseDirectory: .next
         files:
           - '**/*'
       cache:
