@@ -85,7 +85,7 @@ jobs:
           ECR_REPOSITORY: sentiment-analysis-service
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --platform linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build --platform linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -f ./sentiment-analysis-service/Dockerfile ./sentiment-analysis-service
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -96,8 +96,8 @@ jobs:
         run: |
           echo "${{ secrets.SENTIMENT_ANALYSIS_SECRETS }}" > .env.tmp
 
-          kubectl create secret generic sentiment-analysis-secrets
-            --from-env-file=.env.tmp
+          kubectl create secret generic sentiment-analysis-secrets \
+            --from-env-file=.env.tmp \
             --dry-run=client -o yaml | kubectl apply -f -
 
           rm .env.tmp

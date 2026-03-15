@@ -85,7 +85,7 @@ jobs:
           ECR_REPOSITORY: preprocessing-service
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --platform linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build --platform linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -f ./preprocessing-service/Dockerfile ./preprocessing-service
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -96,8 +96,8 @@ jobs:
         run: |
           echo "${{ secrets.PREPROCESSING_SERVICE_SECRETS }}" > .env.tmp
 
-          kubectl create secret generic preprocessing-service-secrets
-            --from-env-file=.env.tmp
+          kubectl create secret generic preprocessing-service-secrets \
+            --from-env-file=.env.tmp \
             --dry-run=client -o yaml | kubectl apply -f -
 
           rm .env.tmp
