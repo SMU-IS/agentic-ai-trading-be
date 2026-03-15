@@ -163,6 +163,62 @@ resource "time_sleep" "wait_for_lb_webhook" {
 }
 
 # =============================================================================
+# Kong Gateway Installation
+# =============================================================================
+
+# Kong Declarative Configuration (DB-less mode)
+resource "kubernetes_config_map" "kong_config" {
+  metadata {
+    name      = "kong-declarative-config"
+    namespace = "default"
+  }
+
+  data = {
+    "kong.yml" = file("${path.module}/../kong.yml")
+  }
+}
+
+# Kong Gateway Helm Release
+resource "helm_release" "kong" {
+  namespace  = "default"
+  name       = "kong"
+  repository = "https://charts.konghq.com"
+  chart      = "kong"
+  version    = "2.44.0"
+  wait       = true
+  timeout    = 600
+
+  depends_on = [
+    module.compute,
+    time_sleep.wait_for_cluster,
+    time_sleep.wait_for_lb_webhook,
+    kubernetes_config_map.kong_config
+  ]
+
+  values = [
+    <<-EOT
+    ingressController:
+      enabled: true
+      installCRDs: false
+      ingressClass: kong
+    
+    env:
+      database: "off"
+      declarative_config: "/usr/local/kong/declarative/kong.yml"
+    
+    extraConfigMaps:
+      - name: kong-declarative-config
+        mountPath: /usr/local/kong/declarative/
+    
+    proxy:
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-type: nlb
+        service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+    EOT
+  ]
+}
+
+# =============================================================================
 # Karpenter Installation and Configuration
 # =============================================================================
 
@@ -270,7 +326,7 @@ resource "kubectl_manifest" "karpenter_node_pool" {
             { key = "karpenter.sh/capacity-type", operator = "In", values = ["spot"] },
             { key = "kubernetes.io/arch", operator = "In", values = ["arm64"] },
             { key = "karpenter.k8s.aws/instance-family", operator = "In", values = ["t4g"] },
-            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["micro"] }
+            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["micro", "small"] }
           ]
         }
       }

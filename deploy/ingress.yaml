@@ -34,11 +34,11 @@ spec:
                 name: rag-chatbot-infra
                 port:
                   number: 5001
-          - path: /api/v1/news-analysis
+          - path: /api/v1/preprocessing
             pathType: Prefix
             backend:
               service:
-                name: news-analysis-infra
+                name: preprocessing-service-infra
                 port:
                   number: 5002
           - path: /api/v1/news-scraper
@@ -80,13 +80,34 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: news-aggregator-infra
+                name: news-aggregator-service-infra
                 port:
                   number: 5008
           - path: /api/v1/qdrant
             pathType: Prefix
             backend:
               service:
-                name: qdrant-infra
+                name: qdrant-retrieval-infra
                 port:
                   number: 5009
+          - path: /api/v1/ticker-identification
+            pathType: Prefix
+            backend:
+              service:
+                name: ticker-identification-service-infra
+                port:
+                  number: 5010
+          - path: /api/v1/event-identification
+            pathType: Prefix
+            backend:
+              service:
+                name: event-identification-service-infra
+                port:
+                  number: 5011
+          - path: /api/v1/sentiment-analysis
+            pathType: Prefix
+            backend:
+              service:
+                name: sentiment-analysis-service-infra
+                port:
+                  number: 5012
