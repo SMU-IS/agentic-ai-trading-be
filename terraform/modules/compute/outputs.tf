@@ -18,6 +18,11 @@ output "cluster_security_group_id" {
   value       = module.eks.cluster_security_group_id
 }
 
+output "node_security_group_id" {
+  description = "Security group ID for the EKS nodes"
+  value       = module.eks.node_security_group_id
+}
+
 output "karpenter_node_iam_role_arn" {
   description = "ARN of the IAM role for Karpenter nodes"
   value       = module.karpenter.node_iam_role_arn

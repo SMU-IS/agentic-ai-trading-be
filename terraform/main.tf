@@ -178,6 +178,17 @@ resource "kubernetes_config_map" "kong_config" {
   }
 }
 
+resource "kubernetes_config_map" "rds_certs" {
+  metadata {
+    name      = "rds-certs"
+    namespace = "default"
+  }
+
+  data = {
+    "global-bundle.pem" = file("${path.module}/../certs/global-bundle.pem")
+  }
+}
+
 # Kong Gateway Helm Release
 resource "helm_release" "kong" {
   namespace  = "default"
@@ -201,15 +212,15 @@ resource "helm_release" "kong" {
       enabled: true
       installCRDs: false
       ingressClass: kong
-    
+
     env:
       database: "off"
       declarative_config: "/usr/local/kong/declarative/kong.yml"
-    
+
     extraConfigMaps:
       - name: kong-declarative-config
         mountPath: /usr/local/kong/declarative/
-    
+
     proxy:
       annotations:
         service.beta.kubernetes.io/aws-load-balancer-type: nlb
@@ -277,7 +288,7 @@ resource "kubectl_manifest" "karpenter_node_class" {
       name = "default"
     }
     spec = {
-      amiFamily                = "AL2023"
+      amiFamily = "AL2023"
       amiSelectorTerms = [
         {
           alias = "al2023@latest"
@@ -294,7 +305,7 @@ resource "kubectl_manifest" "karpenter_node_class" {
       ]
       securityGroupSelectorTerms = [
         {
-          id = module.compute.cluster_security_group_id
+          id = module.compute.node_security_group_id
         }
       ]
       tags = {
@@ -331,8 +342,8 @@ resource "kubectl_manifest" "karpenter_node_pool" {
         }
       }
       limits = {
-        cpu    = 10
-        memory = "10Gi"
+        cpu    = 20
+        memory = "40Gi"
       }
       disruption = {
         consolidationPolicy = "WhenEmptyOrUnderutilized"
