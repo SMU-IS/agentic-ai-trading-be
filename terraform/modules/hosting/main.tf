@@ -10,17 +10,18 @@ resource "aws_amplify_app" "trading_frontend" {
       phases:
         preBuild:
           commands:
-            - npm ci
+            - npm ci --cache .npm --prefer-offline
         build:
           commands:
             - npm run build
       artifacts:
-        baseDirectory: build
+        baseDirectory: .next
         files:
           - '**/*'
       cache:
         paths:
-          - node_modules/**/*
+          - .next/cache/**/*
+          - .npm/**/*
   EOT
 
   environment_variables = {

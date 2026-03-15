@@ -1,18 +1,18 @@
 services:
   rag-bot-conversation-db:
-      image: postgres:16-alpine
-      container_name: rag-bot-conversation-db
-      restart: always
-      env_file:
-        - .env
-      environment:
-        - POSTGRES_USER=${POSTGRES_USER}
-        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-        - POSTGRES_DB=${POSTGRES_DB}
-      ports:
-        - "5432:5432"
-      volumes:
-        - rag_chatbot_postgres_data:/var/lib/postgresql/data
+    image: postgres:16-alpine
+    container_name: rag-bot-conversation-db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - rag_chatbot_postgres_data:/var/lib/postgresql/data
   rag-chatbot-service:
     build: .
     env_file:
@@ -25,6 +25,10 @@ services:
     volumes:
       - .:/code
     environment:
+      - LANGSMITH_TRACING=${LANGSMITH_TRACING}
+      - LANGSMITH_ENDPOINT=${LANGSMITH_ENDPOINT}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY}
+      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT}
       - LLM_PROVIDER=${LLM_PROVIDER}
       - GROQ_API_KEY=${GROQ_API_KEY}
       - LARGE_LANGUAGE_MODEL=${LARGE_LANGUAGE_MODEL}
@@ -36,6 +40,10 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
       - AWS_S3_FILE_NAME=${AWS_S3_FILE_NAME}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
 
       - FORCE_COLOR=true
       - PYTHONUNBUFFERED=1

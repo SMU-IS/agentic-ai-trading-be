@@ -2,14 +2,14 @@ name: News Scraper CI
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: ["master"]
-  #   paths:
-  #     - "news-scraper/**"
-  # pull_request:
-  #   branches: ["master"]
-  #   paths:
-  #     - "news-scraper/**"
+  push:
+    branches: ["master"]
+    paths:
+      - "news-scraper/**"
+  pull_request:
+    branches: ["master"]
+    paths:
+      - "news-scraper/**"
 
 jobs:
   build:
@@ -17,6 +17,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -30,6 +33,7 @@ jobs:
 
   deploy:
     name: Continuous Deployment
+    if: true
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -41,6 +45,15 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -57,7 +70,7 @@ jobs:
           ECR_REPOSITORY: news-scraper
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+          docker build --platform linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -f ./news-scraper/Dockerfile ./news-scraper
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -78,7 +91,7 @@ jobs:
         env:
           WORKSPACE: ${{ github.workspace }}
         run: |
-          helm upgrade --install news-scraper ./infra -f ./deploy/values-news-scraper.yaml --set image.tag=${{ github.sha }}
+          helm upgrade --install news-scraper ./infra -f ./deploy/values-news-scraper.yaml --set image.tag=${{ github.sha }} --set ingress.enabled=true
 
       - name: Verify Health and Status
         if: always()
