@@ -9,6 +9,7 @@ class MongoDBClient:
         self.db = self.client[db_name]
         self.orders = self.db.orders
         self.signals = self.db.signals 
+        self.creds = self.db.creds
         
     def store_orders_bulk(self, orders: List[Dict[str, Any]]) -> Dict[str, int]:
         """Store multiple orders (synchronous)"""
@@ -119,3 +120,17 @@ class MongoDBClient:
         except Exception as e:
             print(f"Batch signal lookup error: {e}")
             return {}
+        
+    # User -> alpaca keys
+    def _load_user_creds_from_mongo(self, user_id) -> tuple[str, str]:
+        doc = self.creds.find_one({"user_id": user_id})
+        if not doc:
+            raise RuntimeError(f"No Alpaca credentials found for user_id={self.user_id}")
+
+        api_key = doc["alpaca_api_key"]
+        api_secret = doc["alpaca_api_secret"]
+        paper = doc["alpaca_is_paper"]
+        if not api_key or not api_secret:
+            raise RuntimeError(f"Incomplete Alpaca credentials for user_id={self.user_id}")
+
+        return api_key, api_secret, paper

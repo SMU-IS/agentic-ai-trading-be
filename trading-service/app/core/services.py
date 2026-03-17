@@ -20,6 +20,6 @@ class Services:
 
 # Initialize once
 services = Services.get()
-services.brokerage = create_broker_client()
 services.trading_db = mongo_client
+# services.brokerage = create_broker_client(services.trading_db)
 services.yahoo = YahooClient()

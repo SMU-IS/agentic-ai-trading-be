@@ -11,11 +11,10 @@ from app.api.schemas import (
     StopLimitOrderRequestBody,
     StopOrderRequestBody,
 )
-from app.core.broker_client import AlpacaBrokerClient
+from app.core.broker_client import AlpacaBrokerClient, create_broker_client
 from app.core.services import services
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-
 
 # Data models for latest trades
 class LatestTradeResponse(BaseModel):
@@ -78,9 +77,12 @@ logger = logging.getLogger(__name__)
 
 
 # Dependency to get a broker instance (can be singleton or factory)
-def get_broker() -> AlpacaBrokerClient:
-    return services.brokerage
-    # return create_broker_client()
+def get_broker(user_id: str = None) -> AlpacaBrokerClient:
+    # Get keys by id
+    if user_id is None:
+        user_id = "agent-A" # hard code user for testing
+    api_key, api_secret, paper = services.trading_db._load_user_creds_from_mongo(user_id)
+    return create_broker_client(api_key, api_secret, paper)
 
 
 # ---------- Health ----------

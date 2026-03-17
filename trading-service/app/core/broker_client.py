@@ -56,12 +56,12 @@ def _load_config_from_env() -> BrokerConfig:
     )
 
 
-def create_broker_client() -> "AlpacaBrokerClient":
+def create_broker_client(api_key: str, api_secret: str, paper: bool) -> "AlpacaBrokerClient":
     """
     Factory used by FastAPI dependency injection.
     """
-    cfg = _load_config_from_env()
-    return AlpacaBrokerClient(cfg)
+    # cfg = _load_config_from_env()
+    return AlpacaBrokerClient(api_key, api_secret, paper)
 
 
 class AlpacaBrokerClient:
@@ -70,23 +70,23 @@ class AlpacaBrokerClient:
     Exposes simple methods used by the agent/risk engine and FastAPI layer.
     """
 
-    def __init__(self, config: Optional[BrokerConfig] = None) -> None:
-        if config is None:
-            config = _load_config_from_env()
-
-        self.config = config
+    def __init__(self, 
+        api_key: str, 
+        api_secret: str,
+        paper: bool
+        ) -> None:
 
         # Trading (orders, positions, account)
         self.client = TradingClient(
-            api_key=config.api_key,
-            secret_key=config.api_secret,
-            paper=config.paper,
+            api_key=api_key,
+            secret_key=api_secret,
+            paper=paper,
         )
 
         # Market data (historical stock bars) [web:158][web:166]
         self.data_client = StockHistoricalDataClient(
-            api_key=config.api_key,
-            secret_key=config.api_secret,
+            api_key=api_key,
+            secret_key=api_secret,
         )
 
     # --------- Account / positions / orders ---------
