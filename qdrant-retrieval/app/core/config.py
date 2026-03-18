@@ -16,8 +16,9 @@ class EnvConfig(BaseSettings):
     llm_provider: str = Field(..., validation_alias="LLM_PROVIDER")
     gemini_api_key: str = Field(..., validation_alias="GEMINI_API_KEY")
     text_embedding_model: str = Field(
-        default="text-embedding-004", validation_alias="TEXT_EMBEDDING_MODEL"
+        default="nomic-embed-text-v1.5", validation_alias="TEXT_EMBEDDING_MODEL"
     )
+    nomic_api_key: str = Field(..., validation_alias="NOMIC_API_KEY")
 
     # Local LLM (Ollama)
     ollama_base_url: str = Field(..., validation_alias="OLLAMA_BASE_URL")
@@ -33,6 +34,13 @@ class EnvConfig(BaseSettings):
     redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
     redis_sentiment_stream: str = Field(..., validation_alias="SENTIMENT_STREAM")
     redis_aggregator_stream: str = Field(..., validation_alias="AGGREGATOR_STREAM")
+
+    # Postgres
+    # postgres_host: str = Field(..., validation_alias="POSTGRES_HOST")
+    # postgres_user: str = Field(..., validation_alias="POSTGRES_USER")
+    # postgres_port: str = Field(..., validation_alias="POSTGRES_PORT")
+    # postgres_db: str = Field(..., validation_alias="POSTGRES_DB")
+
 
 
 

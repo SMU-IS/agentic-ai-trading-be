@@ -8,14 +8,19 @@ from app.core.config import env_config
 from app.services._03_event_identification import EventIdentifierService
 from app.scripts.storage import RedisStreamStorage
 from app.scripts.aws_bucket_access import AWSBucket
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 logger = setup_logging()
 
-# ================= CONFIG =================
+# ==========================================================
+# CONFIG
+# ==========================================================
 TICKER_STREAM_NAME = env_config.redis_ticker_stream
 EVENT_STREAM_NAME = env_config.redis_event_stream
 
 REMOVED_POSTS_COUNTER = "eventidentification:removed_posts_count"
+DUP_POSTS_COUNTER = "eventidentification:duplicate_posts_count"
 
 CONSUMER_GROUP = "eventidentification_group"
 CONSUMER_NAME = f"eventidentification_{uuid.uuid4().hex[:6]}"
@@ -31,16 +36,27 @@ EVENT_LIST_LOCK_TTL = 30
 
 PERSIST_INTERVAL = 1800
 TICKER_FLUSH_INTERVAL = 900
+TICKER_KEY = "eventidentification:ticker"
 
-BATCH_SIZE = 10
+BATCH_SIZE = 50
 RECOVER_BATCH_SIZE = 100
 MIN_IDLE_MS = 5000
 CLEANUP_INTERVAL = 300
 
 POST_TIMESTAMP = "post_timestamps"
 
+# ==========================================================
+# RATE LIMITING
+# ==========================================================
+LLM_CONCURRENCY = 3
+_llm_semaphore = asyncio.Semaphore(LLM_CONCURRENCY)
 
-# ================= INIT (Infrastructure Only) =================
+_last_event_list_update = 0.0
+EVENT_LIST_DEBOUNCE = 60.0
+
+# ==========================================================
+# INIT
+# ==========================================================
 bucket = AWSBucket()
 
 redis_client = redis.Redis(
@@ -57,7 +73,7 @@ all_tickers = set()
 
 
 # ==========================================================
-# 🔥 LOAD EVENT LIST
+# LOAD EVENT LIST
 # ==========================================================
 async def load_event_list():
     data = await redis_client.get(EVENT_LIST_REDIS_KEY)
@@ -67,52 +83,41 @@ async def load_event_list():
         return json.loads(data)
 
     logger.info("⚡ No event list in Redis — loading from bucket")
-
     bucket_data = bucket.read_text(env_config.aws_bucket_events_key)
     await redis_client.set(EVENT_LIST_REDIS_KEY, bucket_data)
-
     return json.loads(bucket_data)
 
 
-# ================= BACKGROUND PERSIST =================
+# ==========================================================
+# BACKGROUND PERSIST
+# ==========================================================
 async def persist_event_list_to_bucket():
     try:
         while True:
             await asyncio.sleep(PERSIST_INTERVAL)
-
             data = await redis_client.get(EVENT_LIST_REDIS_KEY)
             if data:
                 bucket.write_text(data, env_config.aws_bucket_events_key)
                 logger.info("💾 Synced event list Redis → Bucket")
-
     except asyncio.CancelledError:
         logger.warning("🛑 Persist task stopped")
         raise
 
-# ================= PERIODIC TICKER FLUSH (🔥 NEW) =================
-async def periodic_ticker_flush(event_service: EventIdentifierService):
-    """
-    Flush tickers to Redis every 15 minutes.
-    This prevents constant writes under scale.
-    """
 
+# ==========================================================
+# PERIODIC TICKER FLUSH (15 MINUTES)
+# ==========================================================
+async def periodic_ticker_flush(event_service: EventIdentifierService):
     try:
         while True:
             await asyncio.sleep(TICKER_FLUSH_INTERVAL)
-
             await flush_tickers(event_service)
-
     except asyncio.CancelledError:
         logger.warning("🛑 Ticker flush task stopped")
         raise
 
 
-# ================= ACTUAL FLUSH LOGIC =================
 async def flush_tickers(event_service: EventIdentifierService):
-    """
-    Write tickers to Redis.
-    Called every 15 minutes + on shutdown.
-    """
     logger.info("🔥 Flush function entered")
 
     if not all_tickers:
@@ -121,17 +126,24 @@ async def flush_tickers(event_service: EventIdentifierService):
 
     logger.info(f"🚀 Flushing {len(all_tickers)} tickers to Redis")
 
-    for ticker in all_tickers:
-        await redis_client.hset(
-            "eventidentification:all_identified_tickers",
-            ticker,
-            "1",  # or store metadata if needed
-        )
+    SEVEN_DAYS = 60 * 60 * 24 * 7
 
-    logger.info("✅ Tick list flushed")
+    pipe = redis_client.pipeline()
+    for ticker in all_tickers:
+        pipe.set(
+            f"{TICKER_KEY}:{ticker}",
+            datetime.now(ZoneInfo("Asia/Singapore")).isoformat(),
+            ex=SEVEN_DAYS,
+        )
+    await pipe.execute()
+
+    logger.info("✅ Tickers flushed")
     all_tickers.clear()
 
-# ================= GROUP SETUP =================
+
+# ==========================================================
+# CONSUMER GROUP
+# ==========================================================
 async def setup_consumer_group():
     try:
         await ticker_stream.create_consumer_group(
@@ -149,24 +161,33 @@ async def finalize_message(msg_id: str):
     await ticker_stream.delete(msg_id)
 
 
-# ================= EVENT LIST UPDATE (LOCK PROTECTED) =================
+# ==========================================================
+# EVENT LIST UPDATE (LOCK PROTECTED + DEBOUNCED)
+# ==========================================================
 async def update_event_list_in_redis(event_service: EventIdentifierService):
-    logger.info(f"check event count here: {event_service.neweventcount}")
+    global _last_event_list_update
+
     if event_service.neweventcount <= 0:
         return
+
+    now = asyncio.get_event_loop().time()
+    if now - _last_event_list_update < EVENT_LIST_DEBOUNCE:
+        return
+
+    _last_event_list_update = now
 
     lock = redis_client.lock(
         EVENT_LIST_LOCK_KEY,
         timeout=EVENT_LIST_LOCK_TTL,
         blocking_timeout=5,
     )
+
     async with lock:
         logger.info("🔒 Lock acquired — updating event list")
 
         latest = await redis_client.get(EVENT_LIST_REDIS_KEY)
         latest_events = json.loads(latest) if latest else {}
 
-        # Merge safely
         merged = {**latest_events, **event_service.event_list}
 
         await redis_client.set(
@@ -180,7 +201,9 @@ async def update_event_list_in_redis(event_service: EventIdentifierService):
         logger.info("🔓 Released lock")
 
 
-# ================= HELPERS =================
+# ==========================================================
+# HELPERS
+# ==========================================================
 def decode_message(data: dict):
     raw = data.get("data")
 
@@ -194,29 +217,14 @@ def decode_message(data: dict):
     return raw if isinstance(raw, dict) else data
 
 
-def normalize_proposed_events(ticker_metadata: dict):
-    for ticker, info in ticker_metadata.items():
-        proposal = info.get("event_proposal")
+# check if scraped news has already been processed before 
+async def is_duplicate(post_id: str) -> bool:
+    dedup_key = f"event_dedup:{post_id}"
+    return await redis_client.exists(dedup_key)
 
-        if proposal:
-            proposed_event_name = proposal.get("proposed_event_name")
-            proposed_description = proposal.get("proposed_description")
-
-            if proposed_event_name:
-                logger.info(
-                    f"🔄 Converting proposal → event_type for {ticker}: {proposed_event_name}"
-                )
-                info["event_type"] = proposed_event_name
-            
-            if proposed_description:
-                logger.info(
-                    f"🔄 Converting proposed_description → event_description for {ticker}: {proposed_description}"
-                )
-                info["event_description"] = proposed_description
-
-
-
-# ================= MESSAGE PROCESSING =================
+# ==========================================================
+# MESSAGE PROCESSING
+# ==========================================================
 async def process_message(
     msg_id: str,
     data: dict,
@@ -224,26 +232,42 @@ async def process_message(
 ):
     decoded = decode_message(data)
     if not decoded:
+        await redis_client.incr(REMOVED_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
 
-    event_data = event_service.analyse_event(decoded)
+    sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+    post_id = decoded.get("id", "").strip('"')
 
-    await asyncio.sleep(1)
-    logger.debug("LLM throttle sleep (1s)")
+    if await is_duplicate(post_id):
+        logger.info(f"⚠️ Duplicate post {post_id} — skipping")
+        await redis_client.incr(DUP_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+
+    await redis_client.hset(
+        f"{POST_TIMESTAMP}:{post_id}",
+        "event_timestamp_start",
+        sg_now,
+    )
+    print(f"⏱️ Post {post_id}: Timestamped at event Stage (Start) → {sg_now}")
+
+    async with _llm_semaphore:
+        event_data = await event_service.analyse_event(decoded)
 
     if not event_data:
+        await redis_client.incr(REMOVED_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
 
-    # 🔥 Update event list only if new event detected
     await update_event_list_in_redis(event_service)
 
-    post_id = event_data.get("id")
+    post_id = event_data.get("id", "").strip('"')
     ticker_metadata = event_data.get("ticker_metadata", {})
 
-    normalize_proposed_events(ticker_metadata)
-
+    # ✅ proposal conversion is now done inside the service
+    # worker just filters on event_type directly
     ticker_metadata = {
         ticker: info
         for ticker, info in ticker_metadata.items()
@@ -254,13 +278,11 @@ async def process_message(
         logger.info(f"🗑 Removing post {post_id} as there is no event identified.")
         await redis_client.incr(REMOVED_POSTS_COUNTER)
         await finalize_message(msg_id)
-        await redis_client.delete(f"{POST_TIMESTAMP}:{post_id}")
-        logger.info(f"🗑 Removing timestamp for {post_id} as there is no event identified.")
         return
 
     event_data["ticker_metadata"] = ticker_metadata
     all_tickers.update(ticker_metadata.keys())
-    
+
     logger.info(f"📊 Tracked tickers: {all_tickers}")
 
     try:
@@ -268,12 +290,21 @@ async def process_message(
     except asyncio.CancelledError:
         raise
 
-    await finalize_message(msg_id)
+    sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+    await redis_client.hset(
+        f"{POST_TIMESTAMP}:{post_id}",
+        "event_timestamp",
+        sg_now,
+    )
+    print(f"⏱️ Post {post_id}: Timestamped at event Stage → {sg_now}")
 
+    await ticker_stream.acknowledge(CONSUMER_GROUP, msg_id)
     logger.info(f"✅ Processed Post {post_id}")
 
 
-# ================= RECOVERY =================
+# ==========================================================
+# RECOVERY
+# ==========================================================
 async def recover_pending_messages(event_service: EventIdentifierService):
     claimed = await ticker_stream.claim_pending(
         group_name=CONSUMER_GROUP,
@@ -287,14 +318,19 @@ async def recover_pending_messages(event_service: EventIdentifierService):
 
     logger.info(f"⚡ Recovered {len(claimed)} messages")
 
-    for msg_id, data in claimed:
-        try:
-            await process_message(msg_id, data, event_service)
-        except Exception as e:
-            logger.error(f"❌ Recovery failed {msg_id}: {e}")
+    tasks = [
+        process_message(msg_id, data, event_service)
+        for msg_id, data in claimed
+    ]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            logger.error(f"❌ Recovery failed for message {i}: {result}")
 
 
-# ================= CLEANUP =================
+# ==========================================================
+# CLEANUP
+# ==========================================================
 async def cleanup_dead_consumers():
     try:
         consumers = await redis_client.xinfo_consumers(
@@ -321,7 +357,9 @@ async def cleanup_dead_consumers():
         logger.error(f"Cleanup error: {e}")
 
 
-# ================= HEARTBEAT =================
+# ==========================================================
+# HEARTBEAT
+# ==========================================================
 async def send_heartbeat():
     try:
         while True:
@@ -331,26 +369,24 @@ async def send_heartbeat():
                 ex=HEARTBEAT_TTL,
             )
             await asyncio.sleep(HEARTBEAT_INTERVAL)
-
     except asyncio.CancelledError:
         logger.error("🛑 Heartbeat stopped")
         raise
 
 
-# ================= WORKER LOOP =================
+# ==========================================================
+# WORKER LOOP
+# ==========================================================
 async def worker_loop(event_service: EventIdentifierService):
     last_cleanup = 0
 
     heartbeat_task = asyncio.create_task(send_heartbeat())
     persist_task = asyncio.create_task(persist_event_list_to_bucket())
-    ticker_flush_task = asyncio.create_task(
-        periodic_ticker_flush(event_service)
-    )
+    ticker_flush_task = asyncio.create_task(periodic_ticker_flush(event_service))
 
-
-    logger.info("🔁 Startup recovery...")
-    await recover_pending_messages(event_service)
-    await cleanup_dead_consumers()
+    # non-blocking — new messages consumed immediately
+    asyncio.create_task(recover_pending_messages(event_service))
+    asyncio.create_task(cleanup_dead_consumers())
 
     try:
         while True:
@@ -367,11 +403,15 @@ async def worker_loop(event_service: EventIdentifierService):
                 block_ms=5000,
             )
 
-            for msg_id, data in entries:
-                try:
-                    await process_message(msg_id, data, event_service)
-                except Exception as e:
-                    logger.error(f"❌ Error processing {msg_id}: {e}")
+            if entries:
+                tasks = [
+                    process_message(msg_id, data, event_service)
+                    for msg_id, data in entries
+                ]
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                for i, result in enumerate(results):
+                    if isinstance(result, Exception):
+                        logger.error(f"❌ Error processing message {i}: {result}")
 
     except asyncio.CancelledError:
         logger.warning("🛑 Worker loop cancelled — shutting down cleanly")
@@ -391,7 +431,9 @@ async def worker_loop(event_service: EventIdentifierService):
         )
 
 
-# ================= SHUTDOWN =================
+# ==========================================================
+# SHUTDOWN
+# ==========================================================
 def setup_signal_handlers(loop, worker_task):
     async def shutdown():
         logger.info("🛑 Shutdown signal received")
@@ -405,13 +447,13 @@ def setup_signal_handlers(loop, worker_task):
         )
 
 
-# ================= MAIN =================
+# ==========================================================
+# MAIN
+# ==========================================================
 async def main():
     await setup_consumer_group()
 
     events_types = await load_event_list()
-
-    # ✅ Dependency created here
     event_service = EventIdentifierService(event_list=events_types)
 
     logger.info("💨 Starting Event Identification Service...")
@@ -420,8 +462,7 @@ async def main():
     logger.info(f"👥 Consumer Group: {CONSUMER_GROUP}")
     logger.info(f"👤 Consumer Name: {CONSUMER_NAME}")
     logger.info(f"🔑 Heartbeat Key: {HEARTBEAT_KEY}")
-    logger.info("💨 LLM throttle enabled: 1 call/sec")
-
+    logger.info(f"⚡ LLM concurrency: {LLM_CONCURRENCY} (semaphore, no sleep)")
 
     worker_task = asyncio.create_task(worker_loop(event_service))
 
