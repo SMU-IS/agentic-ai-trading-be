@@ -3,7 +3,7 @@ import uuid
 
 from langchain_core.documents import Document
 from qdrant_client import models
-from app.providers.vector.strategy import QdrantOllamaStrategy
+from app.providers.vector.strategy import QdrantNomicStrategy
 from app.core.logger import logger
 from app.schemas.compiled_news_payload import NewsAnalysisPayload
 from app.schemas.raw_news_payload import RedditSourcePayload
@@ -14,7 +14,7 @@ class VectorisationService:
         self,
     ):
         self.strategy = (
-            QdrantOllamaStrategy()
+            QdrantNomicStrategy()
         )  # TODO: Make this dynamic based on config/env
         self.vector_store = self.strategy.get_vector_store()
 

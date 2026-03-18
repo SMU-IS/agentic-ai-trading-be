@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import override
-
 from app.core.config import env_config
 from app.core.logger import logger
 from langchain_core.embeddings import Embeddings
 from langchain_core.vectorstores import VectorStore as LangChainVectorStore
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_ollama import OllamaEmbeddings
+from langchain_nomic import NomicEmbeddings 
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
@@ -91,7 +91,8 @@ class QdrantOllamaStrategy(VectorStorageStrategy):
     @override
     def get_embeddings(self) -> Embeddings:
         return OllamaEmbeddings(
-            model=env_config.text_embedding_model, base_url=env_config.ollama_base_url
+            model=env_config.text_embedding_model,
+            base_url=env_config.ollama_base_url,
         )
 
 
@@ -105,3 +106,16 @@ class QdrantGeminiStrategy(VectorStorageStrategy):
             google_api_key=env_config.gemini_api_key,
             output_dimensionality=768,
         )
+
+
+class QdrantNomicStrategy(VectorStorageStrategy):
+    vector_size = 768
+
+    @override
+    def get_embeddings(self) -> Embeddings:
+        return NomicEmbeddings(
+            model=env_config.text_embedding_model,
+            nomic_api_key=env_config.nomic_api_key,
+            dimensionality=768
+        )
+
