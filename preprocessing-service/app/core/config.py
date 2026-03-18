@@ -19,7 +19,7 @@ class EnvConfig(BaseSettings):
     redis_host: str = Field(..., validation_alias="REDIS_HOST")
     redis_port: int = Field(..., validation_alias="REDIS_PORT")
     redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
-    redis_reddit_stream: str = Field(..., validation_alias="REDDIT_STREAM")
+    redis_news_stream: str = Field(..., validation_alias="NEWS_STREAM")
     redis_preproc_stream: str = Field(..., validation_alias="PREPROC_STREAM")
 
 env_config = EnvConfig()  # type: ignore

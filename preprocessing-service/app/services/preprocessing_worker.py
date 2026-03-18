@@ -16,7 +16,7 @@ logger = setup_logging()
 # ==========================================================
 # CONFIG
 # ==========================================================
-STREAM_NAME = env_config.redis_reddit_stream
+STREAM_NAME = env_config.redis_news_stream
 PREPROC_STREAM_NAME = env_config.redis_preproc_stream
 
 CONSUMER_GROUP = "preprocessing_group"
