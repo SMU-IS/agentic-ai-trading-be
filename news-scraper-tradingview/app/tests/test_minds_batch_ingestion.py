@@ -17,6 +17,9 @@ import pytest
 
 from app.services.tradingview_minds_batch_ingestion import TradingViewMindsBatchIngestion
 
+# Tickers the tests control — mirrors what get_tickers_from_redis would return
+_TEST_TICKERS = ["AAPL", "JPM"]
+
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -55,9 +58,15 @@ class TestTradingViewMindsBatchIngestion:
     @pytest.fixture(autouse=True)
     def _setup(self):
         self.r = fakeredis.FakeRedis(decode_responses=True)
-        self.r.hset("all_identified_tickers", mapping={"AAPL": "1", "JPM": "1"})
+        patcher = patch(
+            "app.services.tradingview_minds_batch_ingestion.get_tickers_from_redis",
+            return_value=list(_TEST_TICKERS),
+        )
+        self.mock_get_tickers = patcher.start()
         self.ingestion = TradingViewMindsBatchIngestion(self.r)
         self.ingestion.scraper = MagicMock()
+        yield
+        patcher.stop()
 
     # ── _dedup_key ─────────────────────────────────────────────────────────────
 
@@ -121,9 +130,23 @@ class TestTradingViewMindsBatchIngestion:
         assert row["engagement"]["upvote_ratio"] is None
 
     def test_happy_build_row_metadata_ticker(self):
-        """[HAPPY] metadata.ticker holds the passed symbol."""
-        row = TradingViewMindsBatchIngestion._build_row(_make_mind(), "JPM")
-        assert row["metadata"]["ticker"] == "JPM"
+        """[HAPPY] metadata.ticker is a list of symbols extracted from mind's symbols field."""
+        mind = _make_mind(symbols=["NASDAQ:AAPL", "NYSE:JPM"])
+        row = TradingViewMindsBatchIngestion._build_row(mind, "AAPL")
+        assert row["metadata"]["ticker"] == ["AAPL", "JPM"]
+
+    def test_happy_build_row_metadata_ticker_no_exchange_prefix(self):
+        """[HAPPY] Symbols without exchange prefix are kept as-is."""
+        mind = _make_mind(symbols=["AAPL", "TSLA"])
+        row = TradingViewMindsBatchIngestion._build_row(mind, "AAPL")
+        assert row["metadata"]["ticker"] == ["AAPL", "TSLA"]
+
+    def test_boundary_build_row_metadata_ticker_empty_symbols(self):
+        """[BOUNDARY] Empty symbols list yields an empty ticker list."""
+        mind = _make_mind()
+        mind["symbols"] = []  # override after construction (_make_mind default-fills falsy values)
+        row = TradingViewMindsBatchIngestion._build_row(mind, "AAPL")
+        assert row["metadata"]["ticker"] == []
 
     def test_boundary_build_row_invalid_timestamp_falls_back(self):
         """[BOUNDARY] Unparseable created string falls back gracefully."""
@@ -144,12 +167,17 @@ class TestTradingViewMindsBatchIngestion:
     @patch("app.services.tradingview_minds_batch_ingestion.time.sleep", return_value=None)
     def test_happy_run_publishes_new_minds(self, _sleep):
         """[HAPPY] New minds are published to the Redis stream."""
-        minds = [_make_mind(uid=f"uid{i}") for i in range(3)]
-        self.ingestion.scraper.get_minds.return_value = _success_response(minds)
+        # Use distinct uids per ticker so cross-ticker dedup doesn't reduce count
+        minds_aapl = [_make_mind(uid=f"aapl_uid{i}") for i in range(3)]
+        minds_jpm = [_make_mind(uid=f"jpm_uid{i}") for i in range(3)]
+        self.ingestion.scraper.get_minds.side_effect = [
+            _success_response(minds_aapl),
+            _success_response(minds_jpm),
+        ]
         summary = self.ingestion.run()
         assert summary["total_published"] == 6   # 3 minds × 2 tickers
         assert summary["errors"] == []
-        assert self.r.xlen("tradingview:minds:raw") == 6
+        assert self.r.xlen("raw_news_stream") == 6
 
     @patch("app.services.tradingview_minds_batch_ingestion.time.sleep", return_value=None)
     def test_happy_run_skips_duplicates(self, _sleep):
@@ -186,7 +214,7 @@ class TestTradingViewMindsBatchIngestion:
     @patch("app.services.tradingview_minds_batch_ingestion.time.sleep", return_value=None)
     def test_boundary_empty_ticker_list(self, _sleep):
         """[BOUNDARY] No tickers → zero counts, no stream entries."""
-        self.r.delete("all_identified_tickers")
+        self.mock_get_tickers.return_value = []
         summary = self.ingestion.run()
         assert summary["tickers_processed"] == 0
         assert summary["total_published"] == 0

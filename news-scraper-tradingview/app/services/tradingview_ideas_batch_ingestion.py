@@ -32,7 +32,7 @@ class TradingViewIdeasBatchIngestion:
 
     ITEMS_PER_TICKER = 20
     PAGES_PER_TICKER = 5
-    STREAM_NAME = "tradingview:ideas:raw"
+    STREAM_NAME = "raw_news_stream"
     DEDUP_SET_NAME = "tradingview_ideas"
     INTER_TICKER_DELAY = 2
 

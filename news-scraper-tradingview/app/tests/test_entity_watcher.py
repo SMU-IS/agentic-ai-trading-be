@@ -28,36 +28,51 @@ class TestGetTickersFromRedis:
     def r(self):
         return fakeredis.FakeRedis(decode_responses=True)
 
-    def test_happy_returns_all_tickers(self, r):
-        """[HAPPY] Returns every key from all_identified_tickers hash."""
-        r.hset("all_identified_tickers", mapping={"AAPL": "1", "TSLA": "1", "NVDA": "1"})
+    def test_happy_always_includes_top10_tickers(self, r):
+        """[HAPPY] TOP_10_TICKERS are always returned regardless of Redis state."""
+        from app.services.entity_watcher import TOP_10_TICKERS
         result = get_tickers_from_redis(r)
-        assert set(result) == {"AAPL", "TSLA", "NVDA"}
+        for ticker in TOP_10_TICKERS:
+            assert ticker in result
 
     def test_happy_returns_list_type(self, r):
         """[HAPPY] Return value is a list."""
-        r.hset("all_identified_tickers", "MSFT", "1")
         result = get_tickers_from_redis(r)
         assert isinstance(result, list)
 
-    def test_boundary_empty_hash_returns_empty_list(self, r):
-        """[BOUNDARY] No tickers in hash → empty list returned."""
+    def test_happy_includes_hot_tickers_from_event_stream(self, r):
+        """[HAPPY] Tickers from eventidentification:ticker:* keys are appended."""
+        r.set("eventidentification:ticker:PLTR", "1")
         result = get_tickers_from_redis(r)
-        assert result == []
+        assert "PLTR" in result
 
-    def test_boundary_bytes_keys_are_decoded(self):
-        """[BOUNDARY] Byte-encoded ticker keys are decoded to strings."""
+    def test_boundary_no_event_stream_keys_returns_top10_only(self, r):
+        """[BOUNDARY] With no event stream keys, exactly TOP_10_TICKERS is returned."""
+        from app.services.entity_watcher import TOP_10_TICKERS
+        result = get_tickers_from_redis(r)
+        assert set(result) == set(TOP_10_TICKERS)
+
+    def test_boundary_hot_ticker_already_in_top10_not_duplicated(self, r):
+        """[BOUNDARY] A hot ticker that is already in TOP_10 is not added twice."""
+        from app.services.entity_watcher import TOP_10_TICKERS
+        r.set(f"eventidentification:ticker:{TOP_10_TICKERS[0]}", "1")
+        result = get_tickers_from_redis(r)
+        assert result.count(TOP_10_TICKERS[0]) == 1
+
+    def test_boundary_bytes_event_keys_are_decoded(self):
+        """[BOUNDARY] Byte-encoded eventidentification keys are decoded to strings."""
         fake_r = fakeredis.FakeRedis(decode_responses=False)
-        fake_r.hset("all_identified_tickers", b"AMZN", b"1")
+        fake_r.set(b"eventidentification:ticker:PLTR", b"1")
         result = get_tickers_from_redis(fake_r)
-        assert "AMZN" in result
+        assert "PLTR" in result
 
-    def test_sad_redis_exception_returns_empty_list(self, r):
-        """[SAD] Connection failure is caught and empty list is returned."""
+    def test_sad_redis_exception_still_returns_top10(self, r):
+        """[SAD] keys() failure is caught; TOP_10_TICKERS is still returned."""
+        from app.services.entity_watcher import TOP_10_TICKERS
         broken = MagicMock()
-        broken.hgetall.side_effect = Exception("Redis connection refused")
+        broken.keys.side_effect = Exception("Redis connection refused")
         result = get_tickers_from_redis(broken)
-        assert result == []
+        assert set(result) == set(TOP_10_TICKERS)
 
 
 # ── get_ticker_candidates ──────────────────────────────────────────────────────

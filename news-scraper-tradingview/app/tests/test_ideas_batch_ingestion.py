@@ -17,6 +17,9 @@ import pytest
 
 from app.services.tradingview_ideas_batch_ingestion import TradingViewIdeasBatchIngestion
 
+# Tickers the tests control — mirrors what get_tickers_from_redis would return
+_TEST_TICKERS = ["AAPL", "TSLA"]
+
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -49,9 +52,15 @@ class TestTradingViewIdeasBatchIngestion:
     @pytest.fixture(autouse=True)
     def _setup(self):
         self.r = fakeredis.FakeRedis(decode_responses=True)
-        self.r.hset("all_identified_tickers", mapping={"AAPL": "1", "TSLA": "1"})
+        patcher = patch(
+            "app.services.tradingview_ideas_batch_ingestion.get_tickers_from_redis",
+            return_value=list(_TEST_TICKERS),
+        )
+        self.mock_get_tickers = patcher.start()
         self.ingestion = TradingViewIdeasBatchIngestion(self.r)
         self.ingestion.scraper = MagicMock()
+        yield
+        patcher.stop()
 
     # ── _dedup_key ─────────────────────────────────────────────────────────────
 
@@ -124,15 +133,17 @@ class TestTradingViewIdeasBatchIngestion:
     @patch("app.services.tradingview_ideas_batch_ingestion.time.sleep", return_value=None)
     def test_happy_run_publishes_new_items(self, _sleep):
         """[HAPPY] New ideas are published to the Redis stream."""
-        ideas = [_make_idea(author=f"user{i}", timestamp=i, title=f"Idea {i}") for i in range(3)]
-        self.ingestion.scraper.scrape.return_value = ideas
+        # Use distinct dedup keys per ticker so cross-ticker dedup doesn't reduce count
+        ideas_aapl = [_make_idea(author=f"aapl_u{i}", timestamp=i, title=f"Idea A{i}") for i in range(3)]
+        ideas_tsla = [_make_idea(author=f"tsla_u{i}", timestamp=i, title=f"Idea B{i}") for i in range(3)]
+        self.ingestion.scraper.scrape.side_effect = [ideas_aapl, ideas_tsla]
 
         summary = self.ingestion.run()
 
         assert summary["total_published"] == 6   # 3 ideas × 2 tickers
         assert summary["total_duplicates"] == 0
         assert summary["errors"] == []
-        assert self.r.xlen("tradingview:ideas:raw") == 6
+        assert self.r.xlen("raw_news_stream") == 6
 
     @patch("app.services.tradingview_ideas_batch_ingestion.time.sleep", return_value=None)
     def test_happy_run_skips_duplicates(self, _sleep):
@@ -157,7 +168,7 @@ class TestTradingViewIdeasBatchIngestion:
     @patch("app.services.tradingview_ideas_batch_ingestion.time.sleep", return_value=None)
     def test_boundary_empty_ticker_list(self, _sleep):
         """[BOUNDARY] No tickers → nothing scraped, zero counts."""
-        self.r.delete("all_identified_tickers")
+        self.mock_get_tickers.return_value = []
         summary = self.ingestion.run()
         assert summary["tickers_processed"] == 0
         assert summary["total_scraped"] == 0
@@ -166,14 +177,14 @@ class TestTradingViewIdeasBatchIngestion:
     @patch("app.services.tradingview_ideas_batch_ingestion.time.sleep", return_value=None)
     def test_boundary_respects_items_per_ticker_limit(self, _sleep):
         """[BOUNDARY] Only up to ITEMS_PER_TICKER items taken per ticker."""
-        many_ideas = [
-            _make_idea(author=f"u{i}", timestamp=i, title=f"Idea {i}")
-            for i in range(50)
-        ]
-        self.ingestion.scraper.scrape.return_value = many_ideas
+        limit = TradingViewIdeasBatchIngestion.ITEMS_PER_TICKER
+        # Use distinct dedup keys per ticker to avoid cross-ticker deduplication
+        many_aapl = [_make_idea(author=f"a{i}", timestamp=i, title=f"AAPL Idea {i}") for i in range(50)]
+        many_tsla = [_make_idea(author=f"t{i}", timestamp=i, title=f"TSLA Idea {i}") for i in range(50)]
+        self.ingestion.scraper.scrape.side_effect = [many_aapl, many_tsla]
         self.ingestion.run()
-        published = self.r.xlen("tradingview:ideas:raw")
-        assert published == TradingViewIdeasBatchIngestion.ITEMS_PER_TICKER * 2  # 2 tickers
+        published = self.r.xlen("raw_news_stream")
+        assert published == limit * 2  # 2 tickers
 
     @patch("app.services.tradingview_ideas_batch_ingestion.time.sleep", return_value=None)
     def test_boundary_skips_ideas_with_empty_dedup_key(self, _sleep):

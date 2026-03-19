@@ -62,9 +62,15 @@ class TestTradingViewMindsStreamIngestion:
     @pytest.fixture(autouse=True)
     def _setup(self):
         self.r = fakeredis.FakeRedis(decode_responses=True)
-        self.r.hset("all_identified_tickers", "AAPL", "1")
+        patcher = patch(
+            "app.services.tradingview_minds_stream_ingestion.get_tickers_from_redis",
+            return_value=["AAPL"],
+        )
+        patcher.start()
         self.ingestion = TradingViewMindsStreamIngestion(self.r)
         self.ingestion.scraper = MagicMock()
+        yield
+        patcher.stop()
 
     # HAPPY PATH ---------------------------------------------------------------
 
@@ -81,7 +87,7 @@ class TestTradingViewMindsStreamIngestion:
         }
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
-        assert self.r.xlen("tradingview:minds:raw") == 1
+        assert self.r.xlen("raw_news_stream") == 1
 
     @patch("app.services.tradingview_minds_stream_ingestion.time.sleep")
     def test_happy_run_adds_to_in_memory_cache(self, mock_sleep):
@@ -104,7 +110,7 @@ class TestTradingViewMindsStreamIngestion:
         }
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
-        assert self.r.xlen("tradingview:minds:raw") == 0
+        assert self.r.xlen("raw_news_stream") == 0
 
     @patch("app.services.tradingview_minds_stream_ingestion.time.sleep")
     def test_boundary_layer2_dedup_redis(self, mock_sleep):
@@ -115,7 +121,7 @@ class TestTradingViewMindsStreamIngestion:
         }
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
-        assert self.r.xlen("tradingview:minds:raw") == 0
+        assert self.r.xlen("raw_news_stream") == 0
 
     @patch("app.services.tradingview_minds_stream_ingestion.time.sleep")
     def test_boundary_stops_when_running_false(self, mock_sleep):
@@ -148,7 +154,7 @@ class TestTradingViewMindsStreamIngestion:
         self.ingestion.scraper.get_minds.side_effect = Exception("TradingView 503")
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()  # must not raise
-        assert self.r.xlen("tradingview:minds:raw") == 0
+        assert self.r.xlen("raw_news_stream") == 0
 
     @patch("app.services.tradingview_minds_stream_ingestion.time.sleep")
     def test_sad_non_success_status_skips_ticker(self, mock_sleep):
@@ -156,7 +162,7 @@ class TestTradingViewMindsStreamIngestion:
         self.ingestion.scraper.get_minds.return_value = {"status": "failed", "data": []}
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
-        assert self.r.xlen("tradingview:minds:raw") == 0
+        assert self.r.xlen("raw_news_stream") == 0
 
 
 # ── TradingViewIdeasStreamIngestion ────────────────────────────────────────────
@@ -166,9 +172,15 @@ class TestTradingViewIdeasStreamIngestion:
     @pytest.fixture(autouse=True)
     def _setup(self):
         self.r = fakeredis.FakeRedis(decode_responses=True)
-        self.r.hset("all_identified_tickers", "AAPL", "1")
+        patcher = patch(
+            "app.services.tradingview_ideas_stream_ingestion.get_tickers_from_redis",
+            return_value=["AAPL"],
+        )
+        patcher.start()
         self.ingestion = TradingViewIdeasStreamIngestion(self.r)
         self.ingestion.scraper = MagicMock()
+        yield
+        patcher.stop()
 
     # HAPPY PATH ---------------------------------------------------------------
 
@@ -183,7 +195,7 @@ class TestTradingViewIdeasStreamIngestion:
         self.ingestion.scraper.scrape.return_value = [_make_idea()]
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
-        assert self.r.xlen("tradingview:ideas:raw") == 1
+        assert self.r.xlen("raw_news_stream") == 1
 
     @patch("app.services.tradingview_ideas_stream_ingestion.time.sleep")
     def test_happy_run_adds_to_in_memory_cache(self, mock_sleep):
@@ -206,7 +218,7 @@ class TestTradingViewIdeasStreamIngestion:
         self.ingestion.scraper.scrape.return_value = [idea]
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
-        assert self.r.xlen("tradingview:ideas:raw") == 0
+        assert self.r.xlen("raw_news_stream") == 0
 
     @patch("app.services.tradingview_ideas_stream_ingestion.time.sleep")
     def test_boundary_layer2_dedup_redis(self, mock_sleep):
@@ -217,7 +229,7 @@ class TestTradingViewIdeasStreamIngestion:
         ]
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
-        assert self.r.xlen("tradingview:ideas:raw") == 0
+        assert self.r.xlen("raw_news_stream") == 0
 
     @patch("app.services.tradingview_ideas_stream_ingestion.time.sleep")
     def test_boundary_skips_idea_with_empty_dedup_key(self, mock_sleep):
@@ -225,7 +237,7 @@ class TestTradingViewIdeasStreamIngestion:
         self.ingestion.scraper.scrape.return_value = [{}]  # empty dict → unknown::
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
-        assert self.r.xlen("tradingview:ideas:raw") == 0
+        assert self.r.xlen("raw_news_stream") == 0
 
     @patch("app.services.tradingview_ideas_stream_ingestion.time.sleep")
     def test_boundary_stops_when_running_false(self, mock_sleep):
@@ -241,7 +253,7 @@ class TestTradingViewIdeasStreamIngestion:
         self.ingestion.scraper.scrape.return_value = {"error": "bad"}
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()  # must not raise
-        assert self.r.xlen("tradingview:ideas:raw") == 0
+        assert self.r.xlen("raw_news_stream") == 0
 
     # SAD PATH -----------------------------------------------------------------
 

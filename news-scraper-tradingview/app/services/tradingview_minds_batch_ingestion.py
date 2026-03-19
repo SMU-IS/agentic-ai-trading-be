@@ -31,7 +31,7 @@ class TradingViewMindsBatchIngestion:
     """
 
     ITEMS_PER_TICKER = 20
-    STREAM_NAME = "tradingview:minds:raw"
+    STREAM_NAME = "raw_news_stream"
     DEDUP_SET_NAME = "tradingview_minds"
     INTER_TICKER_DELAY = 2
 
@@ -60,6 +60,9 @@ class TradingViewMindsBatchIngestion:
 
         uid = mind.get("uid", "")
 
+        symbols = mind.get("symbols", [])
+        tickers = [s.split(":")[-1] if ":" in s else s for s in symbols]
+
         return {
             "id": f"tradingview_minds:{uid}",
             "content_type": "mind",
@@ -78,8 +81,8 @@ class TradingViewMindsBatchIngestion:
                 "upvote_ratio": None,
             },
             "metadata": {
-                "ticker": ticker,
-                "symbols": mind.get("symbols", []),
+                "ticker": tickers,
+                "symbols": symbols,
                 "source_section": "minds",
                 "category": None,
             },
