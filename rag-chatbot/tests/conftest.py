@@ -10,7 +10,7 @@ is instantiated at import time in app/core/config.py.
 
 import os
 
-os.environ.setdefault("LANGSMITH_TRACING", "true")
+os.environ.setdefault("LANGSMITH_TRACING", "false")
 os.environ.setdefault("LANGSMITH_ENDPOINT", "http://mock-endpoint")
 os.environ.setdefault("LANGSMITH_API_KEY", "mock-api-key")
 os.environ.setdefault("LANGSMITH_PROJECT", "mock-proj")
@@ -32,3 +32,4 @@ os.environ.setdefault("POSTGRES_HOST", "mock")
 os.environ.setdefault("REDIS_HOST", "mock")
 os.environ.setdefault("REDIS_PORT", "6379")
 os.environ.setdefault("REDIS_PASSWORD", "mock")
+os.environ.setdefault("SSL_MODE", "true")
