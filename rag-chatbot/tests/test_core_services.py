@@ -14,9 +14,8 @@ def mock_boto3():
 
 
 def test_s3_config_service_init(mock_boto3):
-    service = S3ConfigService()
     mock_boto3.assert_called_once()
-    args, kwargs = mock_boto3.call_args
+    args, _ = mock_boto3.call_args
     assert args[0] == "s3"
 
 

@@ -34,8 +34,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen
 
-      - name: Run Linting (Optional)
-        run: uv run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      - name: Run Linting
+        run: uv run ruff check . --fix.
 
       - name: Run Tests
         run: |

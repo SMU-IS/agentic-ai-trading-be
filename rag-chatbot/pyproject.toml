@@ -16,3 +16,8 @@ dependencies = [
     "redisvl>=0.14.1",
     "uvicorn[standard]>=0.41.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.6",
+]
