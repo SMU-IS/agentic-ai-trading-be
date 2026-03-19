@@ -21,9 +21,7 @@ class ChatHistoryResponse(BaseModel):
 class ThreadResponse(BaseModel):
     thread_id: str = Field(..., description="Unique ID of the thread")
     title: str | None = Field(None, description="Title of the thread")
-    updated_at: datetime = Field(
-        ..., description="Timestamp when thread was last updated"
-    )
+    updated_at: str = Field(..., description="Timestamp when thread was last updated")
 
 
 class GeneralNews(BaseModel):

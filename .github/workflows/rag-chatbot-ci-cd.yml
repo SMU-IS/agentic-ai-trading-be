@@ -35,7 +35,7 @@ jobs:
         run: uv sync --frozen
 
       - name: Run Linting
-        run: uv run ruff check . --fix.
+        run: uv run ruff check .
 
       - name: Run Tests
         run: |
