@@ -776,6 +776,23 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/c8/5b/181e2e3becb7672b502f0ed7f16ed7352aca7c109cfb94cf3878a9186db9/psycopg-3.3.3-py3-none-any.whl", hash = "sha256:f96525a72bcfade6584ab17e89de415ff360748c766f0106959144dcbb38c698", size = 212768, upload-time = "2026-02-18T16:46:27.365Z" },
 ]
 
+[package.optional-dependencies]
+pool = [
+    { name = "psycopg-pool" },
+]
+
+[[package]]
+name = "psycopg-pool"
+version = "3.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/56/9a/9470d013d0d50af0da9c4251614aeb3c1823635cab3edc211e3839db0bcf/psycopg_pool-3.3.0.tar.gz", hash = "sha256:fa115eb2860bd88fce1717d75611f41490dec6135efb619611142b24da3f6db5", size = 31606, upload-time = "2025-12-01T11:34:33.11Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e7/c3/26b8a0908a9db249de3b4169692e1c7c19048a9bc41a4d3209cee7dbb758/psycopg_pool-3.3.0-py3-none-any.whl", hash = "sha256:2e44329155c410b5e8666372db44276a8b1ebd8c90f1c3026ebba40d4bc81063", size = 39995, upload-time = "2025-12-01T11:34:29.761Z" },
+]
+
 [[package]]
 name = "pyasn1"
 version = "0.6.3"
@@ -992,7 +1009,7 @@ dependencies = [
     { name = "google-genai" },
     { name = "langchain" },
     { name = "langgraph" },
-    { name = "psycopg" },
+    { name = "psycopg", extra = ["pool"] },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
     { name = "redisvl" },
@@ -1006,7 +1023,7 @@ requires-dist = [
     { name = "google-genai", specifier = ">=1.65.0" },
     { name = "langchain", specifier = ">=1.2.10" },
     { name = "langgraph", specifier = ">=1.0.9" },
-    { name = "psycopg", specifier = ">=3.3.3" },
+    { name = "psycopg", extras = ["pool"], specifier = ">=3.3.3" },
     { name = "pydantic-settings", specifier = ">=2.13.1" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "redisvl", specifier = ">=0.14.1" },
