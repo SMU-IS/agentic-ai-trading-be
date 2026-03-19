@@ -42,7 +42,7 @@ module "eks" {
         "node.kubernetes.io/scope" = "system"
       }
     }
-  }
+
 
   tags = {
     Environment = var.environment
