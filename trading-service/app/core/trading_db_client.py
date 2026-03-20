@@ -9,7 +9,7 @@ class MongoDBClient:
         self.db = self.client[db_name]
         self.orders = self.db.orders
         self.signals = self.db.signals 
-        self.creds = self.db.creds
+        self.accounts = self.db.accounts
         
     def store_orders_bulk(self, orders: List[Dict[str, Any]]) -> Dict[str, int]:
         """Store multiple orders (synchronous)"""
@@ -122,8 +122,8 @@ class MongoDBClient:
             return {}
         
     # User -> alpaca keys
-    def _load_user_creds_from_mongo(self, user_id) -> tuple[str, str]:
-        doc = self.creds.find_one({"user_id": user_id})
+    def _load_user_account_from_mongo(self, user_id) -> tuple[str, str, str]:
+        doc = self.accounts.find_one({"user_id": user_id})
         if not doc:
             raise RuntimeError(f"No Alpaca credentials found for user_id={self.user_id}")
 
@@ -134,3 +134,19 @@ class MongoDBClient:
             raise RuntimeError(f"Incomplete Alpaca credentials for user_id={self.user_id}")
 
         return api_key, api_secret, paper
+    
+    # For trading-agent to run trades
+    def get_all_trading_accounts(self) -> list[dict]:
+        docs = self.accounts.find()
+        accounts = []
+        for doc in docs:
+            accounts.append({
+                "user_id": doc["user_id"],
+                "alpaca_api_key": doc["alpaca_api_key"],
+                "alpaca_api_secret": doc["alpaca_api_secret"],
+                "alpaca_is_paper": doc["alpaca_is_paper"],
+                "risk_profile": doc.get("risk_profile"),
+            })
+        if not accounts:
+            raise RuntimeError("No trading accounts found")
+        return accounts

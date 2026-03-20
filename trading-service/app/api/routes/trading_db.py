@@ -75,3 +75,14 @@ async def get_signal_by_id(
     if not doc:
         raise HTTPException(status_code=404, detail="Signal not found")
     return DeepAnalysis.model_validate(doc)
+
+@router.get("/trading-accounts", response_model=list[dict])
+async def get_all_trading_accounts(
+    client: MongoDBClient = Depends(lambda: mongo_client)
+) -> list[dict]:
+    try:
+        result = client.get_all_trading_accounts()
+        return result
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+

@@ -81,7 +81,7 @@ def get_broker(user_id: str = None) -> AlpacaBrokerClient:
     # Get keys by id
     if user_id is None:
         user_id = "agent-A" # hard code user for testing
-    api_key, api_secret, paper = services.trading_db._load_user_creds_from_mongo(user_id)
+    api_key, api_secret, paper = services.trading_db._load_user_account_from_mongo(user_id)
     return create_broker_client(api_key, api_secret, paper)
 
 
