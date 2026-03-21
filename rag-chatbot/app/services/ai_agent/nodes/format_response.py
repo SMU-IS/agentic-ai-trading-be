@@ -11,7 +11,7 @@ def format_response_node(state: AgentState) -> Dict[str, Any]:
     """Cleans up JSON strings into human-readable text before finishing."""
     messages = state.get("messages", [])
     if not messages:
-        return {"messages": messages}
+        return {}
 
     last = messages[-1]
     content = str(getattr(last, "content", last))
@@ -32,4 +32,9 @@ def format_response_node(state: AgentState) -> Dict[str, Any]:
     except (json.JSONDecodeError, ValueError):
         pass
 
-    return {"messages": [last.__class__(content=formatted)]}
+    if formatted == content:
+        return {}
+
+    # Replace the last message by using the same ID
+    new_msg = last.__class__(content=formatted, id=getattr(last, "id", None))
+    return {"messages": [new_msg]}

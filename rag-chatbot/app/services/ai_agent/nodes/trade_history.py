@@ -1,4 +1,5 @@
 import json
+import uuid
 from typing import Any
 
 from langchain_core.messages import AIMessage
@@ -25,6 +26,7 @@ async def trade_history_node(state: AgentState) -> dict[str, Any]:
     logger.info("Executing trade_history_node")
 
     order_id = state.get("order_id")
+    msg_id = str(uuid.uuid4())
     if not order_id:
         logger.warning("No order_id found in state for trade_history_node")
 
@@ -32,7 +34,8 @@ async def trade_history_node(state: AgentState) -> dict[str, Any]:
             "messages": [
                 AIMessage(
                     content="I couldn't find an order ID in your query. "
-                    "Please provide an order ID so I can retrieve the trade history."
+                    "Please provide an order ID so I can retrieve the trade history.",
+                    id=msg_id,
                 )
             ]
         }
@@ -43,7 +46,7 @@ async def trade_history_node(state: AgentState) -> dict[str, Any]:
         result = await get_trade_history_details.ainvoke({"order_id": order_id})
         logger.info(f"Trade history retrieved for order_id: {order_id}")
         return {
-            "messages": [AIMessage(content=json.dumps(result.dict()))],
+            "messages": [AIMessage(content=json.dumps(result.dict()), id=msg_id)],
         }
 
     except Exception as e:
@@ -52,7 +55,8 @@ async def trade_history_node(state: AgentState) -> dict[str, Any]:
             "messages": [
                 AIMessage(
                     content=f"Unable to retrieve trade history for order {order_id}. "
-                    f"Error: {str(e)}"
+                    f"Error: {str(e)}",
+                    id=msg_id,
                 )
             ]
         }

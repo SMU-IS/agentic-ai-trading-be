@@ -1,4 +1,5 @@
 import json
+import uuid
 from typing import Any
 
 from langchain_core.messages import AIMessage
@@ -29,6 +30,7 @@ async def general_news_node(state: AgentState) -> dict[str, Any]:
         state.get("variables", {}).get("tickers", []) if state.get("variables") else []
     )
 
+    msg_id = str(uuid.uuid4())
     try:
         from app.services.tools.general_news import get_general_news
 
@@ -36,13 +38,15 @@ async def general_news_node(state: AgentState) -> dict[str, Any]:
         logger.info("General news retrieved")
 
         return {
-            "messages": [AIMessage(content=json.dumps(result))],
+            "messages": [AIMessage(content=json.dumps(result), id=msg_id)],
         }
 
     except Exception as e:
         logger.error(f"Error fetching general news: {e}")
         return {
             "messages": [
-                AIMessage(content=f"An error occurred while fetching news: {str(e)}")
+                AIMessage(
+                    content=f"An error occurred while fetching news: {str(e)}", id=msg_id
+                )
             ]
         }

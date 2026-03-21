@@ -125,17 +125,18 @@ Title:"""
             graph_wrapper = self._get_agent_graph()
             logger.info(f"Invoking agent with query: {context_query[:50]}...")
 
-            # Use the internal compiled graph directly
             graph = graph_wrapper.graph
 
             initial_state: AgentState = {
                 "messages": [HumanMessage(content=context_query)],
                 "sender": "user",
-                "order_id": order_id,
                 "query": context_query,
                 "variables": None,
                 "metadata": {"user_id": user_id, "title": title},
             }
+
+            if order_id:
+                initial_state["order_id"] = order_id
 
             async for event in graph.astream_events(
                 initial_state, config=config, version="v2"

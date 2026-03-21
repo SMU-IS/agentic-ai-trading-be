@@ -2,7 +2,7 @@ import os
 from functools import partial
 from typing import Literal, cast
 
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import SystemMessage
 from langgraph.graph import END, StateGraph
 
 from app.schemas.router_decision import RouterDecision
@@ -11,6 +11,7 @@ from app.services.ai_agent.nodes import (
     format_response_node,
     general_news_node,
     llm_chat_node,
+    summarize_node,
     trade_history_node,
 )
 from app.services.ai_agent.state import AgentState
@@ -75,6 +76,7 @@ class ChatWorkflow:
         graph.add_node("general_news", general_news_node)
         graph.add_node("llm_chat", bound_chat_node)
         graph.add_node("format_response", format_response_node)
+        graph.add_node("summarize", partial(summarize_node, llm=self.llm))
 
         graph.set_entry_point("extract_order_id")
 
@@ -91,7 +93,8 @@ class ChatWorkflow:
         graph.add_edge("trade_history", "format_response")
         graph.add_edge("general_news", "format_response")
         graph.add_edge("llm_chat", "format_response")
-        graph.add_edge("format_response", END)
+        graph.add_edge("format_response", "summarize")
+        graph.add_edge("summarize", END)
 
         return graph.compile(checkpointer=self.checkpointer)
 
