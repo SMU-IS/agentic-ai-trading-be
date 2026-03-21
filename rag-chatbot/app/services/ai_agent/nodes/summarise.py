@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 
 from langchain_core.messages import RemoveMessage, SystemMessage
 
@@ -8,9 +8,15 @@ from app.utils.logger import setup_logging
 logger = setup_logging()
 
 
-async def summarize_node(state: AgentState, llm: Any) -> Dict[str, Any]:
+def should_summarise(state: AgentState) -> Literal["summarise", "end"]:
+    if len(state.get("messages", [])) > 6:
+        return "summarise"
+    return "end"
+
+
+async def summarise_node(state: AgentState, llm: Any) -> Dict[str, Any]:
     """
-    Summarizes the chat history if it exceeds a threshold (e.g., 6 messages).
+    Summarises the chat history if it exceeds a threshold (e.g., 6 messages).
     Removes the old messages while maintaining a rolling summary.
     """
     messages = state.get("messages", [])
@@ -23,11 +29,11 @@ async def summarize_node(state: AgentState, llm: Any) -> Dict[str, Any]:
     if len(messages) <= threshold:
         return {}
 
-    logger.info(f"Summarizing {len(messages)} messages (Threshold: {threshold}).")
+    logger.info(f"Summarising {len(messages)} messages (Threshold: {threshold}).")
 
-    # Construct the summarization prompt
+    # Construct the summarisation prompt
     summary_instruction = (
-        "Summarize the following conversation in a concise manner (1-2 sentences). "
+        "Summarise the following conversation in a concise manner (1-2 sentences). "
         "Include key entities mentioned and the current state of the request. "
         "Maintain continuity with any previous summary provided."
     )
@@ -37,7 +43,7 @@ async def summarize_node(state: AgentState, llm: Any) -> Dict[str, Any]:
 
     summarization_query = [
         SystemMessage(content=summary_instruction),
-        *messages[:-2],  # Summarize everything EXCEPT the last 2 messages
+        *messages[:-2],  # Summarise everything EXCEPT the last 2 messages
     ]
 
     try:

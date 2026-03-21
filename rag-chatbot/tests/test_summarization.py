@@ -8,13 +8,13 @@ from langchain_core.messages import (
 )
 
 from app.services.ai_agent.nodes.llm_chat import llm_chat_node
-from app.services.ai_agent.nodes.summarize import summarize_node
+from app.services.ai_agent.nodes.summarise import summarise_node
 from app.services.ai_agent.state import AgentState
 
 
 @pytest.mark.asyncio
-async def test_summarize_node_below_threshold():
-    """Test that summarize_node does nothing if below threshold."""
+async def test_summarise_node_below_threshold():
+    """Test that summarise_node does nothing if below threshold."""
 
     state: AgentState = {
         "messages": [HumanMessage(content="hi", id="1")],
@@ -22,15 +22,15 @@ async def test_summarize_node_below_threshold():
     }
     llm = AsyncMock()
 
-    result = await summarize_node(state, llm)
+    result = await summarise_node(state, llm)
 
     assert result == {}
     llm.ainvoke.assert_not_called()
 
 
 @pytest.mark.asyncio
-async def test_summarize_node_exceeds_threshold():
-    """Test that summarize_node triggers and returns RemoveMessages and a new summary."""
+async def test_summarise_node_exceeds_threshold():
+    """Test that summarise_node triggers and returns RemoveMessages and a new summary."""
 
     # Create 7 messages to exceed the threshold of 6
     messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(7)]
@@ -40,14 +40,14 @@ async def test_summarize_node_exceeds_threshold():
     mock_llm = AsyncMock()
     mock_llm.ainvoke.return_value = MagicMock(content="This is the new summary.")
 
-    result = await summarize_node(state, mock_llm)
+    result = await summarise_node(state, mock_llm)
 
     # Assertions
     assert "summary" in result
     assert result["summary"] == "This is the new summary."
     assert "messages" in result
 
-    # It should summarize everything EXCEPT the last 2 (indices 0 to 4)
+    # It should summarise everything EXCEPT the last 2 (indices 0 to 4)
     # So it should return 5 RemoveMessage objects
     assert len(result["messages"]) == 5
     assert all(isinstance(m, RemoveMessage) for m in result["messages"])
@@ -83,8 +83,8 @@ async def test_llm_chat_node_includes_summary():
 
 
 @pytest.mark.asyncio
-async def test_summarize_node_fails_gracefully():
-    """Test that summarize_node returns empty dict if LLM fails."""
+async def test_summarise_node_fails_gracefully():
+    """Test that summarise_node returns empty dict if LLM fails."""
 
     messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(10)]
     state: AgentState = {"messages": messages, "summary": ""}
@@ -92,5 +92,5 @@ async def test_summarize_node_fails_gracefully():
     mock_llm = AsyncMock()
     mock_llm.ainvoke.side_effect = Exception("API Down")
 
-    result = await summarize_node(state, mock_llm)
+    result = await summarise_node(state, mock_llm)
     assert result == {}
