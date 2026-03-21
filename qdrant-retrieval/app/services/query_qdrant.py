@@ -3,14 +3,14 @@ from typing import Any
 from qdrant_client import models
 
 from app.core.logger import logger
-from app.providers.vector.strategy import QdrantOllamaStrategy
+from app.providers.vector.strategy import QdrantNomicStrategy
 from app.schemas.query_docs_payload import QueryDocsRequest
 
 
 class QueryQdrantService:
     def __init__(self):
         self.strategy = (
-            QdrantOllamaStrategy()
+            QdrantNomicStrategy()
         )  # TODO: Make this dynamic based on config/env
         self.vector_store = self.strategy.get_vector_store()
 

@@ -33,7 +33,7 @@ jobs:
 
   deploy:
     name: Continuous Deployment
-    if: true
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
