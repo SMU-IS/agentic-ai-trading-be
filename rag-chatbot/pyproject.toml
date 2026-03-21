@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "boto3>=1.42.58",
-    "fastapi>=0.133.1",
+    "fastapi[standard]>=0.133.1",
     "google-genai>=1.65.0",
     "langchain>=1.2.10",
     "langchain-google-genai>=4.2.1",
