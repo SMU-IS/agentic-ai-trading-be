@@ -3,6 +3,7 @@ resource "aws_amplify_app" "trading_frontend" {
   name         = "${var.cluster_name}-frontend"
   repository   = var.amplify_repository
   access_token = var.amplify_access_token
+  platform     = "WEB_COMPUTE"
 
   build_spec = <<-EOT
     version: 1
@@ -23,6 +24,12 @@ resource "aws_amplify_app" "trading_frontend" {
           - .next/cache/**/*
           - .npm/**/*
   EOT
+
+  custom_rule {
+    source = "/<*>"
+    status = "404"
+    target = "/index.html"
+  }
 
   environment_variables = {
     ENV = var.environment

@@ -122,4 +122,4 @@ jobs:
 
       - name: Apply Global Ingress Gateway
         run: |
-          kubectl apply -f ./deploy/ingress.yaml
+          kubectl apply -f ./deploy/ingress.yaml --server-side --force-conflicts
