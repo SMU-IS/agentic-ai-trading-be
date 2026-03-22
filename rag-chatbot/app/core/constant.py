@@ -25,6 +25,7 @@ class LLMProviders(str, Enum):
     OLLAMA = "ollama"
     GEMINI = "gemini"
     GROQ = "groq"
+    NVIDIA = "nvidia"
 
 
 class RedisCacheKeys(str, Enum):

@@ -24,7 +24,7 @@ async def _get_order_details(order_id: str):
 
             return (
                 order_details.get("symbol", "Unknown"),
-                order_details.get("filled_avg_price", 0),
+                order_details.get("filled_avg_price") or 0.0,
                 order_details.get("side", "Unknown"),
                 order_details.get("risk_evaluation", "Unknown"),
                 order_details.get("risk_adjustments_made", "Unknown"),
