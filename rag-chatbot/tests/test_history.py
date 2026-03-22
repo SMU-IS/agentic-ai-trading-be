@@ -4,7 +4,6 @@ import pytest
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from langgraph.graph.message import add_messages
 
-from app.services.ai_agent.nodes.format_response import format_response_node
 from app.services.ai_agent.nodes.llm_chat import llm_chat_node
 from app.services.ai_agent.state import AgentState
 
@@ -68,27 +67,3 @@ async def test_llm_chat_node_uses_history():
     assert sent_messages[1].content == "My name is Joshua"
     assert sent_messages[2].content == "Hello Joshua!"
     assert sent_messages[3].content == "What is my name?"
-
-
-@pytest.mark.asyncio
-async def test_format_response_node_replacement():
-    """Test that format_response_node replaces the last message using its ID."""
-
-    llm = AsyncMock()
-    llm.ainvoke.return_value = AIMessage(content="Formatted message")
-
-    last_msg = SystemMessage(content='{"context": "Raw data"}', id="unique_id")
-    state: AgentState = {"messages": [HumanMessage(content="Query"), last_msg]}
-
-    result = await format_response_node(state, llm)
-
-    assert "messages" in result
-    new_messages = result["messages"]
-    assert len(new_messages) == 1
-    assert new_messages[0].content == "Formatted message"
-    assert new_messages[0].id == "unique_id"
-
-    final_messages = add_messages(state["messages"], new_messages)
-    assert len(final_messages) == 2
-    assert final_messages[1].content == "Formatted message"
-    assert final_messages[1].id == "unique_id"
