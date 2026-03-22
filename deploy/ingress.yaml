@@ -6,7 +6,7 @@ metadata:
 config:
   origins:
     - "http://localhost:3000"
-    - "https://d3e8bz2bnxvara.cloudfront.net"
+    - "https://main.d3f0x7kvo77xiu.amplifyapp.com"
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
   headers: ["Accept", "Accept-Version", "Content-Length", "Content-MD5", "Content-Type", "Date", "Authorization"]
   exposed_headers: ["X-Auth-Token"]
