@@ -3,15 +3,17 @@ from typing import Any
 from qdrant_client import models
 
 from app.core.logger import logger
-from app.providers.vector.strategy import QdrantOllamaStrategy
+from app.providers.vector.registry import get_vector_strategy
+from app.core.config import env_config
+from app.core.constant import StorageProviders
 from app.schemas.query_docs_payload import QueryDocsRequest
 
 
 class QueryQdrantService:
     def __init__(self):
-        self.strategy = (
-            QdrantOllamaStrategy()
-        )  # TODO: Make this dynamic based on config/env
+        self.strategy = get_vector_strategy(
+            StorageProviders(env_config.storage_provider)
+        )
         self.vector_store = self.strategy.get_vector_store()
 
     async def retrieve_all_news(

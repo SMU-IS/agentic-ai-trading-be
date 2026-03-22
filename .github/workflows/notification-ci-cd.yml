@@ -2,14 +2,14 @@ name: Notification Alert CI
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: ["master"]
-  #   paths:
-  #     - "notification-alert/**"
-  # pull_request:
-  #   branches: ["master"]
-  #   paths:
-  #     - "notification-alert/**"
+  push:
+    branches: ["master"]
+    paths:
+      - "notification-alert/**"
+  pull_request:
+    branches: ["master"]
+    paths:
+      - "notification-alert/**"
 
 jobs:
   python-tests:
@@ -47,6 +47,7 @@ jobs:
 
   deploy:
     name: Continuous Deployment
+    if: false
     runs-on: ubuntu-latest
     needs: python-tests
     steps:
@@ -59,6 +60,15 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -75,7 +85,7 @@ jobs:
           ECR_REPOSITORY: notification-alert
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
+          docker build --platform linux/arm64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             -f ./notification-alert/Dockerfile ./notification-alert
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -96,7 +106,7 @@ jobs:
         env:
           WORKSPACE: ${{ github.workspace }}
         run: |
-          helm upgrade --install notification-alert ./infra -f ./deploy/values-notification-alert.yaml --set image.tag=${{ github.sha }}
+          helm upgrade --install notification-alert ./infra -f ./deploy/values-notification-alert.yaml --set image.tag=${{ github.sha }} --set ingress.enabled=true
 
       - name: Verify Health and Status
         if: always()

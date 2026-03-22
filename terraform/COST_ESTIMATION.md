@@ -10,12 +10,12 @@ This report provides a granular cost breakdown for the `agentic-ai-trading-be` p
 | AWS Service | Monthly Est. | Daily Est. | Hourly Est. | Technical Notes |
 | :--- | :--- | :--- | :--- | :--- |
 | **Amazon EKS Control Plane** | $73.00 | $2.43 | $0.10 | Fixed cluster management fee; non-scalable. |
-| **Amazon EC2 Spot Instances** | ~$8.00 | ~$0.27 | ~$0.011 | 1x `t4g.small` (system) + 1x `t4g.micro` (app) via Karpenter; public nodes for cost efficiency. |
+| **Amazon EC2 Spot Instances** | ~$18.25 | ~$0.61 | ~$0.025 | 5x `t4g.small` (Spot) to support current workload requirements. |
 | **Amazon RDS (PostgreSQL)** | ~$13.90 | ~$0.46 | ~$0.02 | `db.t4g.micro` + 20GB gp3; Graviton-based instance. |
 | **AWS Amplify + CloudFront** | < $2.00 | < $0.06 | < $0.002 | Frontend hosting + manual CDN; includes data transfer. |
 | **Amazon Application Load Balancer** | ~$18.00 | ~$0.60 | ~$0.025 | Single ALB for all 11 microservices using path-based routing. |
 | **Amazon S3 & Amazon ECR** | < $0.50 | < $0.02 | < $0.01 | Combined storage costs after lifecycle pruning. |
-| **TOTAL** | **~$115.40** | **~$3.85** | **~$0.16** | |
+| **TOTAL** | **~$125.65** | **~$4.19** | **~$0.18** | |
 
 ---
 
@@ -28,17 +28,18 @@ This report provides a granular cost breakdown for the `agentic-ai-trading-be` p
 
 ### 3.2 Performance
 - **Architecture:** Compute nodes utilize Graviton (`t4g` class) for optimal cost/performance. Ensure Docker images are built for `linux/arm64`.
+- **Memory Overhead:** The app NodePool includes `t4g.small` (2GiB RAM) to accommodate Python-based microservices that exceed the memory limits of `t4g.micro`.
 - **Amazon EBS gp3 Storage:** The database uses the latest generation storage, providing a baseline of 3,000 IOPS regardless of volume size.
 
 ### 3.3 Scalability
-- **Karpenter:** The cluster is configured to automatically scale Amazon EC2 instances based on pod requirements. Increasing the `max_size` in the Karpenter configuration will directly impact the daily compute cost.
+- **Karpenter:** The cluster is configured to automatically scale Amazon EC2 instances based on pod requirements. Both `t4g.micro` and `t4g.small` are available to ensure pods find a fit regardless of size.
 - **Traffic Spikes:** Heavy data transfer through Amazon CloudFront or the Amazon Network Load Balancer beyond the free tier thresholds will result in incremental charges.
 
 ---
 
 ## 4. Operational Recommendations
 - **Off-Hours Shutdown:** For further savings, scale EKS deployments to 0 replicas during non-development hours to trigger Karpenter to terminate the Amazon EC2 instances.
-- **AWS Budgets:** Configure AWS Budgets to send SNS or Email notifications when actual costs exceed 80% ($96.00) of the $120.00 monthly threshold.
+- **AWS Budgets:** Configure AWS Budgets to send SNS or Email notifications when actual costs exceed 80% ($100.00) of the $125.00 monthly threshold.
 
 ---
-*Report updated: March 14, 2026*
+*Report updated: March 15, 2026*

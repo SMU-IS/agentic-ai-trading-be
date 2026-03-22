@@ -6,8 +6,9 @@ from app.data.mock_reddit_payload import MOCK_REDDIT_PAYLOAD
 
 @pytest.fixture
 def mock_strategy():
-    with patch("app.services.vectorisation.QdrantGeminiStrategy") as mock:
-        strategy_instance = mock.return_value
+    with patch("app.services.vectorisation.get_vector_strategy") as mock:
+        strategy_instance = MagicMock()
+        mock.return_value = strategy_instance
         vector_store = MagicMock()
         vector_store.aadd_documents = AsyncMock(return_value=["test-id"])
         strategy_instance.get_vector_store.return_value = vector_store

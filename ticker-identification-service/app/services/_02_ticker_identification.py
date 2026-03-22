@@ -1,3 +1,4 @@
+import asyncio
 from app.core.logger import logger
 from collections import defaultdict
 from typing import List, Dict, Union
@@ -15,6 +16,9 @@ STOP_SUFFIXES = [
 ]
 
 TICKER_PATTERN = re.compile(r"\$[A-Z]{1,5}(?:\.[A-Z]{1,2})?\b")
+
+LLM_MAX_RETRIES = 3
+LLM_RETRY_DELAY = 2.0   
 
 
 class TickerIdentificationService:
@@ -104,7 +108,9 @@ class TickerIdentificationService:
             ticker_type = cleaned_type
         return ticker_type
 
-    def _extract_company_ticker_llm(self, text: str):
+    async def _extract_company_ticker_llm(self, text: str) -> list:
+        if not self.llm:
+            return []
         format_instructions = (
             "Output a JSON array of objects. Each object must contain:\n"
             '- "company_name": string\n'
@@ -137,43 +143,50 @@ class TickerIdentificationService:
         )
 
         chain = prompt | self.llm | self.parser
+        for attempt in range(1, LLM_MAX_RETRIES + 1):
+                
+            try:
+                result = await chain.ainvoke({"input_text": text})
 
-        try:
-            result = chain.invoke({"input_text": text})
+                if isinstance(result, str):
+                    try:
+                        result = json.loads(result)
+                    except json.JSONDecodeError:
+                        raise ValueError(f"LLM returned non-JSON string: {result[:200]}")
 
-            if isinstance(result, str):
-                try:
-                    result = json.loads(result)
-                except json.JSONDecodeError:
-                    logger.warning("LLM returned non-JSON string")
+                if isinstance(result, dict):
+                    result = [result]
+
+                if not isinstance(result, list):
+                    raise ValueError(f"Unexpected LLM output type: {type(result)}")
+
+                validated = []
+                for item in result:
+                    # ensure that every item is in dict format 
+                    if not isinstance(item, dict):
+                        continue
+                    company = item.get("company_name")
+                    ticker = item.get("ticker")
+                    if not company:
+                        continue
+                    # normalize ticker
+                    if ticker:
+                        ticker = ticker.strip().replace("$", "").upper()
+                    validated.append({
+                        "company_name": company,
+                        "ticker": ticker,
+                    })
+
+                logger.debug(f"[Ticker LLM] Success on attempt {attempt} — {len(validated)} tickers")
+                return validated
+
+            except Exception as e:
+                logger.warning(f"[Ticker LLM] Attempt {attempt}/{LLM_MAX_RETRIES} failed: {e}")
+                if attempt < LLM_MAX_RETRIES:
+                    await asyncio.sleep(LLM_RETRY_DELAY * attempt)
+                else:
+                    logger.error(f"[Ticker LLM] All {LLM_MAX_RETRIES} attempts failed — returning empty")
                     return []
-
-            if isinstance(result, dict):
-                result = [result]
-
-            if not isinstance(result, list):
-                logger.warning(f"Unexpected LLM output type: {type(result)}")
-                return []
-
-            validated = []
-            for item in result:
-                # ensure that every item is in dict format 
-                if not isinstance(item, dict):
-                    continue
-                company = item.get("company_name")
-                ticker = item.get("ticker")
-                # normalize ticker
-                if ticker:
-                    ticker = ticker.strip().replace("$", "").upper()
-                validated.append({
-                    "company_name": company,
-                    "ticker": ticker,
-                })
-
-            return validated
-        except Exception as e:
-            logger.warning(f"LLM extraction error: {e}")
-            return []
 
     def build_canonical_to_aliases(self, alias_to_canonical: Dict[str, str]) -> Dict[str, List[str]]:
         canonical_to_aliases = defaultdict(list)
@@ -199,7 +212,7 @@ class TickerIdentificationService:
 
         return output
 
-    def extract_tickers(self, text: str) -> Dict[str, Dict[str, Union[str, List[str]]]]:
+    async def extract_tickers(self, text: str) -> Dict[str, Dict[str, Union[str, List[str]]]]:
         ticker_metadata: Dict[str, Dict[str, Union[str, List[str]]]] = {}
         doc = self.nlp(text)
         orgs = [ent.text for ent in doc.ents if ent.label_ == "ORG"]
@@ -250,7 +263,7 @@ class TickerIdentificationService:
                         ticker_metadata[ticker]["name_identified"].append(match)
 
         # 3. LLM
-        llm_result = self._extract_company_ticker_llm(text)
+        llm_result = await self._extract_company_ticker_llm(text)
         if llm_result:
             for company in llm_result:
                 if company:
@@ -272,11 +285,42 @@ class TickerIdentificationService:
                                 ticker_metadata[ticker]["name_identified"].append(company_name)
         return ticker_metadata
 
-    def process_post(self, post: Dict) -> Dict:
-        ticker_metadata = self.extract_tickers(post["content"]["clean_combined_withurl"])
+    async def process_post(self, post: Dict) -> Dict:
+        post_metadata = post.get("metadata", {})
+        raw_tickers = post_metadata.get("ticker", []) if post_metadata else []
+
+        # normalise to list — handle both string and list formats
+        if isinstance(raw_tickers, str):
+            provided_tickers = [raw_tickers] if raw_tickers.strip() else []
+        elif isinstance(raw_tickers, list):
+            provided_tickers = raw_tickers
+        else:
+            provided_tickers = []
+
+        if provided_tickers:
+            # use provided tickers directly — skip NER + regex + LLM
+            ticker_metadata = {}
+            for ticker in provided_tickers:
+                ticker = ticker.strip().upper()
+                if ticker not in self.ticker_to_title:
+                    logger.info(f"Provided ticker {ticker} not in mapping — skipping")
+                    continue
+                ticker_type = self._update_cleaned_entry(ticker)
+                if ticker_type != "stock":
+                    continue
+                ticker_metadata[ticker] = {
+                    "type": ticker_type,
+                    "official_name": self.ticker_to_title.get(ticker, ""),
+                    "name_identified": [ticker],  # set as itself since no NER name
+                }
+        else:
+            # fallback to full extraction pipeline
+            ticker_metadata = await self.extract_tickers(post["content"]["clean_combined_withurl"])
+
         if ticker_metadata:
             post["ticker_metadata"] = ticker_metadata
         else:
             postid = post.get("id")
             logger.info(f"This post is removed as no ticker was identified: {postid}")
+
         return post
