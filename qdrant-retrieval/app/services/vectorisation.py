@@ -8,7 +8,7 @@ from app.core.constant import StorageProviders
 from app.providers.vector.registry import get_vector_strategy
 from app.core.logger import logger
 from app.schemas.compiled_news_payload import NewsAnalysisPayload
-from app.schemas.raw_news_payload import RedditSourcePayload
+from app.schemas.raw_news_payload import SourcePayload
 
 
 class VectorisationService:
@@ -42,7 +42,7 @@ class VectorisationService:
         await self._setup_indexing(field_name="tickers_metadata[].ticker")
         await self._setup_indexing(field_name="tickers_metadata[].event_type")
 
-    async def get_sanitised_news_payload(self, processed_source: RedditSourcePayload):
+    async def get_sanitised_news_payload(self, processed_source: SourcePayload):
         fields = processed_source.fields
         topic_id, content, ticker_data, engagement, timestamps, author = (
             fields.id,
@@ -85,7 +85,9 @@ class VectorisationService:
             domain = urlparse(url).netloc
         except Exception as e:
             logger.error(f"Error parsing URL: {e}")
-            domain = "reddit.com"
+            domain = "unknown"
+
+        credibility_score = engagement.upvote_ratio if engagement.upvote_ratio is not None else 0.5
 
         sanitised_news_payload = {
             "id": processed_source.id,
@@ -95,7 +97,7 @@ class VectorisationService:
                 "tickers_metadata": transformed_tickers_flat,
                 "timestamp": timestamps,
                 "source_domain": domain,
-                "credibility_score": engagement.upvote_ratio,
+                "credibility_score": credibility_score,
                 "headline": content.clean_title,
                 "text_content": content.clean_body,
                 "url": url,
