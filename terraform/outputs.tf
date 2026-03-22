@@ -57,14 +57,14 @@ output "cloudfront_id" {
   value       = module.hosting.cloudfront_id
 }
 
-output "rds_endpoint" {
-  description = "Endpoint of the RDS instance"
-  value       = module.databases.db_endpoint
+output "rds_endpoints" {
+  description = "Endpoints of the RDS instances"
+  value       = { for k, v in module.databases : k => v.db_endpoint }
 }
 
-output "rds_security_group_id" {
-  description = "ID of the RDS security group"
-  value       = module.databases.db_security_group_id
+output "rds_security_group_ids" {
+  description = "IDs of the RDS security groups"
+  value       = { for k, v in module.databases : k => v.db_security_group_id }
 }
 
 output "amplify_app_id" {

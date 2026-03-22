@@ -67,22 +67,20 @@ variable "s3_buckets" {
   }
 }
 
-variable "db_name" {
-  description = "Name of the RDS database"
-  type        = string
-  default     = "tradingdb"
-}
-
-variable "db_username" {
-  description = "Username for the RDS database"
-  type        = string
-  default     = "dbadmin"
-}
-
-variable "db_password" {
-  description = "Password for the RDS database"
-  type        = string
-  sensitive   = true
+variable "db_configs" {
+  description = "Map of database configurations"
+  type = map(object({
+    db_name  = string
+    username = string
+    password = string
+  }))
+  default = {
+    "trading" = {
+      db_name  = "ragbotdb"
+      username = "ragbotadmin"
+      password = ""
+    }
+  }
 }
 
 variable "amplify_repository" {
