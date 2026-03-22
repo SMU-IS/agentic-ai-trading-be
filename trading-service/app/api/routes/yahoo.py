@@ -1,40 +1,30 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import List, Dict, Any, Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
 
 from app.core.yahoo_client import get_yahoo_client, YahooClient
+from app.api.schemas import SignalResponse, QuotesResponse, HistoryResponse, LatestInfoResponse
 
 router = APIRouter()
-
-
-class QuotesResponse(BaseModel):
-    data: Dict[str, List[Dict[str, Any]]]
-
-
-class HistoryResponse(BaseModel):
-    symbol: str
-    interval: str
-    count: int
-    bars: List[Dict[str, Any]]
-    
-class LatestInfoResponse(BaseModel):
-    """Latest ticker price, quote, and metrics."""
-    symbol: str
-    timestamp: float
-    price: Dict[str, float] = Field(..., description="Last, current, previous close")
-    intraday: Dict[str, Any] = Field(..., description="OHLCV latest bar")
-    averages: Dict[str, float] = Field(..., description="SMA 50/200")
-    fundamentals: Dict[str, Any] = Field(..., description="Market cap, PE")
-    change: Dict[str, float] = Field(..., description="Day % change")
 
 
 def get_client() -> YahooClient:
     return get_yahoo_client()
 
+@router.get("/analyze")
+async def analyze_signals(
+    symbol: str = Query(..., alias="symbol", description="Single ticker symbol (e.g. NVDA)"),
+    client: YahooClient = Depends(get_client),
+) -> SignalResponse:
+    try:
+        data: SignalResponse = client.process_trading_data(symbol)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
 
 @router.get("/quotes", response_model=QuotesResponse)
 async def get_quotes(

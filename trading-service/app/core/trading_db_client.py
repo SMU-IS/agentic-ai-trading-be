@@ -2,6 +2,7 @@ import pymongo
 from typing import List, Dict, Any, Optional
 from copy import deepcopy
 from bson import ObjectId
+from app.api.schemas import RiskProfile
 
 class MongoDBClient:
     def __init__(self, uri: str = "mongodb://mongo:27017", db_name: str = "trading_db"):
@@ -135,6 +136,29 @@ class MongoDBClient:
 
         return api_key, api_secret, paper
     
+    # Alpaca token specific
+    def get_trading_account_risk_profile(self, user_id) -> Dict[str, Any]:
+        doc = self.accounts.find_one({"user_id": user_id})
+        if not doc:
+            raise RuntimeError(f"No account found for user_id={user_id}")
+        risk_profile = doc.get("risk_profile")
+        if not risk_profile:
+            raise RuntimeError(f"No risk profile found for user_id={user_id}")
+        
+        return {"risk_profile": risk_profile}
+    
+    def update_trading_account_risk_profile(self, user_id: str, risk_profile: RiskProfile) -> Dict[str, Any]:
+        doc = self.accounts.find_one({"user_id": user_id})
+        if not doc:
+            raise RuntimeError(f"No account found for user_id={user_id}")
+        
+        self.accounts.update_one(
+            {"user_id": user_id},
+            {"$set": {"risk_profile": risk_profile.value}}
+        )
+        
+        return {"user_id": user_id, "risk_profile": risk_profile.value}
+        
     # For trading-agent to run trades
     def get_all_trading_accounts(self) -> list[dict]:
         docs = self.accounts.find()

@@ -13,7 +13,7 @@ from app.api.schemas import (
 )
 from app.core.broker_client import AlpacaBrokerClient, create_broker_client
 from app.core.services import services
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Header
 from pydantic import BaseModel, Field
 
 # Data models for latest trades
@@ -67,6 +67,10 @@ class PnLResponse(BaseModel):
     timeframe: Optional[str] = None
     error: Optional[str] = None
     
+class UserRequest(BaseModel):
+    user_id: str = "agent-A" # Default user
+
+
 router = APIRouter()
 
 
@@ -77,12 +81,14 @@ logger = logging.getLogger(__name__)
 
 
 # Dependency to get a broker instance (can be singleton or factory)
-def get_broker(user_id: str = None) -> AlpacaBrokerClient:
-    # Get keys by id
-    if user_id is None:
-        user_id = "agent-A" # hard code user for testing
-    api_key, api_secret, paper = services.trading_db._load_user_account_from_mongo(user_id)
-    return create_broker_client(api_key, api_secret, paper)
+def get_broker(x_user_id: str = Header(default="agent-A")) -> AlpacaBrokerClient:
+    try:
+        api_key, api_secret, paper = services.trading_db._load_user_account_from_mongo(x_user_id)
+        return create_broker_client(api_key, api_secret, paper)
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ---------- Health ----------

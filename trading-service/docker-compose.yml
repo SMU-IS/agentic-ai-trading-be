@@ -8,6 +8,6 @@ services:
       - "5007:5007"
     environment:
       FLASK_ENV: production
-      MONGODB_URI: ${MONGODB_URI}
+      MONGODB_URL: ${MONGODB_URL}
     command: uvicorn app.main:app --host 0.0.0.0 --port 5007
     restart: unless-stopped
