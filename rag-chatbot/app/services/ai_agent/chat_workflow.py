@@ -87,6 +87,7 @@ class ChatWorkflow:
             llm_chat_node, llm=self.llm, system_prompt=self.system_prompt
         )
         bound_summarise_node = partial(summarise_node, llm=self.llm)
+        bound_format_node = partial(format_response_node, llm=self.llm)
 
         # 1. Add Nodes
         graph.add_node("extract_order_id", extract_order_id_node)
@@ -94,7 +95,7 @@ class ChatWorkflow:
         graph.add_node("general_news", general_news_node)
         graph.add_node("llm_chat", bound_chat_node)
         graph.add_node("clarify", clarification_node)
-        graph.add_node("format_response", format_response_node)
+        graph.add_node("format_response", bound_format_node)
         graph.add_node("summarise", bound_summarise_node)
 
         # 2. Set Entry Point
@@ -113,16 +114,26 @@ class ChatWorkflow:
             },
         )
 
-        # 4. Route all processing nodes to the Formatter
+        # 4. Route processing nodes that need formatting
         graph.add_edge("trade_history", "format_response")
         graph.add_edge("general_news", "format_response")
-        graph.add_edge("llm_chat", "format_response")
-        graph.add_edge("clarify", "format_response")
 
-        # 5. Conditional logic: Decide whether to Summarise or End
+        # 5. Nodes that already have AI messages go straight to summary check
+        graph.add_conditional_edges(
+            "llm_chat",
+            should_summarise,
+            {"summarise": "summarise", "end": END},
+        )
+        graph.add_conditional_edges(
+            "clarify",
+            should_summarise,
+            {"summarise": "summarise", "end": END},
+        )
+
+        # 6. From format_response to summary check
         graph.add_conditional_edges(
             "format_response",
-            should_summarise,  # This function returns "summarise" or "end"
+            should_summarise,
             {"summarise": "summarise", "end": END},
         )
 

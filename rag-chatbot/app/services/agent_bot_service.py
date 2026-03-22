@@ -137,6 +137,8 @@ Title:"""
             if order_id:
                 initial_state["order_id"] = order_id
 
+            streamed_message_ids = set()
+
             async for event in graph.astream_events(
                 initial_state, config=config, version="v2"
             ):
@@ -155,18 +157,12 @@ Title:"""
                         if text:
                             yield f"data: {json.dumps({'token': text})}\n\n"
 
-                    # 3. Handle Chain Streaming (Final Node outputs)
-                    case "on_chain_stream":
-                        data = event.get("data", {})
-                        if "chunk" in data:
-                            chunk = data["chunk"]
-                            if isinstance(chunk, dict) and "messages" in chunk:
-                                last_msg = chunk["messages"][-1]
-                                if last_msg.type == "ai" and last_msg.content:
-                                    yield f"data: {json.dumps({'token': last_msg.content})}\n\n"
-
+                    # 3. Handle Chat Model End to capture the message ID
                     case "on_chat_model_end":
                         output = event["data"].get("output", {})
+                        if hasattr(output, "id") and output.id:
+                            streamed_message_ids.add(output.id)
+                        
                         console.print(
                             Panel(
                                 Pretty(output),
@@ -174,6 +170,21 @@ Title:"""
                                 border_style="green",
                             )
                         )
+
+                    # 4. Handle Chain Streaming (Final Node outputs)
+                    case "on_chain_stream":
+                        data = event.get("data", {})
+                        if "chunk" in data:
+                            chunk = data["chunk"]
+                            if isinstance(chunk, dict) and "messages" in chunk:
+                                last_msg = chunk["messages"][-1]
+                                # Only yield if it's an AI message AND we haven't streamed it yet
+                                if last_msg.type == "ai" and last_msg.content:
+                                    msg_id = getattr(last_msg, "id", None)
+                                    if msg_id not in streamed_message_ids:
+                                        yield f"data: {json.dumps({'token': last_msg.content})}\n\n"
+                                        if msg_id:
+                                            streamed_message_ids.add(msg_id)
 
         except Exception as e:
             logger.error(f"Streaming Error: {str(e)}", exc_info=True)

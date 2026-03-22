@@ -2,7 +2,7 @@ import json
 import uuid
 from typing import Any
 
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, SystemMessage
 
 from app.services.ai_agent.state import AgentState
 from app.utils.logger import setup_logging
@@ -46,7 +46,7 @@ async def trade_history_node(state: AgentState) -> dict[str, Any]:
         result = await get_trade_history_details.ainvoke({"order_id": order_id})
         logger.info(f"Trade history retrieved for order_id: {order_id}")
         return {
-            "messages": [AIMessage(content=json.dumps(result.dict()), id=msg_id)],
+            "messages": [SystemMessage(content=json.dumps(result.dict()), id=msg_id)],
         }
 
     except Exception as e:

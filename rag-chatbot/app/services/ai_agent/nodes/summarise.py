@@ -23,7 +23,7 @@ async def summarise_node(state: AgentState, llm: Any) -> Dict[str, Any]:
     current_summary = state.get("summary", "")
 
     # Threshold for summarization (20 messages total: ~10 turns of user/assistant)
-    # We keep the last 2 messages for immediate conversation context
+    #  Keep the last 2 messages for immediate conversation context
     threshold = 20
 
     if len(messages) <= threshold:
@@ -43,13 +43,12 @@ async def summarise_node(state: AgentState, llm: Any) -> Dict[str, Any]:
 
     summarization_query = [
         SystemMessage(content=summary_instruction),
-        *messages[:-2],  # Summarise everything EXCEPT the last 2 messages
+        *messages[:-2],
     ]
 
     try:
         response = await llm.ainvoke(summarization_query)
         new_summary = response.content
-
         delete_messages = [
             RemoveMessage(id=m.id) for m in messages[:-2] if hasattr(m, "id") and m.id
         ]
