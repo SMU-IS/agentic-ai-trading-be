@@ -15,7 +15,6 @@ def clarification_node(state: AgentState) -> Dict[str, Any]:
     This node is triggered when the LLM router cannot confidently determine
     the user's intent. It prompts the user to provide more specific information.
     """
-    messages = state.get("messages", [])
     query = state.get("query", "")
 
     clarification_prompt = (

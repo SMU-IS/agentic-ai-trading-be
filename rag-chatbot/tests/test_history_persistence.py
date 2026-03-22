@@ -1,9 +1,10 @@
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage
+
 from app.services.agent_bot_service import AgentBotService
-from app.schemas.chat import ChatHistoryResponse
+
 
 @pytest.fixture
 def agent_bot_service():
@@ -11,23 +12,20 @@ def agent_bot_service():
     checkpointer = AsyncMock()
     return AgentBotService(llm, checkpointer)
 
+
 @pytest.mark.asyncio
 async def test_get_chat_history_with_checkpoint_tuple(agent_bot_service):
     """
-    Test that get_chat_history correctly handles the CheckpointTuple 
+    Test that get_chat_history correctly handles the CheckpointTuple
     returned by newer LangGraph versions.
     """
     # 1. Setup mock messages
     mock_msg = HumanMessage(content="Hello", id="msg1")
-    
+
     # 2. Mock the CheckpointTuple returned by checkpointer.aget
     mock_state = MagicMock()
     # Newer LangGraph returns a CheckpointTuple where the state is in .checkpoint
-    mock_state.checkpoint = {
-        "channel_values": {
-            "messages": [mock_msg]
-        }
-    }
+    mock_state.checkpoint = {"channel_values": {"messages": [mock_msg]}}
     agent_bot_service.checkpointer.aget = AsyncMock(return_value=mock_state)
 
     # 3. Execute
@@ -38,6 +36,7 @@ async def test_get_chat_history_with_checkpoint_tuple(agent_bot_service):
     assert history[0]["content"] == "Hello"
     assert history[0]["type"] == "human"
 
+
 @pytest.mark.asyncio
 async def test_invoke_agent_preserves_initial_state_variables(agent_bot_service):
     """
@@ -47,19 +46,22 @@ async def test_invoke_agent_preserves_initial_state_variables(agent_bot_service)
     # Setup
     agent_bot_service._get_llm_prompt = MagicMock(return_value="prompt")
     agent_bot_service._generate_title = AsyncMock(return_value="title")
-    
+
     mock_graph_wrapper = MagicMock()
     mock_graph = MagicMock()
-    
+
     # Mock astream_events to be an async iterator AND an AsyncMock
     async def empty_iterator(*args, **kwargs):
-        if False: yield None
-        
+        if False:
+            yield None
+
     mock_astream = AsyncMock(side_effect=empty_iterator)
     mock_graph.astream_events = mock_astream
     mock_graph_wrapper.graph = mock_graph
-    
-    with patch.object(agent_bot_service, '_get_agent_graph', return_value=mock_graph_wrapper):
+
+    with patch.object(
+        agent_bot_service, "_get_agent_graph", return_value=mock_graph_wrapper
+    ):
         # Execute
         gen = agent_bot_service.invoke_agent("Hello", None, "user_123", "session_123")
         async for _ in gen:
