@@ -6,9 +6,10 @@ metadata:
 config:
   origins:
     - "http://localhost:3000"
-    - "https://main.d3f0x7kvo77xiu.amplifyapp.com/"
-  methods: ["GET", "POST", "OPTIONS"]
-  headers: ["Content-Type", "Authorization"]
+    - "https://main.d3f0x7kvo77xiu.amplifyapp.com"
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+  headers: ["Accept", "Accept-Version", "Content-Length", "Content-MD5", "Content-Type", "Date", "Authorization"]
+  exposed_headers: ["X-Auth-Token"]
   credentials: true
 plugin: cors
 
