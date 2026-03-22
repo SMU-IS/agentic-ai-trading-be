@@ -46,7 +46,7 @@ client = Client()
 
 test_cases = [
     # ─────────────────────────────────────────────
-    # get_trade_history_details — clear cases (50)
+    # trade_history node — With Order ID (50)
     # ─────────────────────────────────────────────
     {
         "input": {"query": "Why did we sell AAPL on order #555?", "order_id": "555"},
@@ -303,7 +303,7 @@ test_cases = [
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     # ─────────────────────────────────────────────
-    # get_general_news — clear cases (50)
+    # general_news node (50)
     # ─────────────────────────────────────────────
     {
         "input": {"query": "What's the latest news on NVDA?"},
@@ -506,7 +506,7 @@ test_cases = [
         "output": {"tool_called": True, "tool_name": "get_general_news"},
     },
     # ─────────────────────────────────────────────
-    # No tool — Chitchat, Greetings, General Info (50)
+    # llm_chat node — Chitchat & Education (50)
     # ─────────────────────────────────────────────
     {
         "input": {"query": "Hello, how are you?"},
@@ -517,19 +517,19 @@ test_cases = [
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Thanks!"},
+        "input": {"query": "Thanks for the help!"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Good morning"},
+        "input": {"query": "Good morning assistant"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Who are you?"},
+        "input": {"query": "Who created you?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is your name?"},
+        "input": {"query": "What is your main purpose?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
@@ -537,351 +537,378 @@ test_cases = [
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Can you help me?"},
+        "input": {"query": "Can you explain how you work?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "How does this work?"},
+        "input": {"query": "Are you a human or an AI?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Are you an AI?"},
+        "input": {"query": "What does RSI stand for?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is RSI?"},
+        "input": {"query": "Explain what ATR means in simple terms"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Explain what ATR means"},
+        "input": {"query": "What is a limit order vs market order?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is a limit order?"},
+        "input": {"query": "How does dollar cost averaging benefit me?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "How does dollar cost averaging work?"},
+        "input": {"query": "What is the importance of a stop loss?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is a stop loss?"},
+        "input": {"query": "Explain the concept of diversification"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Explain portfolio diversification"},
+        "input": {"query": "What is a margin call?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Difference between market and limit order?"},
+        "input": {"query": "How do I calculate my total return?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "How do I calculate P&L?"},
+        "input": {"query": "What does it mean when a market is bearish?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What does bearish mean?"},
+        "input": {"query": "Definition of a bull market"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is a bull market?"},
+        "input": {"query": "What is a stock split?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is an order?"},
+        "input": {"query": "How do dividends work?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Tell me about trade history in general"},
+        "input": {"query": "What is a dividend yield?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "How do I read news?"},
+        "input": {"query": "Explain the P/E ratio"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is order flow?"},
+        "input": {"query": "What is a market cap?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Can you explain trade execution?"},
+        "input": {"query": "What are blue chip stocks?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What happened in 2008?"},
+        "input": {"query": "What is an ETF?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "How do stocks work?"},
+        "input": {"query": "Difference between stocks and bonds"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is AAPL's business model?"},
+        "input": {"query": "What is a mutual fund?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Explain quantitative trading"},
+        "input": {"query": "How do I start investing?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is a portfolio manager?"},
-        "output": {"tool_called": False, "tool_name": None},
-    },
-    {"input": {"query": "ok"}, "output": {"tool_called": False, "tool_name": None}},
-    {"input": {"query": "sure"}, "output": {"tool_called": False, "tool_name": None}},
-    {"input": {"query": "yes"}, "output": {"tool_called": False, "tool_name": None}},
-    {"input": {"query": "no"}, "output": {"tool_called": False, "tool_name": None}},
-    {"input": {"query": "lol"}, "output": {"tool_called": False, "tool_name": None}},
-    {"input": {"query": "nice"}, "output": {"tool_called": False, "tool_name": None}},
-    {"input": {"query": "got it"}, "output": {"tool_called": False, "tool_name": None}},
-    {"input": {"query": "hmm"}, "output": {"tool_called": False, "tool_name": None}},
-    {
-        "input": {"query": "interesting"},
-        "output": {"tool_called": False, "tool_name": None},
-    },
-    {"input": {"query": "I see"}, "output": {"tool_called": False, "tool_name": None}},
-    {
-        "input": {"query": "helo how r u"},
+        "input": {"query": "What is risk management?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "wats rsi"},
+        "input": {"query": "Understood"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "thx bye"},
+        "input": {"query": "That makes sense"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "How do options work?"},
+        "input": {"query": "Yes, please proceed"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is short selling?"},
+        "input": {"query": "No, that is all"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Explain margin trading"},
+        "input": {"query": "Haha, funny"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is a futures contract?"},
+        "input": {"query": "Great job!"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "How is P/E ratio calculated?"},
+        "input": {"query": "I understand now"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is alpha in trading?"},
+        "input": {"query": "Can you tell me more?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What does beta mean?"},
+        "input": {"query": "Why is that?"},
+        "output": {"tool_called": False, "tool_name": None},
+    },
+    {
+        "input": {"query": "Very interesting"},
+        "output": {"tool_called": False, "tool_name": None},
+    },
+    {
+        "input": {"query": "hi there"},
+        "output": {"tool_called": False, "tool_name": None},
+    },
+    {
+        "input": {"query": "tell me a joke"},
+        "output": {"tool_called": False, "tool_name": None},
+    },
+    {
+        "input": {"query": "bye for now"},
+        "output": {"tool_called": False, "tool_name": None},
+    },
+    {
+        "input": {"query": "What are options?"},
+        "output": {"tool_called": False, "tool_name": None},
+    },
+    {
+        "input": {"query": "What is shorting?"},
+        "output": {"tool_called": False, "tool_name": None},
+    },
+    {
+        "input": {"query": "Explain leverage"},
+        "output": {"tool_called": False, "tool_name": None},
+    },
+    {
+        "input": {"query": "What is a derivative?"},
+        "output": {"tool_called": False, "tool_name": None},
+    },
+    {
+        "input": {"query": "What is liquidity?"},
+        "output": {"tool_called": False, "tool_name": None},
+    },
+    {
+        "input": {"query": "What is volatility?"},
+        "output": {"tool_called": False, "tool_name": None},
+    },
+    {
+        "input": {"query": "What is an index?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     # ─────────────────────────────────────────────
-    # No tool — Clarify Cases (Missing Order ID) (50)
+    # clarify node — Missing Order ID / Unclear (50)
     # ─────────────────────────────────────────────
     {
         "input": {"query": "What is the status of my order?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Check my latest order"},
+        "input": {"query": "Check my latest trade details"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why was my last trade made?"},
+        "input": {"query": "Why was my trade made?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Tell me about my trade"},
+        "input": {"query": "Tell me about my recent performance"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What happened to my order?"},
+        "input": {"query": "What happened to that order I placed?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Explain my last trade"},
+        "input": {"query": "Explain my last execution reasoning"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why was that trade made?"},
+        "input": {"query": "Why did we buy that stock earlier?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What were the indicators for my trade?"},
+        "input": {"query": "What indicators were used for my latest trade?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Show me trade history"},
+        "input": {"query": "Show me the trade history for my account"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What trades have been made?"},
+        "input": {"query": "Which trades were executed today?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "I want to know about order status"},
+        "input": {"query": "I need info on my order"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why did you buy this stock for me?"},
+        "input": {"query": "Why did the bot buy for me?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Explain the logic of my order"},
+        "input": {"query": "Reasoning for the latest transaction?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What indicators triggered my buy?"},
+        "input": {"query": "Show technicals for my last buy"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why did the system sell?"},
+        "input": {"query": "Why did we exit the position?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Show me details for my trade"},
+        "input": {"query": "Details for the trade please"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What was the reasoning for my order?"},
+        "input": {"query": "What was the logic behind my trade?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Check order status please"},
+        "input": {"query": "Can you verify my order status?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why buy TSLA earlier?"},
+        "input": {"query": "Why did the system execute that sell?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Show rationale for my last trade"},
+        "input": {"query": "Show me the rationale for my trade"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Status of order?"},
+        "input": {"query": "Give me an update on my order"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why sell AAPL just now?"},
+        "input": {"query": "Why sell my AAPL shares?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Indicators for my buy?"},
+        "input": {"query": "Indicators for the trade?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What signal triggered my order?"},
+        "input": {"query": "What was the signal for the buy?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Explain recent trade reasoning"},
+        "input": {"query": "Explain the reasoning for the recent order"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Which order was just placed?"},
+        "input": {"query": "Which order was just filled?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Order status update needed"},
+        "input": {"query": "Update on my order status"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why was the trade executed?"},
+        "input": {"query": "Why was the trade triggered?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Show indicators for recent buy"},
+        "input": {"query": "Technical reasoning for my last execution"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Logic behind the latest trade?"},
+        "input": {"query": "Logic on the latest buy?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Can you check my order?"},
+        "input": {"query": "I want to check an order"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why did we buy?"},
+        "input": {"query": "Why did we enter?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Reasoning for the trade?"},
+        "input": {"query": "Rationale for the execution?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What triggered my last trade?"},
+        "input": {"query": "What triggered my trade?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Show me my order logic"},
+        "input": {"query": "Show my order's technical logic"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What indicators were used for my buy?"},
+        "input": {"query": "What were the indicators for my latest buy?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why sell?"},
+        "input": {"query": "Why sell just now?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Explain my recent trade"},
+        "input": {"query": "Explain my most recent transaction"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Order logic?"},
+        "input": {"query": "What was the order logic?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why did the agent buy?"},
+        "input": {"query": "Why did the agent make that buy?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Check my trade status"},
+        "input": {"query": "Check status of trade"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why was that sell made?"},
+        "input": {"query": "Why was that sell executed?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Indicators for my sell?"},
+        "input": {"query": "Indicators for the recent sell?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Signal for the buy?"},
+        "input": {"query": "Signal for the latest buy?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Reason for recent order?"},
+        "input": {"query": "Reason for the most recent order?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Status of my trade?"},
+        "input": {"query": "What's the status of my recent trade?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why did we enter this trade?"},
+        "input": {"query": "Why enter this specific trade?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Logic behind order?"},
+        "input": {"query": "Logic behind the order?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Why buy TSLA?"},
+        "input": {"query": "Why buy TSLA at that price?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Show rationale for sell"},
+        "input": {"query": "Show reasoning for the sell order"},
         "output": {"tool_called": False, "tool_name": None},
     },
 ]

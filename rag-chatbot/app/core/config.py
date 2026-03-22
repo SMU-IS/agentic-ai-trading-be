@@ -1,5 +1,6 @@
 import os
 
+from langchain_nvidia_ai_endpoints.llm import NVIDIA
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import final
@@ -20,20 +21,14 @@ class EnvConfig(BaseSettings):
     langsmith_api_key: str = Field(..., validation_alias="LANGSMITH_API_KEY")
     langsmith_tracing: str = Field(..., validation_alias="LANGSMITH_TRACING")
 
+    # LLMs
     llm_provider: LLMProviders = Field(..., validation_alias="LLM_PROVIDER")
+    llm_api_key: str = Field(..., validation_alias="LLM_API_KEY")
     large_language_model: str = Field(..., validation_alias="LARGE_LANGUAGE_MODEL")
     max_completion_tokens: int = Field(..., validation_alias="MAX_COMPLETION_TOKEN")
     temperature: float = Field(..., validation_alias="TEMPERATURE")
 
-    # Gemini
-    gemini_api_key: str | None = Field(None, validation_alias="GEMINI_API_KEY")
-
-    # Ollama
     ollama_base_url: str | None = Field(None, validation_alias="OLLAMA_BASE_URL")
-    open_ai_api_key: str | None = Field(None, validation_alias="OPEN_AI_API_KEY")
-
-    # Groq
-    groq_api_key: str = Field(..., validation_alias="GROQ_API_KEY")
 
     # External APIs
     qdrant_retrieval_query_url: str = Field(

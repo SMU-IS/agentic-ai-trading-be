@@ -11,6 +11,7 @@ dependencies = [
     "langchain>=1.2.10",
     "langchain-google-genai>=4.2.1",
     "langchain-groq>=1.1.2",
+    "langchain-nvidia-ai-endpoints>=1.2.1",
     "langchain-ollama>=1.0.1",
     "langgraph>=1.0.9",
     "langgraph-checkpoint-postgres>=3.0.5",
