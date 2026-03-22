@@ -34,4 +34,7 @@ async def format_response_node(state: AgentState, llm) -> Dict[str, Any]:
         ]
     )
 
+    if last_message.id:
+        response.id = last_message.id
+
     return {"messages": [response]}
