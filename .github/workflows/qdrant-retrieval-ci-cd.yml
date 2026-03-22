@@ -47,7 +47,7 @@ jobs:
 
   deploy:
     name: Continuous Deployment
-    if: false
+    if: true
     runs-on: ubuntu-latest
     needs: python-tests
     steps:
@@ -122,4 +122,4 @@ jobs:
 
       - name: Apply Global Ingress Gateway
         run: |
-          kubectl apply -f ./deploy/ingress.yaml
+          kubectl apply -f ./deploy/ingress.yaml --server-side --force-conflicts

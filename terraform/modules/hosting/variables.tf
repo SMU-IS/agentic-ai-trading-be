@@ -18,3 +18,35 @@ variable "environment" {
   description = "Deployment environment (e.g., dev, prod)"
   type        = string
 }
+
+variable "base_api_url" {
+  description = "Base API URL for the application"
+  type        = string
+}
+
+variable "chat_api_url" {
+  description = "Chat API URL"
+  type        = string
+}
+
+variable "finnhub_api_key" {
+  description = "Finnhub API Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "logokit_api_key" {
+  description = "Logokit API Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "notif_api_url" {
+  description = "Notification API URL"
+  type        = string
+}
+
+variable "thread_api_url" {
+  description = "Thread API URL"
+  type        = string
+}

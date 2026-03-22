@@ -29,15 +29,16 @@ module "compute" {
 
 # Databases Module (db.t4g.micro - smallest RDS instance)
 module "databases" {
+  for_each       = var.db_configs
   source         = "./modules/databases"
-  cluster_name   = var.cluster_name
+  cluster_name   = "${var.cluster_name}-${each.key}"
   vpc_id         = module.networking.vpc_id
   vpc_cidr_block = module.networking.vpc_cidr_block
   # DB remains in private subnets for safety
   private_subnets = module.networking.private_subnet_ids
-  db_name         = var.db_name
-  db_username     = var.db_username
-  db_password     = var.db_password
+  db_name         = each.value.db_name
+  db_username     = each.value.username
+  db_password     = each.value.password
   environment     = var.environment
 }
 
@@ -62,6 +63,12 @@ module "hosting" {
   amplify_repository   = var.amplify_repository
   amplify_access_token = var.amplify_access_token
   environment          = var.environment
+  base_api_url         = var.base_api_url
+  chat_api_url         = var.chat_api_url
+  finnhub_api_key      = var.finnhub_api_key
+  logokit_api_key      = var.logokit_api_key
+  notif_api_url        = var.notif_api_url
+  thread_api_url       = var.thread_api_url
 }
 
 # =============================================================================
@@ -227,6 +234,15 @@ resource "helm_release" "kong" {
         service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
     EOT
   ]
+}
+
+# Fetch the Kong Gateway service to retrieve the Load Balancer DNS name
+data "kubernetes_service" "kong_proxy" {
+  metadata {
+    name      = "kong-kong-proxy"
+    namespace = "default"
+  }
+  depends_on = [helm_release.kong]
 }
 
 # =============================================================================
