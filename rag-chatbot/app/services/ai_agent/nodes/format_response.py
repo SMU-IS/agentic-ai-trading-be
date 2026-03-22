@@ -1,5 +1,6 @@
-import json
 from typing import Any, Dict
+
+from langchain_core.messages import AIMessage, SystemMessage
 
 from app.services.ai_agent.state import AgentState
 from app.utils.logger import setup_logging
@@ -7,34 +8,33 @@ from app.utils.logger import setup_logging
 logger = setup_logging()
 
 
-def format_response_node(state: AgentState) -> Dict[str, Any]:
-    """Cleans up JSON strings into human-readable text before finishing."""
+async def format_response_node(state: AgentState, llm) -> Dict[str, Any]:
+    """Uses the LLM to turn raw data into a friendly, conversational response."""
     messages = state.get("messages", [])
     if not messages:
         return {}
 
-    last = messages[-1]
-    content = str(getattr(last, "content", last))
-    formatted = content
+    last_message = messages[-1]
 
-    try:
-        parsed = json.loads(content)
-        if isinstance(parsed, dict):
-            if "context" in parsed:
-                formatted = parsed["context"]
-            elif "ticker" in parsed:
-                formatted = (
-                    f"Order ID: {state.get('order_id', 'N/A')}\n"
-                    f"Ticker: {parsed.get('ticker', 'N/A')}\n"
-                    f"Action: {parsed.get('action', 'N/A')}\n"
-                    f"Reasoning: {parsed.get('reasoning', 'N/A')}"
-                )
-    except (json.JSONDecodeError, ValueError):
-        pass
-
-    if formatted == content:
+    # If the last message is already an AI message, we don't need to format it again
+    if isinstance(last_message, AIMessage):
         return {}
 
-    # Replace the last message by using the same ID
-    new_msg = last.__class__(content=formatted, id=getattr(last, "id", None))
-    return {"messages": [new_msg]}
+    prompt = (
+        "You are a helpful, witty trading assistant. "
+        "Take the following raw data and turn it into a natural, conversational response "
+        "for the user. Don't just list facts—explain them like a friendly expert. "
+        "Keep it concise but engaging."
+    )
+
+    response = await llm.ainvoke(
+        [
+            SystemMessage(content=prompt),
+            *messages[-3:],
+        ]
+    )
+
+    if last_message.id:
+        response.id = last_message.id
+
+    return {"messages": [response]}

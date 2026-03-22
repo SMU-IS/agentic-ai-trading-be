@@ -70,13 +70,17 @@ async def test_llm_chat_node_uses_history():
     assert sent_messages[3].content == "What is my name?"
 
 
-def test_format_response_node_replacement():
+@pytest.mark.asyncio
+async def test_format_response_node_replacement():
     """Test that format_response_node replaces the last message using its ID."""
 
-    last_msg = AIMessage(content='{"context": "Formatted message"}', id="unique_id")
+    llm = AsyncMock()
+    llm.ainvoke.return_value = AIMessage(content="Formatted message")
+
+    last_msg = SystemMessage(content='{"context": "Raw data"}', id="unique_id")
     state: AgentState = {"messages": [HumanMessage(content="Query"), last_msg]}
 
-    result = format_response_node(state)
+    result = await format_response_node(state, llm)
 
     assert "messages" in result
     new_messages = result["messages"]

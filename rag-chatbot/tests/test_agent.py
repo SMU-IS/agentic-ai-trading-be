@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
 from app.services.ai_agent.chat_workflow import ChatWorkflow
 from app.services.ai_agent.state import AgentState
@@ -73,11 +73,12 @@ async def test_route_logic(agent_graph):
     assert await agent_graph._route(state_news) == "general_news"
 
 
-def test_format_response_json():
+@pytest.mark.asyncio
+async def test_format_response_json():
     # Test JSON formatting for ticker info
     content = '{"ticker": "AAPL", "action": "BUY", "entry_price": 150, "reasoning": "Bullish"}'
     state: AgentState = {
-        "messages": [AIMessage(content=content)],
+        "messages": [SystemMessage(content=content)],
         "sender": "agent",
         "order_id": "ORD123",
         "query": "",
@@ -85,18 +86,22 @@ def test_format_response_json():
         "metadata": {},
     }
 
-    result = format_response_node(state)
+    llm = MagicMock()
+    llm.ainvoke = AsyncMock(return_value=AIMessage(content="Order ID: ORD123, Ticker: AAPL, Action: BUY, Bullish"))
+
+    result = await format_response_node(state, llm)
     formatted_content = result["messages"][0].content
     assert "Order ID: ORD123" in formatted_content
     assert "Ticker: AAPL" in formatted_content
     assert "Action: BUY" in formatted_content
 
 
-def test_format_response_context():
+@pytest.mark.asyncio
+async def test_format_response_context():
     # Test "context" key extraction
     content = '{"context": "This is the relevant information."}'
     state: AgentState = {
-        "messages": [AIMessage(content=content)],
+        "messages": [SystemMessage(content=content)],
         "sender": "agent",
         "order_id": None,
         "query": "",
@@ -104,5 +109,8 @@ def test_format_response_context():
         "metadata": {},
     }
 
-    result = format_response_node(state)
+    llm = MagicMock()
+    llm.ainvoke = AsyncMock(return_value=AIMessage(content="This is the relevant information."))
+
+    result = await format_response_node(state, llm)
     assert result["messages"][0].content == "This is the relevant information."
