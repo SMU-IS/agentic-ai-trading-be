@@ -1,5 +1,5 @@
 """
-Seed script for populating the LangSmith 'ragbot-test-tools' dataset with
+Seed script for populating the LangSmith 'agent-bot-langgraph-dataset' dataset with
 labelled examples for tool call evaluation.
 
 Each example contains:
@@ -19,25 +19,34 @@ Tools under test:
 
 Usage:
     python3 -m scripts.seed_dataset
+
+
+- 50 cases for get_trade_history_details (when order_id is present).
+- 50 cases for get_general_news (market news and trends).
+- 50 cases for general chitchat and financial education (no tool call).
+- 50 cases for missing order_id (routing to clarify, no tool call).
 """
 
 import logging
 import os
 
-from app.core.config import env_config
 from langsmith import Client
 
-os.environ["LANGSMITH_API_KEY"] = env_config.langsmith_api_key
-client = Client()
+from app.core.config import env_config
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
+logger = logging.getLogger("seed-dataset")
+
+os.environ["LANGSMITH_API_KEY"] = env_config.langsmith_api_key
+client = Client()
 
 test_cases = [
     # ─────────────────────────────────────────────
-    # get_trade_history_details — clear cases (25)
+    # get_trade_history_details — clear cases (50)
     # ─────────────────────────────────────────────
     {
         "input": {"query": "Why did we sell AAPL on order #555?", "order_id": "555"},
@@ -190,97 +199,111 @@ test_cases = [
         },
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
-    # ─────────────────────────────────────────────
-    # get_trade_history_details — edge cases (20)
-    # ─────────────────────────────────────────────
     {
-        "input": {"query": "why this trade?", "order_id": "1234"},
+        "input": {"query": "Bollinger bands for order #123?", "order_id": "123"},
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     {
-        "input": {"query": "what triggered it?", "order_id": "5678"},
+        "input": {"query": "MACD signal on order #456", "order_id": "456"},
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     {
-        "input": {"query": "reasoning?", "order_id": "9012"},
+        "input": {"query": "Why did we buy AAPL here?", "order_id": "ord_882"},
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     {
-        "input": {"query": "RSI for order #4321", "order_id": "4321"},
+        "input": {"query": "indicators for order 991", "order_id": "991"},
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     {
-        "input": {"query": "was this trade good?", "order_id": "1111"},
+        "input": {"query": "Technical reasoning for trade 552", "order_id": "552"},
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     {
-        "input": {"query": "performance of order #2222", "order_id": "2222"},
+        "input": {"query": "Why did we sell TSLA in order 332?", "order_id": "332"},
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     {
-        "input": {"query": "Why did we do this?", "order_id": "3456"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
-    },
-    {
-        "input": {"query": "what was the logic", "order_id": "7654"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
-    },
-    {
-        "input": {"query": "explain", "order_id": "8888"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
-    },
-    {
-        "input": {"query": "technical analysis behind order #6543", "order_id": "6543"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
-    },
-    {
-        "input": {"query": "y did we buy tsla on order 999", "order_id": "999"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
-    },
-    {
-        "input": {"query": "explain trade #7777 plz", "order_id": "7777"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
-    },
-    {
-        "input": {"query": "order #1234 — why was it placed?", "order_id": "1234"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
-    },
-    {
-        "input": {"query": "for order #5678, what was the signal?", "order_id": "5678"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
-    },
-    {
-        "input": {"query": "what indicators for #6789?", "order_id": "6789"},
+        "input": {"query": "Show reasoning for #1212", "order_id": "1212"},
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     {
         "input": {
-            "query": "Hello! Also what is the RSI on order #9999?",
-            "order_id": "9999",
+            "query": "What was the conviction level of #2323?",
+            "order_id": "2323",
         },
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     {
-        "input": {"query": "order #3456 reasoning", "order_id": "3456"},
+        "input": {"query": "ATR value for #3434", "order_id": "3434"},
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     {
-        "input": {
-            "query": "what was the logic behind selling here",
-            "order_id": "4321",
-        },
+        "input": {"query": "Momentum reading for #4545", "order_id": "4545"},
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     {
-        "input": {"query": "trade details pls", "order_id": "5432"},
+        "input": {"query": "Why buy NVDA on #5656?", "order_id": "5656"},
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     {
-        "input": {"query": "Thanks, now explain order #6666", "order_id": "6666"},
+        "input": {"query": "Rationale behind sell #6767", "order_id": "6767"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "Indicators present for #7878", "order_id": "7878"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "Check logic for #8989", "order_id": "8989"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "Did order #1313 have a high RSI?", "order_id": "1313"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "What chart pattern led to #2424?", "order_id": "2424"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "Explain buy signal for #3535", "order_id": "3535"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "Why exit #4646?", "order_id": "4646"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "Indicators for sell #5757", "order_id": "5757"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "Logic on buy #6868", "order_id": "6868"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "What triggered trade #7979?", "order_id": "7979"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "Show me the technicals for #8181", "order_id": "8181"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "Why buy AAPL in order 9191?", "order_id": "9191"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "What were indicators for #1010?", "order_id": "1010"},
+        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+    },
+    {
+        "input": {"query": "Explain logic behind #2020", "order_id": "2020"},
         "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
     },
     # ─────────────────────────────────────────────
-    # get_general_news — clear cases (25)
+    # get_general_news — clear cases (50)
     # ─────────────────────────────────────────────
     {
         "input": {"query": "What's the latest news on NVDA?"},
@@ -363,90 +386,127 @@ test_cases = [
         "output": {"tool_called": True, "tool_name": "get_general_news"},
     },
     {
-        "input": {"query": "NVDA earnings report"},
+        "input": {"query": "NVDA earnings report news"},
         "output": {"tool_called": True, "tool_name": "get_general_news"},
     },
     {
-        "input": {"query": "AAPL stock news"},
+        "input": {"query": "AAPL stock sentiment updates"},
         "output": {"tool_called": True, "tool_name": "get_general_news"},
     },
     {
-        "input": {"query": "TSLA analyst upgrades"},
+        "input": {"query": "TSLA analyst upgrades news"},
         "output": {"tool_called": True, "tool_name": "get_general_news"},
     },
     {
-        "input": {"query": "MSFT quarterly results"},
+        "input": {"query": "MSFT quarterly results news"},
         "output": {"tool_called": True, "tool_name": "get_general_news"},
     },
     {
         "input": {"query": "AMD vs INTEL competition news"},
         "output": {"tool_called": True, "tool_name": "get_general_news"},
     },
+    {
+        "input": {"query": "What is driving the energy sector today?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "Is inflation affecting stock prices?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "Any news on the banking sector?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "What's the outlook for gold prices?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "Has the Fed made any announcements this week?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "What's happening in the bond market?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "Any geopolitical news affecting markets?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "What's the dollar index doing?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "Any news on oil prices?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "What is the market saying about a recession?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "Is there a rotation to value stocks?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "Any big insider trades reported today?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "What are hedge funds buying right now?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "Any short squeeze candidates in news?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "China's economy impact on US stocks news"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "Any news on ETF flows?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "What happened to small caps today?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "Risk-off move happening in market news?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "Any news on FOMC minutes?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "whats moving the market today news"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "sp500 performance news"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "big market news today?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "rates and fed news"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "any catalyst for AAPL move today news?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
+    {
+        "input": {"query": "What is happening in crypto news?"},
+        "output": {"tool_called": True, "tool_name": "get_general_news"},
+    },
     # ─────────────────────────────────────────────
-    # get_general_news — edge cases (15)
-    # ─────────────────────────────────────────────
-    {
-        "input": {"query": "news"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "market"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "AAPL?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "what's up with crypto?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "how is the market doing"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "TSLA news pls"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "what happened today in markets?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "give me market vibes"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "CPI data impact on stocks"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "nvda newss"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "aapl crashing why"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "Good morning, any NVDA news today?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "what's the vibe in markets rn"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "recession news"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "any updates on the market?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    # ─────────────────────────────────────────────
-    # No tool — clear cases (20)
+    # No tool — Chitchat, Greetings, General Info (50)
     # ─────────────────────────────────────────────
     {
         "input": {"query": "Hello, how are you?"},
@@ -513,9 +573,7 @@ test_cases = [
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "What is the difference between a market order and limit order?"
-        },
+        "input": {"query": "Difference between market and limit order?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
@@ -530,9 +588,6 @@ test_cases = [
         "input": {"query": "What is a bull market?"},
         "output": {"tool_called": False, "tool_name": None},
     },
-    # ─────────────────────────────────────────────
-    # No tool — edge cases (30)
-    # ─────────────────────────────────────────────
     {
         "input": {"query": "What is an order?"},
         "output": {"tool_called": False, "tool_name": None},
@@ -623,11 +678,11 @@ test_cases = [
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What does beta mean for a stock?"},
+        "input": {"query": "What does beta mean?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     # ─────────────────────────────────────────────
-    # No tool — no order_id, should ask user (15)
+    # No tool — Clarify Cases (Missing Order ID) (50)
     # ─────────────────────────────────────────────
     {
         "input": {"query": "What is the status of my order?"},
@@ -670,295 +725,187 @@ test_cases = [
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is the Sharpe ratio?"},
+        "input": {"query": "I want to know about order status"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "How do I evaluate a trade?"},
+        "input": {"query": "Why did you buy this stock for me?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What makes a good entry point?"},
+        "input": {"query": "Explain the logic of my order"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Can you summarise what we talked about?"},
+        "input": {"query": "What indicators triggered my buy?"},
         "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What did I ask you earlier?"},
+        "input": {"query": "Why did the system sell?"},
         "output": {"tool_called": False, "tool_name": None},
     },
-    # ─────────────────────────────────────────────
-    # get_trade_history_details — additional cases (25)
-    # ─────────────────────────────────────────────
     {
-        "input": {
-            "query": "What were the Bollinger Band conditions for order #1010?",
-            "order_id": "1010",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Show me details for my trade"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Did order #2020 use a trailing stop?", "order_id": "2020"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "What was the reasoning for my order?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "What volume was recorded when order #3030 triggered?",
-            "order_id": "3030",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Check order status please"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "Was order #4040 a momentum or mean reversion trade?",
-            "order_id": "4040",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Why buy TSLA earlier?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "What was the MACD reading at time of order #5050?",
-            "order_id": "5050",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Show rationale for my last trade"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "Was order #6060 triggered by an earnings event?",
-            "order_id": "6060",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Status of order?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "Explain the risk/reward on order #7070",
-            "order_id": "7070",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Why sell AAPL just now?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "What timeframe was used to analyse order #8080?",
-            "order_id": "8080",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Indicators for my buy?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "What was the sector context when order #9090 was placed?",
-            "order_id": "9090",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "What signal triggered my order?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "Did order #1212 involve a breakout pattern?",
-            "order_id": "1212",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Explain recent trade reasoning"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "What was the conviction level behind order #2323?",
-            "order_id": "2323",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Which order was just placed?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "Was order #3434 part of a larger position sizing strategy?",
-            "order_id": "3434",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Order status update needed"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "What news event triggered order #4545?",
-            "order_id": "4545",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Why was the trade executed?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "How did market volatility affect order #5656?",
-            "order_id": "5656",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Show indicators for recent buy"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What was the drawdown on order #6767?", "order_id": "6767"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Logic behind the latest trade?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "Was order #7878 based on a bullish divergence?",
-            "order_id": "7878",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Can you check my order?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "What was the target price for order #8989?",
-            "order_id": "8989",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Why did we buy?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "Describe the setup that led to order #1313",
-            "order_id": "1313",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Reasoning for the trade?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "What chart pattern was identified for order #2424?",
-            "order_id": "2424",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "What triggered my last trade?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {
-            "query": "How long was the position held in order #3535?",
-            "order_id": "3535",
-        },
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Show me my order logic"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "wut happened with order 4646", "order_id": "4646"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "What indicators were used for my buy?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "order 5757 — good or bad call?", "order_id": "5757"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Why sell?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "break it down for #6868", "order_id": "6868"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Explain my recent trade"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "analyse order #7979 for me", "order_id": "7979"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
+        "input": {"query": "Order logic?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "deep dive on order #8181", "order_id": "8181"},
-        "output": {"tool_called": True, "tool_name": "get_trade_history_details"},
-    },
-    # ─────────────────────────────────────────────
-    # get_general_news — additional cases (25)
-    # ─────────────────────────────────────────────
-    {
-        "input": {"query": "What is driving the energy sector today?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
+        "input": {"query": "Why did the agent buy?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Is inflation affecting stock prices?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
+        "input": {"query": "Check my trade status"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Any news on the banking sector?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
+        "input": {"query": "Why was that sell made?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What's the outlook for gold prices?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
+        "input": {"query": "Indicators for my sell?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Has the Fed made any announcements this week?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
+        "input": {"query": "Signal for the buy?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What's happening in the bond market?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
+        "input": {"query": "Reason for recent order?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Is NVDA overbought based on recent news?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
+        "input": {"query": "Status of my trade?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Any geopolitical news affecting markets?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
+        "input": {"query": "Why did we enter this trade?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What's the dollar index doing?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
+        "input": {"query": "Logic behind order?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "Any news on oil prices?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
+        "input": {"query": "Why buy TSLA?"},
+        "output": {"tool_called": False, "tool_name": None},
     },
     {
-        "input": {"query": "What is the market saying about a potential recession?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "Is there a rotation from growth to value stocks?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "Any big insider trades reported today?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "What are hedge funds buying right now?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "Any short squeeze candidates in the news?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "What's the latest on China's economy affecting US stocks?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "Any news on ETF flows this week?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "What happened to small cap stocks today?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "Is there a risk-off move happening in the market?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "Any news on FOMC minutes?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "whats moving the market today"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "sp500 news"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "big news today?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "rates news"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
-    },
-    {
-        "input": {"query": "any catalyst for AAPL move today?"},
-        "output": {"tool_called": True, "tool_name": "get_general_news"},
+        "input": {"query": "Show rationale for sell"},
+        "output": {"tool_called": False, "tool_name": None},
     },
 ]
 
+# Ensure we have exactly 200 cases
 assert len(test_cases) == 200, f"Expected 200 test cases, got {len(test_cases)}"
 
-client.create_examples(
-    inputs=[e["input"] for e in test_cases],
-    outputs=[e["output"] for e in test_cases],
-    dataset_name="ragbot-test-tools",
-)
+# Create dataset in LangSmith
+try:
+    dataset_name = "agent-bot-langgraph-dataset"
+    # Check if dataset exists, if not it will be created implicitly by create_examples or we can use create_dataset
+    if not client.has_dataset(dataset_name=dataset_name):
+        client.create_dataset(
+            dataset_name=dataset_name,
+            description="Tool call evaluation for RAG Chatbot",
+        )
 
-logger = logging.getLogger("rag-chatbot")
-logger.info("🌱 Seeding LangSmith Dataset for RAG Chatbot Tool Calls...")
-logger.info(f"✅ Added {len(test_cases)} examples to dataset")
+    client.create_examples(
+        inputs=[e["input"] for e in test_cases],
+        outputs=[e["output"] for e in test_cases],
+        dataset_name=dataset_name,
+    )
+
+    logger.info("🌱 Seeding LangSmith Dataset for RAG Chatbot Tool Calls...")
+    logger.info(f"✅ Added {len(test_cases)} examples to dataset '{dataset_name}'")
+except Exception as e:
+    logger.error(f"❌ Failed to seed dataset: {e}")

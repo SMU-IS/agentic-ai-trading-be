@@ -4,6 +4,9 @@ services:
     env_file:
       - .env
     container_name: qdrant-retrieval-container
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     ports:
       - "5009:5009"
     volumes:
@@ -28,6 +31,9 @@ services:
   qdrant-vectorisation-worker:
     build: .
     container_name: qdrant-vectorisation-worker-container
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     env_file:
       - .env
     environment:

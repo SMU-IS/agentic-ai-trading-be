@@ -12,3 +12,4 @@ class APIPath(str, Enum):
 class StorageProviders(str, Enum):
     QDRANT_OLLAMA = "qdrant_ollama"
     QDRANT_GEMINI = "qdrant_gemini"
+    QDRANT_NOMIC = "qdrant_nomic"
