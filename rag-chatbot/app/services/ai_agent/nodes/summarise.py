@@ -9,22 +9,22 @@ logger = setup_logging()
 
 
 def should_summarise(state: AgentState) -> Literal["summarise", "end"]:
-    if len(state.get("messages", [])) > 6:
+    if len(state.get("messages", [])) > 20:
         return "summarise"
     return "end"
 
 
 async def summarise_node(state: AgentState, llm: Any) -> Dict[str, Any]:
     """
-    Summarises the chat history if it exceeds a threshold (e.g., 6 messages).
+    Summarises the chat history if it exceeds a threshold (e.g., 20 messages).
     Removes the old messages while maintaining a rolling summary.
     """
     messages = state.get("messages", [])
     current_summary = state.get("summary", "")
 
-    # Threshold for summarization (6 messages total: ~3 turns of user/assistant)
+    # Threshold for summarization (20 messages total: ~10 turns of user/assistant)
     # We keep the last 2 messages for immediate conversation context
-    threshold = 6
+    threshold = 20
 
     if len(messages) <= threshold:
         return {}

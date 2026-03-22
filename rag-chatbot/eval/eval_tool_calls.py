@@ -3,13 +3,14 @@ import json
 import logging
 import os
 
+from langsmith import aevaluate
+from psycopg_pool import AsyncConnectionPool
+
 from app.core.config import env_config
 from app.core.constant import LLMProviders
 from app.providers.llm.registry import get_strategy
 from app.services.agent_bot_service import AgentBotService
 from app.services.bot_memory import BotMemory
-from langsmith import aevaluate
-from psycopg_pool import AsyncConnectionPool
 
 logging.basicConfig(level=logging.INFO)
 
@@ -31,9 +32,10 @@ async def target(inputs: dict):
         user_id="eval-user",
         session_id=f"eval-{inputs['query'][:15]}",
     ):
-        if '"status"' in chunk and "Calling" in chunk:
+        if '"status"' in chunk and "Searching" in chunk:
             data = json.loads(chunk.replace("data: ", ""))
-            tool_name = data["status"].replace("Calling ", "").replace("...", "")
+            # Format is "Searching {tool_name}..."
+            tool_name = data["status"].replace("Searching ", "").replace("...", "")
             tools_called.append(tool_name)
         elif '"token"' in chunk:
             data = json.loads(chunk.replace("data: ", ""))
@@ -95,7 +97,7 @@ async def main():
 
         await aevaluate(
             target,
-            data="ragbot-test-tools",
+            data="agent-bot-langgraph-dataset",
             evaluators=[check_tool_usage],
             experiment_prefix="tool-call-eval",
         )

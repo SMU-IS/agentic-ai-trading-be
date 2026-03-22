@@ -7,6 +7,7 @@ from langgraph.graph import END, StateGraph
 
 from app.schemas.router_decision import RouterDecision
 from app.services.ai_agent.nodes import (
+    clarification_node,
     extract_order_id_node,
     format_response_node,
     general_news_node,
@@ -31,7 +32,7 @@ class ChatWorkflow:
 
     async def _route(
         self, state: AgentState
-    ) -> Literal["trade_history", "general_news", "llm_chat"]:
+    ) -> Literal["trade_history", "general_news", "llm_chat", "clarify"]:
 
         structured_llm = self.llm.with_structured_output(RouterDecision)
         current_order = state.get("order_id", "None")
@@ -44,26 +45,40 @@ class ChatWorkflow:
             "route to 'trade_history'.\n"
             "2. If they ask about a NEW order ID, route to 'trade_history'.\n"
             "3. If they ask about market trends or news, route to 'general_news'.\n"
-            "4. Otherwise, route to 'llm_chat'.\n"
-            "Return the 'next_node' and your 'reasoning'."
+            "4. If they are making general conversation, introductions, or asking about themselves, route to 'llm_chat'.\n"
+            "5. If the user's intent is completely unclear, route to 'clarify' with low confidence.\n"
+            "Return the 'next_node', 'reasoning', and 'confidence' (0.0-1.0)."
         )
 
         try:
             decision = await structured_llm.ainvoke(
                 [
                     SystemMessage(content=routing_instructions),
-                    *state["messages"][-3:],
+                    *state["messages"][-5:],
                 ]
             )
 
             logger.info(
-                f"LLM-First Route: {decision.next_node} | Reason: {decision.reasoning}"
+                f"LLM Route: {decision.next_node} | Reason: {decision.reasoning} | Confidence: {decision.confidence}"
             )
+
+            if decision.confidence < 0.6:
+                logger.info(
+                    f"Low confidence decision ({decision.confidence}), routing to clarify"
+                )
+                return "clarify"
+
+            if decision.next_node == "trade_history" and not current_order:
+                logger.info(
+                    "trade_history selected but no order_id found, routing to clarify"
+                )
+                return "clarify"
+
             return decision.next_node
 
         except Exception as e:
-            logger.warning(f"Routing failed: {e}. Defaulting to llm_chat.")
-            return "llm_chat"
+            logger.warning(f"Routing failed: {e}. Defaulting to clarify.")
+            return "clarify"
 
     def _build(self):
         graph = StateGraph(AgentState)
@@ -78,6 +93,7 @@ class ChatWorkflow:
         graph.add_node("trade_history", trade_history_node)
         graph.add_node("general_news", general_news_node)
         graph.add_node("llm_chat", bound_chat_node)
+        graph.add_node("clarify", clarification_node)
         graph.add_node("format_response", format_response_node)
         graph.add_node("summarise", bound_summarise_node)
 
@@ -85,6 +101,7 @@ class ChatWorkflow:
         graph.set_entry_point("extract_order_id")
 
         # 3. Define Conditional Routing from Entry
+        # Routes can go to: trade_history, general_news, llm_chat, or clarify
         graph.add_conditional_edges(
             "extract_order_id",
             self._route,
@@ -92,6 +109,7 @@ class ChatWorkflow:
                 "trade_history": "trade_history",
                 "general_news": "general_news",
                 "llm_chat": "llm_chat",
+                "clarify": "clarify",
             },
         )
 
@@ -99,6 +117,7 @@ class ChatWorkflow:
         graph.add_edge("trade_history", "format_response")
         graph.add_edge("general_news", "format_response")
         graph.add_edge("llm_chat", "format_response")
+        graph.add_edge("clarify", "format_response")
 
         # 5. Conditional logic: Decide whether to Summarise or End
         graph.add_conditional_edges(

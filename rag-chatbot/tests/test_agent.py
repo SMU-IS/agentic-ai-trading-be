@@ -41,7 +41,7 @@ def test_extract_order_id_regex():
 @pytest.mark.asyncio
 async def test_route_logic(agent_graph):
     # Route to trade_history if requested
-    mock_decision = RouterDecision(next_node="trade_history", reasoning="User wants status")
+    mock_decision = RouterDecision(next_node="trade_history", reasoning="User wants status", confidence=0.9)
     agent_graph.llm.with_structured_output.return_value.ainvoke = AsyncMock(
         return_value=mock_decision
     )
@@ -57,7 +57,7 @@ async def test_route_logic(agent_graph):
     assert await agent_graph._route(state) == "trade_history"
 
     # Route to general_news
-    mock_decision_news = RouterDecision(next_node="general_news", reasoning="User wants news")
+    mock_decision_news = RouterDecision(next_node="general_news", reasoning="User wants news", confidence=0.9)
     agent_graph.llm.with_structured_output.return_value.ainvoke = AsyncMock(
         return_value=mock_decision_news
     )

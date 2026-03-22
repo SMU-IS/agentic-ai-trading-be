@@ -3,7 +3,9 @@ import uuid
 
 from langchain_core.documents import Document
 from qdrant_client import models
-from app.providers.vector.strategy import QdrantNomicStrategy
+from app.core.config import env_config
+from app.core.constant import StorageProviders
+from app.providers.vector.registry import get_vector_strategy
 from app.core.logger import logger
 from app.schemas.compiled_news_payload import NewsAnalysisPayload
 from app.schemas.raw_news_payload import RedditSourcePayload
@@ -13,9 +15,9 @@ class VectorisationService:
     def __init__(
         self,
     ):
-        self.strategy = (
-            QdrantNomicStrategy()
-        )  # TODO: Make this dynamic based on config/env
+        self.strategy = get_vector_strategy(
+            StorageProviders(env_config.storage_provider)
+        )
         self.vector_store = self.strategy.get_vector_store()
 
     async def _setup_indexing(

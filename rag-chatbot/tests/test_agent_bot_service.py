@@ -65,9 +65,9 @@ async def test_get_chat_history(agent_bot_service):
         "response_metadata": {"created_at": "2023-01-01"},
     }
 
-    agent_bot_service.checkpointer.aget = AsyncMock(
-        return_value={"channel_values": {"messages": [mock_msg]}}
-    )
+    mock_state = MagicMock()
+    mock_state.checkpoint = {"channel_values": {"messages": [mock_msg]}}
+    agent_bot_service.checkpointer.aget = AsyncMock(return_value=mock_state)
 
     # Execute
     history = await agent_bot_service.get_chat_history("session_123")

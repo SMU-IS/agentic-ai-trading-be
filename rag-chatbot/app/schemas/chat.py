@@ -28,8 +28,8 @@ class GeneralNews(BaseModel):
         description="The specific topic, question, or search string to look for in the news. e.g 'What is the latest news on Apple?'",
     )
     tickers: list[str] = Field(
-        default=[],
-        description="A list of stock tickers (e.g. ['AAPL', 'TSLA']) to get news for",
+        default_factory=list,
+        description="Optional list of stock tickers (e.g. ['AAPL', 'TSLA']) if explicitly mentioned.",
     )
 
 

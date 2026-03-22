@@ -131,7 +131,6 @@ Title:"""
                 "messages": [HumanMessage(content=context_query)],
                 "sender": "user",
                 "query": context_query,
-                "variables": None,
                 "metadata": {"user_id": user_id, "title": title},
             }
 
@@ -197,16 +196,28 @@ Title:"""
         config = {"configurable": {"thread_id": session_id}}
         try:
             state = await self.checkpointer.aget(config)
-            messages = (
-                state.get("channel_values", {}).get("messages", []) if state else []
-            )
-            return [
+            if not state:
+                logger.warning(f"No state found for session_id: {session_id}")
+                return []
+            
+            # Defensive check for CheckpointTuple vs dict
+            checkpoint = getattr(state, "checkpoint", state)
+            if not isinstance(checkpoint, dict):
+                logger.error(f"Unexpected state type: {type(state)}")
+                return []
+
+            messages = checkpoint.get("channel_values", {}).get("messages", [])
+            logger.info(f"Retrieved {len(messages)} raw messages for session {session_id}")
+            
+            displayable_messages = [
                 self._format_message(msg)
                 for msg in messages
                 if self._is_displayable(msg)
                 and (msg.content if hasattr(msg, "content") else msg.get("content"))
                 != ""
             ]
+            logger.info(f"Filtered to {len(displayable_messages)} displayable messages")
+            return displayable_messages
 
         except Exception as e:
             logger.error(f"Error fetching chat history: {e}")

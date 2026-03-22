@@ -16,8 +16,9 @@ from app.services.ai_agent.state import AgentState
 async def test_summarise_node_below_threshold():
     """Test that summarise_node does nothing if below threshold."""
 
+    # Using 10 messages, which is below the 20 threshold
     state: AgentState = {
-        "messages": [HumanMessage(content="hi", id="1")],
+        "messages": [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(10)],
         "summary": "",
     }
     llm = AsyncMock()
@@ -32,8 +33,8 @@ async def test_summarise_node_below_threshold():
 async def test_summarise_node_exceeds_threshold():
     """Test that summarise_node triggers and returns RemoveMessages and a new summary."""
 
-    # Create 7 messages to exceed the threshold of 6
-    messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(7)]
+    # Create 25 messages to exceed the threshold of 20
+    messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(25)]
     state: AgentState = {"messages": messages, "summary": "Old summary"}
 
     # Mock LLM response
@@ -47,14 +48,15 @@ async def test_summarise_node_exceeds_threshold():
     assert result["summary"] == "This is the new summary."
     assert "messages" in result
 
-    # It should summarise everything EXCEPT the last 2 (indices 0 to 4)
-    # So it should return 5 RemoveMessage objects
-    assert len(result["messages"]) == 5
+    # It should summarise everything EXCEPT the last 2 (indices 0 to 22)
+    # So it should return 23 RemoveMessage objects
+    assert len(result["messages"]) == 23
     assert all(isinstance(m, RemoveMessage) for m in result["messages"])
 
-    # Verify the IDs to be removed
+    # Verify some IDs to be removed
     removed_ids = [m.id for m in result["messages"]]
-    assert removed_ids == ["0", "1", "2", "3", "4"]
+    assert removed_ids[0] == "0"
+    assert removed_ids[-1] == "22"
 
 
 @pytest.mark.asyncio
@@ -86,7 +88,8 @@ async def test_llm_chat_node_includes_summary():
 async def test_summarise_node_fails_gracefully():
     """Test that summarise_node returns empty dict if LLM fails."""
 
-    messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(10)]
+    # 25 messages exceeds the 20 threshold
+    messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(25)]
     state: AgentState = {"messages": messages, "summary": ""}
 
     mock_llm = AsyncMock()

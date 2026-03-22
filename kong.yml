@@ -76,7 +76,7 @@ services:
 
   # === User Info Microservice 5005 ===
   - name: user-service-entry
-    url: http://user-info-infra:5005
+    url: http://user-info-service:5005
     routes:
       - name: user-auth-routes
         paths:

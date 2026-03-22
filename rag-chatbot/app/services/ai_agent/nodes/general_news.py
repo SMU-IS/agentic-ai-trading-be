@@ -15,26 +15,18 @@ async def general_news_node(state: AgentState) -> dict[str, Any]:
     Node to handle general news queries.
 
     This node is executed when the user query does not contain an order_id.
-    It extracts tickers from the state and calls the general news tool.
-
-    Args:
-        state: The current agent state
-
-    Returns:
-        Updated state with the news response
+    It passes the query to the news tool, which performs retrieval.
     """
     logger.info("Executing general_news_node")
 
     query = state.get("query", "")
-    tickers = (
-        state.get("variables", {}).get("tickers", []) if state.get("variables") else []
-    )
-
     msg_id = str(uuid.uuid4())
+    
     try:
         from app.services.tools.general_news import get_general_news
 
-        result = await get_general_news.ainvoke({"query": query, "tickers": tickers})
+        # Call the tool with just the query. The tool now handles tickers optionally.
+        result = await get_general_news.ainvoke({"query": query})
         logger.info("General news retrieved")
 
         return {
