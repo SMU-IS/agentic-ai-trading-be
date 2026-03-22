@@ -1,6 +1,5 @@
 import os
 
-from langchain_nvidia_ai_endpoints.llm import NVIDIA
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import final
