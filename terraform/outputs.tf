@@ -76,3 +76,8 @@ output "amplify_default_domain" {
   description = "Default domain of the Amplify app"
   value       = module.hosting.amplify_default_domain
 }
+
+output "backend_api_url" {
+  description = "The DNS name of the Kong Gateway Load Balancer"
+  value       = try(data.kubernetes_service.kong_proxy.status[0].load_balancer[0].ingress[0].hostname, "Waiting for Load Balancer...")
+}

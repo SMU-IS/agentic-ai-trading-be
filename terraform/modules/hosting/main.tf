@@ -32,8 +32,15 @@ resource "aws_amplify_app" "trading_frontend" {
   }
 
   environment_variables = {
-    ENV = var.environment
+    ENV                         = var.environment
+    NEXT_PUBLIC_BASE_API_URL    = var.base_api_url
+    NEXT_PUBLIC_CHAT_API_URL    = var.chat_api_url
+    NEXT_PUBLIC_FINNHUB_API_KEY = var.finnhub_api_key
+    NEXT_PUBLIC_LOGOKIT_API_KEY = var.logokit_api_key
+    NEXT_PUBLIC_NOTIF_API_URL   = var.notif_api_url
+    NEXT_PUBLIC_THREAD_API_URL  = var.thread_api_url
   }
+
 
   tags = {
     Environment = var.environment

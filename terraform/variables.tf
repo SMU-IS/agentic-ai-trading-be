@@ -95,6 +95,31 @@ variable "amplify_access_token" {
   sensitive   = true
 }
 
+variable "base_api_url" {
+  type      = string
+  sensitive = true
+}
+variable "chat_api_url" {
+  type      = string
+  sensitive = true
+}
+variable "finnhub_api_key" {
+  type      = string
+  sensitive = true
+}
+variable "logokit_api_key" {
+  type      = string
+  sensitive = true
+}
+variable "notif_api_url" {
+  type      = string
+  sensitive = true
+}
+variable "thread_api_url" {
+  type      = string
+  sensitive = true
+}
+
 # =============================================================================
 # Terraform State Backend Configuration
 # =============================================================================
