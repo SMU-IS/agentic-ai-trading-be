@@ -1,5 +1,5 @@
 import dataclasses
-from app.agents.state import AgentState, RiskAssessment, RiskMetrics, TradeAction, YahooData, closed_position, db_trade_decision, TradingDecision, MarketData
+from app.agents.state import AgentState, RiskAssessment, RiskMetrics, TradeAction, YahooTechnicalData, closed_position, db_trade_decision, TradingDecision, MarketData
 from typing import Dict, Any, List
 import httpx
 import asyncio
@@ -36,6 +36,11 @@ async def node_risk_adjust_trade_logic(state: AgentState) -> AgentState:
     print(f"   [🛡️ Risk Layer] Risk score {evaluation_result.risk_score}/1.50")
     # print_risk_evaluation(evaluation_result)
     order_details = evaluation_result.adjusted_trade
+
+    # ### 
+    # Order details adjusted by risk profile
+    # ###
+
     
     conflict_resolve_summary = await resolve_conflicting_position(
         order_details.ticker, order_details.action.value, order_details.qty, state.get("signal_id", "")
@@ -263,10 +268,10 @@ def handle_actions_taken(result):
     return actions_summary
 
 
-def risk_evaluation_metrics(trade: TradingDecision, yahoo_data: YahooData, account_bp: str) -> RiskAssessment:
+def risk_evaluation_metrics(trade: TradingDecision, yahoo_data: YahooTechnicalData, account_bp: str) -> RiskAssessment:
     account_bp = float(account_bp)
 
-    current_price = yahoo_data.price
+    current_price = yahoo_data.current_price
     atr = yahoo_data.atr14
     resistance = yahoo_data.resistance
     support = yahoo_data.support

@@ -10,8 +10,27 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
     Brain: Uses LLM for short-term swing trades driven by news volatility.
     Goal: Capture 2-5 day swings against short-term news-driven volatility.
     """
-
     signal_data = state["signal_data"]
+    print(f"   [🧠 Swing Trading Brain] Analyzing {signal_data.ticker}...")
+    ## DEBUG - SKIP LLM CALLS
+    decision = TradingDecision(
+                        action=TradeAction.SELL,
+                        confidence=0.85,
+                        entry_price=22.02,
+                        stop_loss=23,
+                        take_profit=20.5,
+                        qty=4.5,
+                        risk_reward=1.6,
+                        thesis="Strong catalyst from GLP-1 deal with Novo Nordisk and legal resolution drove 50% surge in early March 2026 with 2.5x volume and breakout above $26.03 resistance[1], but recent price action shows sharp reversal and overreaction: Mar 11 high $27.54, Mar 12 close $23.84 (-7.88%), Mar 18 close $23.15 (-7.33%) on elevated volume 34M+ shares[1]. Current $22.02 reflects STRONG_BEARISH candle (8.1% body drop to $21.70 low), 0.6x average volume signaling exhaustion, RSI 50 neutral, price 63% into BB upper $28.454 but below SMA50 $23.150 and key resistance $27.540[market data]. Euphoric spike into resistance post-news creates fade opportunity as momentum fades (MACD histogram +0.7585 but price below SMA20 $19.829? wait data shows recent highs above), support $21.700 and $13.740 for downside. Entry at current $22.02, SL above SMA50 $23.150 at $23.80 (1.8x ATR $0.010-based ~$1.78 risk), TP at 3D range low $20.50 for asymmetric reward into support.",
+                        current_stock_price=22.02,
+                        ticker=signal_data.ticker
+                    )
+    state["has_trade_opportunity"] = decision.action in [TradeAction.BUY, TradeAction.SELL]
+    print(f"   [✅ Trade Opportunity] {'Yes' if state['has_trade_opportunity'] else 'No'}")
+    state["order_details"] = decision
+
+    return state
+
     market_summary = state["market_data"].to_prompt() if state.get("market_data") else "No market data available."
     # 2. Prepare enriched input for LLM
     input_vars = {
