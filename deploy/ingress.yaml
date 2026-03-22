@@ -6,7 +6,7 @@ metadata:
 config:
   origins:
     - "http://localhost:3000"
-    - "https://main.dn5ff7y55p9ff.amplifyapp.com"
+    - "https://main.d3f0x7kvo77xiu.amplifyapp.com/"
   methods: ["GET", "POST", "OPTIONS"]
   headers: ["Content-Type", "Authorization"]
   credentials: true

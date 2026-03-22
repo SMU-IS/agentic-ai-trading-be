@@ -41,7 +41,7 @@ jobs:
 
   deploy:
     name: Continuous Deployment
-    if: false
+    if: true
     runs-on: ubuntu-latest
     needs: go-tests
     steps:
