@@ -119,23 +119,13 @@ class ChatWorkflow:
         graph.add_edge("general_news", "format_response")
 
         # 5. Nodes that already have AI messages go straight to summary check
-        graph.add_conditional_edges(
-            "llm_chat",
-            should_summarise,
-            {"summarise": "summarise", "end": END},
-        )
-        graph.add_conditional_edges(
-            "clarify",
-            should_summarise,
-            {"summarise": "summarise", "end": END},
-        )
-
-        # 6. From format_response to summary check
-        graph.add_conditional_edges(
-            "format_response",
-            should_summarise,
-            {"summarise": "summarise", "end": END},
-        )
+        exit_nodes = ["llm_chat", "clarify", "format_response"]
+        for node in exit_nodes:
+            graph.add_conditional_edges(
+                node,
+                should_summarise,
+                {"summarise": "summarise", "end": END},
+            )
 
         # 6. After summarizing, the flow ends
         graph.add_edge("summarise", END)

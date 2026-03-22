@@ -20,5 +20,5 @@ async def llm_chat_node(
         SystemMessage(content=system_prompt),
         *state["messages"],
     ]
-    response = await llm.ainvoke(messages)
+    response = await llm.ainvoke(messages, config={"tags": ["user_response"]})
     return {"messages": [response]}

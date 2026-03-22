@@ -11,7 +11,6 @@ def extract_order_id_node(state: AgentState) -> Dict[str, Any]:
     messages = state.get("messages", [])
     content = str(getattr(messages[-1], "content", "")) if messages else ""
     existing_id = state.get("order_id")
-
     match = re.search(
         r"(?:transaction|symbol|id)[:\s]*([A-Z0-9.\-_]{2,})", content, re.IGNORECASE
     )

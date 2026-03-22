@@ -122,8 +122,24 @@ async def test_invoke_agent_streaming(agent_bot_service, mock_dependencies):
 
     async def mock_astream_events(*args, **kwargs):
         yield {"event": "on_tool_start", "name": "test_tool", "data": {}}
-        yield {"event": "on_chat_model_stream", "data": {"chunk": MagicMock(content="Hi")}}
-        yield {"event": "on_chat_model_end", "data": {"output": "Hi there"}}
+        yield {
+            "event": "on_chat_model_stream",
+            "tags": ["user_response"],
+            "data": {"chunk": MagicMock(content="Hi")},
+        }
+        yield {
+            "event": "on_chat_model_end",
+            "tags": ["user_response"],
+            "data": {"output": MagicMock(content="Hi there", id="msg_123")},
+        }
+        yield {
+            "event": "on_chain_stream",
+            "data": {
+                "chunk": {
+                    "messages": [MagicMock(type="ai", content="Hi there", id="msg_123")]
+                }
+            },
+        }
 
     mock_agent.graph.astream_events = mock_astream_events
 
