@@ -1,22 +1,25 @@
 from dataclasses import dataclass
-from app.core.broker_client import create_broker_client, AlpacaBrokerClient
+
+from app.config import settings
+from app.core.broker_client import AlpacaBrokerClient, create_broker_client
 from app.core.trading_db_client import MongoDBClient
 from app.core.yahoo_client import YahooClient
-from app.config import settings
 
-mongo_client = MongoDBClient(uri=settings.mongodb_url, db_name="trading_db")
+mongo_client = MongoDBClient(uri=settings.mongodb_uri, db_name="trading_db")
+
 
 @dataclass
 class Services:
     brokerage: AlpacaBrokerClient = None
     trading_db: MongoDBClient = None
     yahoo: YahooClient = None
-    
+
     @classmethod
-    def get(cls) -> 'Services':
-        if not hasattr(cls, '_instance'):
+    def get(cls) -> "Services":
+        if not hasattr(cls, "_instance"):
             cls._instance = Services()
         return cls._instance
+
 
 # Initialize once
 services = Services.get()

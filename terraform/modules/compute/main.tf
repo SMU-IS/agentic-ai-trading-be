@@ -77,8 +77,8 @@ module "karpenter" {
   cluster_name = module.eks.cluster_name
 
   # Enable full permissions for Karpenter to manage nodes
-  enable_irsa            = true
-  irsa_oidc_provider_arn = module.eks.oidc_provider_arn
+  enable_irsa                     = true
+  irsa_oidc_provider_arn          = module.eks.oidc_provider_arn
   irsa_namespace_service_accounts = ["kube-system:karpenter"]
 
   # IAM role for nodes

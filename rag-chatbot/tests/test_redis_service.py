@@ -17,7 +17,7 @@ def test_redis_service_init(mock_redis):
     mock_instance = mock_redis.return_value
 
     # Execute
-    service = RedisService()
+    _ = RedisService()
 
     # Assert
     mock_redis.assert_called_once()
@@ -30,7 +30,7 @@ def test_redis_service_verify_connection_failure(mock_redis):
     mock_instance.ping.side_effect = redis.exceptions.AuthenticationError("Auth failed")
 
     # Execute
-    service = RedisService()
+    _ = RedisService()
 
     # Assert
     mock_instance.ping.assert_called_once()

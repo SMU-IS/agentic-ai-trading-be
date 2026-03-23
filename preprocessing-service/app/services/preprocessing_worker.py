@@ -8,11 +8,15 @@ from app.core.config import env_config
 from app.utils.logger import setup_logging
 from app.services._01_preprocesser import PreprocessingService
 from app.scripts.storage import RedisStreamStorage
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 logger = setup_logging()
 
-# ================= CONFIG =================
-STREAM_NAME = env_config.redis_reddit_stream
+# ==========================================================
+# CONFIG
+# ==========================================================
+STREAM_NAME = env_config.redis_news_stream
 PREPROC_STREAM_NAME = env_config.redis_preproc_stream
 
 CONSUMER_GROUP = "preprocessing_group"
@@ -22,13 +26,20 @@ HEARTBEAT_KEY = f"preprocessing:heartbeat:{CONSUMER_NAME}"
 HEARTBEAT_INTERVAL = 30
 HEARTBEAT_TTL = HEARTBEAT_INTERVAL * 3
 
-BATCH_SIZE = 10
+BATCH_SIZE = 50
 RECOVER_BATCH_SIZE = 100
 MIN_IDLE_MS = 5000
 CLEANUP_INTERVAL = 300
 
+POST_TIMESTAMP = "post_timestamps"
+REMOVED_POSTS_COUNTER = "preprocessing:removed_posts_count"
+DUP_POSTS_COUNTER = "preprocessing:duplicate_posts_count"
 
-# ================= INIT =================
+
+
+# ==========================================================
+# INIT
+# ==========================================================
 redis_client = redis.Redis(
     host=env_config.redis_host,
     port=int(env_config.redis_port),
@@ -43,7 +54,7 @@ preprocessor = PreprocessingService()
 
 
 # ==========================================================
-# GROUP SETUP
+# CONSUMER GROUP
 # ==========================================================
 async def setup_consumer_group():
     try:
@@ -79,6 +90,10 @@ async def send_heartbeat():
         logger.info("🛑 Heartbeat stopped")
         raise
 
+# check if scraped news has already been processed before 
+async def is_duplicate(post_id: str) -> bool:
+    dedup_key = f"preproc_dedup:{post_id}"
+    return await redis_client.exists(dedup_key)
 
 # ==========================================================
 # MESSAGE PROCESSING
@@ -99,23 +114,48 @@ def decode_message(data: dict):
 async def process_message(msg_id: str, data: dict):
     decoded = decode_message(data)
     if not decoded:
+        await redis_client.incr(REMOVED_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
+
+    sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+    post_id = decoded.get("id", "").strip('"')
+
+    if await is_duplicate(post_id):
+        logger.info(f"⚠️ Duplicate post {post_id} — skipping")
+        await redis_client.incr(DUP_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+    await redis_client.hset(
+        f"{POST_TIMESTAMP}:{post_id}",
+        "preproc_timestamp_start",
+        sg_now,
+    )
+    print(f"⏱️ Post {post_id}: Timestamped at preprocessing Stage (Start) → {sg_now}")
 
     processed = preprocessor.preprocess_post(decoded)
     if not processed:
+        await redis_client.incr(REMOVED_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
 
-    post_id = processed.get("id")
+    post_id = processed.get("id", "").strip('"')
 
     try:
         await preproc_stream.save(processed)
     except asyncio.CancelledError:
         raise
 
-    await finalize_message(msg_id)
+    sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+    await redis_client.hset(
+        f"{POST_TIMESTAMP}:{post_id}",
+        "preproc_timestamp",
+        sg_now,
+    )
+    print(f"⏱️ Post {post_id}: Timestamped at preproc Stage → {sg_now}")
 
+    await source_stream.acknowledge(CONSUMER_GROUP, msg_id)
     logger.info(f"✅ Processed Post {post_id}")
 
 
@@ -135,11 +175,14 @@ async def recover_pending_messages():
 
     logger.info(f"⚡ Recovered {len(claimed)} messages")
 
-    for msg_id, data in claimed:
-        try:
-            await process_message(msg_id, data)
-        except Exception as e:
-            logger.error(f"❌ Recovery failed {msg_id}: {e}")
+    tasks = [
+        process_message(msg_id, data)
+        for msg_id, data in claimed
+    ]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            logger.error(f"❌ Recovery failed for message {i}: {result}")
 
 
 # ==========================================================
@@ -172,16 +215,16 @@ async def cleanup_dead_consumers():
 
 
 # ==========================================================
-# WORKER LOOP (🔵 MATCHES EVENT STYLE)
+# WORKER LOOP
 # ==========================================================
 async def worker_loop():
     last_cleanup = 0
 
     heartbeat_task = asyncio.create_task(send_heartbeat())
 
-    logger.info("🔁 Startup recovery...")
-    await recover_pending_messages()
-    await cleanup_dead_consumers()
+    # non-blocking — new messages consumed immediately
+    asyncio.create_task(recover_pending_messages())
+    asyncio.create_task(cleanup_dead_consumers())
 
     try:
         while True:
@@ -198,23 +241,23 @@ async def worker_loop():
                 block_ms=5000,
             )
 
-            for msg_id, data in entries:
-                try:
-                    await process_message(msg_id, data)
-                except Exception as e:
-                    logger.error(f"❌ Error processing {msg_id}: {e}")
+            if entries:
+                tasks = [
+                    process_message(msg_id, data)
+                    for msg_id, data in entries
+                ]
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                for i, result in enumerate(results):
+                    if isinstance(result, Exception):
+                        logger.error(f"❌ Error processing message {i}: {result}")
 
     except asyncio.CancelledError:
         logger.info("🛑 Worker loop cancelled — shutting down")
+        raise
 
     finally:
         heartbeat_task.cancel()
-
-        await asyncio.gather(
-            heartbeat_task,
-            return_exceptions=True,
-        )
-
+        await asyncio.gather(heartbeat_task, return_exceptions=True)
         await redis_client.delete(HEARTBEAT_KEY)
 
 
@@ -262,7 +305,6 @@ async def main():
             worker_task.cancel()
 
         await asyncio.gather(worker_task, return_exceptions=True)
-
         await redis_client.aclose()
 
 

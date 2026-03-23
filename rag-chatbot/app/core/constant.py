@@ -9,18 +9,23 @@ class APIPath(str, Enum):
 
 
 class LangChainEvent(str, Enum):
+    """Event names for both LangChain and LangGraph (compatible)."""
+
     CHAT_MODEL_STREAM = "on_chat_model_stream"
     CHAT_MODEL_END_STREAM = "on_chat_model_end"
     TOOL_START = "on_tool_start"
     TOOL_END = "on_tool_end"
     CHAIN_START = "on_chain_start"
     CHAIN_END = "on_chain_end"
+    AGENT_END = "on_agent_end"
+    AGENT_STREAM = "on_agent_stream"
 
 
 class LLMProviders(str, Enum):
     OLLAMA = "ollama"
     GEMINI = "gemini"
     GROQ = "groq"
+    NVIDIA = "nvidia"
 
 
 class RedisCacheKeys(str, Enum):

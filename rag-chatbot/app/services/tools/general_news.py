@@ -8,7 +8,7 @@ from app.schemas.chat import GeneralNews
 
 
 @tool(args_schema=GeneralNews)
-async def get_general_news(query: str, tickers: List[str]):
+async def get_general_news(query: str, tickers: List[str] = None):
     """
     Search and analyze real-time financial news, market sentiment, and sector trends.
 
@@ -16,12 +16,12 @@ async def get_general_news(query: str, tickers: List[str]):
     1. Use ONLY for market-related research (e.g., "What's the news on AAPL?", "Why is the market down?").
     2. DO NOT use for meta-questions about the conversation history.
     3. DO NOT use for general greetings or non-financial chitchat.
-    4. If the user mentions specific tickers, they MUST be passed in the 'tickers' list.
-    5. If the query is about general market "vibes" or "hot stocks," pass an empty list [] for tickers.
+    4. If the user mentions specific tickers, you CAN pass them in the 'tickers' list for better accuracy,
+       otherwise the search will infer them from the query.
 
     Args:
         query (str): The search phrase. Focus on technical events (e.g., "earnings beat," "fed rate hike").
-        tickers (List[str]): Stock symbols in uppercase (e.g. ["NVDA", "PLTR"]). Empty list if N/A.
+        tickers (List[str], optional): Stock symbols in uppercase (e.g. ["NVDA", "PLTR"]).
 
     Returns:
         dict: {
@@ -33,7 +33,7 @@ async def get_general_news(query: str, tickers: List[str]):
     payload = {
         "query": query,
         "limit": 5,
-        "tickers": tickers if tickers is not None else [],
+        "tickers": tickers if tickers else [],
     }
 
     try:

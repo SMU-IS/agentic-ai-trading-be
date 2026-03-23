@@ -1,0 +1,34 @@
+[project]
+name = "qdrant-retrieval"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "asyncpg==0.31.0",
+    "email-validator==2.3.0",
+    "fastapi==0.128.0",
+    "fastapi-cli==0.0.23",
+    "fastapi-cloud-cli==0.13.0",
+    "h2==4.3.0",
+    "httptools==0.7.1",
+    "jinja2==3.1.6",
+    "langchain-google-genai==4.2.0",
+    "langchain-nomic==1.0.1",
+    "langchain-ollama==1.0.1",
+    "langchain-qdrant==1.1.0",
+    "pip-chill==1.0.3",
+    "pydantic-extra-types==2.11.0",
+    "pydantic-settings==2.12.0",
+    "pytest-html==4.2.0",
+    "python-multipart==0.0.22",
+    "qdrant-client==1.17.0",
+    "redis==7.2.0",
+    "uvloop==0.22.1",
+    "watchfiles==1.1.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest-asyncio>=1.3.0",
+]

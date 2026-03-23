@@ -13,7 +13,7 @@ plugins:
     config:
       origins:
         - http://localhost:3000
-        - https://main.d22zhvaaydu232.amplifyapp.com
+        - https://main.d3f0x7kvo77xiu.amplifyapp.com
       methods:
         - GET
         - POST
@@ -29,6 +29,8 @@ plugins:
         - Content-Type
         - Date
         - Authorization
+        - X-Requested-With
+        - X-Auth-Token
       exposed_headers:
         - X-Auth-Token
       credentials: true
@@ -38,7 +40,7 @@ plugins:
 services:
   # === RAG Chatbot Microservice 5001 ===
   - name: rag-chatbot-service-entry
-    url: http://rag-chatbot-infra:5001
+    url: http://rag-chatbot-service:5001
     # plugins:
     #   - name: jwt
     routes:
@@ -49,7 +51,7 @@ services:
 
   # === Preprocessing Microservice 5002 ===
   - name: preprocessing-entry
-    url: http://preprocessing-service-infra:5002
+    url: http://preprocessing:5002
     routes:
       - name: preprocessing-routes
         paths:
@@ -58,7 +60,7 @@ services:
 
   # === News Scraper Microservice 5003 ===
   - name: news-scraper-entry
-    url: http://news-scraper-infra:5003
+    url: http://news-scraper-service:5003
     routes:
       - name: news-scraper-routes
         paths:
@@ -67,7 +69,7 @@ services:
 
   # === Notification Microservice 5004 ===
   - name: notification-entry
-    url: http://notification-alert-infra:5004
+    url: http://notification-service:5004
     routes:
       - name: notification-routes
         paths:
@@ -76,7 +78,7 @@ services:
 
   # === User Info Microservice 5005 ===
   - name: user-service-entry
-    url: http://user-info-infra:5005
+    url: http://user-info-service:5005
     routes:
       - name: user-auth-routes
         paths:
@@ -99,7 +101,7 @@ services:
 
   # === Trading Agent M Microservice 5006 ===
   - name: trading-agent-m-service-entry
-    url: http://trading-agent-m-infra:5006
+    url: http://trading-agent-m-service:5006
     routes:
       - name: trading-agent-m
         paths:
@@ -108,7 +110,7 @@ services:
 
   # === Trading Service Microservice 5007 ===
   - name: trading-service-entry
-    url: http://trading-service-infra:5007
+    url: http://broker-service:5007
     routes:
       - name: trading-service-routes
         paths:
@@ -117,7 +119,7 @@ services:
 
     # === News Aggregator Microservice 5008 ===
   - name: news-aggregator-entry
-    url: http://news-aggregator-service-infra:5008
+    url: http://news-aggregator:5008
     routes:
       - name: news-aggregator-routes
         paths:
@@ -126,7 +128,7 @@ services:
 
   # === Qdrant Retrieval Microservice 5009 ===
   - name: qdrant-retrieval-entry
-    url: http://qdrant-retrieval-infra:5009
+    url: http://qdrant-retrieval:5009
     routes:
       - name: qdrant-retrieval-routes
         paths:
@@ -135,7 +137,7 @@ services:
 
   # === Ticker Identification Microservice 5010 ===
   - name: ticker-identification-entry
-    url: http://ticker-identification-service-infra:5010
+    url: http://ticker-identification:5010
     routes:
       - name: ticker-identification-routes
         paths:
@@ -144,7 +146,7 @@ services:
 
   # === Event Identification Microservice 5011 ===
   - name: event-identification-entry
-    url: http://event-identification-service-infra:5011
+    url: http://event-identification:5011
     routes:
       - name: event-identification-routes
         paths:
@@ -153,7 +155,7 @@ services:
 
   # === Sentiment Analysis Microservice 5012 ===
   - name: sentiment-analysis-entry
-    url: http://sentiment-analysis-service-infra:5012
+    url: http://sentiment-analysis:5012
     routes:
       - name: sentiment-analysis-routes
         paths:
