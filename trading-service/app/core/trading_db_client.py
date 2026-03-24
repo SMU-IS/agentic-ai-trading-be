@@ -42,28 +42,32 @@ class MongoDBClient:
     
     def get_reasonings_batch(self, order_ids: List[str]) -> Dict[str, Dict]:
         """Get reasonings for multiple order_ids {order_id: {reasonings: "..."}}"""
-        docs = self.orders.find({"order_id": {"$in": order_ids}})
-        
+        docs = list(self.orders.find({"order_id": {"$in": order_ids}}))
+
+        # Normalise _id fields and collect all signal_ids in one pass
+        for doc in docs:
+            if '_id' in doc:
+                doc['_id'] = str(doc['_id'])
+
+        signal_ids = list({
+            ObjectId(doc['signal_id'])
+            for doc in docs
+            if 'signal_id' in doc
+        })
+
+        # Single batch query for all signals instead of one per order
+        signal_map: Dict[str, Dict] = {}
+        if signal_ids:
+            for signal_doc in self.signals.find({"_id": {"$in": signal_ids}}):
+                if '_id' in signal_doc:
+                    signal_doc['_id'] = str(signal_doc['_id'])
+                signal_map[signal_doc['_id']] = signal_doc
+
         result = {}
         for doc in docs:
-            order_id = doc['order_id']
-            # Inline ObjectId → str conversion (only _id field)
-            serialized_doc = doc.copy()
-            if '_id' in serialized_doc:
-                serialized_doc['_id'] = str(serialized_doc['_id'])
-            
-            # ✅ Check for signal_id and fetch from signals
-            if 'signal_id' in serialized_doc:
-                signal_id = serialized_doc['signal_id']
-                signal_doc = self.signals.find_one({"_id": ObjectId(signal_id)})
-                if signal_doc:
-                    # Convert ObjectId to string
-                    signal_doc = signal_doc.copy()
-                    if '_id' in signal_doc:
-                        signal_doc['_id'] = str(signal_doc['_id'])
-                    serialized_doc['signal_data'] = signal_doc
-            
-            result[order_id] = serialized_doc
+            if 'signal_id' in doc:
+                doc['signal_data'] = signal_map.get(doc['signal_id'])
+            result[doc['order_id']] = doc
 
         return result
     

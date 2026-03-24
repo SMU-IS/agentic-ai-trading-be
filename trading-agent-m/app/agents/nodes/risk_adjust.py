@@ -70,7 +70,6 @@ async def evaluate_risk_for_user(
     should_execute   = not (has_conflict and current_position is not None)
 
     print(f"   [🛡️ Risk] user={user_id} | profile={profile.value} | should_execute={should_execute}")
-
     return RiskAdjResult(
         user_id                = user_id,       
         profile                = profile,            
@@ -118,12 +117,7 @@ async def node_risk_adjust_trade(state: AgentState) -> AgentState:
         asyncio.gather(*aggressive_tasks),
         asyncio.gather(*conservative_tasks),
     )
-    # print()
-    # print(aggressive_results)
-    # print()
-    # print(conservative_results)
 
-    # print()
     # ── Execution gate — any profile blocks if all users blocked ──
     should_execute = any(r["should_execute"] for r in [*aggressive_results, *conservative_results])
     order_list: list[RiskAdjResult] = [
@@ -135,6 +129,7 @@ async def node_risk_adjust_trade(state: AgentState) -> AgentState:
 
     state["should_execute"] = should_execute
     state["order_list"] = order_list
+    state["all_conflict_resolutions"] = [x["conflict_resolution"] for x in order_list]
     return state
 
 async def fetch_accounts_by_profile(profile: RiskProfile) -> List[dict]:
@@ -207,6 +202,10 @@ async def resolve_conflicting_position(
 
             # Extract key info you want
             result = resp.json()
+            print("conflict resolutions prints")
+            print("==============================")
+            print(result)
+            print()
             result_conflict_detected = result.get("conflicts_detected", {})
             # [DEBUG]: Print raw conflict resolution result
             print("[🛡️ RISK LAYER RESULT]", result)

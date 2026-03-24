@@ -400,22 +400,12 @@ class AgentState(TypedDict):
     # Output from risk adjustment
     aggressive_adj_order_details: RiskAdjResult
     conservative_adj_order_details: RiskAdjResult
-
-    ## adjusted_order_details: TradingDecision
-    ## risk_evaluation: RiskAssessment
     should_execute: NotRequired[bool]
 
-    # Save to db
-    # execution_order_id: NotRequired[Optional[str]]
-    # aggressive_execution_result:     NotRequired[Optional[Dict[str, Any]]]
-    # conservative_execution_result:   NotRequired[Optional[Dict[str, Any]]]
-    # execution_logs_by_user:   NotRequired[Optional[Dict[str, Any]]]
-    # Conlfict resolution
-    ## conflict_resolution: NotRequired[Optional[Dict[db_trade_decision, Any]]]
-    # trading_accounts: NotRequired[Optional[Dict[str, Any]]]
-    
     order_list:     NotRequired[list[RiskAdjResult]]
+    # Save to db
     execution_results:  NotRequired[list[dict]]
+    all_conflict_resolutions: NotRequired[list[dict]]
 
 
 # Risk adjustment layer
