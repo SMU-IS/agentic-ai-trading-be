@@ -39,21 +39,21 @@ class BrokerConfig:
     paper: bool = True  # True = paper trading, False = live
 
 
-def _load_config_from_env() -> BrokerConfig:
-    api_key = settings.alpaca_api_key
-    api_secret = settings.alpaca_api_secret
-    paper_flag = settings.alpaca_paper
+# def _load_config_from_env() -> BrokerConfig:
+#     api_key = settings.alpaca_api_key
+#     api_secret = settings.alpaca_api_secret
+#     paper_flag = settings.alpaca_paper
 
-    if not api_key or not api_secret:
-        raise RuntimeError(
-            "Missing ALPACA_API_KEY or ALPACA_API_SECRET in environment."
-        )
+#     if not api_key or not api_secret:
+#         raise RuntimeError(
+#             "Missing ALPACA_API_KEY or ALPACA_API_SECRET in environment."
+#         )
 
-    return BrokerConfig(
-        api_key=api_key,
-        api_secret=api_secret,
-        paper=paper_flag,
-    )
+#     return BrokerConfig(
+#         api_key=api_key,
+#         api_secret=api_secret,
+#         paper=paper_flag,
+#     )
 
 
 def create_broker_client(api_key: str, api_secret: str, paper: bool) -> "AlpacaBrokerClient":

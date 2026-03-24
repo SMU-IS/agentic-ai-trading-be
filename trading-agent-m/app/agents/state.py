@@ -4,6 +4,10 @@ from typing_extensions import NotRequired
 from dataclasses import dataclass
 from enum import Enum
 
+class RiskProfile(str, Enum):
+    CONSERVATIVE = "conservative"
+    AGGRESSIVE   = "aggressive"
+
 class Signal(BaseModel):
     signal_id: str
 
@@ -99,9 +103,9 @@ class YahooTechnicalData:
             'lower_wick': float(data.get('lower_wick', 0.0)),
             
             # Technical indicators
-            'rsi': float(data.get('RSI', 50.0)),
+            'rsi': float(data.get('rsi', 50.0)),
             'vol_ratio': float(data.get('vol_ratio', 1.0)),
-            'atr14': float(data.get('ATR', 0.01)),
+            'atr14': float(data.get('atr14', 0.01)),
             'sma20': float(data.get('sma20', 0.0)) if data.get('sma20') is not None else None,
             'sma50': float(data.get('sma50', 0.0)) if data.get('sma50') is not None else None,
             'sma200': float(data.get('sma200', 0.0)) if data.get('sma200') is not None else None,
@@ -151,7 +155,7 @@ class YahooTechnicalData:
 PRICE ACTION SUMMARY:
 - Current: ${safe_format(self.current_price, '.3f')}
 - Candle: {self.candle_type.upper()} (body {safe_format(self.body_size, '.1f')}%, {safe_format(self.body_pct, '.0%')} range)
-- Range: ${safe_format(self.low, '.3f')} - ${safe_format(self.high, '.3f')} (ATR: ${safe_format(self.atr14, '.3f')})
+- Range: ${safe_format(self.low, '.3f')} - ${safe_format(self.high, '.3f')} (ATR14: ${safe_format(self.atr14, '.3f')})
 - Volume: {safe_format(self.vol_ratio, '.1f')}x average
 """
         
@@ -373,6 +377,13 @@ class risk_evaluation_result(TypedDict):
     confidence: Optional[float]
     risk_score: Optional[float]
 
+class RiskAdjResult(TypedDict):
+    user_id: str
+    adjusted_order_details: TradingDecision
+    risk_evaluation: RiskAssessment
+    should_execute: NotRequired[bool]
+    conflict_resolution: NotRequired[Optional[Dict[db_trade_decision, Any]]]
+    profile: NotRequired[RiskProfile]
 
 class AgentState(TypedDict):
     # lookup node
@@ -387,12 +398,43 @@ class AgentState(TypedDict):
     has_trade_opportunity: NotRequired[bool]
     
     # Output from risk adjustment
-    adjusted_order_details: TradingDecision
-    risk_evaluation: RiskAssessment
+    aggressive_adj_order_details: RiskAdjResult
+    conservative_adj_order_details: RiskAdjResult
+
+    ## adjusted_order_details: TradingDecision
+    ## risk_evaluation: RiskAssessment
     should_execute: NotRequired[bool]
 
     # Save to db
-    execution_order_id: NotRequired[Optional[str]]
-
+    # execution_order_id: NotRequired[Optional[str]]
+    # aggressive_execution_result:     NotRequired[Optional[Dict[str, Any]]]
+    # conservative_execution_result:   NotRequired[Optional[Dict[str, Any]]]
+    # execution_logs_by_user:   NotRequired[Optional[Dict[str, Any]]]
     # Conlfict resolution
-    conflict_resolution: NotRequired[Optional[Dict[db_trade_decision, Any]]]
+    ## conflict_resolution: NotRequired[Optional[Dict[db_trade_decision, Any]]]
+    # trading_accounts: NotRequired[Optional[Dict[str, Any]]]
+    
+    order_list:     NotRequired[list[RiskAdjResult]]
+    execution_results:  NotRequired[list[dict]]
+
+
+# Risk adjustment layer
+@dataclass(frozen=True)
+class ProfileParams:
+    # Entry gates
+    penny_block:        bool
+    min_confidence:     float
+    max_entry_dev_pct:  float   # fractional, e.g. 0.01 = 1%
+    min_rr:             float
+    min_vol_ratio:      float   # 0.0 = no block
+
+    # SL/TP ATR multipliers
+    sl_atr_mult:        float
+    tp_atr_mult:        float
+
+    # Position sizing
+    max_risk_pct:       float   # fraction of account, e.g. 0.005
+    max_position_pct:   float   # fraction of account, e.g. 0.02
+
+    # Volume penalty
+    low_vol_qty_mult:   float   # 1.0 = no reduction

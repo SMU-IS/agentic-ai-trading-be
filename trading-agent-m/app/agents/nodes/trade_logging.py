@@ -69,6 +69,7 @@ async def node_trade_logging(redis_service, state: AgentState) -> AgentState:
         }
         db_payload.append(execution_order)
     else:
+        # No decision found from reasoning node
         no_order_payload = {
             "order_id": "N/A",
             "symbol": order_details.ticker,

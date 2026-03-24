@@ -81,8 +81,9 @@ logger = logging.getLogger(__name__)
 
 
 # Dependency to get a broker instance (can be singleton or factory)
-def get_broker(x_user_id: str = Header(default="agent-A")) -> AlpacaBrokerClient:
+def get_broker(x_user_id: str = Header(default="agent-A", alias="x_user_id")) -> AlpacaBrokerClient:
     try:
+        print("fetching for user", x_user_id)
         api_key, api_secret, paper = services.trading_db._load_user_account_from_mongo(x_user_id)
         return create_broker_client(api_key, api_secret, paper)
     except RuntimeError as e:
