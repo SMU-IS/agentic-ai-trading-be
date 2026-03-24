@@ -174,3 +174,12 @@ class MongoDBClient:
         if not accounts:
             raise RuntimeError("No trading accounts found")
         return accounts
+    
+    def get_trading_account_by_risk_profile(self, risk_profile: RiskProfile) -> Dict[str, Any]:
+        docs = self.accounts.find({"risk_profile": risk_profile.value})
+        accounts = []
+        for doc in docs:
+            accounts.append({
+                "user_id": doc["user_id"],
+            })
+        return accounts

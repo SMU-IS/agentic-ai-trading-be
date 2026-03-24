@@ -5,7 +5,7 @@ from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Path, Header
 from app.core.trading_db_client import MongoDBClient
 from app.core.services import services
-from app.api.schemas import DeepAnalysis, UpdateRiskProfileRequest
+from app.api.schemas import DeepAnalysis, UpdateRiskProfileRequest, RiskProfile
 from bson import ObjectId
 
 router = APIRouter()
@@ -113,6 +113,17 @@ async def get_all_trading_accounts(
 ) -> list[dict]:
     try:
         result = client.get_all_trading_accounts()
+        return result
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@router.get("/trading-accounts/{risk_profile}", response_model=list[dict])
+async def get_all_trading_accounts(
+    risk_profile: RiskProfile = Path(..., description="Risk profile - aggressive / conservative"),
+    client: MongoDBClient = Depends(lambda: mongo_client)
+) -> list[dict]:
+    try:
+        result = client.get_trading_account_by_risk_profile(risk_profile)
         return result
     except RuntimeError as e:
         raise HTTPException(status_code=404, detail=str(e))
