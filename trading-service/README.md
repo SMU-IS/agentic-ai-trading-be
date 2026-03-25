@@ -1,1 +1,1 @@
-# Trading Service X
+# Trading Service
