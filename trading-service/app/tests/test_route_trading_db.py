@@ -1,7 +1,6 @@
 """
 Simple pytest for MongoDBClient
 """
-import pytest
 import pymongo
 from unittest.mock import MagicMock, patch
 from bson import ObjectId

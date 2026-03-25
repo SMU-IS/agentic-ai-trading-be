@@ -31,10 +31,8 @@ async def format_response_node(state: AgentState, llm) -> Dict[str, Any]:
         [
             SystemMessage(content=prompt),
             *messages[-3:],
-        ]
+        ],
+        config={"tags": ["user_response"]},
     )
-
-    if last_message.id:
-        response.id = last_message.id
 
     return {"messages": [response]}

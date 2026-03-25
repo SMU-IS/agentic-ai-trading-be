@@ -152,17 +152,33 @@ Title:"""
 
                     # 2. Handle Token Streaming (Model tokens)
                     case "on_chat_model_stream":
-                        content = event["data"].get("chunk", {})
-                        text = getattr(content, "content", "")
+                        tags = event.get("tags", [])
+                        if "user_response" not in tags:
+                            continue
+
+                        chunk = event["data"].get("chunk", {})
+                        # Capture chunk ID if available to help de-duplicate later
+                        if hasattr(chunk, "id") and chunk.id:
+                            streamed_message_ids.add(chunk.id)
+
+                        text = getattr(chunk, "content", "")
                         if text:
                             yield f"data: {json.dumps({'token': text})}\n\n"
 
                     # 3. Handle Chat Model End to capture the message ID
                     case "on_chat_model_end":
+                        tags = event.get("tags", [])
+                        if "user_response" not in tags:
+                            continue
+
                         output = event["data"].get("output", {})
-                        if hasattr(output, "id") and output.id:
-                            streamed_message_ids.add(output.id)
-                        
+                        msg_id = getattr(output, "id", None)
+                        if not msg_id and isinstance(output, dict):
+                            msg_id = output.get("id")
+
+                        if msg_id:
+                            streamed_message_ids.add(msg_id)
+
                         console.print(
                             Panel(
                                 Pretty(output),
@@ -181,10 +197,17 @@ Title:"""
                                 # Only yield if it's an AI message AND we haven't streamed it yet
                                 if last_msg.type == "ai" and last_msg.content:
                                     msg_id = getattr(last_msg, "id", None)
-                                    if msg_id not in streamed_message_ids:
-                                        yield f"data: {json.dumps({'token': last_msg.content})}\n\n"
-                                        if msg_id:
-                                            streamed_message_ids.add(msg_id)
+                                    msg_hash = hash(last_msg.content)
+
+                                    if (msg_id and msg_id in streamed_message_ids) or (
+                                        msg_hash in streamed_message_ids
+                                    ):
+                                        continue
+
+                                    yield f"data: {json.dumps({'token': last_msg.content})}\n\n"
+                                    if msg_id:
+                                        streamed_message_ids.add(msg_id)
+                                    streamed_message_ids.add(msg_hash)
 
         except Exception as e:
             logger.error(f"Streaming Error: {str(e)}", exc_info=True)
@@ -210,7 +233,7 @@ Title:"""
             if not state:
                 logger.warning(f"No state found for session_id: {session_id}")
                 return []
-            
+
             # Defensive check for CheckpointTuple vs dict
             checkpoint = getattr(state, "checkpoint", state)
             if not isinstance(checkpoint, dict):
@@ -218,8 +241,10 @@ Title:"""
                 return []
 
             messages = checkpoint.get("channel_values", {}).get("messages", [])
-            logger.info(f"Retrieved {len(messages)} raw messages for session {session_id}")
-            
+            logger.info(
+                f"Retrieved {len(messages)} raw messages for session {session_id}"
+            )
+
             displayable_messages = [
                 self._format_message(msg)
                 for msg in messages

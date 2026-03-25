@@ -30,7 +30,6 @@ from alpaca.trading.requests import (
     TakeProfitRequest,
     GetPortfolioHistoryRequest
 )
-from app.config import settings
 
 @dataclass
 class BrokerConfig:
@@ -39,29 +38,29 @@ class BrokerConfig:
     paper: bool = True  # True = paper trading, False = live
 
 
-def _load_config_from_env() -> BrokerConfig:
-    api_key = settings.alpaca_api_key
-    api_secret = settings.alpaca_api_secret
-    paper_flag = settings.alpaca_paper
+# def _load_config_from_env() -> BrokerConfig:
+#     api_key = settings.alpaca_api_key
+#     api_secret = settings.alpaca_api_secret
+#     paper_flag = settings.alpaca_paper
 
-    if not api_key or not api_secret:
-        raise RuntimeError(
-            "Missing ALPACA_API_KEY or ALPACA_API_SECRET in environment."
-        )
+#     if not api_key or not api_secret:
+#         raise RuntimeError(
+#             "Missing ALPACA_API_KEY or ALPACA_API_SECRET in environment."
+#         )
 
-    return BrokerConfig(
-        api_key=api_key,
-        api_secret=api_secret,
-        paper=paper_flag,
-    )
+#     return BrokerConfig(
+#         api_key=api_key,
+#         api_secret=api_secret,
+#         paper=paper_flag,
+#     )
 
 
-def create_broker_client() -> "AlpacaBrokerClient":
+def create_broker_client(api_key: str, api_secret: str, paper: bool) -> "AlpacaBrokerClient":
     """
     Factory used by FastAPI dependency injection.
     """
-    cfg = _load_config_from_env()
-    return AlpacaBrokerClient(cfg)
+    # cfg = _load_config_from_env()
+    return AlpacaBrokerClient(api_key, api_secret, paper)
 
 
 class AlpacaBrokerClient:
@@ -70,23 +69,23 @@ class AlpacaBrokerClient:
     Exposes simple methods used by the agent/risk engine and FastAPI layer.
     """
 
-    def __init__(self, config: Optional[BrokerConfig] = None) -> None:
-        if config is None:
-            config = _load_config_from_env()
-
-        self.config = config
+    def __init__(self, 
+        api_key: str, 
+        api_secret: str,
+        paper: bool
+        ) -> None:
 
         # Trading (orders, positions, account)
         self.client = TradingClient(
-            api_key=config.api_key,
-            secret_key=config.api_secret,
-            paper=config.paper,
+            api_key=api_key,
+            secret_key=api_secret,
+            paper=paper,
         )
 
         # Market data (historical stock bars) [web:158][web:166]
         self.data_client = StockHistoricalDataClient(
-            api_key=config.api_key,
-            secret_key=config.api_secret,
+            api_key=api_key,
+            secret_key=api_secret,
         )
 
     # --------- Account / positions / orders ---------

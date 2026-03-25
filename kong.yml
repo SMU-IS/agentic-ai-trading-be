@@ -13,7 +13,8 @@ plugins:
     config:
       origins:
         - http://localhost:3000
-        - https://main.d22zhvaaydu232.amplifyapp.com
+        - https://main.d3f0x7kvo77xiu.amplifyapp.com
+        - https://agentic-m.com
       methods:
         - GET
         - POST
@@ -29,6 +30,8 @@ plugins:
         - Content-Type
         - Date
         - Authorization
+        - X-Requested-With
+        - X-Auth-Token
       exposed_headers:
         - X-Auth-Token
       credentials: true

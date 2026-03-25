@@ -4,6 +4,10 @@ from typing_extensions import NotRequired
 from dataclasses import dataclass
 from enum import Enum
 
+class RiskProfile(str, Enum):
+    CONSERVATIVE = "conservative"
+    AGGRESSIVE   = "aggressive"
+
 class Signal(BaseModel):
     signal_id: str
 
@@ -23,48 +27,163 @@ class SignalData(BaseModel):
     news_id: str
 
 @dataclass
-class YahooData:
-    """Yahoo Finance technical indicators data"""
-    price: float
+class YahooTechnicalData:
+    current_price: float   
+    # OHLCV Raw
+    open: float
+    high: float
+    low: float
+    close: float
+    adj_close: float
+    volume: int
+    
+    # Candle Analysis (your core signals)
+    candle_type: str  # 'strong_bullish', 'moderate_bearish', etc.
+    body_size: float  # % body size
+    body_pct: float   # body/range ratio
+    upper_wick: float
+    lower_wick: float
+    
+    # Technical Indicators
+    rsi: float
+    vol_ratio: float
     atr14: float
     sma20: float
     sma50: float
+    sma200: float
+    golden_cross: bool
+    death_cross: bool
+    
+    # Price Action Context
+    high_3d: float
+    low_3d: float
+    is_penny: bool
+
+    # market structure
     support: float
     resistance: float
-    rsi14: float
+    period_summary: str
+
+    # MACD Fields
+    macd: float
+    macd_signal: float
+    macd_histogram: float
+    macd_bullish: bool
+    macd_bearish: bool
     
-    summary: str  # "62 bars, 2025-11-17→2026-02-17"
-    
+    # Bollinger Bands Fields
+    bb_upper: float
+    bb_middle: float
+    bb_lower: float
+    bb_width: float
+    bb_position: float  # 0=lower band, 1=upper band
+    bb_squeeze: bool
+    bb_upper_break: bool
+    bb_lower_break: bool
+
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'YahooData':
-        """Create from raw dict"""
-        indicators = data['indicators']
-        return cls(
-            price=indicators['price'],
-            atr14=indicators['atr14'],
-            sma20=indicators['sma20'],
-            sma50=indicators['sma50'],
-            support=indicators['support'],
-            resistance=indicators['resistance'],
-            rsi14=indicators['rsi14'],
-            summary=data['summary']
-        )
+    def from_dict(cls, data: Dict[str, Any]) -> 'YahooTechnicalData':
+        """Create from raw dict - handles type conversion and missing fields."""
+        
+        # Field mapping with defaults
+        field_map = {
+            'current_price': data.get('current_price', data.get('Close', 0.0)),
+            'open': float(data.get('open', 0.0)),
+            'high': float(data.get('high', 0.0)),
+            'low': float(data.get('low', 0.0)),
+            'close': float(data.get('close', 0.0)),
+            'adj_close': float(data.get('adj_close', 0.0)),
+            'volume': int(data.get('volume', 0)),
+            
+            # Candle analysis
+            'candle_type': data.get('candle_type', 'neutral'),
+            'body_size': float(data.get('body_size', 0.0)),
+            'body_pct': float(data.get('body_pct', 0.0)),
+            'upper_wick': float(data.get('upper_wick', 0.0)),
+            'lower_wick': float(data.get('lower_wick', 0.0)),
+            
+            # Technical indicators
+            'rsi': float(data.get('rsi', 50.0)),
+            'vol_ratio': float(data.get('vol_ratio', 1.0)),
+            'atr14': float(data.get('atr14', 0.01)),
+            'sma20': float(data.get('sma20', 0.0)) if data.get('sma20') is not None else None,
+            'sma50': float(data.get('sma50', 0.0)) if data.get('sma50') is not None else None,
+            'sma200': float(data.get('sma200', 0.0)) if data.get('sma200') is not None else None,
+            'golden_cross': bool(data.get('golden_cross', False)),
+            'death_cross': bool(data.get('death_cross', False)),
+            
+            # Price action
+            'high_3d': float(data.get('high_3d', 0.0)),
+            'low_3d': float(data.get('low_3d', 0.0)),
+            'is_penny': bool(data.get('is_penny', False)),
+            'support': float(data.get('support', 0.0)),
+            'resistance': float(data.get('resistance', 0.0)),
+            'period_summary': data.get('period_summary', 'N/A'),
+            
+            # MACD
+            'macd': float(data.get('macd', 0.0)),
+            'macd_signal': float(data.get('macd_signal', 0.0)),
+            'macd_histogram': float(data.get('macd_histogram', 0.0)),
+            'macd_bullish': bool(data.get('macd_bullish', False)),
+            'macd_bearish': bool(data.get('macd_bearish', False)),
+            
+            # Bollinger Bands
+            'bb_upper': float(data.get('bb_upper', 0.0)),
+            'bb_middle': float(data.get('bb_middle', 0.0)),
+            'bb_lower': float(data.get('bb_lower', 0.0)),
+            'bb_width': float(data.get('bb_width', 0.0)),
+            'bb_position': float(data.get('bb_position', 0.5)),
+            'bb_squeeze': bool(data.get('bb_squeeze', False)),
+            'bb_upper_break': bool(data.get('bb_upper_break', False)),
+            'bb_lower_break': bool(data.get('bb_lower_break', False)),
+        }
+        
+        return cls(**field_map)
     
     def to_prompt(self) -> str:
-        """Convert to LLM-friendly prompt string"""
-        current_price = self.price
-        return f"""
-LATEST MARKET DATA FROM YAHOO FINANCE FOR ANALYSIS:
-TECHNICAL INDICATORS ({self.summary}):
-- Price: ${self.price:.2f}
-- SMA20: ${self.sma20:.2f} ({'above' if current_price >= self.sma20 else 'below'})
-- SMA50: ${self.sma50:.2f}
-- RSI(14): {self.rsi14:.1f} (neutral)
-- ATR(14): ${self.atr14:.2f}
-- Support: ${self.support:.2f}
-- Resistance: ${self.resistance:.2f}
+        def safe_format(value, fmt: str = "") -> str:
+            """Format value safely, handles None."""
+            if value is None:
+                return "N/A"
+            try:
+                return f"{value:{fmt}}"
+            except (ValueError, TypeError):
+                return str(value)
+            
+        # Price context
+        price_context = f"""
+PRICE ACTION SUMMARY:
+- Current: ${safe_format(self.current_price, '.3f')}
+- Candle: {self.candle_type.upper()} (body {safe_format(self.body_size, '.1f')}%, {safe_format(self.body_pct, '.0%')} range)
+- Range: ${safe_format(self.low, '.3f')} - ${safe_format(self.high, '.3f')} (ATR14: ${safe_format(self.atr14, '.3f')})
+- Volume: {safe_format(self.vol_ratio, '.1f')}x average
+"""
+        
+        # Technical summary
+        rsi_status = "OVERSOLD" if self.rsi and self.rsi < 40 else "OVERBOUGHT" if self.rsi and self.rsi > 60 else "NEUTRAL"
+        tech_context = f"""
+TECHNICAL INDICATORS:
+RSI: {safe_format(self.rsi, '.0f')} ({rsi_status})
+Trend: SMA20: ${safe_format(self.sma20, '.3f')} | SMA50: ${safe_format(self.sma50, '.3f')} | SMA200: ${safe_format(self.sma200, '.3f')}
+MACD: {safe_format(self.macd, '.4f')} vs Signal: {safe_format(self.macd_signal, '.4f')} (Histogram: {safe_format(self.macd_histogram, '+.4f')})
+BB: {safe_format(self.bb_position, '.0%')} position (Lower: ${safe_format(self.bb_lower, '.3f')}, Upper: ${safe_format(self.bb_upper, '.3f')})
+"""
+        
+        # Market structure
+        structure = f"""
+MARKET STRUCTURE:
+Support: ${safe_format(self.support, '.3f')} | Resistance: ${safe_format(self.resistance, '.3f')}
+3D Range: ${safe_format(self.low_3d, '.3f')} - ${safe_format(self.high_3d, '.3f')}
+Penny Stock: {'YES' if self.is_penny else 'NO'}
+Data Period: {self.period_summary}
 """
 
+        prompt = f"""TRADING SIGNAL ANALYSIS
+{price_context}
+{tech_context}
+{structure}
+        """
+        return prompt.strip()
 
 @dataclass
 class Quote:
@@ -124,7 +243,7 @@ LIVE QUOTE FROM BROKER ({trade.symbol}, {trade.timestamp}):
 @dataclass
 class MarketData:
     alpaca: AlpacaData
-    yahoo: YahooData
+    yahoo: YahooTechnicalData
     timestamp: float  # Unix time from asyncio.get_event_loop().time()
     
     @classmethod
@@ -132,7 +251,7 @@ class MarketData:
         """Create from raw state dict"""
         return cls(
             alpaca=AlpacaData.from_dict(data['alpaca']),
-            yahoo=YahooData.from_dict(data['yahoo']),
+            yahoo=YahooTechnicalData.from_dict(data['yahoo']),
             timestamp=data['timestamp']
         )
     
@@ -258,6 +377,13 @@ class risk_evaluation_result(TypedDict):
     confidence: Optional[float]
     risk_score: Optional[float]
 
+class RiskAdjResult(TypedDict):
+    user_id: str
+    adjusted_order_details: TradingDecision
+    risk_evaluation: RiskAssessment
+    should_execute: NotRequired[bool]
+    conflict_resolution: NotRequired[Optional[Dict[db_trade_decision, Any]]]
+    profile: NotRequired[RiskProfile]
 
 class AgentState(TypedDict):
     # lookup node
@@ -272,12 +398,33 @@ class AgentState(TypedDict):
     has_trade_opportunity: NotRequired[bool]
     
     # Output from risk adjustment
-    adjusted_order_details: TradingDecision
-    risk_evaluation: RiskAssessment
+    aggressive_adj_order_details: RiskAdjResult
+    conservative_adj_order_details: RiskAdjResult
     should_execute: NotRequired[bool]
 
+    order_list:     NotRequired[list[RiskAdjResult]]
     # Save to db
-    execution_order_id: NotRequired[Optional[str]]
+    execution_results:  NotRequired[list[dict]]
+    all_conflict_resolutions: NotRequired[list[dict]]
 
-    # Conlfict resolution
-    conflict_resolution: NotRequired[Optional[Dict[db_trade_decision, Any]]]
+
+# Risk adjustment layer
+@dataclass(frozen=True)
+class ProfileParams:
+    # Entry gates
+    penny_block:        bool
+    min_confidence:     float
+    max_entry_dev_pct:  float   # fractional, e.g. 0.01 = 1%
+    min_rr:             float
+    min_vol_ratio:      float   # 0.0 = no block
+
+    # SL/TP ATR multipliers
+    sl_atr_mult:        float
+    tp_atr_mult:        float
+
+    # Position sizing
+    max_risk_pct:       float   # fraction of account, e.g. 0.005
+    max_position_pct:   float   # fraction of account, e.g. 0.02
+
+    # Volume penalty
+    low_vol_qty_mult:   float   # 1.0 = no reduction
