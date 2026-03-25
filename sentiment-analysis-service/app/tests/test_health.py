@@ -8,7 +8,6 @@ Run from sentiment-analysis-service/:
 
 from unittest.mock import MagicMock, patch
 
-import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app

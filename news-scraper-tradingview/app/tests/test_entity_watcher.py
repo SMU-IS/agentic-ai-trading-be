@@ -7,7 +7,7 @@ Coverage:
   EntityWatcherService   — new ticker pushed, already-processed skipped
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import fakeredis
 import pytest

@@ -4,7 +4,6 @@ from fastapi.routing import APIRouter
 from redis import Redis
 
 from app.core.config import env_config
-from app.core.constant import APIPath
 from app.core.logger import logger
 from app.routers import query_docs, vectorise_docs
 

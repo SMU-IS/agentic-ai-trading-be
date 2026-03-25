@@ -10,7 +10,6 @@ Usage (standalone test):
     python -m app.services.tradingview_minds_stream_ingestion
 """
 
-import json
 import time
 import logging
 from datetime import datetime, timezone

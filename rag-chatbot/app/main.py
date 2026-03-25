@@ -6,7 +6,6 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 
-from app.core.constant import APIPath
 from app.core.db import db_manager
 from app.routers import agent_bot, threads
 

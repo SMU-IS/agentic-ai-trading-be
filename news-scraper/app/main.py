@@ -1,5 +1,4 @@
 import logging
-import threading
 from contextlib import asynccontextmanager
 
 import praw
@@ -7,7 +6,6 @@ from fastapi import FastAPI
 
 from app.core.config import env_config
 from app.router.scraper import router as scraper_router
-from app.services.entity_watcher import EntityWatcherService
 from app.services.reddit_batch_ingestion import RedditBatchService
 from app.services.reddit_stream_ingestion import RedditStreamService
 from app.services.scraper_controller import scraper_controller
