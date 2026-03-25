@@ -1,5 +1,5 @@
 import asyncio
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Dict
 
 import redis.asyncio as aioredis
 
@@ -58,9 +58,13 @@ class RedisService:
                 print(f"   Stream name: '{self.redis_signal_stream}'")
                 await asyncio.sleep(1)
                 
-    async def publish_trade_noti(self, order_id: str):
+    async def publish_trade_noti(self, noti_order_id: list[Dict]):
         """Publish to trading notification stream"""
-        await self.redis.xadd(self.redis_trade_noti_stream, {"order_id": order_id})
+        for noti in noti_order_id:
+            order_id = noti.get("order_id")
+            user_id  = noti.get("user_id")
+            await self.redis.xadd(self.redis_trade_noti_stream, {"order_id": order_id, "user_id": user_id})
+            print(f"   [📢 Redis] Trade notification published | user={user_id} order={order_id}")
         
     async def publish_order_timestamp(self, post_id, ticker):
 
