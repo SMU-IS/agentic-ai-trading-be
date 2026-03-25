@@ -2,7 +2,6 @@ import os
 from functools import partial
 
 from langgraph.graph import END, START, StateGraph
-from langgraph.types import Send
 
 from app.agents.nodes import (
     node_decide_trade,
@@ -12,7 +11,7 @@ from app.agents.nodes import (
     node_trade_logging,
     node_fetch_signal_data
 )
-from app.agents.state import AgentState, RiskProfile
+from app.agents.state import AgentState
 
 
 class TradingWorkflow:

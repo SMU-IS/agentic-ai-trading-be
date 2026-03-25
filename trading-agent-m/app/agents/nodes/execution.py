@@ -1,6 +1,6 @@
 import httpx
 from typing import Dict, Any
-from app.agents.state import AgentState, TradingDecision, RiskProfile, RiskAdjResult, RiskAssessment, RiskMetrics
+from app.agents.state import AgentState, TradingDecision, RiskAdjResult, RiskAssessment, RiskMetrics
 from app.core.config import env_config
 import asyncio
 import dataclasses

@@ -30,7 +30,6 @@ from alpaca.trading.requests import (
     TakeProfitRequest,
     GetPortfolioHistoryRequest
 )
-from app.config import settings
 
 @dataclass
 class BrokerConfig:

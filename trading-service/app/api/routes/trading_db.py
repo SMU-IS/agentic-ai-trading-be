@@ -117,7 +117,7 @@ async def get_all_trading_accounts(
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.get("/trading-accounts/{risk_profile}", response_model=list[dict])
-async def get_all_trading_accounts(
+async def get_trading_accounts_by_risk_profile(
     risk_profile: RiskProfile = Path(..., description="Risk profile - aggressive / conservative"),
     client: MongoDBClient = Depends(lambda: mongo_client)
 ) -> list[dict]:
