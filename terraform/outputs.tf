@@ -47,16 +47,6 @@ output "s3_bucket_arns" {
   value       = module.storage.bucket_arns
 }
 
-output "cloudfront_domain_name" {
-  description = "CloudFront distribution domain name"
-  value       = module.hosting.cloudfront_domain_name
-}
-
-output "cloudfront_id" {
-  description = "CloudFront distribution ID"
-  value       = module.hosting.cloudfront_id
-}
-
 output "rds_endpoints" {
   description = "Endpoints of the RDS instances"
   value       = { for k, v in module.databases : k => v.db_endpoint }
