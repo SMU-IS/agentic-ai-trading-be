@@ -7,7 +7,6 @@ from app.core.config import env_config
 from app.core.constant import APIPath
 from app.core.logger import logger
 
-
 # ================= Redis (Health Only) =================
 redis_client = Redis(
     host=env_config.redis_host,
@@ -36,7 +35,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # ================= HEALTH CHECK =================
-@app.get(APIPath.HEALTH_CHECK)
+@app.get("/")
 def health_check():
     try:
         redis_client.ping()
@@ -60,8 +59,7 @@ def health_check():
 
         # Extract worker IDs from key names
         active_workers = [
-            key.replace("sentiment_analysis:heartbeat:", "")
-            for key in heartbeat_keys
+            key.replace("sentiment_analysis:heartbeat:", "") for key in heartbeat_keys
         ]
 
         return {
