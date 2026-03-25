@@ -123,7 +123,7 @@ class StreamConsumer:
                                             logger.info("✅ Sent signal notification: %s", notification_payload)
                                         else:
                                             logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)
-                                    except Exception as e:
+                                    except Exception:
                                         logger.exception(f"Failed processing signal {signal_id}")                                            
 
                                 elif stream_name == env_config.redis_trade_stream:
@@ -146,19 +146,19 @@ class StreamConsumer:
                                         else:
                                             logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)                                            
 
-                                    except Exception as e:
+                                    except Exception:
                                         logger.exception(f"Failed processing signal {order_id}")
 
                                 if delivered:
                                     await self.r.xack(stream_name, group_name, event_id)
 
 
-                            except Exception as e:
+                            except Exception:
                                 logger.exception(f"Failed processing {event_id} from {stream_name}")
                 
             except asyncio.CancelledError:
                 logger.info("🛑 StreamConsumer shutting...")
                 raise
-            except Exception as e:
-                logger.exception(f"StreamConsumer error")
+            except Exception:
+                logger.exception("StreamConsumer error")
                 await asyncio.sleep(2)

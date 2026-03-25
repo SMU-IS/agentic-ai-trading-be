@@ -40,15 +40,26 @@ plugins:
 
 services:
   # === RAG Chatbot Microservice 5001 ===
-  - name: rag-chatbot-service-entry
+  - name: rag-chatbot-service
     url: http://rag-chatbot-service:5001
-    # plugins:
-    #   - name: jwt
     routes:
-      - name: rag-chatbot-routes
+      - name: rag-chatbot-healthcheck
+        paths:
+          - /api/v1/rag/healthcheck
+        strip_path: true
+
+      - name: rag-chatbot-api
         paths:
           - /api/v1/rag
         strip_path: true
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
+              secret_is_base64: false
+              header_names:
+                - authorization
 
   # === Preprocessing Microservice 5002 ===
   - name: preprocessing-entry
@@ -110,13 +121,26 @@ services:
         strip_path: true
 
   # === Trading Service Microservice 5007 ===
-  - name: trading-service-entry
+  - name: trading-service-service
     url: http://broker-service:5007
     routes:
-      - name: trading-service-routes
+      - name: trading-service-healthcheck
+        paths:
+          - /api/v1/trading/healthcheck
+        strip_path: true
+
+      - name: trading-service-api
         paths:
           - /api/v1/trading
         strip_path: true
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
+              secret_is_base64: false
+              header_names:
+                - authorization
 
     # === News Aggregator Microservice 5008 ===
   - name: news-aggregator-entry
@@ -128,13 +152,26 @@ services:
         strip_path: true
 
   # === Qdrant Retrieval Microservice 5009 ===
-  - name: qdrant-retrieval-entry
+  - name: qdrant-retrieval-service
     url: http://qdrant-retrieval:5009
     routes:
-      - name: qdrant-retrieval-routes
+      - name: qdrant-retrieval-healthcheck
+        paths:
+          - /api/v1/qdrant/healthcheck
+        strip_path: true
+
+      - name: qdrant-retrieval-api-routes
         paths:
           - /api/v1/qdrant
         strip_path: true
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify:
+                - exp
+              secret_is_base64: false
+              header_names:
+                - authorization
 
   # === Ticker Identification Microservice 5010 ===
   - name: ticker-identification-entry

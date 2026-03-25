@@ -12,21 +12,21 @@ service:
 
 startupProbe:
   httpGet:
-    path: /healthcheck
+    path: /
     port: 5009
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
-    path: /healthcheck
+    path: /
     port: 5009
   initialDelaySeconds: 10
   periodSeconds: 20
 
 readinessProbe:
   httpGet:
-    path: /healthcheck
+    path: /
     port: 5009
   initialDelaySeconds: 5
   periodSeconds: 10

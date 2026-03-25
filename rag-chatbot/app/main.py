@@ -6,7 +6,6 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 
-from app.core.constant import APIPath
 from app.core.db import db_manager
 from app.routers import agent_bot, threads
 
@@ -50,7 +49,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 api_router = APIRouter()
 
 
-@app.get(APIPath.HEALTH_CHECK, tags=["Healthcheck"])
+@app.get("/", tags=["Healthcheck"])
 def root():
     return {"status": "RAG Chatbot Service is healthy"}
 

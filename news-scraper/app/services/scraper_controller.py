@@ -1,7 +1,6 @@
 import threading
 from app.services.reddit_batch_ingestion import RedditBatchService
 from app.services.reddit_stream_ingestion import RedditStreamService
-from app.services.entity_watcher import EntityWatcherService
 
 
 class ScraperController:

@@ -2,7 +2,6 @@ import time
 import json
 from datetime import datetime, timedelta, timezone
 import prawcore
-from zoneinfo import ZoneInfo
 from app.core.logger import logger
 
 POST_TIMESTAMP = "post_timestamps"
@@ -167,17 +166,17 @@ class RedditBatchService:
                                 self.storage.save_batch(buffer)
                                 logger.info(f"Flushed {len(buffer)} posts to Redis.")
                                 buffer.clear()
-                            except Exception as e:
-                                logger.exception(f"Redis batch write failed")
+                            except Exception:
+                                logger.exception("Redis batch write failed")
                                 buffer.clear()
 
                         if sleep_seconds:
                             time.sleep(sleep_seconds)
-                    except Exception as e:
+                    except Exception:
                         logger.exception(f"Failed to process post in r/{sub}")
                         continue
 
-            except prawcore.exceptions.PrawcoreException as e:
+            except prawcore.exceptions.PrawcoreException:
                 logger.exception(f"Reddit API error for r/{sub}")
                 time.sleep(5)
                 continue

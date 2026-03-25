@@ -16,7 +16,6 @@ Coverage:
              skips items with empty dedup key
 """
 
-import json
 from unittest.mock import MagicMock, patch
 
 import fakeredis

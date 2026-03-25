@@ -52,8 +52,8 @@ class RedditStreamService:
 
                     self.handle_post(post)
 
-            except prawcore.exceptions.PrawcoreException as e:
-                logger.exception(f"Reddit API error")
+            except prawcore.exceptions.PrawcoreException:
+                logger.exception("Reddit API error")
                 time.sleep(5)
 
     def handle_post(self, post):
@@ -101,7 +101,7 @@ class RedditStreamService:
             
             time.sleep(0.1)
 
-        except Exception as e:
+        except Exception:
             logger.exception(f"Failed to process post {post.id}")
 
     def build_subreddit_list(self, base_subreddits):
