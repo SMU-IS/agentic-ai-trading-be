@@ -6,8 +6,9 @@ Run from ticker-identification-service/:
     pytest
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -17,6 +18,7 @@ client = TestClient(app)
 
 # ─── Happy path ───────────────────────────────────────────────────────────────
 
+
 def test_healthcheck_healthy():
     """Redis ok and worker heartbeat found → status healthy."""
     mock_redis = MagicMock()
@@ -24,7 +26,7 @@ def test_healthcheck_healthy():
     mock_redis.scan.return_value = (0, ["tickeridentification:heartbeat:worker_abc123"])
 
     with patch("app.main.redis_client", mock_redis):
-        response = client.get("/healthcheck")
+        response = client.get("/")
 
     assert response.status_code == 200
     data = response.json()
@@ -48,7 +50,7 @@ def test_healthcheck_multiple_workers():
     )
 
     with patch("app.main.redis_client", mock_redis):
-        response = client.get("/healthcheck")
+        response = client.get("/")
 
     data = response.json()
     assert data["status"] == "healthy"
@@ -59,6 +61,7 @@ def test_healthcheck_multiple_workers():
 
 # ─── Sad path ─────────────────────────────────────────────────────────────────
 
+
 def test_healthcheck_worker_unreachable():
     """Redis ok but no worker heartbeat keys → status worker_unreachable."""
     mock_redis = MagicMock()
@@ -66,7 +69,7 @@ def test_healthcheck_worker_unreachable():
     mock_redis.scan.return_value = (0, [])
 
     with patch("app.main.redis_client", mock_redis):
-        response = client.get("/healthcheck")
+        response = client.get("/")
 
     assert response.status_code == 200
     data = response.json()
@@ -83,7 +86,7 @@ def test_healthcheck_redis_down():
     mock_redis.ping.side_effect = Exception("Connection refused")
 
     with patch("app.main.redis_client", mock_redis):
-        response = client.get("/healthcheck")
+        response = client.get("/")
 
     assert response.status_code == 200
     data = response.json()
@@ -94,17 +97,18 @@ def test_healthcheck_redis_down():
 
 # ─── Edge cases ───────────────────────────────────────────────────────────────
 
+
 def test_healthcheck_scan_requires_multiple_iterations():
     """scan returns non-zero cursor first, then 0 → all keys collected across pages."""
     mock_redis = MagicMock()
     mock_redis.ping.return_value = True
     mock_redis.scan.side_effect = [
         (42, ["tickeridentification:heartbeat:worker_page1"]),  # cursor != 0, continue
-        (0, ["tickeridentification:heartbeat:worker_page2"]),   # cursor == 0, stop
+        (0, ["tickeridentification:heartbeat:worker_page2"]),  # cursor == 0, stop
     ]
 
     with patch("app.main.redis_client", mock_redis):
-        response = client.get("/healthcheck")
+        response = client.get("/")
 
     data = response.json()
     assert data["total_active_workers"] == 2
@@ -122,7 +126,7 @@ def test_healthcheck_worker_id_extracted_from_key(service=None):
     )
 
     with patch("app.main.redis_client", mock_redis):
-        response = client.get("/healthcheck")
+        response = client.get("/")
 
     data = response.json()
     # Only the ID portion after the last colon should appear

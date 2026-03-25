@@ -8,7 +8,6 @@ from app.core.constant import APIPath
 from app.core.logger import logger
 from app.routers import query_docs, vectorise_docs
 
-
 redis_client = Redis(
     host=env_config.redis_host,
     port=env_config.redis_port,
@@ -40,7 +39,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-@app.get(APIPath.HEALTH_CHECK.value, tags=["Health Check"])
+@app.get("/", tags=["Health Check"])
 def health_check():
     try:
         # 1️⃣ Check Redis connection
@@ -64,8 +63,7 @@ def health_check():
 
         # 3️⃣ Extract worker IDs
         active_workers = [
-            key.replace("vectorisation:heartbeat:", "")
-            for key in heartbeat_keys
+            key.replace("vectorisation:heartbeat:", "") for key in heartbeat_keys
         ]
 
         worker_alive = len(active_workers) > 0
@@ -85,6 +83,7 @@ def health_check():
             "redis": False,
             "worker_alive": False,
         }
+
 
 api_router.include_router(query_docs.router)
 api_router.include_router(vectorise_docs.router)

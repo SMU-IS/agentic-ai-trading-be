@@ -50,7 +50,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 api_router = APIRouter()
 
 
-@app.get(APIPath.HEALTH_CHECK, tags=["Healthcheck"])
+@app.get("/", tags=["Healthcheck"])
 def root():
     return {"status": "RAG Chatbot Service is healthy"}
 

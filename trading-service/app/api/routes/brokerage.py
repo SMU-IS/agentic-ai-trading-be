@@ -14,8 +14,9 @@ from app.api.schemas import (
 )
 from app.core.broker_client import AlpacaBrokerClient, create_broker_client
 from app.core.services import services
-from fastapi import APIRouter, Depends, HTTPException, Query, Header
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
+
 
 # Data models for latest trades
 class LatestTradeResponse(BaseModel):
@@ -60,6 +61,7 @@ class ConflictCheckRequest(BaseModel):
     intended_qty: float = Field(..., gt=0)
     auto_resolve: bool = Field(False, description="Auto close/cancel conflicts")
 
+
 class PnLResponse(BaseModel):
     pnl: Optional[float] = None
     pnl_pct: Optional[float] = None
@@ -67,9 +69,10 @@ class PnLResponse(BaseModel):
     end_equity: Optional[float] = None
     timeframe: Optional[str] = None
     error: Optional[str] = None
-    
+
+
 class UserRequest(BaseModel):
-    user_id: str = "agent-A" # Default user
+    user_id: str = "agent-A"  # Default user
 
 
 router = APIRouter()
@@ -95,6 +98,8 @@ def _invalidate_orders_cache(user_id: str) -> None:
     for k in keys:
         del _orders_cache[k]
     print(f"   [🗑️  Cache] Orders cache invalidated for user={user_id}")
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 
 
@@ -105,10 +110,14 @@ logger = logging.getLogger(__name__)
 
 
 # Dependency to get a broker instance (can be singleton or factory)
-def get_broker(x_user_id: str = Header(default="agent-A", alias="x_user_id")) -> AlpacaBrokerClient:
+def get_broker(
+    x_user_id: str = Header(default="agent-A", alias="x_user_id"),
+) -> AlpacaBrokerClient:
     try:
         print("fetching for user", x_user_id)
-        api_key, api_secret, paper = services.trading_db._load_user_account_from_mongo(x_user_id)
+        api_key, api_secret, paper = services.trading_db._load_user_account_from_mongo(
+            x_user_id
+        )
         return create_broker_client(api_key, api_secret, paper)
     except RuntimeError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -119,7 +128,7 @@ def get_broker(x_user_id: str = Header(default="agent-A", alias="x_user_id")) ->
 # ---------- Health ----------
 
 
-@router.get("/healthcheck")
+@router.get("/")
 def health() -> Dict[str, str]:
     return {"status": "Alpacca service is healthy"}
 
@@ -200,23 +209,25 @@ def list_all_orders(
             return cached
 
         all_orders = broker.list_all_orders(limit=limit)
-        order_ids  = [str(order["id"]) for order in all_orders]
+        order_ids = [str(order["id"]) for order in all_orders]
 
         reasonings = services.trading_db.get_reasonings_batch(order_ids)
-        print(f"   [📋 Orders] user={x_user_id} | Fetched {len(all_orders)} orders | {len(reasonings)} with agent reasoning")
+        print(
+            f"   [📋 Orders] user={x_user_id} | Fetched {len(all_orders)} orders | {len(reasonings)} with agent reasoning"
+        )
 
         for order in all_orders:
             r = reasonings.get(str(order["id"]), {})
             if r.get("reasonings") is not None:
                 order["trading_agent_reasonings"] = r.get("reasonings", "")
-                order["is_trading_agent"]          = True
-                order["risk_evaluation"]           = r.get("risk_evaluation", {})
-                order["risk_adjustments_made"]     = r.get("risk_adjustments_made", [])
-                order["signal_data"]               = r.get("signal_data")
-                order["closed_position"]           = r.get("closed_position")
+                order["is_trading_agent"] = True
+                order["risk_evaluation"] = r.get("risk_evaluation", {})
+                order["risk_adjustments_made"] = r.get("risk_adjustments_made", [])
+                order["signal_data"] = r.get("signal_data")
+                order["closed_position"] = r.get("closed_position")
             else:
                 order["trading_agent_reasonings"] = None
-                order["is_trading_agent"]         = False
+                order["is_trading_agent"] = False
 
         _set_cached_orders(x_user_id, limit, all_orders)
         print(f"   [💾 Cache SET] user={x_user_id} | TTL={_CACHE_TTL}s")
@@ -543,6 +554,7 @@ async def get_portfolio_history(
         raise HTTPException(status_code=500, detail=result["error"])
 
     return PortfolioHistoryResponse(**result)
+
 
 @router.get("/pnl", response_model=PnLResponse)  # Changed endpoint to /pnl
 async def get_overall_pnl(

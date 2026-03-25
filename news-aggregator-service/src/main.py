@@ -48,7 +48,7 @@ async def lifespan(app_: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-@app.get("/healthcheck")
+@app.get("/")
 async def health_check():
     """Health check endpoint with dependency verification."""
     if redis_service is None:

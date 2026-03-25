@@ -3,9 +3,9 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.router.scraper import router as scraper_router
 from app.services.scraper_controller import scraper_controller
 from app.services.storage import get_redis_client
-from app.router.scraper import router as scraper_router
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -34,7 +34,7 @@ app = FastAPI(
 app.include_router(scraper_router)
 
 
-@app.get("/healthcheck")
+@app.get("/")
 def healthcheck():
     try:
         redis_client = get_redis_client()
