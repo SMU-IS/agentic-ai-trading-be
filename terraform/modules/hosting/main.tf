@@ -58,58 +58,6 @@ resource "aws_amplify_branch" "main" {
   }
 }
 
-# CloudFront Distribution pointing to Amplify
-resource "aws_cloudfront_distribution" "amplify_cdn" {
-  origin {
-    domain_name = "${aws_amplify_branch.main.branch_name}.${aws_amplify_app.trading_frontend.default_domain}"
-    origin_id   = "Amplify-Origin"
-
-    custom_origin_config {
-      http_port              = 80
-      https_port             = 443
-      origin_protocol_policy = "https-only"
-      origin_ssl_protocols   = ["TLSv1.2"]
-    }
-  }
-
-  enabled         = true
-  is_ipv6_enabled = true
-  comment         = "CloudFront for Amplify ${var.environment}"
-  price_class     = "PriceClass_100" # cheapest (North America and Europe)
-
-  default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "Amplify-Origin"
-
-    forwarded_values {
-      query_string = true
-      cookies {
-        forward = "all"
-      }
-    }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
-  }
-
-  restrictions {
-    geo_restriction {
-      restriction_type = "none"
-    }
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = true
-  }
-
-  tags = {
-    Environment = var.environment
-  }
-}
-
 resource "aws_cloudfront_distribution" "kong_api" {
   origin {
     domain_name = "k8s-default-kongkong-f56d41ad22-b89d49cb73c55092.elb.us-east-1.amazonaws.com"
