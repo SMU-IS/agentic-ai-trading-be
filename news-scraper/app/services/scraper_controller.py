@@ -22,6 +22,8 @@ class ScraperController:
         redis_client = app.state.redis_client
         base_subreddits = app.state.base_subreddits
 
+        redis_client.set("newsscraper:running", "1")
+
         stream_thread = threading.Thread(
             target=self._run_stream,
             args=(reddit, storage, redis_client, base_subreddits),
@@ -63,11 +65,14 @@ class ScraperController:
     #     while not self._stop_event.is_set():
     #         service.run()
 
-    async def stop(self):
+    async def stop(self, app):
         if not self._running:
             return {"message": "Scraper already stopped"}
 
+        redis_client = app.state.redis_client
+
         self._running = False
+        redis_client.set("newsscraper:running", "0")
         self._stop_event.set()
 
         for t in self._threads:

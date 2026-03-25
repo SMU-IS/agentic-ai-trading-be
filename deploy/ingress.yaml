@@ -6,9 +6,10 @@ metadata:
 config:
   origins:
     - "http://localhost:3000"
-    - "https://main.d22zhvaaydu232.amplifyapp.com"
-  methods: ["GET", "POST", "OPTIONS"]
-  headers: ["Content-Type", "Authorization"]
+    - "https://main.d3f0x7kvo77xiu.amplifyapp.com"
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+  headers: ["Accept", "Accept-Version", "Content-Length", "Content-MD5", "Content-Type", "Date", "Authorization"]
+  exposed_headers: ["X-Auth-Token"]
   credentials: true
 plugin: cors
 
@@ -34,11 +35,11 @@ spec:
                 name: rag-chatbot-infra
                 port:
                   number: 5001
-          - path: /api/v1/news-analysis
+          - path: /api/v1/preprocessing
             pathType: Prefix
             backend:
               service:
-                name: news-analysis-infra
+                name: preprocessing-service-infra
                 port:
                   number: 5002
           - path: /api/v1/news-scraper
@@ -55,6 +56,13 @@ spec:
                 name: notification-alert-infra
                 port:
                   number: 5004
+          - path: /api/v1/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: user-info-infra
+                port:
+                  number: 5005
           - path: /api/v1/user
             pathType: Prefix
             backend:
@@ -80,13 +88,34 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: news-aggregator-infra
+                name: news-aggregator-service-infra
                 port:
                   number: 5008
           - path: /api/v1/qdrant
             pathType: Prefix
             backend:
               service:
-                name: qdrant-infra
+                name: qdrant-retrieval-infra
                 port:
                   number: 5009
+          - path: /api/v1/ticker-identification
+            pathType: Prefix
+            backend:
+              service:
+                name: ticker-identification-service-infra
+                port:
+                  number: 5010
+          - path: /api/v1/event-identification
+            pathType: Prefix
+            backend:
+              service:
+                name: event-identification-service-infra
+                port:
+                  number: 5011
+          - path: /api/v1/sentiment-analysis
+            pathType: Prefix
+            backend:
+              service:
+                name: sentiment-analysis-service-infra
+                port:
+                  number: 5012

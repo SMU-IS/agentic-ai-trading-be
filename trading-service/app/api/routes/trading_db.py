@@ -10,7 +10,6 @@ from bson import ObjectId
 
 router = APIRouter()
 
-# mongo_client = MongoDBClient(uri=os.getenv("MONGODB_URI", "mongodb://mongo:27017"), db_name="trading_db")
 mongo_client: MongoDBClient = services.trading_db
 
 @router.post("/orders")

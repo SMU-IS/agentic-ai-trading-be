@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  news-scraper-tradingview:
+    build: .
+    env_file:
+      - .env
+    container_name: news-scraper-tradingview
+    ports:
+      - "5013:5013"
+    volumes:
+      - .:/code
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_STREAM=${REDIS_STREAM}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - MODE=${MODE:-batch}
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5013
+    restart: always

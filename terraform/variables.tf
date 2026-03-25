@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "cluster_name" {
   description = "Name of the EKS cluster"
   type        = string
-  default     = "agentic-trading-cluster"
+  default     = "agentic-m-cluster"
 }
 
 variable "environment" {
@@ -25,31 +25,34 @@ variable "vpc_cidr" {
 variable "azs" {
   description = "Availability zones for subnets"
   type        = list(string)
-  default     = ["us-east-1a", "us-east-1b", "us-east-1c"]
+  default     = ["us-east-1a", "us-east-1b"]
 }
 
 variable "private_subnets" {
   description = "Private subnet CIDR blocks"
   type        = list(string)
-  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  default     = ["10.0.1.0/24", "10.0.2.0/24"]
 }
 
 variable "public_subnets" {
   description = "Public subnet CIDR blocks"
   type        = list(string)
-  default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+  default     = ["10.0.101.0/24", "10.0.102.0/24"]
 }
 
 variable "services" {
   description = "List of microservices to create ECR repositories for"
   type        = list(string)
   default = [
+    "ticker-identification-service",
+    "event-identification-service",
     "news-aggregator-service",
-    "news-analysis",
     "news-scraper",
     "notification-alert",
+    "preprocessing-service",
     "qdrant-retrieval",
     "rag-chatbot",
+    "sentiment-analysis-service",
     "trading-agent-m",
     "trading-service",
     "user-info"
@@ -60,27 +63,24 @@ variable "s3_buckets" {
   description = "Map of S3 bucket keys to their specific names"
   type        = map(string)
   default = {
-    "assets"          = "agentic-trading-assets"
     "prompt-template" = "s3-prompt-template"
   }
 }
 
-variable "db_name" {
-  description = "Name of the RDS database"
-  type        = string
-  default     = "tradingdb"
-}
-
-variable "db_username" {
-  description = "Username for the RDS database"
-  type        = string
-  default     = "dbadmin"
-}
-
-variable "db_password" {
-  description = "Password for the RDS database"
-  type        = string
-  sensitive   = true
+variable "db_configs" {
+  description = "Map of database configurations"
+  type = map(object({
+    db_name  = string
+    username = string
+    password = string
+  }))
+  default = {
+    "trading" = {
+      db_name  = "ragbotdb"
+      username = "ragbotadmin"
+      password = ""
+    }
+  }
 }
 
 variable "amplify_repository" {
@@ -93,4 +93,45 @@ variable "amplify_access_token" {
   description = "Personal Access Token for the repository (GitHub/GitLab)"
   type        = string
   sensitive   = true
+}
+
+variable "base_api_url" {
+  type      = string
+  sensitive = true
+}
+variable "chat_api_url" {
+  type      = string
+  sensitive = true
+}
+variable "finnhub_api_key" {
+  type      = string
+  sensitive = true
+}
+variable "logokit_api_key" {
+  type      = string
+  sensitive = true
+}
+variable "notif_api_url" {
+  type      = string
+  sensitive = true
+}
+variable "thread_api_url" {
+  type      = string
+  sensitive = true
+}
+
+# =============================================================================
+# Terraform State Backend Configuration
+# =============================================================================
+
+variable "terraform_state_bucket" {
+  description = "S3 bucket name for Terraform state storage"
+  type        = string
+  default     = "agentm-terraform-state"
+}
+
+variable "terraform_state_key" {
+  description = "S3 key path for Terraform state file"
+  type        = string
+  default     = "terraform.tfstate"
 }

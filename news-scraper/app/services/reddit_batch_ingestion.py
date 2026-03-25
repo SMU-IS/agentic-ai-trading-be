@@ -14,6 +14,17 @@ class RedditBatchService:
         self.redis = redis_client
         self.sg_tz = timezone(timedelta(hours=8))
 
+    def should_stop(self, stop_event):
+        if stop_event and stop_event.is_set():
+            return True
+
+        running_flag = self.redis.get("newsscraper:running")
+
+        if running_flag is None or running_flag != "1":
+            return True
+
+        return False
+
     def run_worker(self, stop_event, days=180, batch_size=50):
         logger.info("[*] Batch worker started, waiting for tickers...")
 
@@ -64,21 +75,40 @@ class RedditBatchService:
     def normalise(self, name):
         return "".join(c for c in name.lower() if c.isalnum())
 
-    def run(self, subreddits, days=5, batch_size=50, sleep_seconds=0.1):
+    def run(self, subreddits, stop_event=None, days=5, batch_size=0, sleep_seconds=0.1):
+        
         new_post_counter = "newsscraper:post_ingested"
-        self.redis.set("newsscraper:ingestion_start_time", datetime.now().timestamp())
+        self.redis.set("newsscraper:ingestion_start_time", datetime.now(self.sg_tz).isoformat())
+        ingestion_start_time = datetime.now().timestamp()
         cutoff = datetime.now(tz=timezone.utc) - timedelta(days=days)
         buffer = []
+       
         logger.info(f"[*] Batch scraping subreddits: {subreddits}")
         for sub in subreddits:
+
+            if self.should_stop(stop_event):
+                logger.info("🛑 Batch scraper stopped")
+                return
+            
             try:  
                 subreddit = self.reddit_client.subreddit(sub)
                 logger.info(f"Fetching posts from r/{sub}...")
 
                 for post in subreddit.new(limit=None):
+                    
+                    if self.should_stop(stop_event):
+                        logger.info("🛑 Batch scraper stopped mid-stream")
+                        return
+                    
+                    post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
+
+                    if self.redis.exists(post_key):
+                        continue
+                    
                     try:
                         sg_tz = timezone(timedelta(hours=8))
                         post_time = datetime.fromtimestamp(post.created_utc, tz=timezone.utc).astimezone(sg_tz)
+                        
                         if post_time < cutoff:
                             break
 
@@ -108,12 +138,13 @@ class RedditBatchService:
                         buffer.append(row)
                         self.redis.incr(new_post_counter)
                         total = int(self.redis.get("newsscraper:post_ingested"))
-                        start = float(self.redis.get("newsscraper:ingestion_start_time"))
+                        start = float(ingestion_start_time)
 
                         hours = (datetime.now().timestamp() - start) / 3600
 
-                        avg = total / hours
-                        self.redis.set("newsscraper:avg_per_hour", avg)
+                        if hours > 0:
+                            avg = total / hours
+                            self.redis.set("newsscraper:avg_per_hour", avg)
 
                         sg_now = datetime.now(self.sg_tz).isoformat()
 

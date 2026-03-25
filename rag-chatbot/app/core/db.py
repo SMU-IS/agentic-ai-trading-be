@@ -18,8 +18,8 @@ class DatabaseManager:
         """Manages the lifecycle of the Postgres checkpointer pool."""
         conninfo = (
             f"postgresql://{env_config.postgres_user}:"
-            f"{env_config.postgres_password}@rag-bot-conversation-db:5432/"
-            f"{env_config.postgres_db}?sslmode=disable"
+            f"{env_config.postgres_password}@{env_config.postgres_host}:5432/"
+            f"{env_config.postgres_db}?sslmode={env_config.ssl_mode}"
         )
 
         try:

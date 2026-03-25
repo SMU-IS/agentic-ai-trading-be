@@ -10,7 +10,7 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDDIT_STREAM=${REDDIT_STREAM}
+      - NEWS_STREAM=${NEWS_STREAM}
       - PREPROC_STREAM=${PREPROC_STREAM}
     command: uvicorn app.main:app --host 0.0.0.0 --port 5002
     restart: unless-stopped
@@ -24,7 +24,7 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDDIT_STREAM=${REDDIT_STREAM}
+      - NEWS_STREAM=${NEWS_STREAM}
       - PREPROC_STREAM=${PREPROC_STREAM}
     command: python -m app.services.preprocessing_worker
     restart: unless-stopped

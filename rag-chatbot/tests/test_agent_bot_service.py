@@ -10,12 +10,12 @@ def mock_dependencies():
     with (
         patch("app.services.agent_bot_service.RedisService") as mock_redis,
         patch("app.services.agent_bot_service.S3ConfigService") as mock_s3,
-        patch("app.services.agent_bot_service.create_agent") as mock_create_agent,
+        patch("app.services.agent_bot_service.ChatWorkflow") as mock_chat_workflow,
     ):
         yield {
             "redis": mock_redis.return_value,
             "s3": mock_s3.return_value,
-            "create_agent": mock_create_agent,
+            "ChatWorkflow": mock_chat_workflow,
         }
 
 
@@ -65,9 +65,9 @@ async def test_get_chat_history(agent_bot_service):
         "response_metadata": {"created_at": "2023-01-01"},
     }
 
-    agent_bot_service.checkpointer.aget = AsyncMock(
-        return_value={"channel_values": {"messages": [mock_msg]}}
-    )
+    mock_state = MagicMock()
+    mock_state.checkpoint = {"channel_values": {"messages": [mock_msg]}}
+    agent_bot_service.checkpointer.aget = AsyncMock(return_value=mock_state)
 
     # Execute
     history = await agent_bot_service.get_chat_history("session_123")
@@ -118,16 +118,30 @@ async def test_invoke_agent_streaming(agent_bot_service, mock_dependencies):
     # Setup
     agent_bot_service._get_llm_prompt = MagicMock(return_value="prompt")
     mock_agent = MagicMock()
-    mock_dependencies["create_agent"].return_value = mock_agent
+    mock_dependencies["ChatWorkflow"].return_value = mock_agent
 
     async def mock_astream_events(*args, **kwargs):
         yield {"event": "on_tool_start", "name": "test_tool", "data": {}}
-        chunk = MagicMock()
-        chunk.content = "Hi"
-        yield {"event": "on_chat_model_stream", "data": {"chunk": chunk}}
-        yield {"event": "on_chat_model_end_stream", "data": {"output": "Hi there"}}
+        yield {
+            "event": "on_chat_model_stream",
+            "tags": ["user_response"],
+            "data": {"chunk": MagicMock(content="Hi")},
+        }
+        yield {
+            "event": "on_chat_model_end",
+            "tags": ["user_response"],
+            "data": {"output": MagicMock(content="Hi there", id="msg_123")},
+        }
+        yield {
+            "event": "on_chain_stream",
+            "data": {
+                "chunk": {
+                    "messages": [MagicMock(type="ai", content="Hi there", id="msg_123")]
+                }
+            },
+        }
 
-    mock_agent.astream_events = mock_astream_events
+    mock_agent.graph.astream_events = mock_astream_events
 
     # Execute
     gen = agent_bot_service.invoke_agent("Hello", None, "user_123", "session_123")
@@ -136,6 +150,6 @@ async def test_invoke_agent_streaming(agent_bot_service, mock_dependencies):
         events.append(event)
 
     # Assert
-    assert any("Calling test_tool" in e for e in events)
+    assert any("Searching test_tool..." in e for e in events)
     assert any('"token": "Hi"' in e for e in events)
     assert events[-1] == "data: [DONE]\n\n"

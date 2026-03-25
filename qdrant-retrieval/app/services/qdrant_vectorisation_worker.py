@@ -9,13 +9,17 @@ from app.core.config import env_config
 from app.scripts.storage import RedisStreamStorage
 from app.schemas.raw_news_payload import RedditSourcePayload
 from app.services.vectorisation import VectorisationService
+# from app.scripts.postgres import save_post, mark_vectorised, close_pool, init_db
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 logger = setup_logging()
 
-# ================= CONFIG =================
+# ==========================================================
+# CONFIG
+# ==========================================================
 SENTIMENT_STREAM_NAME = env_config.redis_sentiment_stream
 AGGREGATOR_STREAM_NAME = env_config.redis_aggregator_stream
-
 
 CONSUMER_GROUP = "vectorisation_group"
 CONSUMER_NAME = f"vectorisation_{uuid.uuid4().hex[:6]}"
@@ -24,15 +28,27 @@ HEARTBEAT_KEY = f"vectorisation:heartbeat:{CONSUMER_NAME}"
 HEARTBEAT_INTERVAL = 30
 HEARTBEAT_TTL = HEARTBEAT_INTERVAL * 3
 
-BATCH_SIZE = 10
+BATCH_SIZE = 50
 RECOVER_BATCH_SIZE = 100
 MIN_IDLE_MS = 5000
 CLEANUP_INTERVAL = 300
+
 PROCESSED_POSTS_COUNTER = "vectorisation:processed_posts_count"
+REMOVED_POSTS_COUNTER = "vectorisation:removed_posts_count"
+DUP_POSTS_COUNTER = "vectorisation:duplicate_posts_count"
+
+POST_TIMESTAMP = "post_timestamps"
+
+# ==========================================================
+# RETRY CONFIG
+# ==========================================================
+VECTORISE_MAX_RETRIES = 3
+VECTORISE_RETRY_DELAY = 2.0
 
 
-
-# ================= INIT =================
+# ==========================================================
+# INIT
+# ==========================================================
 redis_client = redis.Redis(
     host=env_config.redis_host,
     port=int(env_config.redis_port),
@@ -47,7 +63,7 @@ vector_service = VectorisationService()
 
 
 # ==========================================================
-# GROUP SETUP
+# CONSUMER GROUP
 # ==========================================================
 async def setup_consumer_group():
     try:
@@ -61,13 +77,10 @@ async def setup_consumer_group():
         logger.warning("Group likely already exists")
 
 
-# ==========================================================
-# FINALISE MESSAGE - ACK AND DELETE
-# ==========================================================
-
 async def finalize_message(msg_id: str):
     await sentiment_stream.acknowledge(CONSUMER_GROUP, msg_id)
     await sentiment_stream.delete(msg_id)
+
 
 # ==========================================================
 # HEARTBEAT
@@ -81,23 +94,9 @@ async def send_heartbeat():
                 ex=HEARTBEAT_TTL,
             )
             await asyncio.sleep(HEARTBEAT_INTERVAL)
-
     except asyncio.CancelledError:
         logger.warning("🛑 Heartbeat stopped")
         raise
-
-
-# ==========================================================
-# VECTORISATION
-# ==========================================================
-async def vectorise(payload: RedditSourcePayload):
-    try:
-        await vector_service.ensure_indexes()
-        return await vector_service.get_sanitised_news_payload(payload)
-
-    except Exception as e:
-        logger.error(f"❌ Failed to vectorise post: {e}")
-        return None
 
 
 # ==========================================================
@@ -117,6 +116,94 @@ def decode_message(data: dict):
 
 
 # ==========================================================
+# VECTORISE (with retries)
+# ==========================================================
+async def vectorise(payload: RedditSourcePayload):
+    for attempt in range(1, VECTORISE_MAX_RETRIES + 1):
+        try:
+            return await vector_service.get_sanitised_news_payload(payload)
+        except Exception as e:
+            logger.warning(f"[Vectorise] Attempt {attempt}/{VECTORISE_MAX_RETRIES} failed: {e}")
+            if attempt < VECTORISE_MAX_RETRIES:
+                await asyncio.sleep(VECTORISE_RETRY_DELAY * attempt)
+            else:
+                logger.error(f"[Vectorise] All {VECTORISE_MAX_RETRIES} attempts failed — dropping post")
+                return None
+
+
+# check if scraped news has already been processed before 
+async def is_duplicate(post_id: str) -> bool:
+    dedup_key = f"qdrant_dedup:{post_id}"
+    return await redis_client.exists(dedup_key)
+
+# ==========================================================
+# MESSAGE PROCESSING
+# ==========================================================
+async def process_message(msg_id: str, data: dict):
+    decoded = decode_message(data)
+    if not decoded:
+        await redis_client.incr(REMOVED_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+    post_id = decoded.get("id", "").strip('"')
+
+    if await is_duplicate(post_id):
+        logger.info(f"⚠️ Duplicate post {post_id} — skipping")
+        await redis_client.incr(DUP_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+    payload_dict = {"id": msg_id, "fields": decoded}
+    try:
+        payload = RedditSourcePayload.model_validate(payload_dict)
+    except Exception as e:
+        logger.error(f"❌ Failed to validate payload for {post_id}: {e}")
+        await redis_client.incr(REMOVED_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+    # 1. save to postgres before vectorising — always recorded regardless of outcome
+    # try:
+    #     await save_post(decoded, vectorised=False)
+    # except Exception as e:
+    #     logger.error(f"❌ Postgres save failed for {post_id}: {e}")
+        # non-fatal — continue to vectorise even if postgres fails
+
+    # 2. vectorise
+    result = await vectorise(payload)
+    if not result:
+        await redis_client.incr(REMOVED_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+    # 3. mark as vectorised in postgres
+    # try:
+    #     await mark_vectorised(post_id)
+    # except Exception as e:
+    #     logger.error(f"❌ Postgres update failed for {post_id}: {e}")
+        # non-fatal — qdrant write succeeded, don't drop the post
+
+    # 4. save to aggregator stream
+    try:
+        await aggregator_stream.save(decoded)
+    except asyncio.CancelledError:
+        raise
+
+    sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+    await redis_client.hset(
+        f"{POST_TIMESTAMP}:{post_id}",
+        "qdrant_timestamp",
+        sg_now,
+    )
+    print(f"⏱️ Post {post_id}: Timestamped at qdrant Stage → {sg_now}")
+
+    await sentiment_stream.acknowledge(CONSUMER_GROUP, msg_id)
+    await redis_client.incr(PROCESSED_POSTS_COUNTER)
+    logger.info(f"✅ Vectorised Post {post_id}")
+
+
+# ==========================================================
 # RECOVERY
 # ==========================================================
 async def recover_pending_messages():
@@ -132,36 +219,14 @@ async def recover_pending_messages():
 
     logger.info(f"⚡ Recovered {len(claimed)} messages")
 
-    for msg_id, data in claimed:
-        try:
-            decoded = decode_message(data)
-            if not decoded:
-                await finalize_message(msg_id)
-                continue
-            
-            payload_dict = {"id": msg_id, "fields": decoded}
-            payload = RedditSourcePayload.model_validate(payload_dict)
-            post_id = decoded.get("id")
-
-            result = await vectorise(payload)
-
-            if not result:
-                await finalize_message(msg_id)
-                continue
-                
-            try:
-                await aggregator_stream.save(decoded)
-            except asyncio.CancelledError:
-                raise
-
-            # ✅ ACK after success
-            await redis_client.incr(PROCESSED_POSTS_COUNTER)
-            await finalize_message(msg_id)
-
-            logger.info(f"✅ Vectorised (recovered) Post {post_id}")
-
-        except Exception as e:
-            logger.error(f"❌ Recovery failed {msg_id}: {e}")
+    tasks = [
+        process_message(msg_id, data)
+        for msg_id, data in claimed
+    ]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            logger.error(f"❌ Recovery failed for message {i}: {result}")
 
 
 # ==========================================================
@@ -192,6 +257,7 @@ async def cleanup_dead_consumers():
     except Exception as e:
         logger.error(f"Cleanup error: {e}")
 
+
 # ==========================================================
 # WORKER LOOP
 # ==========================================================
@@ -200,9 +266,9 @@ async def worker_loop():
 
     heartbeat_task = asyncio.create_task(send_heartbeat())
 
-    logger.info("🔁 Startup recovery...")
-    await recover_pending_messages()
-    await cleanup_dead_consumers()
+    # non-blocking — new messages consumed immediately
+    asyncio.create_task(recover_pending_messages())
+    asyncio.create_task(cleanup_dead_consumers())
 
     try:
         while True:
@@ -218,47 +284,24 @@ async def worker_loop():
                 count=BATCH_SIZE,
                 block_ms=5000,
             )
-            for msg_id, data in entries:
-                try:
-                    decoded = decode_message(data)
-                    if not decoded:
-                        await finalize_message(msg_id)
-                        continue
 
-                    payload_dict = {"id": msg_id, "fields": decoded}
-                    payload = RedditSourcePayload.model_validate(payload_dict)
-                    post_id = decoded.get("id")
-
-                    result = await vectorise(payload)
-                    if not result:
-                        await finalize_message(msg_id)
-                        continue
-                    
-                    try:
-                        await aggregator_stream.save(decoded)
-                    except asyncio.CancelledError:
-                        raise
-                    
-
-                    await redis_client.incr(PROCESSED_POSTS_COUNTER)
-                    await finalize_message(msg_id)
-
-                    logger.info(f"✅ Vectorised Post {post_id}")
-
-                except Exception as e:
-                    logger.error(f"❌ Error processing {msg_id}: {e}")
+            if entries:
+                tasks = [
+                    process_message(msg_id, data)
+                    for msg_id, data in entries
+                ]
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                for i, result in enumerate(results):
+                    if isinstance(result, Exception):
+                        logger.error(f"❌ Error processing message {i}: {result}")
 
     except asyncio.CancelledError:
         logger.warning("🛑 Worker loop cancelled — shutting down")
+        raise
 
     finally:
         heartbeat_task.cancel()
-
-        await asyncio.gather(
-            heartbeat_task,
-            return_exceptions=True,
-        )
-
+        await asyncio.gather(heartbeat_task, return_exceptions=True)
         await redis_client.delete(HEARTBEAT_KEY)
 
 
@@ -283,6 +326,13 @@ def setup_signal_handlers(loop, worker_task):
 async def main():
     await setup_consumer_group()
 
+    # ✅ init postgres table (idempotent — safe to run every startup)
+    # await init_db()
+
+    # ✅ ensure qdrant indexes once at startup
+    await vector_service.ensure_indexes()
+    logger.info("✅ Qdrant indexes ready")
+
     logger.info("💨 Starting Vectorisation Service...")
     logger.info(f"📦 Consuming from: {SENTIMENT_STREAM_NAME}")
     logger.info(f"📤 Writing to Qdrant and {AGGREGATOR_STREAM_NAME}")
@@ -306,7 +356,7 @@ async def main():
             worker_task.cancel()
 
         await asyncio.gather(worker_task, return_exceptions=True)
-
+        # await close_pool()       # ← close postgres pool
         await redis_client.aclose()
 
 

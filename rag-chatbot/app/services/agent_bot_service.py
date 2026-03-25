@@ -1,7 +1,5 @@
 import json
 
-from langchain.agents import create_agent
-from langchain.agents.middleware import SummarizationMiddleware
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 from rich.console import Console
@@ -9,9 +7,10 @@ from rich.panel import Panel
 from rich.pretty import Pretty
 
 from app.core.config import env_config
-from app.core.constant import LangChainEvent, RedisCacheKeys
+from app.core.constant import RedisCacheKeys
 from app.core.s3_config import S3ConfigService
 from app.schemas.chat import ChatHistoryResponse
+from app.services.ai_agent import AgentState, ChatWorkflow
 from app.services.bot_memory import BotMemory
 from app.services.redis_service import RedisService
 from app.services.tools import RAG_BOT_TOOLS
@@ -35,6 +34,8 @@ class AgentBotService:
         self.bot_cached_key = RedisCacheKeys.AGENT_BOT_PROMPT.value
         self._prompt_cache = None
 
+        self._agent_graph = None
+
     def _get_llm_prompt(self) -> str:
         """
         Checks Redis cache for the prompt, if not found,
@@ -48,12 +49,12 @@ class AgentBotService:
 
         cached_prompt = self.redis_service.get_cached_prompt(self.bot_cached_key)
         if cached_prompt:
-            logger.info("🔴 Prompt loaded from Redis.")
+            logger.info("Prompt loaded from Redis.")
             self._prompt_cache = cached_prompt
             return cached_prompt
 
         try:
-            logger.info(f"🟢 Fetching fresh prompt from S3: {self.aws_s3_file_name}")
+            logger.info(f"Fetching fresh prompt from S3: {self.aws_s3_file_name}")
             content = self.aws_config.get_file_content(
                 self.aws_s3_bucket_name, self.aws_s3_file_name
             )
@@ -68,29 +69,22 @@ class AgentBotService:
             logger.exception(f"Failed to load prompt from S3 {e}")
             raise
 
-    def _create_agent(self):
+    def _get_agent_graph(self):
         """
-        Create an agent with the given LLM and tools.
+        Get or create the LangGraph agent graph.
 
         Returns:
-            Agent: The created agent.
+            Compiled graph: The LangGraph graph
         """
-        prompt = self._get_llm_prompt()
-        summariser = SummarizationMiddleware(
-            model=self.llm,
-            trigger=("messages", 20),
-            keep=("messages", 5),
-        )
-
-        agent = create_agent(
-            model=self.llm,
-            tools=RAG_BOT_TOOLS,
-            checkpointer=self.checkpointer,
-            middleware=[summariser],
-            system_prompt=prompt,
-        )
-
-        return agent
+        if self._agent_graph is None:
+            prompt = self._get_llm_prompt()
+            self._agent_graph = ChatWorkflow(
+                llm=self.llm,
+                tools=RAG_BOT_TOOLS,
+                system_prompt=prompt,
+                checkpointer=self.checkpointer,
+            )
+        return self._agent_graph
 
     async def _generate_title(self, query: str) -> str:
         """
@@ -119,17 +113,6 @@ Title:"""
     async def invoke_agent(
         self, query: str, order_id: str | None, user_id: str, session_id: str
     ):
-        """
-        Invoke the agent with a given query.
-
-        Args:
-            query (str): The query to invoke the agent with.
-            order_id (str | None): The order ID for the query.
-
-        Returns:
-            str: The result of the agent invocation.
-        """
-
         context_query = f"Regarding Order Id {order_id}: {query}" if order_id else query
         title = await self._generate_title(context_query)
 
@@ -139,39 +122,96 @@ Title:"""
         }
 
         try:
-            agent = self._create_agent()
+            graph_wrapper = self._get_agent_graph()
             logger.info(f"Invoking agent with query: {context_query[:50]}...")
 
-            results = agent.astream_events(
-                {"messages": [HumanMessage(content=context_query)]},
-                version="v2",
-                config=config,
-            )
+            graph = graph_wrapper.graph
 
-            async for event in results:
+            initial_state: AgentState = {
+                "messages": [HumanMessage(content=context_query)],
+                "sender": "user",
+                "query": context_query,
+                "metadata": {"user_id": user_id, "title": title},
+            }
+
+            if order_id:
+                initial_state["order_id"] = order_id
+
+            streamed_message_ids = set()
+
+            async for event in graph.astream_events(
+                initial_state, config=config, version="v2"
+            ):
                 kind = event["event"]
-                if kind == LangChainEvent.TOOL_START:
-                    yield f"data: {json.dumps({'status': f'Calling {event['name']}...'})}\n\n"
 
-                elif kind == LangChainEvent.CHAT_MODEL_STREAM:
-                    content = event["data"]["chunk"].content  # type: ignore
-                    if content:
-                        yield f"data: {json.dumps({'token': content})}\n\n"
+                match kind:
+                    # 1. Handle Tool Start
+                    case "on_tool_start":
+                        tool_name = event.get("name")
+                        yield f"data: {json.dumps({'status': f'Searching {tool_name}...'})}\n\n"
 
-                if kind == LangChainEvent.CHAT_MODEL_END_STREAM:
-                    output = event["data"]["output"]
-                    console.print(
-                        Panel(
-                            Pretty(output),
-                            title="🧠 Thinking...",
-                            border_style="red",
+                    # 2. Handle Token Streaming (Model tokens)
+                    case "on_chat_model_stream":
+                        tags = event.get("tags", [])
+                        if "user_response" not in tags:
+                            continue
+
+                        chunk = event["data"].get("chunk", {})
+                        # Capture chunk ID if available to help de-duplicate later
+                        if hasattr(chunk, "id") and chunk.id:
+                            streamed_message_ids.add(chunk.id)
+
+                        text = getattr(chunk, "content", "")
+                        if text:
+                            yield f"data: {json.dumps({'token': text})}\n\n"
+
+                    # 3. Handle Chat Model End to capture the message ID
+                    case "on_chat_model_end":
+                        tags = event.get("tags", [])
+                        if "user_response" not in tags:
+                            continue
+
+                        output = event["data"].get("output", {})
+                        msg_id = getattr(output, "id", None)
+                        if not msg_id and isinstance(output, dict):
+                            msg_id = output.get("id")
+
+                        if msg_id:
+                            streamed_message_ids.add(msg_id)
+
+                        console.print(
+                            Panel(
+                                Pretty(output),
+                                title="Thinking...",
+                                border_style="green",
+                            )
                         )
-                    )
+
+                    # 4. Handle Chain Streaming (Final Node outputs)
+                    case "on_chain_stream":
+                        data = event.get("data", {})
+                        if "chunk" in data:
+                            chunk = data["chunk"]
+                            if isinstance(chunk, dict) and "messages" in chunk:
+                                last_msg = chunk["messages"][-1]
+                                # Only yield if it's an AI message AND we haven't streamed it yet
+                                if last_msg.type == "ai" and last_msg.content:
+                                    msg_id = getattr(last_msg, "id", None)
+                                    msg_hash = hash(last_msg.content)
+
+                                    if (msg_id and msg_id in streamed_message_ids) or (
+                                        msg_hash in streamed_message_ids
+                                    ):
+                                        continue
+
+                                    yield f"data: {json.dumps({'token': last_msg.content})}\n\n"
+                                    if msg_id:
+                                        streamed_message_ids.add(msg_id)
+                                    streamed_message_ids.add(msg_hash)
 
         except Exception as e:
             logger.error(f"Streaming Error: {str(e)}", exc_info=True)
-            error_msg = json.dumps({"error": f"An error occurred: {str(e)}"})
-            yield f"data: {error_msg}\n\n"
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
         finally:
             yield "data: [DONE]\n\n"
@@ -190,16 +230,30 @@ Title:"""
         config = {"configurable": {"thread_id": session_id}}
         try:
             state = await self.checkpointer.aget(config)
-            messages = (
-                state.get("channel_values", {}).get("messages", []) if state else []
+            if not state:
+                logger.warning(f"No state found for session_id: {session_id}")
+                return []
+
+            # Defensive check for CheckpointTuple vs dict
+            checkpoint = getattr(state, "checkpoint", state)
+            if not isinstance(checkpoint, dict):
+                logger.error(f"Unexpected state type: {type(state)}")
+                return []
+
+            messages = checkpoint.get("channel_values", {}).get("messages", [])
+            logger.info(
+                f"Retrieved {len(messages)} raw messages for session {session_id}"
             )
-            return [
+
+            displayable_messages = [
                 self._format_message(msg)
                 for msg in messages
                 if self._is_displayable(msg)
                 and (msg.content if hasattr(msg, "content") else msg.get("content"))
                 != ""
             ]
+            logger.info(f"Filtered to {len(displayable_messages)} displayable messages")
+            return displayable_messages
 
         except Exception as e:
             logger.error(f"Error fetching chat history: {e}")
