@@ -33,7 +33,7 @@ class TradingViewMindsStreamIngestion:
     """
 
     ITEMS_PER_TICKER = 5
-    STREAM_NAME = "tradingview:minds:raw"
+    STREAM_NAME = "raw_news_stream"
     DEDUP_SET_NAME = "tradingview_minds"
     POLL_INTERVAL = 60           # seconds between full cycles
     INTER_TICKER_DELAY = 3       # seconds between individual ticker scrapes
@@ -67,6 +67,9 @@ class TradingViewMindsStreamIngestion:
 
         uid = mind.get("uid", "")
 
+        symbols = mind.get("symbols", [])
+        tickers = [s.split(":")[-1] if ":" in s else s for s in symbols]
+
         return {
             "id": f"tradingview_minds:{uid}",
             "content_type": "mind",
@@ -85,8 +88,8 @@ class TradingViewMindsStreamIngestion:
                 "upvote_ratio": None,
             },
             "metadata": {
-                "ticker": ticker,
-                "symbols": mind.get("symbols", []),
+                "ticker": tickers,
+                "symbols": symbols,
                 "source_section": "minds",
                 "category": None,
             },

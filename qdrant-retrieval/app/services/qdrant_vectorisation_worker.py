@@ -7,7 +7,7 @@ import redis.asyncio as redis
 from app.utils.logger import setup_logging
 from app.core.config import env_config
 from app.scripts.storage import RedisStreamStorage
-from app.schemas.raw_news_payload import RedditSourcePayload
+from app.schemas.raw_news_payload import SourcePayload
 from app.services.vectorisation import VectorisationService
 # from app.scripts.postgres import save_post, mark_vectorised, close_pool, init_db
 from datetime import datetime
@@ -118,7 +118,7 @@ def decode_message(data: dict):
 # ==========================================================
 # VECTORISE (with retries)
 # ==========================================================
-async def vectorise(payload: RedditSourcePayload):
+async def vectorise(payload: SourcePayload):
     for attempt in range(1, VECTORISE_MAX_RETRIES + 1):
         try:
             return await vector_service.get_sanitised_news_payload(payload)
@@ -156,7 +156,7 @@ async def process_message(msg_id: str, data: dict):
 
     payload_dict = {"id": msg_id, "fields": decoded}
     try:
-        payload = RedditSourcePayload.model_validate(payload_dict)
+        payload = SourcePayload.model_validate(payload_dict)
     except Exception as e:
         logger.error(f"❌ Failed to validate payload for {post_id}: {e}")
         await redis_client.incr(REMOVED_POSTS_COUNTER)
@@ -184,21 +184,23 @@ async def process_message(msg_id: str, data: dict):
     #     logger.error(f"❌ Postgres update failed for {post_id}: {e}")
         # non-fatal — qdrant write succeeded, don't drop the post
 
-    # 4. save to aggregator stream
+    # 4. save to aggregator stream and finalize
     try:
         await aggregator_stream.save(decoded)
+
+        sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+        await redis_client.hset(
+            f"{POST_TIMESTAMP}:{post_id}",
+            "qdrant_timestamp",
+            sg_now,
+        )
+        logger.info(f"⏱️ Post {post_id}: Timestamped at qdrant Stage → {sg_now}")
     except asyncio.CancelledError:
         raise
+    except Exception as e:
+        logger.error(f"❌ Post-vectorisation step failed for {post_id}: {e}")
 
-    sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
-    await redis_client.hset(
-        f"{POST_TIMESTAMP}:{post_id}",
-        "qdrant_timestamp",
-        sg_now,
-    )
-    print(f"⏱️ Post {post_id}: Timestamped at qdrant Stage → {sg_now}")
-
-    await sentiment_stream.acknowledge(CONSUMER_GROUP, msg_id)
+    await finalize_message(msg_id)
     await redis_client.incr(PROCESSED_POSTS_COUNTER)
     logger.info(f"✅ Vectorised Post {post_id}")
 

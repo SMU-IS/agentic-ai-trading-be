@@ -33,7 +33,7 @@ class TradingViewIdeasStreamIngestion:
     """
 
     ITEMS_PER_TICKER = 5
-    STREAM_NAME = "tradingview:ideas:raw"
+    STREAM_NAME = "raw_news_stream"
     DEDUP_SET_NAME = "tradingview_ideas"
     POLL_INTERVAL = 120          # Ideas update less frequently than Minds
     INTER_TICKER_DELAY = 3

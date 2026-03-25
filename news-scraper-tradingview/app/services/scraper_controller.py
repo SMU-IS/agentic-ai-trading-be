@@ -22,11 +22,11 @@ class ScraperController:
         self._thread: threading.Thread | None = None
         self._stop_event = threading.Event()
 
-    async def start(self, app) -> dict:
+    async def start(self, app, mode: str | None = None) -> dict:
         if self._running:
             return {"status": "already_running"}
 
-        mode = os.getenv("MODE", "batch").lower()
+        mode = (mode or os.getenv("MODE", "batch")).lower()
         self._stop_event.clear()
         self._running = True
         redis_client = app.state.redis_client
