@@ -10,7 +10,7 @@ on:
     paths: ["notification-alert/**"]
 
 jobs:
-  rag-bot-workflow:
+  notification-alert-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
     with:
       working-directory: "notification-alert"

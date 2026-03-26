@@ -10,7 +10,7 @@ on:
     paths: ["trading-service/**"]
 
 jobs:
-  rag-bot-workflow:
+  trading-service-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
     with:
       working-directory: "trading-service"

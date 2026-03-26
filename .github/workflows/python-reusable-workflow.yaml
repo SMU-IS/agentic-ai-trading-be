@@ -43,6 +43,7 @@ jobs:
         with:
           enable-cache: true
       - name: Run Tests
+        if: inputs.image-name == 'rag-chatbot'
         run: |
           uv python install 3.12.9
           uv sync --frozen

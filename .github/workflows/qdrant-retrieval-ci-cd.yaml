@@ -10,7 +10,7 @@ on:
     paths: ["qdrant-retrieval/**"]
 
 jobs:
-  rag-bot-workflow:
+  qdrant-retrieval-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
     with:
       working-directory: "qdrant-retrieval"

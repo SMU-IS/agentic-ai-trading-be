@@ -10,7 +10,7 @@ on:
     paths: ["sentiment-analysis-service/**"]
 
 jobs:
-  rag-bot-workflow:
+  sentiment-analysis-service-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
     with:
       working-directory: "sentiment-analysis-service"

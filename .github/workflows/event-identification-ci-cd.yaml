@@ -10,7 +10,7 @@ on:
     paths: ["event-identification-service/**"]
 
 jobs:
-  rag-bot-workflow:
+  event-identification-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
     with:
       working-directory: "event-identification-service"

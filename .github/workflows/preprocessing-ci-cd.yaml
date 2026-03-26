@@ -10,7 +10,7 @@ on:
     paths: ["preprocessing-service/**"]
 
 jobs:
-  rag-bot-workflow:
+  preprocessing-service-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
     with:
       working-directory: "preprocessing-service"

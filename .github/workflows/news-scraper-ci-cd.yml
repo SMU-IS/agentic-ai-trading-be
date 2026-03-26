@@ -10,7 +10,7 @@ on:
     paths: ["news-scraper/**"]
 
 jobs:
-  rag-bot-workflow:
+  news-scraper-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
     with:
       working-directory: "news-scraper"

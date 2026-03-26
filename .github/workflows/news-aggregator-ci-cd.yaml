@@ -10,7 +10,7 @@ on:
     paths: ["news-aggregator-service/**"]
 
 jobs:
-  rag-bot-workflow:
+  news-aggregator-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
     with:
       working-directory: "news-aggregator-service"

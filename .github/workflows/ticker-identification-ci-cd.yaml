@@ -10,7 +10,7 @@ on:
     paths: ["ticker-identification-service/**"]
 
 jobs:
-  rag-bot-workflow:
+  ticker-identification-service-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
     with:
       working-directory: "ticker-identification-service"
