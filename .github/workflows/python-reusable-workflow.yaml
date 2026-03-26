@@ -23,14 +23,14 @@ on:
         required: false
         type: string
         default: "./infra"
+        secret-key:
+          required: true
+          type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-      ENV_SECRETS:
-        required: true
-
 jobs:
   test:
     runs-on: ubuntu-latest
