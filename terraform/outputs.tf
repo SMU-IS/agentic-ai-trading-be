@@ -62,9 +62,9 @@ output "amplify_app_id" {
   value       = module.hosting.amplify_app_id
 }
 
-output "amplify_default_domain" {
-  description = "Default domain of the Amplify app"
-  value       = module.hosting.amplify_default_domain
+output "amplify_custom_domain" {
+  description = "Custom domain of the Amplify app"
+  value       = module.hosting.custom_domain_name
 }
 
 output "backend_api_url" {

@@ -50,3 +50,8 @@ variable "thread_api_url" {
   description = "Thread API URL"
   type        = string
 }
+
+variable "enable_sign_up" {
+  description = "Enable sign up"
+  type        = bool
+}
