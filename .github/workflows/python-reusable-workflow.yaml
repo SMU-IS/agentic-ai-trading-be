@@ -23,9 +23,9 @@ on:
         required: false
         type: string
         default: "./infra"
-        secret-key:
-          required: true
-          type: string
+      secret-key:
+        required: true
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -87,7 +87,7 @@ jobs:
       - name: Deploy to EKS
         run: |
           # Use the generic secret passed from the caller
-          echo "${{ secrets.ENV_SECRETS }}" > .env.tmp
+          echo "${{ secrets[inputs.secret-key] }}" > .env.tmp
           kubectl create secret generic ${{ inputs.image-name }}-secrets \
             --from-env-file=.env.tmp \
             --dry-run=client -o yaml | kubectl apply -f -
