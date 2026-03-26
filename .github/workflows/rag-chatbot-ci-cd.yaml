@@ -1,0 +1,23 @@
+name: RAG Chatbot CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["master"]
+    paths:
+      - "rag-chatbot/**"
+  pull_request:
+    branches: ["master"]
+    paths:
+      - "rag-chatbot/**"
+
+jobs:
+  call-workflow:
+    uses: ./.github/workflows/python-reusable-workflow.yaml
+    with:
+      working-directory: "rag-chatbot"
+      cluster-name: "agentic-m-cluster"
+      image-name: "rag-chatbot"
+      values-file: "deploy/values-chatbot.yaml"
+      ingress-path: "deploy/ingress.yaml"
+    secrets: inherit
