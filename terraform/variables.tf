@@ -120,7 +120,8 @@ variable "thread_api_url" {
   sensitive = true
 }
 variable "enable_sign_up" {
-  type = bool
+  type      = bool
+  sensitive = true
 }
 
 # =============================================================================

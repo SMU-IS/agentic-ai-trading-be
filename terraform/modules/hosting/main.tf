@@ -1,3 +1,26 @@
+terraform {
+  required_providers {
+    aws = {
+      source                = "hashicorp/aws"
+      version               = "~> 5.0"
+      configuration_aliases = [aws.us_east_1]
+    }
+  }
+}
+
+# Route 53
+data "aws_route53_zone" "selected" {
+  name         = "agentic-m.com"
+  private_zone = false
+}
+
+#  ACM Certificate
+data "aws_acm_certificate" "issued" {
+  domain   = "api.agentic-m.com"
+  statuses = ["ISSUED"]
+  provider = aws.us_east_1
+}
+
 # Amplify App
 resource "aws_amplify_app" "trading_frontend" {
   name         = "${var.cluster_name}-frontend"
@@ -74,6 +97,7 @@ resource "aws_cloudfront_distribution" "kong_api" {
   is_ipv6_enabled = true
   comment         = "CloudFront for Kong API ${var.environment}"
   price_class     = "PriceClass_100"
+  aliases         = ["api.agentic-m.com"]
 
   default_cache_behavior {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
@@ -99,10 +123,41 @@ resource "aws_cloudfront_distribution" "kong_api" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn      = data.aws_acm_certificate.issued.arn
+    ssl_support_method       = "sni-only"
+    minimum_protocol_version = "TLSv1.2_2021"
   }
 
   tags = {
     Environment = var.environment
+  }
+}
+
+# Route 53
+resource "aws_route53_record" "api_subdomain" {
+  zone_id = data.aws_route53_zone.selected.zone_id
+  name    = "api.agentic-m.com"
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.kong_api.domain_name
+    zone_id                = aws_cloudfront_distribution.kong_api.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# Amplify Domain Association
+resource "aws_amplify_domain_association" "example" {
+  app_id      = aws_amplify_app.trading_frontend.id
+  domain_name = "agentic-m.com"
+
+  sub_domain {
+    branch_name = aws_amplify_branch.main.branch_name
+    prefix      = ""
+  }
+
+  sub_domain {
+    branch_name = aws_amplify_branch.main.branch_name
+    prefix      = "www"
   }
 }

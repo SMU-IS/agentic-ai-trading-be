@@ -58,7 +58,13 @@ module "container_registry" {
 
 # Hosting Module (Amplify)
 module "hosting" {
-  source               = "./modules/hosting"
+  source = "./modules/hosting"
+
+  providers = {
+    aws           = aws
+    aws.us_east_1 = aws.us_east_1
+  }
+
   cluster_name         = var.cluster_name
   amplify_repository   = var.amplify_repository
   amplify_access_token = var.amplify_access_token
