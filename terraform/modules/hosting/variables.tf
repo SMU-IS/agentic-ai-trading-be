@@ -52,6 +52,7 @@ variable "thread_api_url" {
 }
 
 variable "enable_sign_up" {
-  description = "Enable sign up"
+  description = "Flag to toggle sign up functionality"
   type        = bool
+  default     = false
 }

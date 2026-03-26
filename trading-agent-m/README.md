@@ -1,1 +1,1 @@
-# Trading Agent M X
+# Trading Agent
