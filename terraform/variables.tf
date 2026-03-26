@@ -119,6 +119,9 @@ variable "thread_api_url" {
   type      = string
   sensitive = true
 }
+variable "enable_sign_up" {
+  type = bool
+}
 
 # =============================================================================
 # Terraform State Backend Configuration

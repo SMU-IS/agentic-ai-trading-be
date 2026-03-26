@@ -69,6 +69,7 @@ module "hosting" {
   logokit_api_key      = var.logokit_api_key
   notif_api_url        = var.notif_api_url
   thread_api_url       = var.thread_api_url
+  enable_sign_up       = var.enable_sign_up
 }
 
 # =============================================================================

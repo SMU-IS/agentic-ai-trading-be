@@ -100,7 +100,6 @@ jobs:
 
       - name: Verify Rollout
         run: |
-          # Find deployment name by label (handles 'rag-chatbot-infra' automatically)
           DEPLOY_NAME=$(kubectl get deployment -l app.kubernetes.io/instance=${{ inputs.image-name }} -o name)
           if [ -n "$DEPLOY_NAME" ]; then
             kubectl rollout status $DEPLOY_NAME --timeout=120s

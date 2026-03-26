@@ -50,3 +50,9 @@ variable "thread_api_url" {
   description = "Thread API URL"
   type        = string
 }
+
+variable "enable_sign_up" {
+  description = "Flag to toggle sign up functionality"
+  type        = bool
+  default     = false
+}
