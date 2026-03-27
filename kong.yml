@@ -32,6 +32,19 @@ plugins:
       credentials: true
       max_age: 3600
       preflight_continue: false
+  - name: pre-function
+    config:
+      access:
+        - |
+          local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
+          local auth_header = kong.request.get_header("authorization")
+          if auth_header then
+            local token = auth_header:gsub("Bearer ", "")
+            local jwt, err = jwt_decoder:new(token)
+            if jwt and jwt.claims then
+              kong.service.request.set_header("X-User-Id", jwt.claims.sub)
+            end
+          end
 
 services:
   # --- RAG Chatbot (5001) ---

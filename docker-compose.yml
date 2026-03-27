@@ -16,6 +16,7 @@ services:
       - KONG_PROXY_LISTEN=0.0.0.0:8000
       - KONG_VAULT_CONFIGURATION_RESOLVE=on
       - KONG_VAULT_ENV_PREFIX=KONG_VAR_
+      - KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES=kong.plugins.jwt.jwt_parser
     volumes:
       - ./kong.yml:/usr/local/kong/declarative/kong.yml
     ports:
