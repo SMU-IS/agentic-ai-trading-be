@@ -30,7 +30,8 @@ services:
 
   qdrant-vectorisation-worker:
     build: .
-    container_name: qdrant-vectorisation-worker-container
+    deploy:
+      replicas: 2
     dns:
       - 8.8.8.8
       - 8.8.4.4

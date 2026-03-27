@@ -1,11 +1,13 @@
 import asyncio
 import json
 import signal
+import time
 import uuid
 import redis.asyncio as redis
 from app.utils.logger import setup_logging
 from app.core.config import env_config
 from app.services._02_ticker_identification import TickerIdentificationService
+from app.services.metrics import MetricsTracker
 from app.scripts.storage import RedisStreamStorage
 from app.scripts.aws_bucket_access import AWSBucket
 from datetime import datetime
@@ -37,9 +39,9 @@ ALIAS_REDIS_KEY = "tickeridentification:alias_mapping"
 PERSIST_INTERVAL = 1800
 TICKER_FLUSH_INTERVAL = 900
 
-BATCH_SIZE = 50
-RECOVER_BATCH_SIZE = 100
-MIN_IDLE_MS = 5000
+BATCH_SIZE = 3
+RECOVER_BATCH_SIZE = 10
+MIN_IDLE_MS = 30000
 CLEANUP_INTERVAL = 300
 
 TICKER_LIST_LOCK_KEY = "ticker_static_state_write_lock"
@@ -70,6 +72,7 @@ redis_client = redis.Redis(
 
 preproc_stream = RedisStreamStorage(PREPROC_STREAM_NAME, redis_client)
 ticker_stream = RedisStreamStorage(TICKER_STREAM_NAME, redis_client)
+metrics = MetricsTracker(redis_client, "tickeridentification")
 
 
 # ==========================================================
@@ -294,6 +297,8 @@ def decode_message(data: dict):
 
 
 async def process_message(msg_id: str, data: dict, ticker_service: TickerIdentificationService):
+    start = time.monotonic()
+
     decoded = decode_message(data)
     if not decoded:
         await redis_client.incr(REMOVED_POSTS_COUNTER)
@@ -308,6 +313,8 @@ async def process_message(msg_id: str, data: dict, ticker_service: TickerIdentif
         await redis_client.incr(DUP_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
+
+    await metrics.record_received()
 
 
     await redis_client.hset(
@@ -346,6 +353,9 @@ async def process_message(msg_id: str, data: dict, ticker_service: TickerIdentif
         sg_now,
     )
     print(f"⏱️ Post {post_id}: Timestamped at ticker Stage → {sg_now}")
+
+    latency_ms = (time.monotonic() - start) * 1000
+    await metrics.record_processed(latency_ms)
 
     await preproc_stream.acknowledge(CONSUMER_GROUP, msg_id)
     logger.info(f"✅ Processed Post {post_id}")
@@ -436,7 +446,7 @@ async def worker_loop(ticker_service):
                 group_name=CONSUMER_GROUP,
                 consumer_name=CONSUMER_NAME,
                 count=BATCH_SIZE,
-                block_ms=5000,
+                block_ms=1000,
             )
 
             if entries:

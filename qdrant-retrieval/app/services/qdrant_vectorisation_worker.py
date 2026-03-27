@@ -1,6 +1,7 @@
 import asyncio
 import json
 import signal
+import time
 import uuid
 
 import redis.asyncio as redis
@@ -9,6 +10,7 @@ from app.core.config import env_config
 from app.scripts.storage import RedisStreamStorage
 from app.schemas.raw_news_payload import SourcePayload
 from app.services.vectorisation import VectorisationService
+from app.services.metrics import MetricsTracker
 # from app.scripts.postgres import save_post, mark_vectorised, close_pool, init_db
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -28,9 +30,9 @@ HEARTBEAT_KEY = f"vectorisation:heartbeat:{CONSUMER_NAME}"
 HEARTBEAT_INTERVAL = 30
 HEARTBEAT_TTL = HEARTBEAT_INTERVAL * 3
 
-BATCH_SIZE = 50
-RECOVER_BATCH_SIZE = 100
-MIN_IDLE_MS = 5000
+BATCH_SIZE = 10
+RECOVER_BATCH_SIZE = 10
+MIN_IDLE_MS = 30000
 CLEANUP_INTERVAL = 300
 
 PROCESSED_POSTS_COUNTER = "vectorisation:processed_posts_count"
@@ -60,6 +62,7 @@ sentiment_stream = RedisStreamStorage(SENTIMENT_STREAM_NAME, redis_client)
 aggregator_stream = RedisStreamStorage(AGGREGATOR_STREAM_NAME, redis_client)
 
 vector_service = VectorisationService()
+metrics = MetricsTracker(redis_client, "vectorisation")
 
 
 # ==========================================================
@@ -140,6 +143,8 @@ async def is_duplicate(post_id: str) -> bool:
 # MESSAGE PROCESSING
 # ==========================================================
 async def process_message(msg_id: str, data: dict):
+    start = time.monotonic()
+
     decoded = decode_message(data)
     if not decoded:
         await redis_client.incr(REMOVED_POSTS_COUNTER)
@@ -153,6 +158,8 @@ async def process_message(msg_id: str, data: dict):
         await redis_client.incr(DUP_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
+
+    await metrics.record_received()
 
     payload_dict = {"id": msg_id, "fields": decoded}
     try:
@@ -199,6 +206,9 @@ async def process_message(msg_id: str, data: dict):
         raise
     except Exception as e:
         logger.error(f"❌ Post-vectorisation step failed for {post_id}: {e}")
+
+    latency_ms = (time.monotonic() - start) * 1000
+    await metrics.record_processed(latency_ms)
 
     await finalize_message(msg_id)
     await redis_client.incr(PROCESSED_POSTS_COUNTER)
@@ -284,7 +294,7 @@ async def worker_loop():
                 group_name=CONSUMER_GROUP,
                 consumer_name=CONSUMER_NAME,
                 count=BATCH_SIZE,
-                block_ms=5000,
+                block_ms=1000,
             )
 
             if entries:

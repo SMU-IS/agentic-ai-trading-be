@@ -1,12 +1,14 @@
 import asyncio
 import json
 import signal
+import time
 import uuid
 import redis.asyncio as redis
 
 from app.core.config import env_config
 from app.utils.logger import setup_logging
 from app.services._01_preprocesser import PreprocessingService
+from app.services.metrics import MetricsTracker
 from app.scripts.storage import RedisStreamStorage
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -26,9 +28,9 @@ HEARTBEAT_KEY = f"preprocessing:heartbeat:{CONSUMER_NAME}"
 HEARTBEAT_INTERVAL = 30
 HEARTBEAT_TTL = HEARTBEAT_INTERVAL * 3
 
-BATCH_SIZE = 50
-RECOVER_BATCH_SIZE = 100
-MIN_IDLE_MS = 5000
+BATCH_SIZE = 5
+RECOVER_BATCH_SIZE = 10
+MIN_IDLE_MS = 15000
 CLEANUP_INTERVAL = 300
 
 POST_TIMESTAMP = "post_timestamps"
@@ -51,6 +53,7 @@ source_stream = RedisStreamStorage(STREAM_NAME, redis_client)
 preproc_stream = RedisStreamStorage(PREPROC_STREAM_NAME, redis_client)
 
 preprocessor = PreprocessingService()
+metrics = MetricsTracker(redis_client, "preprocessing")
 
 
 # ==========================================================
@@ -112,6 +115,8 @@ def decode_message(data: dict):
 
 
 async def process_message(msg_id: str, data: dict):
+    start = time.monotonic()
+
     decoded = decode_message(data)
     if not decoded:
         await redis_client.incr(REMOVED_POSTS_COUNTER)
@@ -126,6 +131,8 @@ async def process_message(msg_id: str, data: dict):
         await redis_client.incr(DUP_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
+
+    await metrics.record_received()
 
     await redis_client.hset(
         f"{POST_TIMESTAMP}:{post_id}",
@@ -154,6 +161,9 @@ async def process_message(msg_id: str, data: dict):
         sg_now,
     )
     print(f"⏱️ Post {post_id}: Timestamped at preproc Stage → {sg_now}")
+
+    latency_ms = (time.monotonic() - start) * 1000
+    await metrics.record_processed(latency_ms)
 
     await source_stream.acknowledge(CONSUMER_GROUP, msg_id)
     logger.info(f"✅ Processed Post {post_id}")
@@ -238,7 +248,7 @@ async def worker_loop():
                 group_name=CONSUMER_GROUP,
                 consumer_name=CONSUMER_NAME,
                 count=BATCH_SIZE,
-                block_ms=5000,
+                block_ms=1000,
             )
 
             if entries:
