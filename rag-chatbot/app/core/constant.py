@@ -5,6 +5,7 @@ class APIPath(str, Enum):
     CHAT = "/chat"
     CHAT_HISTORY = "/chat/history/{session_id}"
     THREADS = "/threads"
+    USER = "/user"
 
 
 class LangChainEvent(str, Enum):
