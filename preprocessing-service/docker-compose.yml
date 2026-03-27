@@ -17,7 +17,8 @@ services:
 
   preprocessing-worker:
     build: .
-    container_name: preprocessing-worker-container
+    deploy:
+      replicas: 2
     env_file:
       - .env
     environment:

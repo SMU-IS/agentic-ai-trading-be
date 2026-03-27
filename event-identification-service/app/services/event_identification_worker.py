@@ -1,11 +1,13 @@
 import asyncio
 import json
 import signal
+import time
 import uuid
 import redis.asyncio as redis
 from app.utils.logger import setup_logging
 from app.core.config import env_config
 from app.services._03_event_identification import EventIdentifierService
+from app.services.metrics import MetricsTracker
 from app.scripts.storage import RedisStreamStorage
 from app.scripts.aws_bucket_access import AWSBucket
 from datetime import datetime
@@ -38,9 +40,9 @@ PERSIST_INTERVAL = 1800
 TICKER_FLUSH_INTERVAL = 900
 TICKER_KEY = "eventidentification:ticker"
 
-BATCH_SIZE = 50
-RECOVER_BATCH_SIZE = 100
-MIN_IDLE_MS = 5000
+BATCH_SIZE = 3
+RECOVER_BATCH_SIZE = 10
+MIN_IDLE_MS = 30000
 CLEANUP_INTERVAL = 300
 
 POST_TIMESTAMP = "post_timestamps"
@@ -68,6 +70,7 @@ redis_client = redis.Redis(
 
 ticker_stream = RedisStreamStorage(TICKER_STREAM_NAME, redis_client)
 event_stream = RedisStreamStorage(EVENT_STREAM_NAME, redis_client)
+metrics = MetricsTracker(redis_client, "eventidentification")
 
 all_tickers = set()
 
@@ -230,6 +233,8 @@ async def process_message(
     data: dict,
     event_service: EventIdentifierService,
 ):
+    start = time.monotonic()
+
     decoded = decode_message(data)
     if not decoded:
         await redis_client.incr(REMOVED_POSTS_COUNTER)
@@ -244,6 +249,8 @@ async def process_message(
         await redis_client.incr(DUP_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
+
+    await metrics.record_received()
 
 
     await redis_client.hset(
@@ -281,7 +288,10 @@ async def process_message(
         return
 
     event_data["ticker_metadata"] = ticker_metadata
-    all_tickers.update(ticker_metadata.keys())
+    metadata = event_data.get("metadata", {})
+    ticker_check = metadata.get("ticker")
+    if not ticker_check:
+        all_tickers.update(ticker_metadata.keys())
 
     logger.info(f"📊 Tracked tickers: {all_tickers}")
 
@@ -297,6 +307,9 @@ async def process_message(
         sg_now,
     )
     print(f"⏱️ Post {post_id}: Timestamped at event Stage → {sg_now}")
+
+    latency_ms = (time.monotonic() - start) * 1000
+    await metrics.record_processed(latency_ms)
 
     await ticker_stream.acknowledge(CONSUMER_GROUP, msg_id)
     logger.info(f"✅ Processed Post {post_id}")
@@ -400,7 +413,7 @@ async def worker_loop(event_service: EventIdentifierService):
                 group_name=CONSUMER_GROUP,
                 consumer_name=CONSUMER_NAME,
                 count=BATCH_SIZE,
-                block_ms=5000,
+                block_ms=1000,
             )
 
             if entries:
