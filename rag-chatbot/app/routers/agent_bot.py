@@ -43,4 +43,7 @@ async def get_chat_history(
 
 @router.get(APIPath.USER)
 def get_current_user(x_user_id: str = Header(...)):
+    if not x_user_id:
+        return {"error": "User ID not found"}, 401
+
     return {"status": "success", "user_id": x_user_id}

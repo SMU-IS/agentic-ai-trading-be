@@ -26,7 +26,8 @@ plugins:
           "Date",
           "Authorization",
           "X-Requested-With",
-          "X-Auth-Token",
+          "X-AUTH-TOKEN",
+          "X-USER-ID",
         ]
       exposed_headers: ["X-Auth-Token"]
       credentials: true
@@ -38,11 +39,13 @@ plugins:
         - |
           local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
           local auth_header = kong.request.get_header("authorization")
+
           if auth_header then
             local token = auth_header:gsub("Bearer ", "")
             local jwt, err = jwt_decoder:new(token)
-            if jwt and jwt.claims then
-              kong.service.request.set_header("X-User-Id", jwt.claims.sub)
+
+            if jwt and jwt.claims and jwt.claims.sub then
+              kong.service.request.set_header("X-USER-ID", jwt.claims.sub)
             end
           end
 
