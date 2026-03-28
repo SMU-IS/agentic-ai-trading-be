@@ -90,13 +90,15 @@ class RedditStreamService:
 
             sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
 
+            post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
             self.redis.hset(
-                f"{POST_TIMESTAMP}:reddit:{post.id}",
+                post_key,
                 mapping={
                     "scraped_timestamp": sg_now,
-                    "vectorised_timestamp": "",
+                    "posted_timestamp":  post_time.isoformat(),
                 }
             )
+            self.redis.expire(post_key, 345600)  # 4 days
             logger.info(f"⏱️ Post {post.id}: Timestamped at Scraping Stage")
             
             time.sleep(0.1)

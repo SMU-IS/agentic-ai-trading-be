@@ -7,7 +7,6 @@ import redis.asyncio as aioredis
 from app.core.config import env_config
 from app.core.logger import logger
 from app.routers import query_docs, vectorise_docs
-from app.services.metrics import MetricsTracker
 
 redis_client = Redis(
     host=env_config.redis_host,
@@ -22,8 +21,6 @@ async_redis = aioredis.Redis(
     password=env_config.redis_password,
     decode_responses=True,
 )
-
-metrics = MetricsTracker(async_redis, "vectorisation")
 
 app = FastAPI(
     title="Qdrant Retrieval Service",
@@ -94,11 +91,6 @@ def health_check():
             "worker_alive": False,
         }
 
-
-# ================= METRICS =================
-@app.get("/metrics")
-async def get_metrics():
-    return await metrics.get_metrics_all_windows()
 
 
 api_router.include_router(query_docs.router)

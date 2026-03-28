@@ -84,3 +84,8 @@ include:
   - path: ./qdrant-retrieval/docker-compose.yml
     env_file: ./qdrant-retrieval/.env
     project_directory: ./qdrant-retrieval
+
+  # === Metrics Tracker Microservice ===
+  - path: ./metrics-tracker/docker-compose.yml
+    env_file: ./metrics-tracker/.env
+    project_directory: ./metrics-tracker

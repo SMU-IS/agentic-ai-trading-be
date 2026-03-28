@@ -99,9 +99,7 @@ class RedditBatchService:
                         logger.info("🛑 Batch scraper stopped mid-stream")
                         return
                     
-                    post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
-
-                    if self.redis.exists(post_key):
+                    if self.redis.exists(f"{POST_TIMESTAMP}:reddit:{post.id}"):
                         continue
                     
                     try:
@@ -147,13 +145,14 @@ class RedditBatchService:
 
                         sg_now = datetime.now(self.sg_tz).isoformat()
 
+                        post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
                         self.redis.hset(
-                            f"{POST_TIMESTAMP}:reddit:{post.id}",
+                            post_key,
                             mapping={
                                 "scraped_timestamp": sg_now,
-                                "vectorised_timestamp": ""
                             }
                         )
+                        self.redis.expire(post_key, 345600)  # 4 days
 
                         logger.info(
                             "⏱️ Post %s timestamped at scraping stage (batch)",

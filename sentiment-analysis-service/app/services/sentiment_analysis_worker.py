@@ -1,13 +1,11 @@
 import asyncio
 import json
 import signal
-import time
 import uuid
 import redis.asyncio as redis
 from app.utils.logger import setup_logging
 from app.core.config import env_config
 from app.services._05_sentiment import LLMSentimentService
-from app.services.metrics import MetricsTracker
 from app.scripts.storage import RedisStreamStorage
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -57,7 +55,6 @@ event_stream = RedisStreamStorage(EVENT_STREAM_NAME, redis_client)
 sentiment_stream = RedisStreamStorage(SENTIMENT_STREAM_NAME, redis_client)
 
 sentiment_service = LLMSentimentService()
-metrics = MetricsTracker(redis_client, "sentiment_analysis")
 
 
 # ==========================================================
@@ -122,8 +119,6 @@ async def is_duplicate(post_id: str) -> bool:
 # MESSAGE PROCESSING
 # ==========================================================
 async def process_message(msg_id: str, data: dict):
-    start = time.monotonic()
-
     decoded = decode_message(data)
     if not decoded:
         await redis_client.incr(REMOVED_POSTS_COUNTER)
@@ -138,8 +133,6 @@ async def process_message(msg_id: str, data: dict):
         await redis_client.incr(DUP_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
-
-    await metrics.record_received()
 
     await redis_client.hset(
         f"{POST_TIMESTAMP}:{post_id}",
@@ -179,9 +172,6 @@ async def process_message(msg_id: str, data: dict):
         sg_now,
     )
     print(f"⏱️ Post {post_id}: Timestamped at sentiment Stage → {sg_now}")
-
-    latency_ms = (time.monotonic() - start) * 1000
-    await metrics.record_processed(latency_ms)
 
     await event_stream.acknowledge(CONSUMER_GROUP, msg_id)
     logger.info(f"✅ Processed Post {post_id}")
