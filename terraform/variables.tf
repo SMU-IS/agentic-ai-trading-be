@@ -129,6 +129,11 @@ variable "show_banner" {
   sensitive = true
 }
 
+variable "banner_message" {
+  type      = string
+  sensitive = true
+}
+
 # =============================================================================
 # Terraform State Backend Configuration
 # =============================================================================

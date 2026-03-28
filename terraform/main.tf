@@ -77,6 +77,7 @@ module "hosting" {
   thread_api_url       = var.thread_api_url
   enable_sign_up       = var.enable_sign_up
   show_banner          = var.show_banner
+  banner_message       = var.banner_message
 }
 
 # =============================================================================
