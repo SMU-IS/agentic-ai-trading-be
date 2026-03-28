@@ -244,6 +244,17 @@ async def compute(r: aioredis.Redis):
         for k, v in svc_counts.items() if k.startswith("scraper:")
     }
 
+    # Merge tradingview subtypes into one key
+    tv_keys = [k for k in scrapers if k.startswith("scraper:tradingview_")]
+    if tv_keys:
+        tv_latencies = [l for k in tv_keys for l in svc_latencies[k]]
+        scrapers["scraper:tradingview"] = {
+            **{f"{k[len('scraper:tradingview_'):]}_processed": scrapers[k]["processed"] for k in tv_keys},
+            "avg_latency_s": _avg(tv_latencies),
+        }
+        for k in tv_keys:
+            del scrapers[k]
+
     funnel = {
         "window_hours": 24,
         "scraped":          counts["scraped"],
@@ -323,12 +334,12 @@ async def main():
         ("order_placed == 1",                   funnel["order_placed"] == 1),
         ("no_ticker drop == 1",                 funnel["removed"]["no_ticker"] == 1),
         ("e2e latency > 0",                     funnel["avg_e2e_latency_s"] is not None and funnel["avg_e2e_latency_s"] > 0),
-        ("scraper:reddit in svc",               "scraper:reddit" in services),
-        ("scraper:tradingview_ideas in svc",    "scraper:tradingview_ideas" in services),
-        ("scraper:tradingview_minds in svc",    "scraper:tradingview_minds" in services),
-        ("reddit latency > 0",                  services.get("scraper:reddit", {}).get("avg_latency_s") is not None),
-        ("tradingview_ideas latency > 0",       services.get("scraper:tradingview_ideas", {}).get("avg_latency_s") is not None),
-        ("tradingview_minds latency > 0",       services.get("scraper:tradingview_minds", {}).get("avg_latency_s") is not None),
+        ("scraper:reddit in svc",                   "scraper:reddit" in services),
+        ("scraper:tradingview in svc",              "scraper:tradingview" in services),
+        ("reddit latency > 0",                      services.get("scraper:reddit", {}).get("avg_latency_s") is not None),
+        ("tradingview ideas_processed == 1",        services.get("scraper:tradingview", {}).get("ideas_processed") == 1),
+        ("tradingview minds_processed == 1",        services.get("scraper:tradingview", {}).get("minds_processed") == 1),
+        ("tradingview avg_latency_s > 0",           services.get("scraper:tradingview", {}).get("avg_latency_s") is not None),
     ]
 
     all_pass = True

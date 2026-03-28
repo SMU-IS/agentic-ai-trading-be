@@ -137,6 +137,17 @@ async def compute_pipeline_metrics():
         if k.startswith("scraper:")
     }
 
+    # Merge tradingview subtypes into one key
+    tv_keys = [k for k in scrapers if k.startswith("scraper:tradingview_")]
+    if tv_keys:
+        tv_latencies = [l for k in tv_keys for l in svc_latencies[k]]
+        scrapers["scraper:tradingview"] = {
+            **{f"{k[len('scraper:tradingview_'):]}_processed": scrapers[k]["processed"] for k in tv_keys},
+            "avg_latency_s": _avg(tv_latencies),
+        }
+        for k in tv_keys:
+            del scrapers[k]
+
     funnel_snapshot = {
         "computed_at":      now.isoformat(),
         "window_hours":     PIPELINE_WINDOW_HOURS,
