@@ -171,6 +171,14 @@ services:
         paths: ["/api/v1/sentiment-analysis/healthcheck"]
         strip_path: true
 
+  # --- News Scraper TradingView (5013) ---
+  - name: news-scraper-tradingview-service
+    url: http://news-scraper-tradingview-service:5013
+    routes:
+      - name: news-scraper-tradingview-healthcheck
+        paths: ["/api/v1/news-scraper-tradingview/healthcheck"]
+        strip_path: true
+
   # --- Metrics Tracker (5014) ---
   - name: metrics-tracker-service
     url: http://metrics-tracker:5014
