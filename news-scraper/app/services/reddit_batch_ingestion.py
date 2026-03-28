@@ -1,5 +1,6 @@
 import time
 import json
+import threading
 from datetime import datetime, timedelta, timezone
 import prawcore
 from zoneinfo import ZoneInfo
@@ -18,7 +19,7 @@ class RedditBatchService:
         if stop_event and stop_event.is_set():
             return True
 
-        running_flag = self.redis.get("newsscraper:running")
+        running_flag = self.redis.get("newsscraper:reddit:running")
 
         if running_flag is None or running_flag != "1":
             return True
@@ -77,110 +78,115 @@ class RedditBatchService:
 
     def run(self, subreddits, stop_event=None, days=5, batch_size=0, sleep_seconds=0.1):
         
-        new_post_counter = "newsscraper:post_ingested"
-        self.redis.set("newsscraper:ingestion_start_time", datetime.now(self.sg_tz).isoformat())
-        ingestion_start_time = datetime.now().timestamp()
         cutoff = datetime.now(tz=timezone.utc) - timedelta(days=days)
-        buffer = []
-       
+    
         logger.info(f"[*] Batch scraping subreddits: {subreddits}")
+
+        threads = []
+        max_threads = 5
+        semaphore = threading.Semaphore(max_threads)
+
         for sub in subreddits:
+            t = threading.Thread(
+                target=self.scrape_with_limit,
+                args=(semaphore, sub, stop_event, cutoff, batch_size, sleep_seconds),
+                daemon=True
+            )
+            t.start()
+            threads.append(t)
 
-            if self.should_stop(stop_event):
-                logger.info("🛑 Batch scraper stopped")
-                return
-            
-            try:  
-                subreddit = self.reddit_client.subreddit(sub)
-                logger.info(f"Fetching posts from r/{sub}...")
+        for t in threads:
+            t.join()
+    def scrape_with_limit(self, semaphore, sub, stop_event, cutoff, batch_size, sleep_seconds):
+        with semaphore:  
+            self.scrape_subreddit(sub, stop_event, cutoff, batch_size, sleep_seconds)
 
-                for post in subreddit.new(limit=None):
-                    
-                    if self.should_stop(stop_event):
-                        logger.info("🛑 Batch scraper stopped mid-stream")
-                        return
-                    
-                    post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
+    def scrape_subreddit(self, sub, stop_event, cutoff, batch_size, sleep_seconds):
 
-                    if self.redis.exists(post_key):
-                        continue
-                    
-                    try:
-                        sg_tz = timezone(timedelta(hours=8))
-                        post_time = datetime.fromtimestamp(post.created_utc, tz=timezone.utc).astimezone(sg_tz)
+        buffer = []
+        
+        try:
+            subreddit = self.reddit_client.subreddit(sub)
+            logger.info(f"Fetching posts from r/{sub}...")
+
+            for post in subreddit.new(limit=None):
+                
+                if self.should_stop(stop_event):
+                    logger.info("🛑 Batch scraper stopped mid-stream")
+                    return
+                
+                post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
+
+                if self.redis.exists(post_key):
+                    logger.info(f"Skipping existing post {post.id}")
+                    continue
+
+                sg_tz = timezone(timedelta(hours=8))
+                post_time = datetime.fromtimestamp(post.created_utc, tz=timezone.utc).astimezone(sg_tz)
                         
-                        if post_time < cutoff:
-                            break
+                if post_time < cutoff:
+                    break
 
-                        row = {
-                            "id": f"reddit:{post.id}",
-                            "content_type": "post",
-                            "native_id": post.id,
-                            "source": "reddit_batch",
-                            "author": str(post.author),
-                            "url": post.url,
-                            "timestamps": post_time.isoformat(),
-                            "content":{
-                                "title": post.title,
-                                "body": post.selftext
-                            },
-                            "engagement":{
-                                "total_comments": post.num_comments,
-                                "score": post.score,
-                                "upvote_ratio": post.upvote_ratio,
-                            },
-                            "metadata":{
-                                "subreddit": post.subreddit.display_name,
-                                "category": None
-                            }
-                        }
+                row = {
+                    "id": f"reddit:{post.id}",
+                    "content_type": "post",
+                    "native_id": post.id,
+                    "source": "reddit_batch",
+                    "author": str(post.author),
+                    "url": post.url,
+                    "timestamps": post_time.isoformat(),
+                    "content":{
+                        "title": post.title,
+                        "body": post.selftext
+                    },
+                    "engagement":{
+                        "total_comments": post.num_comments,
+                        "score": post.score,
+                        "upvote_ratio": post.upvote_ratio,
+                    },
+                    "metadata":{
+                        "subreddit": post.subreddit.display_name,
+                        "category": None
+                    }
+                }
 
-                        buffer.append(row)
-                        self.redis.incr(new_post_counter)
-                        total = int(self.redis.get("newsscraper:post_ingested"))
-                        start = float(ingestion_start_time)
+                buffer.append(row)
 
-                        hours = (datetime.now().timestamp() - start) / 3600
+                sg_now = datetime.now(self.sg_tz).isoformat()
 
-                        if hours > 0:
-                            avg = total / hours
-                            self.redis.set("newsscraper:avg_per_hour", avg)
+                self.redis.hset(
+                    f"{POST_TIMESTAMP}:reddit:{post.id}",
+                    mapping={
+                        "scraped_timestamp": sg_now,
+                        "vectorised_timestamp": ""
+                    }
+                )
 
-                        sg_now = datetime.now(self.sg_tz).isoformat()
-
-                        self.redis.hset(
-                            f"{POST_TIMESTAMP}:reddit:{post.id}",
-                            mapping={
-                                "scraped_timestamp": sg_now,
-                                "vectorised_timestamp": ""
-                            }
-                        )
-
-                        logger.info(
-                            "⏱️ Post %s timestamped at scraping stage (batch)",
-                            post.id,
-                        )
+                logger.info(
+                    "⏱️ Post %s timestamped at scraping stage (batch)",
+                    post.id,
+                )
 
 
-                        if len(buffer) >= batch_size:
-                            try:
-                                self.storage.save_batch(buffer)
-                                logger.info(f"Flushed {len(buffer)} posts to Redis.")
-                                buffer.clear()
-                            except Exception as e:
-                                logger.exception(f"Redis batch write failed")
-                                buffer.clear()
-
-                        if sleep_seconds:
-                            time.sleep(sleep_seconds)
+                if len(buffer) >= batch_size:
+                    try:
+                        self.storage.save_batch(buffer)
+                        logger.info(f"Flushed {len(buffer)} posts from r/{sub} to Redis.")
+                        buffer.clear()
                     except Exception as e:
-                        logger.exception(f"Failed to process post in r/{sub}")
-                        continue
+                        logger.exception(f"Redis batch write failed")
+                        buffer.clear()
 
-            except prawcore.exceptions.PrawcoreException as e:
-                logger.exception(f"Reddit API error for r/{sub}")
-                time.sleep(5)
-                continue
+                post_id = row["native_id"]
+                now_ts = datetime.now().timestamp()
+                self.redis.zadd("newsscraper:metrics:posts_1d", {post_id: now_ts})
+
+                if sleep_seconds:
+                    time.sleep(sleep_seconds)
+
+        except prawcore.exceptions.PrawcoreException as e:
+            logger.exception(f"Reddit API error for r/{sub}")
+            time.sleep(5)
             
         if buffer:
             self.storage.save_batch(buffer)
