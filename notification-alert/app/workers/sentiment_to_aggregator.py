@@ -3,7 +3,6 @@ from redis.asyncio import Redis
 from app.core.config import env_config
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
-from app.core.logger import logger
 
 
 class SentimentAggregator:
@@ -94,7 +93,8 @@ class SentimentAggregator:
                             "vectorised_timestamp",        
                             sg_time.isoformat()           
                         )
-                        print(f"⏱️ Post {post_id}: Timestamped at Vectorisation Stage → {sg_time}")                                                   
+                        print(f"⏱️ Post {post_id}: Timestamped at Vectorisation Stage → {sg_time}")  
+                        metadata = json.loads(data.get("metadata", "{}"))                                                 
 
                         for ticker, meta in ticker_meta.items():
                             aggregator_data = {
@@ -104,7 +104,8 @@ class SentimentAggregator:
                                 "event_type_meta": meta.get("event_type") or "",
                                 "sentiment_score": meta.get("sentiment_score") or 0.0,
                                 "event_description": meta.get("event_description") or "",
-                                "sentiment_reasoning": meta.get("sentiment_reasoning") or ""
+                                "sentiment_reasoning": meta.get("sentiment_reasoning") or "",
+                                'subreddit': metadata.get("subreddit")
                             }
 
                             await self.r.xadd(

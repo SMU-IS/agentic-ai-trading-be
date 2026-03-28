@@ -4,6 +4,8 @@ from redis.asyncio import Redis
 from app.core.config import env_config
 from app.services.notification_service import notify_users
 from app.core.logger import logger
+import jwt
+import time
 
 class StreamConsumer:
     def __init__(self):
@@ -36,7 +38,15 @@ class StreamConsumer:
                     logger.info(f"ℹ️ Group {group_name} already exists")
                     await self.r.xgroup_setid(stream_name, group_name, "$")
                 else:
-                    raise    
+                    raise 
+    @staticmethod
+    def generate_token(user_id: str, secret: str = env_config.jwt_token):
+        payload = {
+            "sub": user_id,  
+            "iss": "agentic-ai-user-service",
+            "exp": int(time.time()) + 3600
+        }
+        return jwt.encode(payload, secret, algorithm="HS256")   
 
     async def async_start(self):
         print("🔔 Notification service listening to streams...")
@@ -88,23 +98,23 @@ class StreamConsumer:
                                 data = dict(data)
                             try:
                                 delivered = False
-                                # if stream_name == env_config.redis_notification_stream:
-                                #     # News notifications
-                                #     notification_payload = {
-                                #         "type": "NEWS_RECEIVED",
-                                #         "news_id": data.get("id"),
-                                #         "headline": data.get("headline"),
-                                #         "tickers": data.get("tickers"),
-                                #         "event_description": data.get("event_description")
-                                #     }
-                                #     delivered = await notify_users(notification_payload)
-                                #     if delivered:
-                                #         logger.info("✅ Sent news notification: %s", notification_payload)
-                                #     else:
-                                #         logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)
+                                if stream_name == env_config.redis_notification_stream:
+                                    # News notifications
+                                    notification_payload = {
+                                        "type": "NEWS_RECEIVED",
+                                        "news_id": data.get("id"),
+                                        "headline": data.get("headline"),
+                                        "tickers": data.get("tickers"),
+                                        "event_description": data.get("event_description")
+                                    }
+                                    delivered = await notify_users(notification_payload)
+                                    if delivered:
+                                        logger.info("✅ Sent news notification: %s", notification_payload)
+                                    else:
+                                        logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)
 
 
-                                if stream_name == env_config.redis_analysis_stream:
+                                elif stream_name == env_config.redis_analysis_stream:
                                     # Signal notifications
                                     signal_id = data.get("signal_id")
                                     try:
@@ -123,16 +133,20 @@ class StreamConsumer:
                                             logger.info("✅ Sent signal notification: %s", notification_payload)
                                         else:
                                             logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)
-                                    except Exception as e:
+                                    except Exception:
                                         logger.exception(f"Failed processing signal {signal_id}")                                            
 
                                 elif stream_name == env_config.redis_trade_stream:
                                     # Trade placed from agent-m notifications
                                     order_id = data.get("order_id")
+                                    user_id = data.get('user_id')
+                                    token = self.generate_token(user_id)
                                     try:
                                         async with httpx.AsyncClient() as client:
                                             response = await client.get(
-                                                f"{env_config.base_api}/trading/orders/{order_id}"
+                                                f"{env_config.base_api}/trading/decisions/orders/{order_id}"
+                                                ,
+                                                headers={"Authorization": f"Bearer {token}"}
                                             )
                                             
                                         full_order = response.json()
@@ -140,25 +154,25 @@ class StreamConsumer:
                                             "type": "TRADE_PLACED",
                                             "order": full_order
                                         }
-                                        delivered = await notify_users(notification_payload)
+                                        delivered = await notify_users(notification_payload, user_id = user_id)
                                         if delivered:
                                             logger.info("✅ Sent signal notification: %s", notification_payload)
                                         else:
                                             logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)                                            
 
-                                    except Exception as e:
+                                    except Exception:
                                         logger.exception(f"Failed processing signal {order_id}")
 
                                 if delivered:
                                     await self.r.xack(stream_name, group_name, event_id)
 
 
-                            except Exception as e:
+                            except Exception:
                                 logger.exception(f"Failed processing {event_id} from {stream_name}")
                 
             except asyncio.CancelledError:
                 logger.info("🛑 StreamConsumer shutting...")
                 raise
-            except Exception as e:
-                logger.exception(f"StreamConsumer error")
+            except Exception:
+                logger.exception("StreamConsumer error")
                 await asyncio.sleep(2)
