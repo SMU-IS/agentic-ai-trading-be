@@ -13,6 +13,7 @@ import json
 import time
 import logging
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from tradingview_scraper.symbols.ideas import Ideas
 
@@ -21,6 +22,8 @@ from app.services.entity_watcher import get_tickers_from_redis
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s — %(message)s")
+
+POST_TIMESTAMP = "post_timestamps"
 
 
 class TradingViewIdeasBatchIngestion:
@@ -53,11 +56,12 @@ class TradingViewIdeasBatchIngestion:
     @staticmethod
     def _build_row(idea: dict, ticker: str, source_label: str = "tradingview_ideas_batch") -> dict:
         """Transform a raw Ideas item into the unified row schema."""
+        sg_tz = ZoneInfo("Asia/Singapore")
         raw_ts = idea.get("timestamp", 0)
         try:
-            ts_iso = datetime.fromtimestamp(int(raw_ts), tz=timezone.utc).isoformat()
+            ts_iso = datetime.fromtimestamp(int(raw_ts), tz=timezone.utc).astimezone(sg_tz).isoformat()
         except (ValueError, TypeError, OSError):
-            ts_iso = datetime.now(timezone.utc).isoformat()
+            ts_iso = datetime.now(sg_tz).isoformat()
 
         return {
             "id": f"tradingview_ideas:{idea.get('author', 'unknown')}:{raw_ts}",
@@ -131,6 +135,17 @@ class TradingViewIdeasBatchIngestion:
 
                     row = self._build_row(idea, ticker, source_label="tradingview_ideas_batch")
                     publish_to_stream(self.redis, self.STREAM_NAME, row)
+
+                    sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+                    self.redis.hset(
+                        f"{POST_TIMESTAMP}:{row['id']}",
+                        mapping={
+                            "scraped_timestamp": sg_now,
+                            "vectorised_timestamp": "",
+                        }
+                    )
+                    logger.info(f"⏱️ Post {row['id']}: Timestamped at Scraping Stage")
+
                     total_published += 1
 
             except Exception as e:

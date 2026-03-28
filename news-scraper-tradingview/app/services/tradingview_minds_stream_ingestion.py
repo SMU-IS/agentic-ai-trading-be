@@ -13,6 +13,7 @@ Usage (standalone test):
 import time
 import logging
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from tradingview_scraper.symbols.minds import Minds
 
@@ -21,6 +22,8 @@ from app.services.entity_watcher import get_tickers_from_redis, get_ticker_candi
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s — %(message)s")
+
+POST_TIMESTAMP = "post_timestamps"
 
 
 class TradingViewMindsStreamIngestion:
@@ -58,11 +61,12 @@ class TradingViewMindsStreamIngestion:
         author_info = mind.get("author", {})
         created_str = mind.get("created", "")
 
+        sg_tz = ZoneInfo("Asia/Singapore")
         try:
             ts = datetime.strptime(created_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
-            ts_iso = ts.isoformat()
+            ts_iso = ts.astimezone(sg_tz).isoformat()
         except (ValueError, TypeError):
-            ts_iso = created_str or datetime.now(timezone.utc).isoformat()
+            ts_iso = created_str or datetime.now(sg_tz).isoformat()
 
         uid = mind.get("uid", "")
 
@@ -162,6 +166,17 @@ class TradingViewMindsStreamIngestion:
                         self.seen_in_memory.add(dedup_key)
                         row = self._build_row(mind, ticker)
                         publish_to_stream(self.redis, self.STREAM_NAME, row)
+
+                        sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+                        self.redis.hset(
+                            f"{POST_TIMESTAMP}:{row['id']}",
+                            mapping={
+                                "scraped_timestamp": sg_now,
+                                "vectorised_timestamp": "",
+                            }
+                        )
+                        logger.info(f"⏱️ Post {row['id']}: Timestamped at Scraping Stage")
+
                         cycle_published += 1
 
                 except Exception as e:
