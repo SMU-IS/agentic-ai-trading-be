@@ -8,7 +8,7 @@ Run from ticker-identification-service/:
 
 import json
 import pytest
-from unittest.mock import AsyncMock, MagicMock, call
+from unittest.mock import AsyncMock, MagicMock
 from redis.exceptions import ResponseError
 
 from app.scripts.storage import RedisStreamStorage

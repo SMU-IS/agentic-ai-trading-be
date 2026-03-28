@@ -22,7 +22,7 @@ class RedisStreamStorage:
 
     async def save(self, item: Dict[str, Any]) -> Optional[str]:
         """
-        Save message to stream with built-in dedup (1-day TTL).
+        Save message to stream with built-in dedup (5-day TTL).
         Returns stream message ID if saved.
         Returns None if duplicate detected.
         """
@@ -45,7 +45,7 @@ class RedisStreamStorage:
             dedup_key,
             "1",
             nx=True,
-            ex=60 * 60 * 24,  # 1 day
+            ex=60 * 60 * 24 * 5,  # 5 day
         )
 
         if not acquired:

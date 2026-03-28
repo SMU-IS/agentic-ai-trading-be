@@ -17,7 +17,6 @@ jsonpointer==3.0.0
 langchain-core==1.2.16
 langchain-groq==1.0.1
 langsmith==0.7.7
-ollama==0.6.1
 orjson==3.11.7
 packaging==26.0
 pydantic==2.12.5
@@ -40,3 +39,4 @@ uuid_utils==0.14.1
 uvicorn==0.41.0
 xxhash==3.6.0
 zstandard==0.25.0
+numpy==2.4.2

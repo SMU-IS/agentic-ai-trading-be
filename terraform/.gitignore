@@ -1,0 +1,31 @@
+# Terraform files
+.terraform/
+.terraform.lock.hcl
+
+# Secrets and sensitive files
+secrets.tfvars
+secrets.auto.tfvars
+*.auto.tfvars
+*.pem
+*.key
+
+# Local state files
+*.local.tfstate
+*.tfstate.*
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+plan.out
+tfplan*
+
+# AWS credentials
+credentials/
+
+# OS files
+.DS_Store
+Thumbs.db

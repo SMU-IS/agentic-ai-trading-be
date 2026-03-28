@@ -3,7 +3,6 @@ import json
 import threading
 from datetime import datetime, timedelta, timezone
 import prawcore
-from zoneinfo import ZoneInfo
 from app.core.logger import logger
 
 POST_TIMESTAMP = "post_timestamps"

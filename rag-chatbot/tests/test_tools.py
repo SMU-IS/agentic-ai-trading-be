@@ -10,6 +10,34 @@ from app.services.tools.trade_history import (
 
 
 @pytest.mark.asyncio
+async def test_get_general_news_only_query():
+    """Test get_general_news with only the query provided."""
+    mock_response = {
+        "results": [
+            {"headline": "Market News", "content_preview": "Stock market update"},
+        ]
+    }
+
+    with patch("httpx.AsyncClient.post") as mock_post:
+        mock_post.return_value = MagicMock(spec=httpx.Response)
+        mock_post.return_value.status_code = 200
+        mock_post.return_value.json.return_value = mock_response
+        mock_post.return_value.raise_for_status = MagicMock()
+
+        # Call with only query
+        result = await get_general_news.ainvoke({"query": "What is the market doing?"})
+
+        assert "Market News" in result["context"]
+        assert len(result["results"]) == 1
+        
+        # Verify the payload sent to the mock post
+        args, kwargs = mock_post.call_args
+        sent_payload = kwargs.get("json", {})
+        assert sent_payload["query"] == "What is the market doing?"
+        assert sent_payload["tickers"] == []  # Should default to empty list
+
+
+@pytest.mark.asyncio
 async def test_get_general_news_success():
     mock_response = {
         "results": [

@@ -1,5 +1,6 @@
 import logging
-from typing import Any, Dict, List, Optional
+import time
+from typing import Any, Dict, List, Optional, Tuple
 
 from app.api.schemas import (
     BracketOrderRequestBody,
@@ -11,9 +12,9 @@ from app.api.schemas import (
     StopLimitOrderRequestBody,
     StopOrderRequestBody,
 )
-from app.core.broker_client import AlpacaBrokerClient
+from app.core.broker_client import AlpacaBrokerClient, create_broker_client
 from app.core.services import services
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 
 
@@ -60,6 +61,7 @@ class ConflictCheckRequest(BaseModel):
     intended_qty: float = Field(..., gt=0)
     auto_resolve: bool = Field(False, description="Auto close/cancel conflicts")
 
+
 class PnLResponse(BaseModel):
     pnl: Optional[float] = None
     pnl_pct: Optional[float] = None
@@ -67,8 +69,38 @@ class PnLResponse(BaseModel):
     end_equity: Optional[float] = None
     timeframe: Optional[str] = None
     error: Optional[str] = None
-    
+
+
+class UserRequest(BaseModel):
+    user_id: str = "agent-A"  # Default user
+
+
 router = APIRouter()
+
+# ── In-memory TTL cache for /orders/all ───────────────────────────────────────
+_orders_cache: Dict[Tuple[str, int], Tuple[float, List]] = {}
+_CACHE_TTL = 30  # seconds
+
+
+def _get_cached_orders(user_id: str, limit: int) -> List | None:
+    entry = _orders_cache.get((user_id, limit))
+    if entry and (time.time() - entry[0]) < _CACHE_TTL:
+        return entry[1]
+    return None
+
+
+def _set_cached_orders(user_id: str, limit: int, data: List) -> None:
+    _orders_cache[(user_id, limit)] = (time.time(), data)
+
+
+def _invalidate_orders_cache(user_id: str) -> None:
+    keys = [k for k in _orders_cache if k[0] == user_id]
+    for k in keys:
+        del _orders_cache[k]
+    print(f"   [🗑️  Cache] Orders cache invalidated for user={user_id}")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 
 
 logging.basicConfig(
@@ -78,15 +110,25 @@ logger = logging.getLogger(__name__)
 
 
 # Dependency to get a broker instance (can be singleton or factory)
-def get_broker() -> AlpacaBrokerClient:
-    return services.brokerage
-    # return create_broker_client()
+def get_broker(
+    x_user_id: str = Header(default="agent-A", alias="x_user_id"),
+) -> AlpacaBrokerClient:
+    try:
+        print("fetching for user", x_user_id)
+        api_key, api_secret, paper = services.trading_db._load_user_account_from_mongo(
+            x_user_id
+        )
+        return create_broker_client(api_key, api_secret, paper)
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ---------- Health ----------
 
 
-@router.get("/healthcheck")
+@router.get("/")
 def health() -> Dict[str, str]:
     return {"status": "Alpacca service is healthy"}
 
@@ -158,37 +200,37 @@ def list_open_orders(
 def list_all_orders(
     limit: int = Query(200, ge=1, le=500),
     broker: AlpacaBrokerClient = Depends(get_broker),
+    x_user_id: str = Header(default="agent-A", alias="x_user_id"),
 ) -> List[Dict[str, Any]]:
     try:
+        cached = _get_cached_orders(x_user_id, limit)
+        if cached is not None:
+            print(f"   [⚡ Cache HIT] user={x_user_id} | {len(cached)} orders")
+            return cached
+
         all_orders = broker.list_all_orders(limit=limit)
         order_ids = [str(order["id"]) for order in all_orders]
-        # print("Fetching reasonings for order IDs:", order_ids)
 
         reasonings = services.trading_db.get_reasonings_batch(order_ids)
-        print("Fetched reasonings for orders:", reasonings)
-        # Single line enrichment
+        print(
+            f"   [📋 Orders] user={x_user_id} | Fetched {len(all_orders)} orders | {len(reasonings)} with agent reasoning"
+        )
+
         for order in all_orders:
-            order_id = str(order["id"])
-            has_reasoning = (
-                reasonings.get(order_id, {}).get("reasonings", None) is not None
-            )
-            if has_reasoning:
-                order["trading_agent_reasonings"] = reasonings.get(order_id, {}).get(
-                    "reasonings", ""
-                )
+            r = reasonings.get(str(order["id"]), {})
+            if r.get("reasonings") is not None:
+                order["trading_agent_reasonings"] = r.get("reasonings", "")
                 order["is_trading_agent"] = True
-                order["risk_evaluation"] = reasonings.get(order_id, {}).get(
-                    "risk_evaluation", {}
-                )
-                order["risk_adjustments_made"] = reasonings.get(order_id, {}).get(
-                    "risk_adjustments_made", []
-                )
-                order["signal_data"] = reasonings.get(order_id, {}).get("signal_data", None)
-                order["closed_position"] = reasonings.get(order_id, {}).get("closed_position", None)
+                order["risk_evaluation"] = r.get("risk_evaluation", {})
+                order["risk_adjustments_made"] = r.get("risk_adjustments_made", [])
+                order["signal_data"] = r.get("signal_data")
+                order["closed_position"] = r.get("closed_position")
             else:
                 order["trading_agent_reasonings"] = None
                 order["is_trading_agent"] = False
 
+        _set_cached_orders(x_user_id, limit, all_orders)
+        print(f"   [💾 Cache SET] user={x_user_id} | TTL={_CACHE_TTL}s")
         return all_orders
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -307,7 +349,7 @@ def create_stop_limit_order(
 def create_bracket_order(
     body: BracketOrderRequestBody,
     broker: AlpacaBrokerClient = Depends(get_broker),
-    # current_user: User = Depends(get_current_user),  # Add auth if needed
+    x_user_id: str = Header(default="agent-A", alias="x_user_id"),
 ) -> Dict[str, Any]:
     """
     Submit bracket order (market/limit entry + take profit + stop loss).
@@ -334,6 +376,7 @@ def create_bracket_order(
             f"Bracket order submitted: {order_data.get('id')} for {body.symbol}"
         )
 
+        _invalidate_orders_cache(x_user_id)
         return {
             "success": True,
             "order_id": order_data["id"],
@@ -398,6 +441,7 @@ async def cancel_orders(
         result = broker.cancel_orders(
             order_ids=req.order_ids, cancel_all=req.cancel_all
         )
+        _invalidate_orders_cache()
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -510,6 +554,7 @@ async def get_portfolio_history(
         raise HTTPException(status_code=500, detail=result["error"])
 
     return PortfolioHistoryResponse(**result)
+
 
 @router.get("/pnl", response_model=PnLResponse)  # Changed endpoint to /pnl
 async def get_overall_pnl(

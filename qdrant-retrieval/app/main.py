@@ -2,12 +2,12 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 from redis import Redis
+import redis.asyncio as aioredis
 
 from app.core.config import env_config
-from app.core.constant import APIPath
 from app.core.logger import logger
 from app.routers import query_docs, vectorise_docs
-
+from app.services.metrics import MetricsTracker
 
 redis_client = Redis(
     host=env_config.redis_host,
@@ -15,6 +15,15 @@ redis_client = Redis(
     password=env_config.redis_password,
     decode_responses=True,
 )
+
+async_redis = aioredis.Redis(
+    host=env_config.redis_host,
+    port=int(env_config.redis_port),
+    password=env_config.redis_password,
+    decode_responses=True,
+)
+
+metrics = MetricsTracker(async_redis, "vectorisation")
 
 app = FastAPI(
     title="Qdrant Retrieval Service",
@@ -40,7 +49,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     )
 
 
-@app.get(APIPath.HEALTH_CHECK.value, tags=["Health Check"])
+@app.get("/", tags=["Health Check"])
 def health_check():
     try:
         # 1️⃣ Check Redis connection
@@ -64,8 +73,7 @@ def health_check():
 
         # 3️⃣ Extract worker IDs
         active_workers = [
-            key.replace("vectorisation:heartbeat:", "")
-            for key in heartbeat_keys
+            key.replace("vectorisation:heartbeat:", "") for key in heartbeat_keys
         ]
 
         worker_alive = len(active_workers) > 0
@@ -85,6 +93,13 @@ def health_check():
             "redis": False,
             "worker_alive": False,
         }
+
+
+# ================= METRICS =================
+@app.get("/metrics")
+async def get_metrics():
+    return await metrics.get_metrics_all_windows()
+
 
 api_router.include_router(query_docs.router)
 api_router.include_router(vectorise_docs.router)

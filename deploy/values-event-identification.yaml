@@ -1,0 +1,40 @@
+replicaCount: 1
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/event-identification-service
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 5011
+  targetPort: 5011
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 5011
+  failureThreshold: 30
+  periodSeconds: 10
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 5011
+  initialDelaySeconds: 60
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 5011
+  initialDelaySeconds: 30
+
+secretName: event-identification-secrets

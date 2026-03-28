@@ -24,11 +24,6 @@ from app.services._05_sentiment import (
     FALLBACK_REASONING,
     FALLBACK_FACTORS,
 )
-from app.services._05_sentiment_prompts import (
-    build_sentiment_prompt,
-    FEW_SHOT_EXAMPLES,
-    SYSTEM_PROMPT,
-)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

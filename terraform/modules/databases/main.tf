@@ -1,4 +1,8 @@
-# Security Group for RDS
+# =============================================================================
+# Database Module
+# =============================================================================
+
+# Security Group for RDS - only allow from VPC
 resource "aws_security_group" "rds" {
   name        = "${var.cluster_name}-rds-sg"
   description = "Allow inbound traffic from VPC"
@@ -36,18 +40,21 @@ resource "aws_db_subnet_group" "default" {
 
 # RDS Instance
 resource "aws_db_instance" "default" {
-  identifier           = "${var.cluster_name}-db"
-  allocated_storage    = 20
-  storage_type         = "gp2"
-  engine               = "postgres"
-  engine_version       = "16"
-  instance_class       = "db.t3.micro"
-  db_name              = var.db_name
-  username             = var.db_username
-  password             = var.db_password
-  db_subnet_group_name = aws_db_subnet_group.default.name
+  identifier             = "${var.cluster_name}-db"
+  allocated_storage      = 20
+  storage_type           = "gp3"
+  engine                 = "postgres"
+  engine_version         = "16"
+  instance_class         = "db.t4g.micro"
+  db_name                = var.db_name
+  username               = var.db_username
+  password               = var.db_password
+  db_subnet_group_name   = aws_db_subnet_group.default.name
   vpc_security_group_ids = [aws_security_group.rds.id]
-  skip_final_snapshot  = true
+  skip_final_snapshot    = true
+
+  # Enable performance insights for monitoring
+  performance_insights_enabled = false
 
   tags = {
     Environment = var.environment

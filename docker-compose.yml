@@ -16,6 +16,7 @@ services:
       - KONG_PROXY_LISTEN=0.0.0.0:8000
       - KONG_VAULT_CONFIGURATION_RESOLVE=on
       - KONG_VAULT_ENV_PREFIX=KONG_VAR_
+      - KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES=kong.plugins.jwt.jwt_parser
     volumes:
       - ./kong.yml:/usr/local/kong/declarative/kong.yml
     ports:
@@ -26,59 +27,59 @@ services:
 
 include:
   # === News Scraper Microservice ===
-  # - path: ./news-scraper/docker-compose.yml
-  #   env_file: ./news-scraper/.env
-  #   project_directory: ./news-scraper
+  - path: ./news-scraper/docker-compose.yml
+    env_file: ./news-scraper/.env
+    project_directory: ./news-scraper
 
-  # # === Preprocessing Service Microservice ===
-  # - path: ./preprocessing-service/docker-compose.yml
-  #   env_file: ./preprocessing-service/.env
-  #   project_directory: ./preprocessing-service
+  # === Preprocessing Service Microservice ===
+  - path: ./preprocessing-service/docker-compose.yml
+    env_file: ./preprocessing-service/.env
+    project_directory: ./preprocessing-service
 
-  # # === Ticker Identification Service Microservice ===
-  # - path: ./ticker-identification-service/docker-compose.yml
-  #   env_file: ./ticker-identification-service/.env
-  #   project_directory: ./ticker-identification-service
+  # === Ticker Identification Service Microservice ===
+  - path: ./ticker-identification-service/docker-compose.yml
+    env_file: ./ticker-identification-service/.env
+    project_directory: ./ticker-identification-service
 
-  # # === Event Identification Service Microservice ===
-  # - path: ./event-identification-service/docker-compose.yml
-  #   env_file: ./event-identification-service/.env
-  #   project_directory: ./event-identification-service
+  # === Event Identification Service Microservice ===
+  - path: ./event-identification-service/docker-compose.yml
+    env_file: ./event-identification-service/.env
+    project_directory: ./event-identification-service
 
-  # # === Sentiment Analysis Service Microservice ===
-  # - path: ./sentiment-analysis-service/docker-compose.yml
-  #   env_file: ./sentiment-analysis-service/.env
-  #   project_directory: ./sentiment-analysis-service
+  # === Sentiment Analysis Service Microservice ===
+  - path: ./sentiment-analysis-service/docker-compose.yml
+    env_file: ./sentiment-analysis-service/.env
+    project_directory: ./sentiment-analysis-service
 
-  # # === User Info Microservice ===
-  # - path: ./user-info/docker-compose.yml
-  #   env_file: ./user-info/.env
-  #   project_directory: ./user-info
+  # === User Info Microservice ===
+  - path: ./user-info/docker-compose.yml
+    env_file: ./user-info/.env
+    project_directory: ./user-info
 
-  # # === RAG Chatbot Microservice ===
-  # - path: ./rag-chatbot/docker-compose.yml
-  #   env_file: ./rag-chatbot/.env
-  #   project_directory: ./rag-chatbot
+  # === RAG Chatbot Microservice ===
+  - path: ./rag-chatbot/docker-compose.yml
+    env_file: ./rag-chatbot/.env
+    project_directory: ./rag-chatbot
 
-  # # === Trading Agent M Microservice ===
-  # - path: ./trading-agent-m/docker-compose.yml
-  #   env_file: ./trading-agent-m/.env
-  #   project_directory: ./trading-agent-m
+  # === Trading Agent M Microservice ===
+  - path: ./trading-agent-m/docker-compose.yml
+    env_file: ./trading-agent-m/.env
+    project_directory: ./trading-agent-m
 
   # === Trading Service Microservice ===
   - path: ./trading-service/docker-compose.yml
     env_file: ./trading-service/.env
     project_directory: ./trading-service
 
-  # # === Notification Alert Service Microservice ===
-  # - path: ./notification-alert/docker-compose.yml
-  #   env_file: ./notification-alert/.env
-  #   project_directory: ./notification-alert
+  # === Notification Alert Service Microservice ===
+  - path: ./notification-alert/docker-compose.yml
+    env_file: ./notification-alert/.env
+    project_directory: ./notification-alert
 
-  # # === Trading Agent M Microservice ===
-  # - path: ./news-aggregator-service/docker-compose.yml
-  #   env_file: ./news-aggregator-service/.env
-  #   project_directory: ./news-aggregator-service
+  # === Trading Agent M Microservice ===
+  - path: ./news-aggregator-service/docker-compose.yml
+    env_file: ./news-aggregator-service/.env
+    project_directory: ./news-aggregator-service
 
   # === Qdrant Retrieval Microservice ===
   - path: ./qdrant-retrieval/docker-compose.yml

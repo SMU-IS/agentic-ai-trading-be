@@ -1,16 +1,15 @@
 """
 Trading Database API Routes
 """
-from typing import List, Optional, Dict
-from fastapi import APIRouter, Depends, HTTPException, Path
+from typing import List, Optional, Dict, Any
+from fastapi import APIRouter, Depends, HTTPException, Path, Header
 from app.core.trading_db_client import MongoDBClient
 from app.core.services import services
-from app.api.schemas import DeepAnalysis
+from app.api.schemas import DeepAnalysis, UpdateRiskProfileRequest, RiskProfile
 from bson import ObjectId
 
 router = APIRouter()
 
-# mongo_client = MongoDBClient(uri=os.getenv("MONGODB_URI", "mongodb://mongo:27017"), db_name="trading_db")
 mongo_client: MongoDBClient = services.trading_db
 
 @router.post("/orders")
@@ -75,3 +74,56 @@ async def get_signal_by_id(
     if not doc:
         raise HTTPException(status_code=404, detail="Signal not found")
     return DeepAnalysis.model_validate(doc)
+
+##########################
+# Alpaca risk profile
+# Alpaca token specific
+##########################
+@router.get("/trading-risk-profile", response_model=Dict[str, Any])
+async def get_trading_account_risk_profile(
+    x_user_id: str = Header(default="agent-A"),
+    client: MongoDBClient = Depends(lambda: mongo_client)
+) -> Dict[str, Any]:
+    try:
+        result = client.get_trading_account_risk_profile(x_user_id)
+        return result
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/trading-risk-profile", response_model=Dict[str, Any])
+async def update_trading_account_risk_profile(
+    req: UpdateRiskProfileRequest,
+    x_user_id: str = Header(default="agent-A"),
+    client: MongoDBClient = Depends(lambda: mongo_client)
+) -> Dict[str, Any]:
+    try:
+        result = client.update_trading_account_risk_profile(x_user_id, req.risk_profile)
+        return result
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/trading-accounts", response_model=list[dict])
+async def get_all_trading_accounts(
+    client: MongoDBClient = Depends(lambda: mongo_client)
+) -> list[dict]:
+    try:
+        result = client.get_all_trading_accounts()
+        return result
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+@router.get("/trading-accounts/{risk_profile}", response_model=list[dict])
+async def get_trading_accounts_by_risk_profile(
+    risk_profile: RiskProfile = Path(..., description="Risk profile - aggressive / conservative"),
+    client: MongoDBClient = Depends(lambda: mongo_client)
+) -> list[dict]:
+    try:
+        result = client.get_trading_account_by_risk_profile(risk_profile)
+        return result
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+

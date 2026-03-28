@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.core.constant import APIPath
-from app.schemas.raw_news_payload import RedditSourcePayload
+from app.schemas.raw_news_payload import SourcePayload
 from app.services.vectorisation import VectorisationService
 
 router = APIRouter(tags=["Ingest Documents"])
@@ -9,7 +9,7 @@ router = APIRouter(tags=["Ingest Documents"])
 
 @router.post(APIPath.VECTORISE)
 async def vectorise(
-    payload: RedditSourcePayload,
+    payload: SourcePayload,
     service: VectorisationService = Depends(VectorisationService),
 ):
     try:

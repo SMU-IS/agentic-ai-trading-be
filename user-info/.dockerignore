@@ -2,6 +2,7 @@
 .gitignore
 .github
 
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -9,26 +10,29 @@ __pycache__/
 .coverage
 htmlcov/
 .mypy_cache/
-.ruff_cache/
+.ruff_cache
 
-.venv/
-venv/
-env/
-ENV/
+# Go
+coverage.out
+*.log
 
+# IDE & OS
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
+# Storage & DB
 qdrant_storage/
 chroma_db/
 *.db
 *.sqlite3
 
-*.log
-dist/
-build/
-Dockerfile
+# Docker
 docker-compose.yml
+Dockerfile
 README.md
+
+# Env files
+.env
+.env.*
