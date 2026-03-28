@@ -1,13 +1,17 @@
 import asyncio
 import json
 import signal
+import time
 import uuid
 import redis.asyncio as redis
 from app.utils.logger import setup_logging
 from app.core.config import env_config
 from app.services._02_ticker_identification import TickerIdentificationService
+from app.services.metrics import MetricsTracker
 from app.scripts.storage import RedisStreamStorage
 from app.scripts.aws_bucket_access import AWSBucket
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 logger = setup_logging()
 
@@ -19,6 +23,8 @@ TICKER_STREAM_NAME = env_config.redis_ticker_stream
 PREPROC_STREAM_NAME = env_config.redis_preproc_stream
 
 REMOVED_POSTS_COUNTER = "tickeridentification:removed_posts_count"
+DUP_POSTS_COUNTER = "tickeridentification:duplicate_posts_count"
+
 
 CONSUMER_GROUP = "tickeridentification_group"
 CONSUMER_NAME = f"tickeridentification_{uuid.uuid4().hex[:6]}"
@@ -31,17 +37,26 @@ CLEANED_REDIS_KEY = "tickeridentification:cleaned_tickers"
 ALIAS_REDIS_KEY = "tickeridentification:alias_mapping"
 
 PERSIST_INTERVAL = 1800
-TICKER_FLUSH_INTERVAL = 900  
+TICKER_FLUSH_INTERVAL = 900
 
-BATCH_SIZE = 10
-RECOVER_BATCH_SIZE = 100
-MIN_IDLE_MS = 5000
+BATCH_SIZE = 3
+RECOVER_BATCH_SIZE = 10
+MIN_IDLE_MS = 30000
 CLEANUP_INTERVAL = 300
 
-TICKER_LIST_LOCK_KEY="ticker_static_state_write_lock"
-TICKER_LIST_LOCK_TTL=30
+TICKER_LIST_LOCK_KEY = "ticker_static_state_write_lock"
+TICKER_LIST_LOCK_TTL = 30
 
 POST_TIMESTAMP = "post_timestamps"
+
+# ==========================================================
+# RATE LIMITING
+# ==========================================================
+LLM_CONCURRENCY = 3
+_llm_semaphore = asyncio.Semaphore(LLM_CONCURRENCY)
+
+_last_persist_time = 0.0
+PERSIST_DEBOUNCE = 60.0
 
 # ==========================================================
 # INIT
@@ -57,6 +72,7 @@ redis_client = redis.Redis(
 
 preproc_stream = RedisStreamStorage(PREPROC_STREAM_NAME, redis_client)
 ticker_stream = RedisStreamStorage(TICKER_STREAM_NAME, redis_client)
+metrics = MetricsTracker(redis_client, "tickeridentification")
 
 
 # ==========================================================
@@ -114,15 +130,11 @@ async def finalize_message(msg_id: str):
     await preproc_stream.acknowledge(CONSUMER_GROUP, msg_id)
     await preproc_stream.delete(msg_id)
 
+
 # ==========================================================
-# 🔥 PERIODIC TICKER FLUSH (15 MINUTES)
+# PERIODIC TICKER FLUSH (15 MINUTES)
 # ==========================================================
 async def flush_tickers_periodically(ticker_service: TickerIdentificationService):
-    """
-    Flush accumulated tickers to Redis every 15 minutes.
-    This prevents frequent writes under horizontal scaling.
-    """
-
     try:
         while True:
             await asyncio.sleep(TICKER_FLUSH_INTERVAL)
@@ -131,6 +143,7 @@ async def flush_tickers_periodically(ticker_service: TickerIdentificationService
     except asyncio.CancelledError:
         logger.warning("🛑 Ticker flush task stopped")
         raise
+
 
 async def flush_tickers(ticker_service: TickerIdentificationService):
     tickers = await load_all_tickers_from_event_service()
@@ -155,19 +168,25 @@ async def flush_tickers(ticker_service: TickerIdentificationService):
 
     logger.info("✅ Tickers flushed")
 
+
 # ==========================================================
-# 🔥 DISTRIBUTED LOCK FOR STATIC STATE WRITES
+# DISTRIBUTED LOCK FOR STATIC STATE WRITES
 # ==========================================================
 async def persist_if_changed(ticker_service: TickerIdentificationService):
-    """
-    Persist alias + cleaned ticker only when changes occur.
-    Protected by Redis distributed lock for horizontal scaling.
-    """
+    global _last_persist_time
+
     if (
         ticker_service.new_alias_count <= 0
         and ticker_service.new_type_count <= 0
     ):
         return
+
+    now = asyncio.get_event_loop().time()
+    if now - _last_persist_time < PERSIST_DEBOUNCE:
+        return
+
+    _last_persist_time = now
+
     lock = redis_client.lock(
         TICKER_LIST_LOCK_KEY,
         timeout=TICKER_LIST_LOCK_TTL,
@@ -177,11 +196,8 @@ async def persist_if_changed(ticker_service: TickerIdentificationService):
     async with lock:
         logger.info("🔒 Lock acquired — updating alias mapping / cleaned tickers")
 
-        # ================= ALIAS =================
         if ticker_service.new_alias_count > 0:
-            logger.info(
-                f"{ticker_service.new_alias_count} new aliases added"
-            )
+            logger.info(f"{ticker_service.new_alias_count} new aliases added")
 
             alias_json = json.dumps(
                 ticker_service.alias_to_canonical,
@@ -192,11 +208,8 @@ async def persist_if_changed(ticker_service: TickerIdentificationService):
             ticker_service.new_alias_count = 0
             logger.info("✅ Alias mapping updated")
 
-        # ================= CLEANED =================
         if ticker_service.cleaned_tickers and ticker_service.new_type_count > 0:
-            logger.info(
-                f"{ticker_service.new_type_count} new ticker types added"
-            )
+            logger.info(f"{ticker_service.new_type_count} new ticker types added")
 
             cleaned_json = json.dumps(
                 ticker_service.cleaned_tickers,
@@ -232,16 +245,11 @@ async def persist_static_state():
         logger.warning("🛑 Persist task stopped")
         raise
 
-# ==========================================================
-# SYNC WITH EVENT IDENTIFIER 
-# ==========================================================
 
+# ==========================================================
+# SYNC WITH EVENT IDENTIFIER
+# ==========================================================
 async def load_all_tickers_from_event_service():
-    """
-    Load ticker keys from event_service store.
-    This becomes the source of truth.
-    """
-
     tickers = await redis_client.hkeys(
         "eventidentification:all_identified_tickers"
     )
@@ -249,6 +257,7 @@ async def load_all_tickers_from_event_service():
     logger.info(f"📥 Loaded {len(tickers)} tickers from event service")
 
     return set(tickers)
+
 
 # ==========================================================
 # HEARTBEAT
@@ -267,6 +276,10 @@ async def send_heartbeat():
         logger.warning("🛑 Heartbeat stopped")
         raise
 
+# check if scraped news has already been processed before 
+async def is_duplicate(post_id: str) -> bool:
+    dedup_key = f"ticker_dedup:{post_id}"
+    return await redis_client.exists(dedup_key)
 
 # ==========================================================
 # MESSAGE PROCESSING
@@ -283,30 +296,49 @@ def decode_message(data: dict):
     return raw if isinstance(raw, dict) else data
 
 
-async def process_message(msg_id: str, data: dict, ticker_service):
+async def process_message(msg_id: str, data: dict, ticker_service: TickerIdentificationService):
+    start = time.monotonic()
+
     decoded = decode_message(data)
     if not decoded:
+        await redis_client.incr(REMOVED_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
 
-    tickers_post = ticker_service.process_post(decoded)
+    sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+    post_id = decoded.get("id", "").strip('"')
 
-    await asyncio.sleep(1)
-    logger.debug("LLM throttle sleep (1s)")
+    if await is_duplicate(post_id):
+        logger.info(f"⚠️ Duplicate post {post_id} — skipping")
+        await redis_client.incr(DUP_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+    await metrics.record_received()
+
+
+    await redis_client.hset(
+        f"{POST_TIMESTAMP}:{post_id}",
+        "ticker_timestamp_start",
+        sg_now,
+    )
+    print(f"⏱️ Post {post_id}: Timestamped at ticker Stage (Start) → {sg_now}")
+
+    async with _llm_semaphore:
+        tickers_post = await ticker_service.process_post(decoded)
 
     if not tickers_post:
+        await redis_client.incr(REMOVED_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
 
     ticker_metadata = tickers_post.get("ticker_metadata", {})
-    post_id = tickers_post.get("id")
+    post_id = tickers_post.get("id", "").strip('"')
 
     if not ticker_metadata:
         logger.info(f"🗑 Removing post {post_id} as there is no ticker identified.")
         await redis_client.incr(REMOVED_POSTS_COUNTER)
         await finalize_message(msg_id)
-        await redis_client.delete(f"{POST_TIMESTAMP}:{post_id}")
-        logger.info(f"🗑 Removing timestamp for {post_id} as there is no ticker identified.")
         return
 
     try:
@@ -314,10 +346,20 @@ async def process_message(msg_id: str, data: dict, ticker_service):
     except asyncio.CancelledError:
         raise
 
-    await finalize_message(msg_id)
+    sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+    await redis_client.hset(
+        f"{POST_TIMESTAMP}:{post_id}",
+        "ticker_timestamp",
+        sg_now,
+    )
+    print(f"⏱️ Post {post_id}: Timestamped at ticker Stage → {sg_now}")
+
+    latency_ms = (time.monotonic() - start) * 1000
+    await metrics.record_processed(latency_ms)
+
+    await preproc_stream.acknowledge(CONSUMER_GROUP, msg_id)
     logger.info(f"✅ Processed Post {post_id}")
 
-    # 🔥 Persist static state safely with distributed lock
     await persist_if_changed(ticker_service)
 
 
@@ -337,11 +379,14 @@ async def recover_pending_messages(ticker_service):
 
     logger.info(f"⚡ Recovered {len(claimed)} messages")
 
-    for msg_id, data in claimed:
-        try:
-            await process_message(msg_id, data, ticker_service)
-        except Exception as e:
-            logger.error(f"❌ Recovery failed {msg_id}: {e}")
+    tasks = [
+        process_message(msg_id, data, ticker_service)
+        for msg_id, data in claimed
+    ]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            logger.error(f"❌ Recovery failed for message {i}: {result}")
 
 
 # ==========================================================
@@ -383,11 +428,11 @@ async def worker_loop(ticker_service):
     persist_task = asyncio.create_task(persist_static_state())
     ticker_flush_task = asyncio.create_task(
         flush_tickers_periodically(ticker_service)
-    )   
+    )
 
-    logger.info("🔁 Startup recovery...")
-    await recover_pending_messages(ticker_service)
-    await cleanup_dead_consumers()
+    # non-blocking — new messages consumed immediately
+    asyncio.create_task(recover_pending_messages(ticker_service))
+    asyncio.create_task(cleanup_dead_consumers())
 
     try:
         while True:
@@ -401,14 +446,18 @@ async def worker_loop(ticker_service):
                 group_name=CONSUMER_GROUP,
                 consumer_name=CONSUMER_NAME,
                 count=BATCH_SIZE,
-                block_ms=5000,
+                block_ms=1000,
             )
 
-            for msg_id, data in entries:
-                try:
-                    await process_message(msg_id, data, ticker_service)
-                except Exception as e:
-                    logger.error(f"❌ Error processing {msg_id}: {e}")
+            if entries:
+                tasks = [
+                    process_message(msg_id, data, ticker_service)
+                    for msg_id, data in entries
+                ]
+                results = await asyncio.gather(*tasks, return_exceptions=True)
+                for i, result in enumerate(results):
+                    if isinstance(result, Exception):
+                        logger.error(f"❌ Error processing message {i}: {result}")
 
     except asyncio.CancelledError:
         logger.error("🛑 Worker loop cancelled — shutting down cleanly")
@@ -428,7 +477,9 @@ async def worker_loop(ticker_service):
         )
 
 
-# ================= SHUTDOWN =================
+# ==========================================================
+# SHUTDOWN
+# ==========================================================
 def setup_signal_handlers(loop, worker_task):
     async def shutdown():
         logger.info("🛑 Shutdown signal received")
@@ -442,7 +493,6 @@ def setup_signal_handlers(loop, worker_task):
         )
 
 
-
 # ==========================================================
 # MAIN
 # ==========================================================
@@ -451,13 +501,13 @@ async def main():
 
     ticker_service = await init_ticker_service()
 
-    logger.info("💨 Starting Event Identification Service...")
+    logger.info("💨 Starting Ticker Identification Service...")
     logger.info(f"📦 Consuming from: {PREPROC_STREAM_NAME}")
     logger.info(f"📤 Writing to: {TICKER_STREAM_NAME}")
     logger.info(f"👥 Consumer Group: {CONSUMER_GROUP}")
     logger.info(f"👤 Consumer Name: {CONSUMER_NAME}")
     logger.info(f"🔑 Heartbeat Key: {HEARTBEAT_KEY}")
-    logger.info("💨 LLM throttle enabled: 1 call/sec")
+    logger.info(f"⚡ LLM concurrency: {LLM_CONCURRENCY} (semaphore, no sleep)")
 
     worker_task = asyncio.create_task(worker_loop(ticker_service))
 

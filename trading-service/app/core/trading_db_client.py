@@ -2,6 +2,7 @@ import pymongo
 from typing import List, Dict, Any, Optional
 from copy import deepcopy
 from bson import ObjectId
+from app.api.schemas import RiskProfile
 
 class MongoDBClient:
     def __init__(self, uri: str = "mongodb://mongo:27017", db_name: str = "trading_db"):
@@ -9,6 +10,7 @@ class MongoDBClient:
         self.db = self.client[db_name]
         self.orders = self.db.orders
         self.signals = self.db.signals 
+        self.accounts = self.db.accounts
         
     def store_orders_bulk(self, orders: List[Dict[str, Any]]) -> Dict[str, int]:
         """Store multiple orders (synchronous)"""
@@ -40,28 +42,32 @@ class MongoDBClient:
     
     def get_reasonings_batch(self, order_ids: List[str]) -> Dict[str, Dict]:
         """Get reasonings for multiple order_ids {order_id: {reasonings: "..."}}"""
-        docs = self.orders.find({"order_id": {"$in": order_ids}})
-        
+        docs = list(self.orders.find({"order_id": {"$in": order_ids}}))
+
+        # Normalise _id fields and collect all signal_ids in one pass
+        for doc in docs:
+            if '_id' in doc:
+                doc['_id'] = str(doc['_id'])
+
+        signal_ids = list({
+            ObjectId(doc['signal_id'])
+            for doc in docs
+            if 'signal_id' in doc
+        })
+
+        # Single batch query for all signals instead of one per order
+        signal_map: Dict[str, Dict] = {}
+        if signal_ids:
+            for signal_doc in self.signals.find({"_id": {"$in": signal_ids}}):
+                if '_id' in signal_doc:
+                    signal_doc['_id'] = str(signal_doc['_id'])
+                signal_map[signal_doc['_id']] = signal_doc
+
         result = {}
         for doc in docs:
-            order_id = doc['order_id']
-            # Inline ObjectId → str conversion (only _id field)
-            serialized_doc = doc.copy()
-            if '_id' in serialized_doc:
-                serialized_doc['_id'] = str(serialized_doc['_id'])
-            
-            # ✅ Check for signal_id and fetch from signals
-            if 'signal_id' in serialized_doc:
-                signal_id = serialized_doc['signal_id']
-                signal_doc = self.signals.find_one({"_id": ObjectId(signal_id)})
-                if signal_doc:
-                    # Convert ObjectId to string
-                    signal_doc = signal_doc.copy()
-                    if '_id' in signal_doc:
-                        signal_doc['_id'] = str(signal_doc['_id'])
-                    serialized_doc['signal_data'] = signal_doc
-            
-            result[order_id] = serialized_doc
+            if 'signal_id' in doc:
+                doc['signal_data'] = signal_map.get(doc['signal_id'])
+            result[doc['order_id']] = doc
 
         return result
     
@@ -119,3 +125,65 @@ class MongoDBClient:
         except Exception as e:
             print(f"Batch signal lookup error: {e}")
             return {}
+        
+    # User -> alpaca keys
+    def _load_user_account_from_mongo(self, user_id) -> tuple[str, str, str]:
+        doc = self.accounts.find_one({"user_id": user_id})
+        if not doc:
+            raise RuntimeError(f"No Alpaca credentials found for user_id={self.user_id}")
+
+        api_key = doc["alpaca_api_key"]
+        api_secret = doc["alpaca_api_secret"]
+        paper = doc["alpaca_is_paper"]
+        if not api_key or not api_secret:
+            raise RuntimeError(f"Incomplete Alpaca credentials for user_id={self.user_id}")
+
+        return api_key, api_secret, paper
+    
+    # Alpaca token specific
+    def get_trading_account_risk_profile(self, user_id) -> Dict[str, Any]:
+        doc = self.accounts.find_one({"user_id": user_id})
+        if not doc:
+            raise RuntimeError(f"No account found for user_id={user_id}")
+        risk_profile = doc.get("risk_profile")
+        if not risk_profile:
+            raise RuntimeError(f"No risk profile found for user_id={user_id}")
+        
+        return {"risk_profile": risk_profile}
+    
+    def update_trading_account_risk_profile(self, user_id: str, risk_profile: RiskProfile) -> Dict[str, Any]:
+        doc = self.accounts.find_one({"user_id": user_id})
+        if not doc:
+            raise RuntimeError(f"No account found for user_id={user_id}")
+        
+        self.accounts.update_one(
+            {"user_id": user_id},
+            {"$set": {"risk_profile": risk_profile.value}}
+        )
+        
+        return {"user_id": user_id, "risk_profile": risk_profile.value}
+        
+    # For trading-agent to run trades
+    def get_all_trading_accounts(self) -> list[dict]:
+        docs = self.accounts.find()
+        accounts = []
+        for doc in docs:
+            accounts.append({
+                "user_id": doc["user_id"],
+                "alpaca_api_key": doc["alpaca_api_key"],
+                "alpaca_api_secret": doc["alpaca_api_secret"],
+                "alpaca_is_paper": doc["alpaca_is_paper"],
+                "risk_profile": doc.get("risk_profile"),
+            })
+        if not accounts:
+            raise RuntimeError("No trading accounts found")
+        return accounts
+    
+    def get_trading_account_by_risk_profile(self, risk_profile: RiskProfile) -> Dict[str, Any]:
+        docs = self.accounts.find({"risk_profile": risk_profile.value})
+        accounts = []
+        for doc in docs:
+            accounts.append({
+                "user_id": doc["user_id"],
+            })
+        return accounts

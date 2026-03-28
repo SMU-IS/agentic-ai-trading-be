@@ -12,12 +12,12 @@ service:
 
 livenessProbe:
   httpGet:
-    path: /healthcheck
+    path: /
     port: 5007
   initialDelaySeconds: 60
 readinessProbe:
   httpGet:
-    path: /healthcheck
+    path: /
     port: 5007
   initialDelaySeconds: 30
 

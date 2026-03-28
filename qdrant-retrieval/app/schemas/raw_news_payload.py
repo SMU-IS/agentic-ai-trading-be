@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -18,11 +18,19 @@ class Content(BaseModel):
 class Engagement(BaseModel):
     total_comments: int = Field(..., ge=0)
     score: int
-    upvote_ratio: float = Field(..., ge=0, le=1)
+    upvote_ratio: Optional[float] = Field(None, ge=0, le=1)
 
 
-class SubredditMetadata(BaseModel):
-    subreddit: str
+class PostMetadata(BaseModel):
+    # Reddit fields
+    subreddit: Optional[str] = None
+    # TradingView fields
+    ticker: Optional[Union[str, list[str]]] = None
+    symbols: Optional[list[str]] = None
+    source_section: Optional[str] = None
+    preview_image: Optional[list[str]] = None
+    views_count: Optional[int] = None
+    # Common
     category: Optional[str] = None
 
 
@@ -42,7 +50,7 @@ class EventProposal(BaseModel):
     proposed_event_name: str
 
 
-class RedditFields(BaseModel):
+class PostFields(BaseModel):
     id: str
     content_type: str
     native_id: str
@@ -52,12 +60,18 @@ class RedditFields(BaseModel):
     timestamps: datetime
     content: Content
     engagement: Engagement
-    metadata: SubredditMetadata
+    metadata: PostMetadata
     images: list[Any] = []
     links: list[Any] = []
     ticker_metadata: dict[str, TickerDetail]
 
 
-class RedditSourcePayload(BaseModel):
+class SourcePayload(BaseModel):
     id: str
-    fields: RedditFields
+    fields: PostFields
+
+
+# Backwards-compatible aliases
+SubredditMetadata = PostMetadata
+RedditFields = PostFields
+RedditSourcePayload = SourcePayload

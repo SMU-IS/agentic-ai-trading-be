@@ -4,7 +4,6 @@ from typing import Optional
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from app.core.constant import StorageProviders
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ENV_PATH = os.path.join(BASE_DIR, ".env")
@@ -32,6 +31,12 @@ class EnvConfig(BaseSettings):
     # Groq
     groq_api_key: Optional[str] = Field(default=None, validation_alias="GROQ_API_KEY")
     groq_model_name: str = Field(default="llama-3.3-70b-versatile", validation_alias="LARGE_LANGUAGE_MODEL_GROQ")
+
+    # Nomic
+    text_embedding_model: str = Field(
+        default="nomic-embed-text-v1.5", validation_alias="TEXT_EMBEDDING_MODEL"
+    )
+    nomic_api_key: str = Field(..., validation_alias="NOMIC_API_KEY")
 
 env_config = EnvConfig()  # type: ignore
 config = env_config  # Alias for backward compatibility

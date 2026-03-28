@@ -3,7 +3,6 @@ from redis.asyncio import Redis
 from app.core.config import env_config
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
-from app.core.logger import logger
 
 
 class SentimentAggregator:

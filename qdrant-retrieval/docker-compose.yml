@@ -4,6 +4,9 @@ services:
     env_file:
       - .env
     container_name: qdrant-retrieval-container
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     ports:
       - "5009:5009"
     volumes:
@@ -21,12 +24,17 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - SENTIMENT_STREAM=${SENTIMENT_STREAM}
       - AGGREGATOR_STREAM=${AGGREGATOR_STREAM}
+      - NOMIC_API_KEY=${NOMIC_API_KEY}
     command: uvicorn app.main:app --host 0.0.0.0 --port 5009 
     restart: unless-stopped
 
   qdrant-vectorisation-worker:
     build: .
-    container_name: qdrant-vectorisation-worker-container
+    deploy:
+      replicas: 2
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     env_file:
       - .env
     environment:
@@ -42,5 +50,6 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - SENTIMENT_STREAM=${SENTIMENT_STREAM}
       - AGGREGATOR_STREAM=${AGGREGATOR_STREAM}
+      - NOMIC_API_KEY=${NOMIC_API_KEY}
     command: python -m app.services.qdrant_vectorisation_worker
     restart: unless-stopped

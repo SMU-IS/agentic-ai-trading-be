@@ -1,6 +1,4 @@
-import datetime
 from datetime import datetime
-
 from pydantic import BaseModel, Field
 
 
@@ -22,9 +20,7 @@ class ChatHistoryResponse(BaseModel):
 class ThreadResponse(BaseModel):
     thread_id: str = Field(..., description="Unique ID of the thread")
     title: str | None = Field(None, description="Title of the thread")
-    updated_at: datetime = Field(
-        ..., description="Timestamp when thread was last updated"
-    )
+    updated_at: datetime = Field(..., description="Timestamp when thread was last updated")
 
 
 class GeneralNews(BaseModel):
@@ -33,8 +29,8 @@ class GeneralNews(BaseModel):
         description="The specific topic, question, or search string to look for in the news. e.g 'What is the latest news on Apple?'",
     )
     tickers: list[str] = Field(
-        default=[],
-        description="A list of stock tickers (e.g. ['AAPL', 'TSLA']) to get news for",
+        default_factory=list,
+        description="Optional list of stock tickers (e.g. ['AAPL', 'TSLA']) if explicitly mentioned.",
     )
 
 

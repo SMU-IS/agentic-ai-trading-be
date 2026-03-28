@@ -35,7 +35,7 @@ def get_redis_client():
 def check_streams(client):
     """Check the status of all pipeline streams."""
     streams = [
-        ("Reddit Stream (input)", env_config.redis_reddit_stream),
+        ("News Stream (input)", env_config.redis_news_stream),
         ("Preprocessing Stream", env_config.redis_preproc_stream),
         ("Ticker Stream", env_config.redis_ticker_stream),
         ("Event Stream", env_config.redis_event_stream),
@@ -144,7 +144,7 @@ def push_sample_data(client, count=3):
         },
     ]
 
-    stream_key = env_config.redis_reddit_stream
+    stream_key = env_config.redis_news_stream
     print(f"\nPushing {count} sample posts to: {stream_key}")
     print("-" * 40)
 

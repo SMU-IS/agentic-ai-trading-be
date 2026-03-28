@@ -17,7 +17,7 @@ class NewsMetadata(BaseModel):
     tickers_metadata: list[TickerInsight] = Field(default_factory=list)
     timestamp: datetime
     source_domain: str
-    credibility_score: float = Field(..., ge=-1, le=1)
+    credibility_score: float = Field(0.5, ge=-1, le=1)
     headline: str
     text_content: str
     url: str

@@ -1,10 +1,14 @@
 FROM python:3.12-slim
 
-WORKDIR /code
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-COPY ./requirements.txt /code/requirements.txt
-RUN pip3 install --no-cache-dir --upgrade -r /code/requirements.txt
+WORKDIR /app
 
-COPY ./app /code/app
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-cache --python 3.12
 
-CMD ["uvicorn", "app.main:app",  "--host", "0.0.0.0", "--port", "5001"]
+COPY . .
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+CMD ["fastapi", "run", "app/main.py", "--port", "5001", "--host", "0.0.0.0"]

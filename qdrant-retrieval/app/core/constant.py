@@ -2,7 +2,6 @@ from enum import Enum
 
 
 class APIPath(str, Enum):
-    HEALTH_CHECK = "/healthcheck"
     VECTORISE = "/vectorise"
     NEWS = "/news"
     QUERY = "/query"
@@ -12,3 +11,4 @@ class APIPath(str, Enum):
 class StorageProviders(str, Enum):
     QDRANT_OLLAMA = "qdrant_ollama"
     QDRANT_GEMINI = "qdrant_gemini"
+    QDRANT_NOMIC = "qdrant_nomic"

@@ -4,8 +4,9 @@ from app.services.query_qdrant import QueryQdrantService
 
 @pytest.fixture
 def mock_qdrant_strategy():
-    with patch("app.services.query_qdrant.QdrantGeminiStrategy") as mock:
-        strategy_instance = mock.return_value
+    with patch("app.services.query_qdrant.get_vector_strategy") as mock:
+        strategy_instance = MagicMock()
+        mock.return_value = strategy_instance
         vector_store = MagicMock()
         strategy_instance.get_vector_store.return_value = vector_store
         yield strategy_instance

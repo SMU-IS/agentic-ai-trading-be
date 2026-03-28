@@ -25,7 +25,8 @@ class TradingWorkflow:
 
         reasoning_with_llm = partial(node_decide_trade, self.llm)
         node_trade_logging_with_redis = partial(node_trade_logging, self.redis_service)
-        
+
+
         # 1. Nodes
         graph.add_node("lookup_context", node_fetch_signal_data)
         graph.add_node("fetch_market_data", node_fetch_market_data)
@@ -53,8 +54,7 @@ class TradingWorkflow:
             {True: "execute", False: "trade_logging"},
         )
 
-        graph.add_edge("trade_logging", END)
-
+        graph.add_edge("trade_logging",       END)
         return graph.compile()
 
     # ###### Edge Logic ######

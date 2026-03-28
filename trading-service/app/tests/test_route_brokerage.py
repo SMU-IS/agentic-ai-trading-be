@@ -1,9 +1,8 @@
-import pytest
 from unittest.mock import MagicMock, patch
-from typing import List, Dict, Any
-from fastapi.testclient import TestClient
+
+import pytest
 from fastapi import status
-from datetime import datetime
+from fastapi.testclient import TestClient
 
 from app.api.routes.brokerage import router  # Adjust path if needed
 
@@ -11,6 +10,7 @@ from app.api.routes.brokerage import router  # Adjust path if needed
 @pytest.fixture
 def client() -> TestClient:
     from fastapi import FastAPI
+
     app = FastAPI()
     app.include_router(router)
     return TestClient(app)
@@ -20,7 +20,7 @@ def client() -> TestClient:
 def mock_services_brokerage():
     """Mock services.brokerage with proper return types."""
     mock_broker = MagicMock()
-    with patch('app.core.services.services.brokerage', mock_broker):
+    with patch("app.core.services.services.brokerage", mock_broker):
         yield mock_broker
 
 
@@ -33,19 +33,19 @@ def mock_services_trading_db():
             "reasonings": "Test reasoning",
             "risk_evaluation": {"max_loss": 0.05},
             "risk_adjustments_made": ["reduced_qty"],
-            "signal_data": {"confidence": 0.85}
+            "signal_data": {"confidence": 0.85},
         }
     }
-    with patch('app.core.services.services.trading_db', mock_db):
+    with patch("app.core.services.services.trading_db", mock_db):
         yield mock_db
 
 
 class TestHealthAndDebug:
     def test_healthcheck(self, client: TestClient):
-        response = client.get("/healthcheck")
+        response = client.get("/")
         assert response.status_code == 200
         assert response.json() == {"status": "Alpacca service is healthy"}
-    
+
     def test_debug_feed_sip_feed(self, client: TestClient, mock_services_brokerage):
         mock_services_brokerage.get_latest_quote.return_value = {
             "exchange": "Q",
@@ -80,7 +80,7 @@ class TestAccountAndPositions:
             "equity": "100000.00",
             "cash": "50000.00",
             "buying_power": "200000.00",
-            "trading_blocked": False
+            "trading_blocked": False,
         }
         response = client.get("/account")
         assert response.status_code == 200
@@ -95,7 +95,7 @@ class TestAccountAndPositions:
         mock_services_brokerage.get_position.return_value = {
             "symbol": "AAPL",
             "qty": 100,
-            "avg_entry_price": 150.0
+            "avg_entry_price": 150.0,
         }
         response = client.get("/positions/AAPL")
         assert response.status_code == 200
@@ -108,21 +108,25 @@ class TestOrdersListAndGet:
         response = client.get("/orders")
         assert response.status_code == 200
 
-    def test_get_order(self, client: TestClient, mock_services_brokerage, mock_services_trading_db):
+    def test_get_order(
+        self, client: TestClient, mock_services_brokerage, mock_services_trading_db
+    ):
         # Mock returns DICT with expected structure
         mock_order = {
             "id": "order123",
             "symbol": "AAPL",
             "side": "buy",
             "qty": 10,
-            "status": "filled"
+            "status": "filled",
         }
         mock_services_brokerage.get_order.return_value = mock_order
         response = client.get("/orders/order123")
         assert response.status_code == 200
         assert response.json()["trading_agent_reasonings"] == "Test reasoning"
-    
-    def test_list_all_orders_with_reasonings(self, client: TestClient, mock_services_brokerage, mock_services_trading_db):
+
+    def test_list_all_orders_with_reasonings(
+        self, client: TestClient, mock_services_brokerage, mock_services_trading_db
+    ):
         mock_orders = [
             {"id": 1, "symbol": "AAPL", "side": "buy", "qty": 10, "status": "filled"},
             {"id": 2, "symbol": "GOOGL", "side": "sell", "qty": 5, "status": "filled"},
@@ -163,7 +167,7 @@ class TestOrderCreation:
     def test_create_market_order(self, client: TestClient, mock_services_brokerage):
         mock_services_brokerage.submit_market_order.return_value = {
             "id": "market123",
-            "status": "accepted"
+            "status": "accepted",
         }
         body = {"symbol": "AAPL", "side": "buy", "qty": 10, "time_in_force": "day"}
         response = client.post("/orders/market", json=body)
@@ -173,7 +177,7 @@ class TestOrderCreation:
         # Mock returns expected bracket structure
         mock_services_brokerage.submit_bracket_order.return_value = {
             "id": "bracket123",
-            "status": "accepted"
+            "status": "accepted",
         }
         body = {
             "symbol": "AAPL",
@@ -183,12 +187,12 @@ class TestOrderCreation:
             "entry_price": 150.0,
             "take_profit_price": 160.0,
             "stop_loss_price": 145.0,
-            "time_in_force": "day"
+            "time_in_force": "day",
         }
         response = client.post("/orders/bracket", json=body)
         assert response.status_code == 201
         assert response.json()["success"] is True
-        
+
     def test_create_limit_order(self, client: TestClient, mock_services_brokerage):
         mock_services_brokerage.submit_limit_order.return_value = {
             "id": "limit123",
@@ -233,7 +237,7 @@ class TestOrderCreation:
         assert response.status_code == 201
         assert response.json()["id"] == "stop123"
         assert response.json()["stop_price"] == 160.0
-    
+
     def test_create_stop_limit_order(self, client: TestClient, mock_services_brokerage):
         mock_services_brokerage.submit_stop_limit_order.return_value = {
             "id": "stop_limit123",
@@ -258,8 +262,10 @@ class TestOrderCreation:
         assert response.json()["id"] == "stop_limit123"
         assert response.json()["stop_price"] == 160.0
         assert response.json()["limit_price"] == 159.5
-    
-    def test_create_bracket_order_success(self, client: TestClient, mock_services_brokerage):
+
+    def test_create_bracket_order_success(
+        self, client: TestClient, mock_services_brokerage
+    ):
         # Mock the broker.return to match what submit_bracket_order actually returns
         mock_order = {
             "id": "bracket123",
@@ -287,6 +293,7 @@ class TestOrderCreation:
         assert data["status"] == "accepted"
         assert data["order"]["id"] == "bracket123"
 
+
 class TestPositionManagement:
     def test_close_position(self, client: TestClient, mock_services_brokerage):
         mock_services_brokerage.close_position.return_value = {"order_id": "close123"}
@@ -299,7 +306,7 @@ class TestPositionManagement:
         body = {"cancel_orders": True}
         response = client.post("/positions/close_all", json=body)
         assert response.status_code == 200
-    
+
     def test_cancel_orders_by_ids(self, client: TestClient, mock_services_brokerage):
         mock_services_brokerage.cancel_orders.return_value = {
             "cancelled": ["order1", "order2"],
@@ -319,7 +326,8 @@ class TestPositionManagement:
         response = client.request("DELETE", "/orders/cancel", json=body)
         assert response.status_code == 200
         assert response.json()["cancelled"] == "all"
-        
+
+
 class TestMarketDataEndpoints:
     def test_get_latest_trade(self, client: TestClient, mock_services_brokerage):
         # FIX: Match exact LatestTradeResponse schema
@@ -331,7 +339,7 @@ class TestMarketDataEndpoints:
             "conditions": ["L"],
             "timestamp": "2026-03-06T02:47:00Z",
             "id": "trade123",
-            "tape": "Q"
+            "tape": "Q",
         }
         mock_services_brokerage.get_latest_trade.return_value = mock_trade
         response = client.get("/latest_trade/AAPL")
@@ -347,7 +355,7 @@ class TestMarketDataEndpoints:
             "ask_size": 150,
             "timestamp": "2026-03-06T02:47:00Z",
             "conditions": ["R"],
-            "tape": "Q"
+            "tape": "Q",
         }
         mock_services_brokerage.get_latest_quote.return_value = mock_quote
         response = client.get("/latest_quote/AAPL")
@@ -358,7 +366,7 @@ class TestConvenienceEndpoints:
     def test_equity_cash(self, client: TestClient, mock_services_brokerage):
         mock_services_brokerage.get_equity_and_cash.return_value = {
             "equity": 100000.0,
-            "cash": 50000.0
+            "cash": 50000.0,
         }
         response = client.get("/account/equity_cash")
         assert response.status_code == 200
@@ -368,8 +376,11 @@ class TestConvenienceEndpoints:
         response = client.get("/account/trading_blocked")
         assert response.status_code == 200
 
+
 class TestConflicts:
-    def test_check_conflicts_no_conflicts(self, client: TestClient, mock_services_brokerage):
+    def test_check_conflicts_no_conflicts(
+        self, client: TestClient, mock_services_brokerage
+    ):
         mock_services_brokerage.check_conflicting_positions.return_value = {
             "symbol": "AAPL",
             "intended_side": "buy",
@@ -388,8 +399,10 @@ class TestConflicts:
         assert response.status_code == 200
         assert response.json()["symbol"] == "AAPL"
         assert response.json()["has_conflicts"] is False
-        
-    def test_check_conflicts_with_conflicts(self, client: TestClient, mock_services_brokerage):
+
+    def test_check_conflicts_with_conflicts(
+        self, client: TestClient, mock_services_brokerage
+    ):
         mock_services_brokerage.check_conflicting_positions.return_value = {
             "symbol": "AAPL",
             "intended_side": "buy",
@@ -408,8 +421,10 @@ class TestConflicts:
         assert response.status_code == 200
         assert response.json()["has_conflicts"] is True
         assert "close_position" in response.json()["actions"]
-        
-    def test_resolve_conflicts_no_auto_resolve(self, client: TestClient, mock_services_brokerage):
+
+    def test_resolve_conflicts_no_auto_resolve(
+        self, client: TestClient, mock_services_brokerage
+    ):
         mock_services_brokerage.resolve_conflicts.return_value = {
             "symbol": "AAPL",
             "intended_side": "buy",
@@ -432,8 +447,9 @@ class TestConflicts:
         assert response.json()["auto_resolve"] is False
         assert response.json()["resolved"] is False
 
-
-    def test_resolve_conflicts_with_auto_resolve(self, client: TestClient, mock_services_brokerage):
+    def test_resolve_conflicts_with_auto_resolve(
+        self, client: TestClient, mock_services_brokerage
+    ):
         mock_services_brokerage.resolve_conflicts.return_value = {
             "symbol": "AAPL",
             "intended_side": "buy",
@@ -456,8 +472,11 @@ class TestConflicts:
         assert response.json()["resolved"] is True
         assert "close_position" in response.json()["actions"]
 
+
 class TestPortfolioHistory:
-    def test_get_portfolio_history_success(self, client: TestClient, mock_services_brokerage):
+    def test_get_portfolio_history_success(
+        self, client: TestClient, mock_services_brokerage
+    ):
         # Mock PortfolioHistoryResponse-compatible data
         mock_data = {
             "historical": [
@@ -476,7 +495,9 @@ class TestPortfolioHistory:
         assert data["historical"][0]["date"] == "2025-05-01T00:00:00.000Z"
         assert data["historical"][0]["value"] == 30.52
 
-    def test_get_portfolio_history_error(self, client: TestClient, mock_services_brokerage):
+    def test_get_portfolio_history_error(
+        self, client: TestClient, mock_services_brokerage
+    ):
         mock_services_brokerage.get_portfolio_history.return_value = {
             "error": "Failed to fetch portfolio history"
         }
@@ -484,4 +505,3 @@ class TestPortfolioHistory:
         response = client.get("/portfolio_history")
         assert response.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
         assert "Failed to fetch portfolio history" in response.json()["detail"]
-    
