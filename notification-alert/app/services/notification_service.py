@@ -1,3 +1,4 @@
+from app.services.ws_manager import ws_manager
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import List
 import json
@@ -6,37 +7,38 @@ import asyncio
 router = APIRouter()
 connections: List[WebSocket] = [] 
 
-async def notify_users(payload: dict):
-   
-    if not connections:
-        return False
-    
-    message = json.dumps(payload)
-    delivered = False
-    to_remove = []
-    for ws in connections:
-        try:
-            await ws.send_text(message)
-            delivered = True
-        except Exception:
-            to_remove.append(ws)
-
-    for ws in to_remove:
-        connections.remove(ws)
-
-    return delivered
+async def notify_users(payload: dict, user_id: str | None = None):
+    if user_id:
+        return await ws_manager.send_to_user(user_id, payload)
+    else:
+        await ws_manager.broadcast(payload)
+        return True
 
 @router.websocket("/ws/notifications")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    connections.append(websocket)
+    user_id = None  
+
     try:
+        user_id = websocket.query_params.get("user_id")
+
+        if not user_id:
+            data = await websocket.receive_json()
+            user_id = data.get("user_id")
+
+        await ws_manager.connect(websocket, user_id)
+        print(f"User {user_id} connected")
+
         while True:
-            await websocket.receive_text() 
+            await websocket.receive_text()
+
     except WebSocketDisconnect:
-        connections.remove(websocket)
+        if user_id:
+            ws_manager.disconnect(websocket, user_id)
+            print(f"User {user_id} disconnected")
+
     except asyncio.CancelledError:
         print("WebSocket shutting down gracefully")
-        if websocket in connections:
-            connections.remove(websocket)
+        if user_id:
+            ws_manager.disconnect(websocket, user_id)
         raise

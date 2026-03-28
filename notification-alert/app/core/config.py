@@ -21,6 +21,7 @@ class EnvConfig(BaseSettings):
     redis_trade_stream: str = Field(..., validation_alias="REDIS_TRADE_STREAM")
     redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
     base_api: str = Field(..., validation_alias="BASE_API")
+    jwt_token: str = Field(..., validation_alias="JWT_TOKEN")
 
 env_config = EnvConfig()
 config = env_config 
