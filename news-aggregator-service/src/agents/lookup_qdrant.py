@@ -19,6 +19,7 @@ async def get_qdrant_data(ticker: str, event: str) -> Dict[str, Any]:
     """Fetch Qdrant vector search results for ticker + event"""
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
+            print(TICKER_EVENTS_QDRANT_URL)
             response = await client.get(
                 TICKER_EVENTS_QDRANT_URL,
                 params={"ticker": ticker.lower(), "event_type": event, "limit": 10},
