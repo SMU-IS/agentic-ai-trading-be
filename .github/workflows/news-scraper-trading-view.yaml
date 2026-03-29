@@ -4,18 +4,18 @@ on:
   workflow_dispatch:
   push:
     branches: ["master"]
-    paths: ["news-scraping-tradingview/**"]
+    paths: ["news-scraper-tradingview/**"]
   pull_request:
     branches: ["master"]
-    paths: ["news-scraping-tradingview/**"]
+    paths: ["news-scraper-tradingview/**"]
 
 jobs:
   rag-bot-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
     with:
-      working-directory: "news-scraping-tradingview"
+      working-directory: "news-scraper-tradingview"
       cluster-name: "agentic-m-cluster"
-      image-name: "news-scraping-tradingview"
+      image-name: "news-scraper-tradingview"
       values-file: "deploy/values-trading-view.yaml"
       ingress-path: "deploy/ingress.yaml"
       secret-key: "NEWS_SCRAPER_TRADING_VIEW_SECRETS"
