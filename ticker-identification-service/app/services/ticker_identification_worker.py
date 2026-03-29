@@ -178,7 +178,7 @@ async def persist_if_changed(ticker_service: TickerIdentificationService):
     ):
         return
 
-    now = asyncio.get_event_loop().time()
+    now = asyncio.get_running_loop().time()
     if now - _last_persist_time < PERSIST_DEBOUNCE:
         return
 
@@ -346,7 +346,7 @@ async def process_message(msg_id: str, data: dict, ticker_service: TickerIdentif
     )
     print(f"⏱️ Post {post_id}: Timestamped at ticker Stage → {sg_now}")
 
-    await preproc_stream.acknowledge(CONSUMER_GROUP, msg_id)
+    await finalize_message(msg_id)
     logger.info(f"✅ Processed Post {post_id}")
 
     await persist_if_changed(ticker_service)
