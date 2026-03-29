@@ -422,6 +422,10 @@ class ProfileParams:
     sl_atr_mult:        float
     tp_atr_mult:        float
 
+    # SL/TP hard % caps relative to entry price (e.g. 0.05 = 5%)
+    max_sl_pct:         float
+    max_tp_pct:         float
+
     # Position sizing
     max_risk_pct:       float   # fraction of account, e.g. 0.005
     max_position_pct:   float   # fraction of account, e.g. 0.02

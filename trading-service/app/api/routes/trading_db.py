@@ -22,6 +22,20 @@ def get_orders(symbol: Optional[str] = None, limit: int = 50,
                client: MongoDBClient = Depends(lambda: mongo_client)):
     return client.get_orders(symbol, limit)
 
+@router.get("/notification/order/{order_id}", response_model=Dict)
+def get_orders_notification_by_orderid(order_id: str, client: MongoDBClient = Depends(lambda: mongo_client)):
+    result = client.get_orders_notification_by_orderid(order_id)
+    if not result:
+        raise HTTPException(status_code=404, detail=f"No order found for order_id={order_id}")
+    return result
+
+@router.get("/notification/user/{user_id}", response_model=List[Dict])
+def get_orders_notification_by_user(user_id: str, client: MongoDBClient = Depends(lambda: mongo_client)):
+    orders = client.get_orders_notification_by_user(user_id)
+    if not orders:
+        raise HTTPException(status_code=404, detail=f"No orders found for user={user_id}")
+    return orders
+
 @router.get("/orders/{order_id}")
 def get_order_by_id(order_id: str, client: MongoDBClient = Depends(lambda: mongo_client)):
     order = client.get_order_by_id(order_id)
@@ -127,3 +141,6 @@ async def get_trading_accounts_by_risk_profile(
     except RuntimeError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+###################
+# Notification FE
+###################

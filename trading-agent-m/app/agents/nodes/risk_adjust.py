@@ -12,12 +12,14 @@ BROKER_URL = env_config.trading_service_url
 PROFILE_PARAMS: dict[RiskProfile, ProfileParams] = {
     RiskProfile.CONSERVATIVE: ProfileParams(
         penny_block       = True,
-        min_confidence    = 0.80,
+        min_confidence    = 0.75,
         max_entry_dev_pct = 0.01,
-        min_rr            = 2.0,
+        min_rr            = 1.0,
         min_vol_ratio     = 0.8,
         sl_atr_mult       = 1.0,
-        tp_atr_mult       = 2.0,
+        tp_atr_mult       = 1.5,
+        max_sl_pct        = 0.03,   # SL max 3% from entry
+        max_tp_pct        = 0.06,   # TP max 6% from entry
         max_risk_pct      = 0.005,
         max_position_pct  = 0.02,
         low_vol_qty_mult  = 0.5,
@@ -29,7 +31,9 @@ PROFILE_PARAMS: dict[RiskProfile, ProfileParams] = {
         min_rr            = 1.5,
         min_vol_ratio     = 0.0,
         sl_atr_mult       = 1.5,
-        tp_atr_mult       = 3.0,
+        tp_atr_mult       = 2.0,
+        max_sl_pct        = 0.08,   # SL max 8% from entry
+        max_tp_pct        = 0.15,   # TP max 15% from entry
         max_risk_pct      = 0.015,
         max_position_pct  = 0.05,
         low_vol_qty_mult  = 1.0,
@@ -425,7 +429,7 @@ def risk_evaluation_metrics(
 
     # ── ADJUSTMENT 2: STOP LOSS, TAKE PROFIT ──────────────────────────────────
     correct_sl, correct_tp, level_method = _calculate_sl_tp(
-        entry, trade.action, yahoo_data, profile
+        entry, trade.action, yahoo_data, profile, p
     )
     issues.append({
     "field":      "sl_tp_method",
@@ -442,18 +446,11 @@ def risk_evaluation_metrics(
 
     # ── GATE 3: R:R ──────────────────────────────────────────────
     if actual_rr < p.min_rr:
-        if profile == RiskProfile.CONSERVATIVE:
-            blocks.append(
-                f"[CONSERVATIVE] R:R {actual_rr:.2f} below minimum {p.min_rr}. "
-                "Widen TP or tighten SL."
-            )
-            # return _blocked_assessment(adjusted, blocks, issues) # Block as risk reward ratio is below minimum of 2
-        else:
-            issues.append({
-                "field":      "risk_reward",
-                "reason":     f"R:R {actual_rr:.2f} below aggressive minimum {p.min_rr}.",
-                "adjustment": "Proceeding — aggressive profile allows lower R:R.",
-            })
+        issues.append({
+            "field":      "risk_reward",
+            "reason":     f"[{profile.value.upper()}] R:R {actual_rr:.2f} below minimum {p.min_rr}.",
+            "adjustment": "Proceeding with reduced position confidence.",
+        })
 
     # ── POSITION SIZING ──────────────────────────────────────────
     max_risk_dollars    = account_bp * p.max_risk_pct
@@ -535,7 +532,7 @@ def risk_evaluation_metrics(
         max_risk_5pct   = f"${max_risk_dollars:.0f}",
     )
 
-    status = "APPROVED" if score >= 0.85 and not blocks else "REVIEW"
+    status = "APPROVED" if score >= 0.75 and not blocks else "REVIEW"
 
     return RiskAssessment(
         risk_status   = status,
@@ -578,11 +575,13 @@ def _calculate_sl_tp(
     action:     TradeAction,
     yahoo:      YahooTechnicalData,
     profile:    RiskProfile,
+    p:          ProfileParams = None,
 ) -> tuple[float, float, str]:
     """
     Returns (stop_loss, take_profit, method_used).
     Priority: structural levels > band edges > SMA > 3D range.
-    ATR is used only as a minimum buffer guard, not as the primary source.
+    ATR multipliers (sl_atr_mult / tp_atr_mult) from ProfileParams act as
+    hard caps — structural levels are clamped if they exceed the limit.
     """
     is_sell = action == TradeAction.SELL
     atr     = _atr_guard(yahoo.atr14, yahoo.current_price)
@@ -669,6 +668,32 @@ def _calculate_sl_tp(
         mult = 2.0 if profile == RiskProfile.CONSERVATIVE else 3.0
         take_profit = entry - atr * mult if is_sell else entry + atr * mult
         tp_method   = f"ATR fallback ({mult}×)"
+
+    # ── ENFORCE SL/TP CAPS — tightest of ATR or % from entry ─────
+    if p is not None:
+        sl_cap_atr = entry + atr * p.sl_atr_mult if is_sell else entry - atr * p.sl_atr_mult
+        sl_cap_pct = entry * (1 + p.max_sl_pct)  if is_sell else entry * (1 - p.max_sl_pct)
+        tp_cap_atr = entry - atr * p.tp_atr_mult if is_sell else entry + atr * p.tp_atr_mult
+        tp_cap_pct = entry * (1 - p.max_tp_pct)  if is_sell else entry * (1 + p.max_tp_pct)
+
+        # Tightest SL = closest to entry (smallest loss if stopped out)
+        sl_cap = min(sl_cap_atr, sl_cap_pct) if is_sell else max(sl_cap_atr, sl_cap_pct)
+        # Tightest TP = closest to entry (earliest exit)
+        tp_cap = max(tp_cap_atr, tp_cap_pct) if is_sell else min(tp_cap_atr, tp_cap_pct)
+
+        if is_sell and stop_loss > sl_cap:
+            stop_loss = sl_cap
+            sl_method += f" [capped: ATR={p.sl_atr_mult}x / {p.max_sl_pct:.0%}]"
+        elif not is_sell and stop_loss < sl_cap:
+            stop_loss = sl_cap
+            sl_method += f" [capped: ATR={p.sl_atr_mult}x / {p.max_sl_pct:.0%}]"
+
+        if is_sell and take_profit < tp_cap:
+            take_profit = tp_cap
+            tp_method += f" [capped: ATR={p.tp_atr_mult}x / {p.max_tp_pct:.0%}]"
+        elif not is_sell and take_profit > tp_cap:
+            take_profit = tp_cap
+            tp_method += f" [capped: ATR={p.tp_atr_mult}x / {p.max_tp_pct:.0%}]"
 
     method = f"SL: {sl_method} | TP: {tp_method}"
     return round(stop_loss, 4), round(take_profit, 4), method
