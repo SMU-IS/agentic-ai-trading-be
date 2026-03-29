@@ -9,7 +9,7 @@ from app.core.config import env_config
 from app.scripts.storage import RedisStreamStorage
 from app.schemas.raw_news_payload import SourcePayload
 from app.services.vectorisation import VectorisationService
-# from app.scripts.postgres import save_post, mark_vectorised, close_pool, init_db
+from app.scripts.postgres import save_post, mark_vectorised, close_pool, init_db
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -170,11 +170,12 @@ async def process_message(msg_id: str, data: dict):
     )
 
     # 1. save to postgres before vectorising — always recorded regardless of outcome
-    # try:
-    #     await save_post(decoded, vectorised=False)
-    # except Exception as e:
-    #     logger.error(f"❌ Postgres save failed for {post_id}: {e}")
-        # non-fatal — continue to vectorise even if postgres fails
+    try:
+        await save_post(decoded, vectorised=False)
+    except Exception as e:
+        logger.error(f"❌ Postgres save failed for {post_id}: {e}")
+    logger.info(f"✅ {post_id}: Saved to Postgres")
+
 
     # 2. vectorise
     result = await vectorise(payload)
@@ -184,11 +185,11 @@ async def process_message(msg_id: str, data: dict):
         return
 
     # 3. mark as vectorised in postgres
-    # try:
-    #     await mark_vectorised(post_id)
-    # except Exception as e:
-    #     logger.error(f"❌ Postgres update failed for {post_id}: {e}")
-        # non-fatal — qdrant write succeeded, don't drop the post
+    try:
+        await mark_vectorised(post_id)
+    except Exception as e:
+        logger.error(f"❌ Postgres update failed for {post_id}: {e}")
+    logger.info(f"✅ {post_id}: Marked as vectorised")
 
     # 4. save to aggregator stream and finalize
     try:
