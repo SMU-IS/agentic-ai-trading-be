@@ -55,7 +55,8 @@ variable "services" {
     "sentiment-analysis-service",
     "trading-agent-m",
     "trading-service",
-    "user-info"
+    "user-info",
+    "news-scraper-tradingview"
   ]
 }
 

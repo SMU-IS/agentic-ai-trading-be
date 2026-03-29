@@ -1,0 +1,34 @@
+replicaCount: 1
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/news-scraper-tradingview
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 50013
+  targetPort: 50013
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 50013
+  failureThreshold: 30
+  periodSeconds: 10
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 50013
+  initialDelaySeconds: 10
+  periodSeconds: 20
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 50013
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+secretName: news-scraper-trading-view-secrets
