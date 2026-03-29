@@ -8,7 +8,6 @@ from langchain_groq import ChatGroq
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from difflib import SequenceMatcher
 from app.core.logger import logger
 
 LLM_MAX_RETRIES = 3
@@ -27,7 +26,6 @@ class EventIdentifierService:
         event_list: dict,
         model_name: str = env_config.groq_model_name,
         groq_api_key: str = env_config.groq_api_key,
-        similarity_threshold: float = 0.7,
         testflag: bool = False
     ):
         self.model_name = model_name
@@ -35,10 +33,8 @@ class EventIdentifierService:
         self.event_list = event_list
         self.event_list_simple = {k: v["event_category"] for k, v in self.event_list.items()}
         self.neweventcount: int = 0
-        self.similarity_threshold = similarity_threshold
         self.testflag = testflag
         self.event_category_map = {}
-        self.known_events_str = "\n".join([f"- {k}: {v}" for k, v in self.event_list_simple.items()])
 
         for event_name, data in self.event_list.items():
             self.event_category_map.setdefault("EXTERNAL_EVENT", []).append(event_name)
@@ -58,13 +54,6 @@ class EventIdentifierService:
             self.llm = None
             self.parser = None
 
-    def is_similar(self, event_name_1: str, event_name_2: str, threshold: float = None) -> bool:
-        if threshold is None:
-            threshold = self.similarity_threshold
-        ratio = SequenceMatcher(None, event_name_1, event_name_2).ratio()
-        logger.info(f"Similarity between {event_name_1} and {event_name_2}: {ratio}")
-        return ratio >= threshold
-
     # ==========================================================
     # LLM CALL 1 — propose new events (async + retry)
     # ==========================================================
@@ -72,11 +61,16 @@ class EventIdentifierService:
         self,
         text: str,
         unmatched_tickers: dict,
+        existing_events_str: str = "",
     ) -> dict:
         if not unmatched_tickers or not self.llm:
             return {}
 
         unmatched_json = json.dumps(unmatched_tickers, indent=2)
+        existing_events_section = (
+            f"Existing events in this category (DO NOT propose events already covered by these):\n{existing_events_str}\n\n"
+            if existing_events_str else ""
+        )
         format_instructions = (
             "For each ticker below:\n"
             "- Only propose a NEW event within its provided primary_event_category.\n"
@@ -102,7 +96,6 @@ class EventIdentifierService:
             "- An event must refer to a specific, identifiable occurrence.\n"
             "- Do NOT classify broad industry trends, long-term cycles, or thematic narratives as events.\n"
             "- primary_event_category must EXACTLY match the input category.\n"
-            "- Use valid JSON with double quotes only.\n"
             "- No extra commentary.\n"
         )
 
@@ -111,6 +104,7 @@ class EventIdentifierService:
                 "You are reviewing financial text that contains events "
                 "not currently represented in the taxonomy.\n\n"
                 "Full Post:\n{text}\n\n"
+                "{existing_events}"
                 "Unmatched Tickers (with fixed primary categories):\n"
                 "{unmatched}\n\n"
                 "{format_instructions}\n"
@@ -118,6 +112,7 @@ class EventIdentifierService:
             ),
             input_variables=["text"],
             partial_variables={
+                "existing_events": existing_events_section,
                 "unmatched": unmatched_json,
                 "format_instructions": format_instructions,
             },
@@ -162,7 +157,7 @@ class EventIdentifierService:
             # all provided tickers are already confirmed primary
             format_instructions = (
                 "You are a financial event classification system.\n\n"
-                "Return a valid JSON object with EXACTLY one fields:\n\n"
+                "Return a valid JSON object with EXACTLY one field:\n\n"
                 "1. \"tickers\": JSON object keyed ONLY by the provided tickers.\n"
                 "   For EACH ticker return:\n"
                 "   - primary_event_category: ONE of:\n"
@@ -304,7 +299,13 @@ class EventIdentifierService:
                                 unmatched[ticker] = {"primary_event_category": data.get("primary_event_category")}
 
                 if unmatched:
-                    proposals = await self._propose_new_events_with_llm(text, unmatched)
+                    unmatched_categories = {d["primary_event_category"] for d in unmatched.values()}
+                    filtered_events_str = "\n".join(
+                        f"- {name}"
+                        for name, meta in self.event_list.items()
+                        if meta.get("event_category") in unmatched_categories
+                    )
+                    proposals = await self._propose_new_events_with_llm(text, unmatched, filtered_events_str)
                     for ticker, proposal in proposals.items():
                         final_proposal = None
                         if isinstance(proposal, dict):
@@ -315,24 +316,13 @@ class EventIdentifierService:
                             if confidence >= 0.75 and prop_name and proposal.get("meaning"):
                                 prop_name = prop_name.replace(" ", "_").upper()
                                 category_events = self.event_category_map.setdefault(event_category, [])
-                                existing_similar_event = next(
-                                    (e for e in category_events if self.is_similar(prop_name, e)), None
-                                )
-
-                                if existing_similar_event:
-                                    prop_name = existing_similar_event
-                                    proposal["proposed_event_name"] = prop_name
-                                    proposal["similar_event_found"] = True
-                                    logger.info(f"[INFO] Similar event found for {ticker}, using existing: {prop_name}")
-                                else:
-                                    self.event_list[prop_name] = {
-                                        "event_category": event_category,
-                                        "meaning": proposal["meaning"],
-                                    }
-                                    category_events.append(prop_name)
-                                    self.neweventcount += 1
-                                    logger.info(f"[INFO] New event added ({self.neweventcount}): {prop_name}")
-                                    proposal["similar_event_found"] = False
+                                self.event_list[prop_name] = {
+                                    "event_category": event_category,
+                                    "meaning": proposal["meaning"],
+                                }
+                                category_events.append(prop_name)
+                                self.neweventcount += 1
+                                logger.info(f"[INFO] New event added ({self.neweventcount}): {prop_name}")
 
                                 final_proposal = proposal
 
