@@ -1,6 +1,9 @@
 import logging
 import time
-from datetime import date, datetime, time, timezone
+import time
+from datetime import date, datetime
+from datetime import time as dt_time
+from datetime import timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from app.api.schemas import (
@@ -206,8 +209,8 @@ def list_all_orders(
     x_user_id: str = Header(default="agent-A"),
 ) -> List[Dict[str, Any]]:
     try:
-        after_dt = datetime.combine(after, time.min, tzinfo=timezone.utc) if after else None
-        until_dt = datetime.combine(until, time.max, tzinfo=timezone.utc) if until else None
+        after_dt = datetime.combine(after, dt_time.min, tzinfo=timezone.utc) if after else None
+        until_dt = datetime.combine(until, dt_time.max, tzinfo=timezone.utc) if until else None
 
         use_cache = not after_dt and not until_dt
         if use_cache:
