@@ -1,1 +1,1 @@
-y
+env smart

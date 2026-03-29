@@ -18,6 +18,6 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - PORT=${PORT:-5008}
-      - TICKER_EVENTS_QDRANT_URL=${TICKER_EVENTS_QDRANT_URL}
+      - NEWS_ANALYSIS_QDRANT_URL=${NEWS_ANALYSIS_QDRANT_URL}
     command: uvicorn src.main:app --host 0.0.0.0 --port 5008
     restart: unless-stopped

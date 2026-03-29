@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     
     news_analysis_qdrant_url: str = os.getenv(
         "NEWS_ANALYSIS_QDRANT_URL",
-        "http://localhost:8000/api/v1/qdrant/ticker-events",
+        "http://qdrant-retrieval-infra:5009/qdrant/ticker-events",
     )
     aggregator_base_url: str = os.getenv(
         "AGGREGATOR_BASE_URL", "http://localhost:8000/api/v1/trading"
