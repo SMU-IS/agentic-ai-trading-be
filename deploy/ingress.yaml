@@ -149,6 +149,21 @@ spec:
             backend:
               service: { name: sentiment-analysis-service-infra, port: { number: 5012 } }
 
+          - path: /api/v1/news-scraper-tradingview/healthcheck
+            pathType: Exact
+            backend:
+              service: { name: news-scraper-tradingview-service, port: { number: 5013 } }
+
+          - path: /api/v1/metrics/healthcheck
+            pathType: Exact
+            backend:
+              service: { name: metrics-tracker, port: { number: 5014 } }
+
+          - path: /api/v1/metrics
+            pathType: Prefix
+            backend:
+              service: { name: metrics-tracker, port: { number: 5014 } }
+
 ---
 # === 4. PROTECTED ROUTES (CORS + JWT) ===
 apiVersion: networking.k8s.io/v1
