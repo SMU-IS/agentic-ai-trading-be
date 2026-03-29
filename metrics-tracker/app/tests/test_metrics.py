@@ -68,6 +68,25 @@ async def populate(r: aioredis.Redis):
     await r.expire(key, 3600)
     keys.append(key)
 
+    # 1b. Reddit post — full pipeline within 1h, with aggregator + signal + order
+    key = f"{TEST_PREFIX}:reddit:abc001b"
+    scraped = datetime.now(timezone.utc) - timedelta(minutes=50)
+    posted  = scraped - timedelta(seconds=30)
+    signal  = scraped + timedelta(minutes=4)
+    ordered = scraped + timedelta(minutes=5)
+    aggregator = scraped + timedelta(seconds=18)  # after vectorisation (~16s), before signal
+    mapping = {
+        "scraped_timestamp":     scraped.isoformat(),
+        "posted_timestamp":      posted.isoformat(),
+        **stage_times(-50/60, [2, 3, 4, 5, 2]),
+        "aggregator_timestamp":  aggregator.isoformat(),
+        "signal_timestamp:AAPL": signal.isoformat(),
+        "order_timestamp:AAPL":  ordered.isoformat(),
+    }
+    await r.hset(key, mapping=mapping)
+    await r.expire(key, 3600)
+    keys.append(key)
+
     # 2. Reddit post — full pipeline, within 1h (counts for service window too)
     key = f"{TEST_PREFIX}:reddit:abc002"
     scraped = datetime.now(timezone.utc) - timedelta(minutes=30)
@@ -177,6 +196,7 @@ async def compute(r: aioredis.Redis):
     e2e_latencies = []
     svc_counts    = defaultdict(int)
     svc_latencies = defaultdict(list)
+    gap_latencies = defaultdict(list)
 
     cursor = 0
     while True:
@@ -236,6 +256,27 @@ async def compute(r: aioredis.Redis):
                         if start:
                             svc_latencies[svc].append((end - start).total_seconds())
 
+                gap_stages = [
+                    ("to_preproc",       "scraped_timestamp",   "preproc_timestamp"),
+                    ("to_ticker",        "preproc_timestamp",   "ticker_timestamp"),
+                    ("to_event",         "ticker_timestamp",    "event_timestamp"),
+                    ("to_sentiment",     "event_timestamp",     "sentiment_timestamp"),
+                    ("to_vectorisation", "sentiment_timestamp", "qdrant_timestamp"),
+                ]
+                for label, prev_key, curr_key in gap_stages:
+                    prev = _parse_dt(data.get(prev_key))
+                    curr = _parse_dt(data.get(curr_key))
+                    if prev and curr and curr >= service_cutoff:
+                        gap_latencies[label].append((curr - prev).total_seconds())
+
+                aggregator_end = _parse_dt(data.get("aggregator_timestamp"))
+                signal_time    = next((_parse_dt(v) for f, v in data.items() if f.startswith("signal_timestamp")), None)
+                order_time     = next((_parse_dt(v) for f, v in data.items() if f.startswith("order_timestamp")), None)
+                if aggregator_end and signal_time and signal_time >= service_cutoff:
+                    gap_latencies["to_signal"].append((signal_time - aggregator_end).total_seconds())
+                if signal_time and order_time and order_time >= service_cutoff:
+                    gap_latencies["to_order"].append((order_time - signal_time).total_seconds())
+
         if cursor == 0:
             break
 
@@ -274,14 +315,16 @@ async def compute(r: aioredis.Redis):
 
     services = {
         "window_hours": 1,
-        **scrapers,
-        "preproc":       {"processed": svc_counts["preproc"],       "avg_latency_s": _avg(svc_latencies["preproc"])},
-        "ticker":        {"processed": svc_counts["ticker"],        "avg_latency_s": _avg(svc_latencies["ticker"])},
-        "event":         {"processed": svc_counts["event"],         "avg_latency_s": _avg(svc_latencies["event"])},
-        "sentiment":     {"processed": svc_counts["sentiment"],     "avg_latency_s": _avg(svc_latencies["sentiment"])},
-        "vectorisation": {"processed": svc_counts["vectorisation"], "avg_latency_s": _avg(svc_latencies["vectorisation"])},
-        "signal":        {"processed": svc_counts["signal"],        "avg_latency_s": None},
-        "order":         {"processed": svc_counts["order"],         "avg_latency_s": None},
+        "service_avg_latency": {
+            **scrapers,
+            "preproc":       {"processed": svc_counts["preproc"],       "avg_latency_s": _avg(svc_latencies["preproc"]),       "time_to_stage_s": _avg(gap_latencies["to_preproc"])},
+            "ticker":        {"processed": svc_counts["ticker"],        "avg_latency_s": _avg(svc_latencies["ticker"]),        "time_to_stage_s": _avg(gap_latencies["to_ticker"])},
+            "event":         {"processed": svc_counts["event"],         "avg_latency_s": _avg(svc_latencies["event"]),         "time_to_stage_s": _avg(gap_latencies["to_event"])},
+            "sentiment":     {"processed": svc_counts["sentiment"],     "avg_latency_s": _avg(svc_latencies["sentiment"]),     "time_to_stage_s": _avg(gap_latencies["to_sentiment"])},
+            "vectorisation": {"processed": svc_counts["vectorisation"], "avg_latency_s": _avg(svc_latencies["vectorisation"]), "time_to_stage_s": _avg(gap_latencies["to_vectorisation"])},
+            "signal":        {"processed": svc_counts["signal"],        "avg_latency_s": None,                                 "time_to_stage_s": _avg(gap_latencies["to_signal"])},
+            "order":         {"processed": svc_counts["order"],         "avg_latency_s": None,                                 "time_to_stage_s": _avg(gap_latencies["to_order"])},
+        },
     }
 
     return funnel, services
@@ -326,20 +369,24 @@ async def main():
 
     print("\n=== Validation ===")
     checks = [
-        ("scraped == 6",                        funnel["scraped"] == 6),
-        ("preprocessed == 6",                   funnel["preprocessed"] == 6),
-        ("ticker_identified == 5",              funnel["ticker_identified"] == 5),
-        ("vectorised == 5",                     funnel["vectorised"] == 5),
-        ("signal_generated == 1",               funnel["signal_generated"] == 1),
-        ("order_placed == 1",                   funnel["order_placed"] == 1),
+        ("scraped == 7",                        funnel["scraped"] == 7),
+        ("preprocessed == 7",                   funnel["preprocessed"] == 7),
+        ("ticker_identified == 6",              funnel["ticker_identified"] == 6),
+        ("vectorised == 6",                     funnel["vectorised"] == 6),
+        ("signal_generated == 2",               funnel["signal_generated"] == 2),
+        ("order_placed == 2",                   funnel["order_placed"] == 2),
         ("no_ticker drop == 1",                 funnel["removed"]["no_ticker"] == 1),
         ("e2e latency > 0",                     funnel["avg_e2e_latency_s"] is not None and funnel["avg_e2e_latency_s"] > 0),
-        ("scraper:reddit in svc",                   "scraper:reddit" in services),
-        ("scraper:tradingview in svc",              "scraper:tradingview" in services),
-        ("reddit latency > 0",                      services.get("scraper:reddit", {}).get("avg_latency_s") is not None),
-        ("tradingview ideas_processed == 1",        services.get("scraper:tradingview", {}).get("ideas_processed") == 1),
-        ("tradingview minds_processed == 1",        services.get("scraper:tradingview", {}).get("minds_processed") == 1),
-        ("tradingview avg_latency_s > 0",           services.get("scraper:tradingview", {}).get("avg_latency_s") is not None),
+        ("scraper:reddit in svc",                   "scraper:reddit" in services["service_avg_latency"]),
+        ("scraper:tradingview in svc",              "scraper:tradingview" in services["service_avg_latency"]),
+        ("reddit latency > 0",                      services["service_avg_latency"].get("scraper:reddit", {}).get("avg_latency_s") is not None),
+        ("tradingview ideas_processed == 1",        services["service_avg_latency"].get("scraper:tradingview", {}).get("ideas_processed") == 1),
+        ("tradingview minds_processed == 1",        services["service_avg_latency"].get("scraper:tradingview", {}).get("minds_processed") == 1),
+        ("tradingview avg_latency_s > 0",           services["service_avg_latency"].get("scraper:tradingview", {}).get("avg_latency_s") is not None),
+        ("preproc time_to_stage_s > 0",             services["service_avg_latency"].get("preproc", {}).get("time_to_stage_s") is not None),
+        ("ticker time_to_stage_s > 0",              services["service_avg_latency"].get("ticker", {}).get("time_to_stage_s") is not None),
+        ("signal time_to_stage_s > 0",              services["service_avg_latency"].get("signal", {}).get("time_to_stage_s") is not None),
+        ("order time_to_stage_s > 0",               services["service_avg_latency"].get("order", {}).get("time_to_stage_s") is not None),
     ]
 
     all_pass = True

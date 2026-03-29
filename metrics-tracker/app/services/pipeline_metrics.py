@@ -54,6 +54,7 @@ async def compute_pipeline_metrics():
     e2e_latencies = []
     svc_counts    = defaultdict(int)
     svc_latencies = defaultdict(list)
+    gap_latencies = defaultdict(list)  # prev_end → curr_end (queue + processing per stage)
 
     cursor = 0
     while True:
@@ -127,6 +128,28 @@ async def compute_pipeline_metrics():
                         if start:
                             svc_latencies[svc].append((end - start).total_seconds())
 
+                # gap_latencies: prev_end → curr_end
+                gap_stages = [
+                    ("to_preproc",       "scraped_timestamp",   "preproc_timestamp"),
+                    ("to_ticker",        "preproc_timestamp",   "ticker_timestamp"),
+                    ("to_event",         "ticker_timestamp",    "event_timestamp"),
+                    ("to_sentiment",     "event_timestamp",     "sentiment_timestamp"),
+                    ("to_vectorisation", "sentiment_timestamp", "qdrant_timestamp"),
+                ]
+                for label, prev_key, curr_key in gap_stages:
+                    prev = _parse_dt(data.get(prev_key))
+                    curr = _parse_dt(data.get(curr_key))
+                    if prev and curr and curr >= service_cutoff:
+                        gap_latencies[label].append((curr - prev).total_seconds())
+
+                aggregator_end = _parse_dt(data.get("aggregator_timestamp"))
+                signal_time    = next((_parse_dt(v) for f, v in data.items() if f.startswith("signal_timestamp")), None)
+                order_time     = next((_parse_dt(v) for f, v in data.items() if f.startswith("order_timestamp")), None)
+                if aggregator_end and signal_time and signal_time >= service_cutoff:
+                    gap_latencies["to_signal"].append((signal_time - aggregator_end).total_seconds())
+                if signal_time and order_time and order_time >= service_cutoff:
+                    gap_latencies["to_order"].append((order_time - signal_time).total_seconds())
+
         if cursor == 0:
             break
 
@@ -165,14 +188,16 @@ async def compute_pipeline_metrics():
     services_snapshot = {
         "computed_at":  now.isoformat(),
         "window_hours": SERVICE_WINDOW_HOURS,
-        **scrapers,
-        "preproc":       {"processed": svc_counts["preproc"],       "avg_latency_s": _avg(svc_latencies["preproc"])},
-        "ticker":        {"processed": svc_counts["ticker"],        "avg_latency_s": _avg(svc_latencies["ticker"])},
-        "event":         {"processed": svc_counts["event"],         "avg_latency_s": _avg(svc_latencies["event"])},
-        "sentiment":     {"processed": svc_counts["sentiment"],     "avg_latency_s": _avg(svc_latencies["sentiment"])},
-        "vectorisation": {"processed": svc_counts["vectorisation"], "avg_latency_s": _avg(svc_latencies["vectorisation"])},
-        "signal":        {"processed": svc_counts["signal"],        "avg_latency_s": None},
-        "order":         {"processed": svc_counts["order"],         "avg_latency_s": None},
+        "service_avg_latency": {
+            **scrapers,
+            "preproc":       {"processed": svc_counts["preproc"],       "avg_latency_s": _avg(svc_latencies["preproc"]),       "time_to_stage_s": _avg(gap_latencies["to_preproc"])},
+            "ticker":        {"processed": svc_counts["ticker"],        "avg_latency_s": _avg(svc_latencies["ticker"]),        "time_to_stage_s": _avg(gap_latencies["to_ticker"])},
+            "event":         {"processed": svc_counts["event"],         "avg_latency_s": _avg(svc_latencies["event"]),         "time_to_stage_s": _avg(gap_latencies["to_event"])},
+            "sentiment":     {"processed": svc_counts["sentiment"],     "avg_latency_s": _avg(svc_latencies["sentiment"]),     "time_to_stage_s": _avg(gap_latencies["to_sentiment"])},
+            "vectorisation": {"processed": svc_counts["vectorisation"], "avg_latency_s": _avg(svc_latencies["vectorisation"]), "time_to_stage_s": _avg(gap_latencies["to_vectorisation"])},
+            "signal":        {"processed": svc_counts["signal"],        "avg_latency_s": None,                                 "time_to_stage_s": _avg(gap_latencies["to_signal"])},
+            "order":         {"processed": svc_counts["order"],         "avg_latency_s": None,                                 "time_to_stage_s": _avg(gap_latencies["to_order"])},
+        },
     }
 
     print("[funnel]", funnel_snapshot)
@@ -184,7 +209,7 @@ async def compute_pipeline_metrics():
     await pipe.execute()
 
     # Archive to S3 once per hour — overwrites the daily file, 24 writes/day
-    if now.minute % 10 < 5:
+    if now.minute < 5:
         try:
             date_str = now.strftime("%Y-%m-%d")
             s3_client.put_object(
