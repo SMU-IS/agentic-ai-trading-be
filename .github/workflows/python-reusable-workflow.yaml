@@ -97,7 +97,9 @@ jobs:
           helm upgrade --install ${{ inputs.image-name }} ${{ inputs.chart-path }} \
             -f ${{ inputs.values-file }} \
             --set image.tag=${{ github.sha }} \
-            --wait --timeout 10m
+            --wait --timeout 10m \
+            --atomic \
+            --cleanup-on-fail
 
       - name: Verify Rollout
         run: |

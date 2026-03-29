@@ -82,7 +82,9 @@ jobs:
           helm upgrade --install user-info ./infra \
             -f ./deploy/values-user-info.yaml \
             --set image.tag=${{ github.sha }} \
-            --set ingress.enabled=true
+            --set ingress.enabled=true \
+            --atomic \
+            --cleanup-on-fail
 
       - name: Apply Global Ingress Gateway
         run: kubectl apply -f ./deploy/ingress.yaml
