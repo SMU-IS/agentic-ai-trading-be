@@ -36,10 +36,10 @@ class EnvConfig(BaseSettings):
     redis_aggregator_stream: str = Field(..., validation_alias="AGGREGATOR_STREAM")
 
     # Postgres
-    # postgres_host: str = Field(..., validation_alias="POSTGRES_HOST")
-    # postgres_user: str = Field(..., validation_alias="POSTGRES_USER")
-    # postgres_port: str = Field(..., validation_alias="POSTGRES_PORT")
-    # postgres_db: str = Field(..., validation_alias="POSTGRES_DB")
+    postgres_host: str = Field(..., validation_alias="POSTGRES_HOST")
+    postgres_user: str = Field(..., validation_alias="POSTGRES_USER")
+    postgres_port: str = Field(..., validation_alias="POSTGRES_PORT")
+    postgres_db: str = Field(..., validation_alias="POSTGRES_DB")
 
 
 
