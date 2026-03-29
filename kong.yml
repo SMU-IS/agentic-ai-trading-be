@@ -205,8 +205,4 @@ services:
       - name: metrics-protected
         paths: ["/api/v1/metrics"]
         strip_path: true
-        plugins:
-          - name: jwt
-            config:
-              claims_to_verify: ["exp"]
-              secret_is_base64: false
+
