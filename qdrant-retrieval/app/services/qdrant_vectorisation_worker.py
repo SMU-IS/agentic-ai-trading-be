@@ -336,8 +336,11 @@ async def main():
     await setup_consumer_group()
 
     # ✅ init postgres table (idempotent — safe to run every startup)
-    await init_db()
-    logger.info("💨 Postgres Database initialised")
+    if await init_db():
+        logger.info("✅ Postgres Database initialised")
+    else:
+        logger.error("❌ Postgres init failed — continuing without Postgres")
+
 
     # ✅ ensure qdrant indexes once at startup
     await vector_service.ensure_indexes()

@@ -17,6 +17,7 @@ async def get_pool() -> asyncpg.Pool:
             database=env_config.postgres_db,
             min_size=2,
             max_size=10,
+            ssl=True
         )
         logger.info("✅ PostgreSQL pool created")
     return _pool
