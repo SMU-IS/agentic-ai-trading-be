@@ -58,29 +58,6 @@ class StreamConsumer:
                     )
 
                     if not messages:
-                        pending_messages = await self.r.xpending_range(
-                            stream_name,
-                            group_name,
-                            min="-",
-                            max="+",
-                            count=10,
-                            consumername=self.consumer_name
-                        )
-                        if pending_messages:
-                            message_ids = [msg["message_id"] for msg in pending_messages]
-                            claimed = await self.r.xclaim(
-                                stream_name,
-                                group_name,
-                                self.consumer_name,
-                                min_idle_time=0,
-                                message_ids=message_ids
-                            )
-
-                            if claimed:
-                                messages = [(stream_name, claimed)]
-                            else:
-                                messages = []
-                    if not messages:
                         continue
 
                     for msg_stream, events in messages:
@@ -100,10 +77,6 @@ class StreamConsumer:
                                         "event_description": data.get("event_description")
                                     }
                                     delivered = await notify_users(notification_payload)
-                                    if delivered:
-                                        logger.info("✅ Sent news notification: %s", notification_payload)
-                                    else:
-                                        logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)
 
 
                                 elif stream_name == env_config.redis_analysis_stream:
@@ -121,10 +94,7 @@ class StreamConsumer:
                                             "signal_id": full_signal
                                         }
                                         delivered = await notify_users(notification_payload)
-                                        if delivered:
-                                            logger.info("✅ Sent signal notification: %s", notification_payload)
-                                        else:
-                                            logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)
+
                                     except Exception:
                                         logger.exception(f"Failed processing signal {signal_id}")                                            
 
@@ -143,17 +113,16 @@ class StreamConsumer:
                                             "type": "TRADE_PLACED",
                                             "order": full_order
                                         }
-                                        delivered = await notify_users(notification_payload, user_id = user_id)
-                                        if delivered:
-                                            logger.info("✅ Sent signal notification: %s", notification_payload)
-                                        else:
-                                            logger.info("ℹ️ Notification queued (no client connected): %s", notification_payload)                                            
+                                        delivered = await notify_users(notification_payload, user_id = user_id)                                           
 
                                     except Exception:
                                         logger.exception(f"Failed processing signal {order_id}")
 
                                 if delivered:
-                                    await self.r.xack(stream_name, group_name, event_id)
+                                        logger.info("✅ Sent notification: %s", notification_payload)
+                                else:
+                                    logger.info("ℹ️ User offline, skipped: %s", notification_payload)    
+                                await self.r.xack(msg_stream, group_name, event_id)                           
 
 
                             except Exception:
