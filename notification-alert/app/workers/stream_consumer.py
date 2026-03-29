@@ -39,14 +39,6 @@ class StreamConsumer:
                     await self.r.xgroup_setid(stream_name, group_name, "$")
                 else:
                     raise 
-    @staticmethod
-    def generate_token(user_id: str, secret: str = env_config.jwt_token):
-        payload = {
-            "sub": user_id,  
-            "iss": "agentic-ai-user-service",
-            "exp": int(time.time()) + 3600
-        }
-        return jwt.encode(payload, secret, algorithm="HS256")   
 
     async def async_start(self):
         print("🔔 Notification service listening to streams...")
@@ -140,13 +132,10 @@ class StreamConsumer:
                                     # Trade placed from agent-m notifications
                                     order_id = data.get("order_id")
                                     user_id = data.get('user_id')
-                                    token = self.generate_token(user_id)
                                     try:
                                         async with httpx.AsyncClient() as client:
                                             response = await client.get(
                                                 f"{env_config.base_api}/trading/decisions/orders/{order_id}"
-                                                ,
-                                                headers={"Authorization": f"Bearer {token}"}
                                             )
                                             
                                         full_order = response.json()
