@@ -1,7 +1,7 @@
 services:
   metrics-tracker:
     build: .
-    container_name: metrics-tracker-container
+    container_name: metrics-tracker-service
     env_file:
       - .env
     ports:
