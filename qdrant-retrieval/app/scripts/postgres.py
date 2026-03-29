@@ -31,29 +31,32 @@ async def close_pool():
 
 
 async def init_db():
-    pool = await get_pool()
-    async with pool.acquire() as conn:
-        await conn.execute("""
-            CREATE TABLE IF NOT EXISTS posts (
-                id                 TEXT PRIMARY KEY,
-                content_type       TEXT,
-                native_id          TEXT,
-                source             TEXT,
-                author             TEXT,
-                url                TEXT,
-                content            JSONB,
-                engagement         JSONB,
-                metadata           JSONB,
-                images             JSONB,
-                links              JSONB,
-                ticker_metadata    JSONB,
-                sentiment_analysis JSONB,
-                vectorised         BOOLEAN DEFAULT FALSE,
-                created_at         TIMESTAMPTZ,
-                processed_at       TIMESTAMPTZ DEFAULT NOW()
-            )
-        """)
-        logger.info("✅ PostgreSQL table ready")
+    try:
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS posts (
+                    id                 TEXT PRIMARY KEY,
+                    content_type       TEXT,
+                    native_id          TEXT,
+                    source             TEXT,
+                    author             TEXT,
+                    url                TEXT,
+                    content            JSONB,
+                    engagement         JSONB,
+                    metadata           JSONB,
+                    images             JSONB,
+                    links              JSONB,
+                    ticker_metadata    JSONB,
+                    sentiment_analysis JSONB,
+                    vectorised         BOOLEAN DEFAULT FALSE,
+                    created_at         TIMESTAMPTZ,
+                    processed_at       TIMESTAMPTZ DEFAULT NOW()
+                )
+            """)
+            logger.info("✅ PostgreSQL table ready")
+    except Exception as e:
+        logger.error(f"❌ Failed to initialise PostgreSQL table: {e}")
 
 
 async def save_post(decoded: dict, vectorised: bool = False):
