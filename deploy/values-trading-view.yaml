@@ -31,4 +31,4 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10F
 
-secretName: news-scraper-tradingview-secrets
+secretName: news-scraper-trading-view-secrets
