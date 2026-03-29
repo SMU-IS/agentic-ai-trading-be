@@ -149,10 +149,15 @@ spec:
             backend:
               service: { name: sentiment-analysis-service-infra, port: { number: 5012 } }
 
+          - path: /api/v1/news-scraper-tradingview/healthcheck
+            pathType: Exact
+            backend:
+              service: { name: news-scraper-tradingview-infra, port: { number: 5013 } }
+
           - path: /api/v1/news-scraper-tradingview
             pathType: Prefix
             backend:
-              service: { name: news-scraper-tradingview-service, port: { number: 5013 } }
+              service: { name: news-scraper-tradingview-infra, port: { number: 5013 } }
 
           - path: /api/v1/metrics
             pathType: Prefix

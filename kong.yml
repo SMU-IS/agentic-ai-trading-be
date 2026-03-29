@@ -189,7 +189,7 @@ services:
 
   # --- News Scraper TradingView (5013) ---
   - name: news-scraper-tradingview-service
-    url: http://news-scraper-tradingview-service:5013
+    url: http://news-scraper-tradingview:5013
     routes:
       - name: news-scraper-tradingview-healthcheck
         paths: ["/api/v1/news-scraper-tradingview/healthcheck"]
@@ -197,7 +197,7 @@ services:
 
   # --- Metrics Tracker (5014) ---
   - name: metrics-tracker-service
-    url: http://metrics-tracker-service:5014
+    url: http://metrics-tracker:5014
     routes:
       - name: metrics-healthcheck
         paths: ["/api/v1/metrics/healthcheck"]
