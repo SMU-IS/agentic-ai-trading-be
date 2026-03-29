@@ -58,7 +58,13 @@ module "container_registry" {
 
 # Hosting Module (Amplify)
 module "hosting" {
-  source               = "./modules/hosting"
+  source = "./modules/hosting"
+
+  providers = {
+    aws           = aws
+    aws.us_east_1 = aws.us_east_1
+  }
+
   cluster_name         = var.cluster_name
   amplify_repository   = var.amplify_repository
   amplify_access_token = var.amplify_access_token
@@ -69,6 +75,9 @@ module "hosting" {
   logokit_api_key      = var.logokit_api_key
   notif_api_url        = var.notif_api_url
   thread_api_url       = var.thread_api_url
+  enable_sign_up       = var.enable_sign_up
+  show_banner          = var.show_banner
+  banner_message       = var.banner_message
 }
 
 # =============================================================================

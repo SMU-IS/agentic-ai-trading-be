@@ -20,20 +20,20 @@ service:
 
 startupProbe:
   httpGet:
-    path: /healthcheck
+    path: /
     port: 5010
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
-    path: /healthcheck
+    path: /
     port: 5010
   initialDelaySeconds: 60
 
 readinessProbe:
   httpGet:
-    path: /healthcheck
+    path: /
     port: 5010
   initialDelaySeconds: 30
 

@@ -8,7 +8,7 @@ module "eks" {
   version = "~> 20.0"
 
   cluster_name    = var.cluster_name
-  cluster_version = "1.31"
+  cluster_version = "1.35"
 
   # Grant cluster creator administrative access
   enable_cluster_creator_admin_permissions = true

@@ -10,10 +10,10 @@ Usage (standalone test):
     python -m app.services.tradingview_ideas_stream_ingestion
 """
 
-import json
 import time
 import logging
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from tradingview_scraper.symbols.ideas import Ideas
 
@@ -22,6 +22,8 @@ from app.services.entity_watcher import get_tickers_from_redis
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s — %(message)s")
+
+POST_TIMESTAMP = "post_timestamps"
 
 
 class TradingViewIdeasStreamIngestion:
@@ -33,7 +35,7 @@ class TradingViewIdeasStreamIngestion:
     """
 
     ITEMS_PER_TICKER = 5
-    STREAM_NAME = "tradingview:ideas:raw"
+    STREAM_NAME = "raw_news_stream"
     DEDUP_SET_NAME = "tradingview_ideas"
     POLL_INTERVAL = 120          # Ideas update less frequently than Minds
     INTER_TICKER_DELAY = 3
@@ -59,11 +61,12 @@ class TradingViewIdeasStreamIngestion:
     @staticmethod
     def _build_row(idea: dict, ticker: str) -> dict:
         """Transform a raw Ideas item into the unified row schema."""
+        sg_tz = ZoneInfo("Asia/Singapore")
         raw_ts = idea.get("timestamp", 0)
         try:
-            ts_iso = datetime.fromtimestamp(int(raw_ts), tz=timezone.utc).isoformat()
+            ts_iso = datetime.fromtimestamp(int(raw_ts), tz=timezone.utc).astimezone(sg_tz).isoformat()
         except (ValueError, TypeError, OSError):
-            ts_iso = datetime.now(timezone.utc).isoformat()
+            ts_iso = datetime.now(sg_tz).isoformat()
 
         return {
             "id": f"tradingview_ideas:{idea.get('author', 'unknown')}:{raw_ts}",
@@ -153,6 +156,19 @@ class TradingViewIdeasStreamIngestion:
                         self.seen_in_memory.add(dedup_key)
                         row = self._build_row(idea, ticker)
                         publish_to_stream(self.redis, self.STREAM_NAME, row)
+
+                        sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+                        self.redis.hset(
+                            f"{POST_TIMESTAMP}:{row['id']}",
+                            mapping={
+                                "scraped_timestamp": sg_now,
+                                "posted_timestamp":  row["timestamps"],
+                            }
+                        )
+                        self.redis.expire(f"{POST_TIMESTAMP}:{row['id']}", 345600)  # 4 days
+
+                        logger.info(f"⏱️ Post {row['id']}: Timestamped at Scraping Stage")
+
                         cycle_published += 1
 
                 except Exception as e:

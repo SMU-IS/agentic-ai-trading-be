@@ -2,10 +2,10 @@ from enum import Enum
 
 
 class APIPath(str, Enum):
-    HEALTH_CHECK = "/healthcheck"
     CHAT = "/chat"
     CHAT_HISTORY = "/chat/history/{session_id}"
     THREADS = "/threads"
+    USER = "/user"
 
 
 class LangChainEvent(str, Enum):

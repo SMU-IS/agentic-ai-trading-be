@@ -37,9 +37,9 @@ ALIAS_REDIS_KEY = "tickeridentification:alias_mapping"
 PERSIST_INTERVAL = 1800
 TICKER_FLUSH_INTERVAL = 900
 
-BATCH_SIZE = 50
-RECOVER_BATCH_SIZE = 100
-MIN_IDLE_MS = 5000
+BATCH_SIZE = 3
+RECOVER_BATCH_SIZE = 10
+MIN_IDLE_MS = 30000
 CLEANUP_INTERVAL = 300
 
 TICKER_LIST_LOCK_KEY = "ticker_static_state_write_lock"
@@ -309,7 +309,6 @@ async def process_message(msg_id: str, data: dict, ticker_service: TickerIdentif
         await finalize_message(msg_id)
         return
 
-
     await redis_client.hset(
         f"{POST_TIMESTAMP}:{post_id}",
         "ticker_timestamp_start",
@@ -436,7 +435,7 @@ async def worker_loop(ticker_service):
                 group_name=CONSUMER_GROUP,
                 consumer_name=CONSUMER_NAME,
                 count=BATCH_SIZE,
-                block_ms=5000,
+                block_ms=1000,
             )
 
             if entries:

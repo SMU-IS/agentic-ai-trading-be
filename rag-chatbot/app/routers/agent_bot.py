@@ -1,12 +1,13 @@
 from functools import lru_cache
 
+from fastapi import APIRouter, Depends, Header, Request
+from fastapi.responses import StreamingResponse
+
 from app.core.config import env_config
 from app.core.constant import APIPath
 from app.providers.llm.registry import get_strategy
 from app.schemas.chat import ChatHistoryResponse, ChatRequest
 from app.services.agent_bot_service import AgentBotService
-from fastapi import APIRouter, Depends, Request
-from fastapi.responses import StreamingResponse
 
 router = APIRouter(tags=["RAG Chatbot"])
 
@@ -38,3 +39,11 @@ async def get_chat_history(
 ):
     history = await agent_bot_service.get_chat_history(session_id)
     return ChatHistoryResponse(history=history)
+
+
+@router.get(APIPath.USER)
+def get_current_user(x_user_id: str = Header(...)):
+    if not x_user_id:
+        return {"error": "User ID not found"}, 401
+
+    return {"status": "success", "user_id": x_user_id}

@@ -2,14 +2,14 @@ import asyncio
 
 from app.core.logger import logger
 from app.data import MOCK_REDDIT_PAYLOAD
-from app.schemas.raw_news_payload import RedditSourcePayload
+from app.schemas.raw_news_payload import SourcePayload
 from app.services.vectorisation import VectorisationService
 
 
 async def run_test():
     logger.info("🚀 Vectorising...")
     try:
-        payload = RedditSourcePayload(**MOCK_REDDIT_PAYLOAD)
+        payload = SourcePayload(**MOCK_REDDIT_PAYLOAD)
         logger.info("✅ Payload Validated")
     except Exception as e:
         logger.info(f"❌ Payload Validation Failed: {e}")

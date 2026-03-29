@@ -1,7 +1,6 @@
 package constant
 
 const (
-	HealthCheck      = "/healthcheck"
 	Doc              = "/docs/*any"
 	Register         = "/register"
 	Login            = "/login"

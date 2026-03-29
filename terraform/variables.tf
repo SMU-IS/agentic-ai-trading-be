@@ -119,6 +119,20 @@ variable "thread_api_url" {
   type      = string
   sensitive = true
 }
+variable "enable_sign_up" {
+  type      = bool
+  sensitive = true
+}
+
+variable "show_banner" {
+  type      = bool
+  sensitive = true
+}
+
+variable "banner_message" {
+  type      = string
+  sensitive = true
+}
 
 # =============================================================================
 # Terraform State Backend Configuration

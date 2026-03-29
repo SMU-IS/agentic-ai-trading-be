@@ -1,17 +1,15 @@
 import logging
-import threading
 from contextlib import asynccontextmanager
-from app.services.scraper_controller import scraper_controller
 
 import praw
 from fastapi import FastAPI
 
 from app.core.config import env_config
-from app.services.entity_watcher import EntityWatcherService
+from app.router.scraper import router as scraper_router
 from app.services.reddit_batch_ingestion import RedditBatchService
 from app.services.reddit_stream_ingestion import RedditStreamService
+from app.services.scraper_controller import scraper_controller
 from app.services.storage import RedisStreamStorage
-from app.router.scraper import router as scraper_router
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -43,7 +41,7 @@ def run_batch_mode(reddit, storage, redis_client, base_subreddits):
 
     logger.info("[*] BATCH MODE: Running batch ingestion")
     batch_service = RedditBatchService(reddit, storage, redis_client)
-    batch_service.run(base_subreddits)    
+    batch_service.run(base_subreddits)
 
 
 # def run_watcher_mode(redis_client):
@@ -83,7 +81,8 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    print("[*] Shutting down application...")    
+    print("[*] Shutting down application...")
+
 
 app = FastAPI(
     title="News Scraper Service",
@@ -93,7 +92,8 @@ app = FastAPI(
 
 app.include_router(scraper_router)
 
-@app.get("/healthcheck")
+
+@app.get("/")
 def healthcheck():
     try:
         redis_client = RedisStreamStorage().r

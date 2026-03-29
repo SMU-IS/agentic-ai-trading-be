@@ -38,9 +38,9 @@ PERSIST_INTERVAL = 1800
 TICKER_FLUSH_INTERVAL = 900
 TICKER_KEY = "eventidentification:ticker"
 
-BATCH_SIZE = 50
-RECOVER_BATCH_SIZE = 100
-MIN_IDLE_MS = 5000
+BATCH_SIZE = 3
+RECOVER_BATCH_SIZE = 10
+MIN_IDLE_MS = 30000
 CLEANUP_INTERVAL = 300
 
 POST_TIMESTAMP = "post_timestamps"
@@ -245,7 +245,6 @@ async def process_message(
         await finalize_message(msg_id)
         return
 
-
     await redis_client.hset(
         f"{POST_TIMESTAMP}:{post_id}",
         "event_timestamp_start",
@@ -281,7 +280,10 @@ async def process_message(
         return
 
     event_data["ticker_metadata"] = ticker_metadata
-    all_tickers.update(ticker_metadata.keys())
+    metadata = event_data.get("metadata", {})
+    ticker_check = metadata.get("ticker")
+    if not ticker_check:
+        all_tickers.update(ticker_metadata.keys())
 
     logger.info(f"📊 Tracked tickers: {all_tickers}")
 
@@ -400,7 +402,7 @@ async def worker_loop(event_service: EventIdentifierService):
                 group_name=CONSUMER_GROUP,
                 consumer_name=CONSUMER_NAME,
                 count=BATCH_SIZE,
-                block_ms=5000,
+                block_ms=1000,
             )
 
             if entries:

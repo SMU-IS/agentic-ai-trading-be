@@ -8,12 +8,7 @@ output "amplify_default_domain" {
   value       = aws_amplify_app.trading_frontend.default_domain
 }
 
-output "cloudfront_domain_name" {
-  description = "CloudFront distribution domain name"
-  value       = aws_cloudfront_distribution.amplify_cdn.domain_name
-}
-
-output "cloudfront_id" {
-  description = "CloudFront distribution ID"
-  value       = aws_cloudfront_distribution.amplify_cdn.id
+output "custom_domain_name" {
+  description = "The custom domain associated with the Amplify app"
+  value       = aws_amplify_domain_association.example.domain_name
 }

@@ -50,3 +50,21 @@ variable "thread_api_url" {
   description = "Thread API URL"
   type        = string
 }
+
+variable "enable_sign_up" {
+  description = "Flag to toggle sign up functionality"
+  type        = bool
+  default     = false
+}
+
+variable "show_banner" {
+  description = "Flag to toggle banner display"
+  type        = bool
+  default     = false
+}
+
+variable "banner_message" {
+  description = "Message to display in the banner"
+  type        = string
+  default     = ""
+}

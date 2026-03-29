@@ -1,7 +1,7 @@
 import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from app.services.reddit_batch_ingestion import RedditBatchService
 from app.services.reddit_stream_ingestion import RedditStreamService
-from app.services.entity_watcher import EntityWatcherService
 
 
 class ScraperController:
@@ -22,7 +22,7 @@ class ScraperController:
         redis_client = app.state.redis_client
         base_subreddits = app.state.base_subreddits
 
-        redis_client.set("newsscraper:running", "1")
+        redis_client.set("newsscraper:reddit:running", "1")
 
         stream_thread = threading.Thread(
             target=self._run_stream,
@@ -44,7 +44,7 @@ class ScraperController:
 
         # self._threads = [stream_thread, batch_thread, watcher_thread]
 
-        self._threads = [stream_thread, batch_thread]
+        self._threads = [stream_thread]
         for t in self._threads:
             t.start()
 
@@ -57,7 +57,7 @@ class ScraperController:
     def _run_batch(self, reddit, storage, redis_client, base_subreddits):
         service = RedditBatchService(reddit, storage, redis_client)
         # service.run_worker(self._stop_event)
-        service.run(base_subreddits)
+        service.run(base_subreddits)     
 
     # def _run_watcher(self, redis_client):
     #     service = EntityWatcherService(redis_client, "all_identified_tickers")
@@ -72,7 +72,7 @@ class ScraperController:
         redis_client = app.state.redis_client
 
         self._running = False
-        redis_client.set("newsscraper:running", "0")
+        redis_client.set("newsscraper:reddit:running", "0")
         self._stop_event.set()
 
         for t in self._threads:

@@ -13,6 +13,7 @@ import json
 import time
 import logging
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from tradingview_scraper.symbols.minds import Minds
 
@@ -21,6 +22,8 @@ from app.services.entity_watcher import get_tickers_from_redis, get_ticker_candi
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s — %(message)s")
+
+POST_TIMESTAMP = "post_timestamps"
 
 
 class TradingViewMindsBatchIngestion:
@@ -31,7 +34,7 @@ class TradingViewMindsBatchIngestion:
     """
 
     ITEMS_PER_TICKER = 20
-    STREAM_NAME = "tradingview:minds:raw"
+    STREAM_NAME = "raw_news_stream"
     DEDUP_SET_NAME = "tradingview_minds"
     INTER_TICKER_DELAY = 2
 
@@ -52,13 +55,17 @@ class TradingViewMindsBatchIngestion:
         author_info = mind.get("author", {})
         created_str = mind.get("created", "")
 
+        sg_tz = ZoneInfo("Asia/Singapore")
         try:
             ts = datetime.strptime(created_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
-            ts_iso = ts.isoformat()
+            ts_iso = ts.astimezone(sg_tz).isoformat()
         except (ValueError, TypeError):
-            ts_iso = created_str or datetime.now(timezone.utc).isoformat()
+            ts_iso = created_str or datetime.now(sg_tz).isoformat()
 
         uid = mind.get("uid", "")
+
+        symbols = mind.get("symbols", [])
+        tickers = [s.split(":")[-1] if ":" in s else s for s in symbols]
 
         return {
             "id": f"tradingview_minds:{uid}",
@@ -78,8 +85,8 @@ class TradingViewMindsBatchIngestion:
                 "upvote_ratio": None,
             },
             "metadata": {
-                "ticker": ticker,
-                "symbols": mind.get("symbols", []),
+                "ticker": tickers,
+                "symbols": symbols,
                 "source_section": "minds",
                 "category": None,
             },
@@ -135,6 +142,18 @@ class TradingViewMindsBatchIngestion:
 
                     row = self._build_row(mind, ticker, source_label="tradingview_minds_batch")
                     publish_to_stream(self.redis, self.STREAM_NAME, row)
+
+                    sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+                    self.redis.hset(
+                        f"{POST_TIMESTAMP}:{row['id']}",
+                        mapping={
+                            "scraped_timestamp": sg_now,
+                        }
+                    )
+                    self.redis.expire(f"{POST_TIMESTAMP}:{row['id']}", 345600)  # 4 days
+
+                    logger.info(f"⏱️ Post {row['id']}: Timestamped at Scraping Stage")
+
                     total_published += 1
 
             except Exception as e:

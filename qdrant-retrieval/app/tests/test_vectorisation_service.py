@@ -1,8 +1,9 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from app.services.vectorisation import VectorisationService
-from app.schemas.raw_news_payload import RedditSourcePayload
+from app.schemas.raw_news_payload import SourcePayload
 from app.data.mock_reddit_payload import MOCK_REDDIT_PAYLOAD
+
 
 @pytest.fixture
 def mock_strategy():
@@ -18,7 +19,7 @@ def mock_strategy():
 async def test_get_sanitised_news_payload(mock_strategy):
     service = VectorisationService()
     
-    payload = RedditSourcePayload(**MOCK_REDDIT_PAYLOAD)
+    payload = SourcePayload(**MOCK_REDDIT_PAYLOAD)
     
     result = await service.get_sanitised_news_payload(payload)
     
@@ -60,7 +61,7 @@ async def test_get_sanitised_news_payload_error(mock_strategy):
     service = VectorisationService()
     service.vector_store.aadd_documents.side_effect = Exception("Ingestion failed")
     
-    payload = RedditSourcePayload(**MOCK_REDDIT_PAYLOAD)
+    payload = SourcePayload(**MOCK_REDDIT_PAYLOAD)
     
     with pytest.raises(RuntimeError, match="Failed to ingest document: Ingestion failed"):
         await service.get_sanitised_news_payload(payload)

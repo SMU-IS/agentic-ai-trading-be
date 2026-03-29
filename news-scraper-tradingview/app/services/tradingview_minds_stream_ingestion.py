@@ -10,10 +10,10 @@ Usage (standalone test):
     python -m app.services.tradingview_minds_stream_ingestion
 """
 
-import json
 import time
 import logging
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from tradingview_scraper.symbols.minds import Minds
 
@@ -22,6 +22,8 @@ from app.services.entity_watcher import get_tickers_from_redis, get_ticker_candi
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s — %(message)s")
+
+POST_TIMESTAMP = "post_timestamps"
 
 
 class TradingViewMindsStreamIngestion:
@@ -33,7 +35,7 @@ class TradingViewMindsStreamIngestion:
     """
 
     ITEMS_PER_TICKER = 5
-    STREAM_NAME = "tradingview:minds:raw"
+    STREAM_NAME = "raw_news_stream"
     DEDUP_SET_NAME = "tradingview_minds"
     POLL_INTERVAL = 60           # seconds between full cycles
     INTER_TICKER_DELAY = 3       # seconds between individual ticker scrapes
@@ -59,13 +61,17 @@ class TradingViewMindsStreamIngestion:
         author_info = mind.get("author", {})
         created_str = mind.get("created", "")
 
+        sg_tz = ZoneInfo("Asia/Singapore")
         try:
             ts = datetime.strptime(created_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
-            ts_iso = ts.isoformat()
+            ts_iso = ts.astimezone(sg_tz).isoformat()
         except (ValueError, TypeError):
-            ts_iso = created_str or datetime.now(timezone.utc).isoformat()
+            ts_iso = created_str or datetime.now(sg_tz).isoformat()
 
         uid = mind.get("uid", "")
+
+        symbols = mind.get("symbols", [])
+        tickers = [s.split(":")[-1] if ":" in s else s for s in symbols]
 
         return {
             "id": f"tradingview_minds:{uid}",
@@ -85,8 +91,8 @@ class TradingViewMindsStreamIngestion:
                 "upvote_ratio": None,
             },
             "metadata": {
-                "ticker": ticker,
-                "symbols": mind.get("symbols", []),
+                "ticker": tickers,
+                "symbols": symbols,
                 "source_section": "minds",
                 "category": None,
             },
@@ -160,6 +166,19 @@ class TradingViewMindsStreamIngestion:
                         self.seen_in_memory.add(dedup_key)
                         row = self._build_row(mind, ticker)
                         publish_to_stream(self.redis, self.STREAM_NAME, row)
+
+                        sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+                        self.redis.hset(
+                            f"{POST_TIMESTAMP}:{row['id']}",
+                            mapping={
+                                "scraped_timestamp": sg_now,
+                                "posted_timestamp":  row["timestamps"],
+                            }
+                        )
+                        self.redis.expire(f"{POST_TIMESTAMP}:{row['id']}", 345600)  # 4 days
+
+                        logger.info(f"⏱️ Post {row['id']}: Timestamped at Scraping Stage")
+
                         cycle_published += 1
 
                 except Exception as e:

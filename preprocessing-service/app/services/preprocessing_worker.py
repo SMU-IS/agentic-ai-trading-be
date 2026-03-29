@@ -26,9 +26,9 @@ HEARTBEAT_KEY = f"preprocessing:heartbeat:{CONSUMER_NAME}"
 HEARTBEAT_INTERVAL = 30
 HEARTBEAT_TTL = HEARTBEAT_INTERVAL * 3
 
-BATCH_SIZE = 50
-RECOVER_BATCH_SIZE = 100
-MIN_IDLE_MS = 5000
+BATCH_SIZE = 5
+RECOVER_BATCH_SIZE = 10
+MIN_IDLE_MS = 15000
 CLEANUP_INTERVAL = 300
 
 POST_TIMESTAMP = "post_timestamps"
@@ -238,7 +238,7 @@ async def worker_loop():
                 group_name=CONSUMER_GROUP,
                 consumer_name=CONSUMER_NAME,
                 count=BATCH_SIZE,
-                block_ms=5000,
+                block_ms=1000,
             )
 
             if entries:

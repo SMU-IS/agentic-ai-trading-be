@@ -17,7 +17,7 @@ class RedditStreamService:
         if stop_event and stop_event.is_set():
             return True
 
-        running_flag = self.redis.get("newsscraper:running")
+        running_flag = self.redis.get("newsscraper:reddit:running")
 
         if running_flag is None or running_flag != "1":
             return True
@@ -52,8 +52,8 @@ class RedditStreamService:
 
                     self.handle_post(post)
 
-            except prawcore.exceptions.PrawcoreException as e:
-                logger.exception(f"Reddit API error")
+            except prawcore.exceptions.PrawcoreException:
+                logger.exception("Reddit API error")
                 time.sleep(5)
 
     def handle_post(self, post):
@@ -90,18 +90,41 @@ class RedditStreamService:
 
             sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
 
+            post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
             self.redis.hset(
-                f"{POST_TIMESTAMP}:reddit:{post.id}",
+                post_key,
                 mapping={
                     "scraped_timestamp": sg_now,
-                    "vectorised_timestamp": "",
+                    "posted_timestamp":  post_time.isoformat(),
                 }
             )
+            self.redis.expire(post_key, 345600)  # 4 days
             logger.info(f"⏱️ Post {post.id}: Timestamped at Scraping Stage")
+
+            post_id = row["native_id"]
+            reddit_post_time = datetime.fromisoformat(row["timestamps"]).timestamp()
+            now_ts = datetime.now().timestamp()
+
+            # Rolling posts per hour
+            self.redis.zadd("newsscraper:metrics:posts_1d", {post_id: now_ts})
+
+            # Average latency (overall)
+            latency = now_ts - reddit_post_time
+            self.redis.incrbyfloat("newsscraper:metrics:latency_sum", latency)
+            self.redis.incr("newsscraper:metrics:latency_count")
+
+            # latency per day
+            latency_key = "newsscraper:metrics:latency_1d"   
+            latency_value_key = "newsscraper:metrics:latency_values" 
+
+            pipe = self.redis.pipeline()
+            pipe.zadd(latency_key, {post_id: now_ts})       
+            pipe.hset(latency_value_key, post_id, latency)  
+            pipe.execute()
             
             time.sleep(0.1)
 
-        except Exception as e:
+        except Exception:
             logger.exception(f"Failed to process post {post.id}")
 
     def build_subreddit_list(self, base_subreddits):
