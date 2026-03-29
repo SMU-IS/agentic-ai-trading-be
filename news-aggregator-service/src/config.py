@@ -25,10 +25,10 @@ class Settings(BaseSettings):
     pplx_api_key: str = os.getenv("PPLX_API_KEY", "your-default-api-key")
     groq_api_key: str = os.getenv("GROQ_API_KEY", "your-default-api-key")
     llm_provider: str = os.getenv("LLM_PROVIDER", "groq")
-    
+
     news_analysis_qdrant_url: str = os.getenv(
         "NEWS_ANALYSIS_QDRANT_URL",
-        "http://qdrant-retrieval-infra:5009/qdrant/ticker-events",
+        "http://qdrant-retrieval-infra:5009/ticker-events",
     )
     aggregator_base_url: str = os.getenv(
         "AGGREGATOR_BASE_URL", "http://localhost:8000/api/v1/trading"
