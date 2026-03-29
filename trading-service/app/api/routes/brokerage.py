@@ -1,5 +1,6 @@
 import logging
 import time
+from datetime import date, datetime, time, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 from app.api.schemas import (
@@ -199,16 +200,23 @@ def list_open_orders(
 @router.get("/orders/all")
 def list_all_orders(
     limit: int = Query(200, ge=1, le=500),
+    after: Optional[date] = Query(None),
+    until: Optional[date] = Query(None),
     broker: AlpacaBrokerClient = Depends(get_broker),
     x_user_id: str = Header(default="agent-A"),
 ) -> List[Dict[str, Any]]:
     try:
-        cached = _get_cached_orders(x_user_id, limit)
-        if cached is not None:
-            print(f"   [⚡ Cache HIT] user={x_user_id} | {len(cached)} orders")
-            return cached
+        after_dt = datetime.combine(after, time.min, tzinfo=timezone.utc) if after else None
+        until_dt = datetime.combine(until, time.max, tzinfo=timezone.utc) if until else None
 
-        all_orders = broker.list_all_orders(limit=limit)
+        use_cache = not after_dt and not until_dt
+        if use_cache:
+            cached = _get_cached_orders(x_user_id, limit)
+            if cached is not None:
+                print(f"   [⚡ Cache HIT] user={x_user_id} | {len(cached)} orders")
+                return cached
+
+        all_orders = broker.list_all_orders(limit=limit, after=after_dt, until=until_dt)
         order_ids = [str(order["id"]) for order in all_orders]
 
         reasonings = services.trading_db.get_reasonings_batch(order_ids)
@@ -229,8 +237,9 @@ def list_all_orders(
                 order["trading_agent_reasonings"] = None
                 order["is_trading_agent"] = False
 
-        _set_cached_orders(x_user_id, limit, all_orders)
-        print(f"   [💾 Cache SET] user={x_user_id} | TTL={_CACHE_TTL}s")
+        if use_cache:
+            _set_cached_orders(x_user_id, limit, all_orders)
+            print(f"   [💾 Cache SET] user={x_user_id} | TTL={_CACHE_TTL}s")
         return all_orders
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

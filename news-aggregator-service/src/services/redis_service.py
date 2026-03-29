@@ -35,9 +35,20 @@ class RedisService:
         except Exception as e:
             print(f"📭 ${e}")
 
-    async def listen_news_stream(self) -> AsyncGenerator[TickerSentiment, None]:
-        """✅ CORRECT aioredis xread syntax"""
+    async def get_service_enabled(self) -> bool:
+        """Read services:news-aggregator-service -> enabled field — returns True if missing (default on)"""
+        val = await self.redis.hget(settings.redis_service_control_key, "enabled")
+        if val is None:
+            return True
+        return val.decode().lower() in ("1", "true", "yes")
+
+    async def listen_news_stream(self, enabled_event: asyncio.Event) -> AsyncGenerator[TickerSentiment, None]:
+        """✅ CORRECT aioredis xread syntax. Stops reading when enabled_event is cleared."""
         while True:
+            if not enabled_event.is_set():
+                await asyncio.sleep(1)
+                continue
+
             try:
                 messages = await self.redis.xread(
                 block=1000,

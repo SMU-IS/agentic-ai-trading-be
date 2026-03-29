@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     aggregator_base_url: str = os.getenv(
         "AGGREGATOR_BASE_URL", "http://localhost:8000/api/v1/trading"
     )
+    redis_service_control_key: str = os.getenv(
+        "REDIS_SERVICE_CONTROL_KEY", "services:news-aggregator-service"
+    )
 
     class Config:
         env_file = ".env"

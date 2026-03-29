@@ -33,9 +33,13 @@ class RedisService:
         except Exception as e:
             print(f"📭 ${e}")
 
-    async def listen_signal_stream(self) -> AsyncGenerator[Signal, None]:
-        """✅ Yields Signal instances from Redis stream"""
+    async def listen_signal_stream(self, enabled_event: asyncio.Event) -> AsyncGenerator[Signal, None]:
+        """✅ Yields Signal instances from Redis stream. Stops reading when enabled_event is cleared."""
         while True:
+            if not enabled_event.is_set():
+                await asyncio.sleep(1)
+                continue
+
             try:
                 messages = await self.redis.xread(
                     block=1000, count=10, streams={self.redis_signal_stream: "0"}
@@ -49,7 +53,6 @@ class RedisService:
                         decoded = {k.decode(): v.decode() for k, v in fields.items()}
                         print("📨 Ingesting Signal:", decoded)
 
-                        # Yield Signal instance
                         yield Signal(signal_id=decoded["signal_id"])
                         await self.redis.xdel(self.redis_signal_stream, msg_id)
 
@@ -81,6 +84,13 @@ class RedisService:
         agent_pipeline_key = "pipeline:agent"
         await self.redis.incr(agent_pipeline_key)
         
+    async def get_service_enabled(self) -> bool:
+        """Read services:trading-agent-m -> enabled field — returns True if missing (default on)"""
+        val = await self.redis.hget(settings.redis_service_control_key, "enabled")
+        if val is None:
+            return True
+        return val.decode().lower() in ("1", "true", "yes")
+
     async def close(self):
         if self.redis:
             await self.redis.close()

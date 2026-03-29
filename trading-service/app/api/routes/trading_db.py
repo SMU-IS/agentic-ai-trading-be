@@ -32,9 +32,7 @@ def get_orders_notification_by_orderid(order_id: str, client: MongoDBClient = De
 @router.get("/notification/user/{user_id}", response_model=List[Dict])
 def get_orders_notification_by_user(user_id: str, client: MongoDBClient = Depends(lambda: mongo_client)):
     orders = client.get_orders_notification_by_user(user_id)
-    if not orders:
-        raise HTTPException(status_code=404, detail=f"No orders found for user={user_id}")
-    return orders
+    return orders or []
 
 @router.get("/orders/{order_id}")
 def get_order_by_id(order_id: str, client: MongoDBClient = Depends(lambda: mongo_client)):

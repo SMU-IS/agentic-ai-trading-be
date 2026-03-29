@@ -11,13 +11,16 @@ from app.core.config import env_config
 from app.services.redis_service import RedisService  # Your RedisService class
 from app.services.trading_workflow import TradingWorkflow
 
+SERVICE_POLL_INTERVAL = 10  # seconds
+
 redis_service: RedisService = None
+service_enabled = asyncio.Event()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
-    global redis_service, workflow, signal_task
+    global redis_service, workflow, signal_task, poll_task
 
     # Init Redis
     redis_service = RedisService()
@@ -31,24 +34,49 @@ async def lifespan(app: FastAPI):
     )
     workflow = TradingWorkflow(llm_client=llm, redis_service=redis_service)
 
+    # Seed initial state before starting tasks
+    initial_enabled = await redis_service.get_service_enabled()
+    status_str = "▶️  ENABLED" if initial_enabled else "⏸️  PAUSED"
+    print(f"🔑 Service control key: {env_config.redis_service_control_key} → {status_str}")
+    if initial_enabled:
+        service_enabled.set()
+
+    # Poll Redis every SERVICE_POLL_INTERVAL seconds to sync start/stop flag
+    async def poll_service_control():
+        while True:
+            try:
+                enabled = await redis_service.get_service_enabled()
+                if enabled and not service_enabled.is_set():
+                    service_enabled.set()
+                    print(f"▶️  Service ENABLED  (key={env_config.redis_service_control_key})")
+                elif not enabled and service_enabled.is_set():
+                    service_enabled.clear()
+                    print(f"⏸️  Service PAUSED   (key={env_config.redis_service_control_key})")
+            except Exception as e:
+                print(f"⚠️  Service control poll error: {e}")
+            await asyncio.sleep(SERVICE_POLL_INTERVAL)
+
     # Start signal processing task
     async def process_signals():
-        async for signal in redis_service.listen_signal_stream():
+        async for signal in redis_service.listen_signal_stream(service_enabled):
             try:
                 print(f"🚀 Processing signal: {signal.signal_id}")
                 await workflow.run(signal)
             except Exception as e:
                 print(f"❌ Workflow error for {signal.signal_id}: {e}")
 
+    poll_task = asyncio.create_task(poll_service_control())
     signal_task = asyncio.create_task(process_signals())
 
     yield
     # Shutdown
+    poll_task.cancel()
     signal_task.cancel()
-    try:
-        await signal_task
-    except asyncio.CancelledError:
-        pass
+    for task in (poll_task, signal_task):
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
     await redis_service.close()
 
 

@@ -114,12 +114,19 @@ class AlpacaBrokerClient:
         orders = self.client.get_orders(filter=req)
         return [o.__dict__ for o in orders]
 
-    def list_all_orders(self, limit: int = 200) -> List[Dict[str, Any]]:
+    def list_all_orders(
+        self,
+        limit: int = 200,
+        after: Optional[datetime] = None,
+        until: Optional[datetime] = None,
+    ) -> List[Dict[str, Any]]:
         # ALL: both open and closed orders; limit per Alpaca docs [web:143][web:153]
         req = GetOrdersRequest(
             status=QueryOrderStatus.ALL,
             limit=limit,
             nested=True,
+            after=after,
+            until=until,
         )
         orders = self.client.get_orders(filter=req)
         return [o.__dict__ for o in orders]
