@@ -5,7 +5,7 @@ services:
     env_file:
       - .env
     ports:
-      - "5014:5014"
+      - "5012:5012"
     environment:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
@@ -14,7 +14,7 @@ services:
       - SENTIMENT_STREAM=${SENTIMENT_STREAM}
       - LARGE_LANGUAGE_MODEL_GROQ=${LARGE_LANGUAGE_MODEL_GROQ}
       - GROQ_API_KEY=${GROQ_API_KEY}
-    command: uvicorn app.main:app --host 0.0.0.0 --port 5014
+    command: uvicorn app.main:app --host 0.0.0.0 --port 5012
     restart: unless-stopped
 
   sentiment-analysis-worker:
