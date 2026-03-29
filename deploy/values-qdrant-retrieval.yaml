@@ -31,4 +31,9 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10
 
+worker:
+  enabled: true
+  replicaCount: 2
+  command: ["python", "-m", "app.services.qdrant_vectorisation_worker"]
+
 secretName: qdrant-retrieval-secrets
