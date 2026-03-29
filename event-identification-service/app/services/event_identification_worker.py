@@ -170,7 +170,7 @@ async def update_event_list_in_redis(event_service: EventIdentifierService):
     if event_service.neweventcount <= 0:
         return
 
-    now = asyncio.get_event_loop().time()
+    now = asyncio.get_running_loop().time()
     if now - _last_event_list_update < EVENT_LIST_DEBOUNCE:
         return
 
@@ -300,7 +300,7 @@ async def process_message(
     )
     print(f"⏱️ Post {post_id}: Timestamped at event Stage → {sg_now}")
 
-    await ticker_stream.acknowledge(CONSUMER_GROUP, msg_id)
+    await finalize_message(msg_id)
     logger.info(f"✅ Processed Post {post_id}")
 
 

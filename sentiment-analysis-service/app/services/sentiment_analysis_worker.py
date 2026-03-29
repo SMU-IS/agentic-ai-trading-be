@@ -173,7 +173,7 @@ async def process_message(msg_id: str, data: dict):
     )
     print(f"⏱️ Post {post_id}: Timestamped at sentiment Stage → {sg_now}")
 
-    await event_stream.acknowledge(CONSUMER_GROUP, msg_id)
+    await finalize_message(msg_id)
     logger.info(f"✅ Processed Post {post_id}")
 
 
