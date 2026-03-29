@@ -337,6 +337,7 @@ async def main():
 
     # ✅ init postgres table (idempotent — safe to run every startup)
     await init_db()
+    logger.info("💨 Postgres Database initialised")
 
     # ✅ ensure qdrant indexes once at startup
     await vector_service.ensure_indexes()
