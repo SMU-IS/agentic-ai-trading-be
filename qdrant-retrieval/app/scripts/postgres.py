@@ -1,5 +1,6 @@
 import json
 import asyncpg
+import ssl
 from app.core.config import env_config
 from app.core.logger import logger
 from datetime import datetime
@@ -10,14 +11,26 @@ _pool = None
 async def get_pool() -> asyncpg.Pool:
     global _pool
     if _pool is None:
+        ssl_context = None
+        if env_config.postgres_ssl_mode in ("verify-ca", "verify-full"):
+            ssl_context = ssl.create_default_context(cafile=env_config.postgres_ca_cert)
+            if env_config.postgres_ssl_mode == "verify-ca":
+                ssl_context.check_hostname = False
+        elif env_config.postgres_ssl_mode == "require":
+             # Basic 'require' mode without certificate verification
+             ssl_context = ssl.create_default_context()
+             ssl_context.check_hostname = False
+             ssl_context.verify_mode = ssl.CERT_NONE
+
         _pool = await asyncpg.create_pool(
             host=env_config.postgres_host,
             port=env_config.postgres_port,
             user=env_config.postgres_user,
+            password=env_config.postgres_password,
             database=env_config.postgres_db,
+            ssl=ssl_context or env_config.postgres_ssl_mode,
             min_size=2,
             max_size=10,
-            ssl=True
         )
         logger.info("✅ PostgreSQL pool created")
     return _pool
