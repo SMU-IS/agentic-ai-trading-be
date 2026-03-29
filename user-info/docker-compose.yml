@@ -1,18 +1,18 @@
 services:
   user-info-db:
-      image: postgres:16-alpine
-      container_name: user-info-db
-      restart: always
-      env_file:
-        - .env
-      environment:
-        - POSTGRES_USER=${POSTGRES_USER}
-        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-        - POSTGRES_DB=${POSTGRES_DB}
-      ports:
-        - "5433:5432"
-      volumes:
-        - user_info_postgres_data:/var/lib/postgresql/data
+    image: postgres:16-alpine
+    container_name: user-info-db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5433:5432"
+    volumes:
+      - user_info_postgres_data:/var/lib/postgresql/data
   user-info-service:
     build: .
     env_file:

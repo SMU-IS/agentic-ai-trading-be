@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException, Request
 from app.core.constant import APIPath
 from app.services.scraper_controller import scraper_controller
+from fastapi import APIRouter, HTTPException, Request
 
 router = APIRouter(tags=["Scraper Control"])
 

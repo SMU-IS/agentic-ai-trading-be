@@ -1,13 +1,11 @@
 import asyncio
 import json
 import signal
-import time
 import uuid
 import redis.asyncio as redis
 from app.utils.logger import setup_logging
 from app.core.config import env_config
 from app.services._03_event_identification import EventIdentifierService
-from app.services.metrics import MetricsTracker
 from app.scripts.storage import RedisStreamStorage
 from app.scripts.aws_bucket_access import AWSBucket
 from datetime import datetime
@@ -70,7 +68,6 @@ redis_client = redis.Redis(
 
 ticker_stream = RedisStreamStorage(TICKER_STREAM_NAME, redis_client)
 event_stream = RedisStreamStorage(EVENT_STREAM_NAME, redis_client)
-metrics = MetricsTracker(redis_client, "eventidentification")
 
 all_tickers = set()
 
@@ -173,7 +170,7 @@ async def update_event_list_in_redis(event_service: EventIdentifierService):
     if event_service.neweventcount <= 0:
         return
 
-    now = asyncio.get_event_loop().time()
+    now = asyncio.get_running_loop().time()
     if now - _last_event_list_update < EVENT_LIST_DEBOUNCE:
         return
 
@@ -233,8 +230,6 @@ async def process_message(
     data: dict,
     event_service: EventIdentifierService,
 ):
-    start = time.monotonic()
-
     decoded = decode_message(data)
     if not decoded:
         await redis_client.incr(REMOVED_POSTS_COUNTER)
@@ -249,9 +244,6 @@ async def process_message(
         await redis_client.incr(DUP_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
-
-    await metrics.record_received()
-
 
     await redis_client.hset(
         f"{POST_TIMESTAMP}:{post_id}",
@@ -308,10 +300,7 @@ async def process_message(
     )
     print(f"⏱️ Post {post_id}: Timestamped at event Stage → {sg_now}")
 
-    latency_ms = (time.monotonic() - start) * 1000
-    await metrics.record_processed(latency_ms)
-
-    await ticker_stream.acknowledge(CONSUMER_GROUP, msg_id)
+    await finalize_message(msg_id)
     logger.info(f"✅ Processed Post {post_id}")
 
 

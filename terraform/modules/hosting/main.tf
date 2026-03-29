@@ -21,6 +21,14 @@ data "aws_acm_certificate" "issued" {
   provider = aws.us_east_1
 }
 
+data "aws_cloudfront_cache_policy" "caching_disabled" {
+  name = "Managed-CachingDisabled"
+}
+
+data "aws_cloudfront_origin_request_policy" "all_viewer" {
+  name = "Managed-AllViewer"
+}
+
 # Amplify App
 resource "aws_amplify_app" "trading_frontend" {
   name         = "${var.cluster_name}-frontend"
@@ -64,6 +72,7 @@ resource "aws_amplify_app" "trading_frontend" {
     NEXT_PUBLIC_THREAD_API_URL  = var.thread_api_url
     NEXT_PUBLIC_ENABLE_SIGN_UP  = var.enable_sign_up
     NEXT_PUBLIC_SHOW_BANNER     = var.show_banner
+    NEXT_PUBLIC_BANNER_MESSAGE  = var.banner_message
   }
 
 
@@ -101,20 +110,12 @@ resource "aws_cloudfront_distribution" "kong_api" {
   aliases         = ["api.agentic-m.com"]
 
   default_cache_behavior {
-    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "Kong-Origin"
-    forwarded_values {
-      query_string = true
-      headers      = ["Authorization", "Content-Type", "Origin"]
-      cookies {
-        forward = "all"
-      }
-    }
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 0
-    max_ttl                = 0
+    allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods           = ["GET", "HEAD"]
+    target_origin_id         = "Kong-Origin"
+    viewer_protocol_policy   = "redirect-to-https"
+    cache_policy_id          = data.aws_cloudfront_cache_policy.caching_disabled.id
+    origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all_viewer.id
   }
 
   restrictions {

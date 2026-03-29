@@ -62,3 +62,9 @@ variable "show_banner" {
   type        = bool
   default     = false
 }
+
+variable "banner_message" {
+  description = "Message to display in the banner"
+  type        = string
+  default     = ""
+}

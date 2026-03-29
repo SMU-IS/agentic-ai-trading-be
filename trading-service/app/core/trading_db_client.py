@@ -39,6 +39,36 @@ class MongoDBClient:
                 doc["_id"] = str(doc["_id"])  # Still convert MongoDB _id to string
             return doc
         return None
+
+    def get_orders_notification_by_orderid(self, order_id: str) -> Optional[Dict]:
+        """Get trimmed order notification for a given order_id"""
+        doc = self.orders.find_one({"order_id": order_id})
+        if not doc:
+            return None
+        return {
+            "order_id":      doc.get("order_id"),
+            "symbol":        doc.get("symbol"),
+            "action":        doc.get("action"),
+            "suggested_qty": doc.get("risk_evaluation", {}).get("suggested_qty"),
+            "reasonings":    doc.get("reasonings"),
+            "profile":       doc.get("profile"),
+        }
+    
+    
+    def get_orders_notification_by_user(self, user_id: str) -> List[Dict]:
+        """Get trimmed order notifications for a given user_id"""
+        cursor = self.orders.find({"user_id": user_id}).sort("_id", -1)
+        return [
+            {
+                "order_id":      doc.get("order_id"),
+                "symbol":        doc.get("symbol"),
+                "action":        doc.get("action"),
+                "suggested_qty": doc.get("risk_evaluation", {}).get("suggested_qty"),
+                "reasonings":    doc.get("reasonings"),
+                "profile":       doc.get("profile"),
+            }
+            for doc in cursor
+        ]
     
     def get_reasonings_batch(self, order_ids: List[str]) -> Dict[str, Dict]:
         """Get reasonings for multiple order_ids {order_id: {reasonings: "..."}}"""
@@ -102,7 +132,6 @@ class MongoDBClient:
         except Exception:
             return None
         
-
     def get_batch_signals_by_ids(self, signal_ids: List[str]) -> Dict[str, Dict[str, Any]]:
         if not signal_ids:
             return {}

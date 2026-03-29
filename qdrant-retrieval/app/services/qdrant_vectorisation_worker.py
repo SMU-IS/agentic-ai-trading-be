@@ -1,7 +1,6 @@
 import asyncio
 import json
 import signal
-import time
 import uuid
 
 import redis.asyncio as redis
@@ -10,8 +9,7 @@ from app.core.config import env_config
 from app.scripts.storage import RedisStreamStorage
 from app.schemas.raw_news_payload import SourcePayload
 from app.services.vectorisation import VectorisationService
-from app.services.metrics import MetricsTracker
-# from app.scripts.postgres import save_post, mark_vectorised, close_pool, init_db
+from app.scripts.postgres import save_post, mark_vectorised, close_pool, init_db
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -62,7 +60,6 @@ sentiment_stream = RedisStreamStorage(SENTIMENT_STREAM_NAME, redis_client)
 aggregator_stream = RedisStreamStorage(AGGREGATOR_STREAM_NAME, redis_client)
 
 vector_service = VectorisationService()
-metrics = MetricsTracker(redis_client, "vectorisation")
 
 
 # ==========================================================
@@ -143,8 +140,6 @@ async def is_duplicate(post_id: str) -> bool:
 # MESSAGE PROCESSING
 # ==========================================================
 async def process_message(msg_id: str, data: dict):
-    start = time.monotonic()
-
     decoded = decode_message(data)
     if not decoded:
         await redis_client.incr(REMOVED_POSTS_COUNTER)
@@ -159,8 +154,6 @@ async def process_message(msg_id: str, data: dict):
         await finalize_message(msg_id)
         return
 
-    await metrics.record_received()
-
     payload_dict = {"id": msg_id, "fields": decoded}
     try:
         payload = SourcePayload.model_validate(payload_dict)
@@ -169,13 +162,20 @@ async def process_message(msg_id: str, data: dict):
         await redis_client.incr(REMOVED_POSTS_COUNTER)
         await finalize_message(msg_id)
         return
+    
+    await redis_client.hset(
+        f"{POST_TIMESTAMP}:{post_id}",
+        "qdrant_timestamp_start",
+        datetime.now(ZoneInfo("Asia/Singapore")).isoformat(),
+    )
 
     # 1. save to postgres before vectorising — always recorded regardless of outcome
-    # try:
-    #     await save_post(decoded, vectorised=False)
-    # except Exception as e:
-    #     logger.error(f"❌ Postgres save failed for {post_id}: {e}")
-        # non-fatal — continue to vectorise even if postgres fails
+    try:
+        await save_post(decoded, vectorised=False)
+        logger.info(f"✅ {post_id}: Saved to Postgres")
+    except Exception as e:
+        logger.error(f"❌ Postgres save failed for {post_id}: {e}")
+
 
     # 2. vectorise
     result = await vectorise(payload)
@@ -185,11 +185,11 @@ async def process_message(msg_id: str, data: dict):
         return
 
     # 3. mark as vectorised in postgres
-    # try:
-    #     await mark_vectorised(post_id)
-    # except Exception as e:
-    #     logger.error(f"❌ Postgres update failed for {post_id}: {e}")
-        # non-fatal — qdrant write succeeded, don't drop the post
+    try:
+        await mark_vectorised(post_id)
+        logger.info(f"✅ {post_id}: Marked as vectorised")
+    except Exception as e:
+        logger.error(f"❌ Postgres update failed for {post_id}: {e}")
 
     # 4. save to aggregator stream and finalize
     try:
@@ -206,9 +206,6 @@ async def process_message(msg_id: str, data: dict):
         raise
     except Exception as e:
         logger.error(f"❌ Post-vectorisation step failed for {post_id}: {e}")
-
-    latency_ms = (time.monotonic() - start) * 1000
-    await metrics.record_processed(latency_ms)
 
     await finalize_message(msg_id)
     await redis_client.incr(PROCESSED_POSTS_COUNTER)
@@ -339,7 +336,11 @@ async def main():
     await setup_consumer_group()
 
     # ✅ init postgres table (idempotent — safe to run every startup)
-    # await init_db()
+    if await init_db():
+        logger.info("✅ Postgres Database initialised")
+    else:
+        logger.error("❌ Postgres init failed — continuing without Postgres")
+
 
     # ✅ ensure qdrant indexes once at startup
     await vector_service.ensure_indexes()
@@ -368,7 +369,7 @@ async def main():
             worker_task.cancel()
 
         await asyncio.gather(worker_task, return_exceptions=True)
-        # await close_pool()       # ← close postgres pool
+        await close_pool()       # ← close postgres pool
         await redis_client.aclose()
 
 

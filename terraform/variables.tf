@@ -55,7 +55,9 @@ variable "services" {
     "sentiment-analysis-service",
     "trading-agent-m",
     "trading-service",
-    "user-info"
+    "user-info",
+    "news-scraper-tradingview",
+    "metrics-tracker-service"
   ]
 }
 
@@ -126,6 +128,11 @@ variable "enable_sign_up" {
 
 variable "show_banner" {
   type      = bool
+  sensitive = true
+}
+
+variable "banner_message" {
+  type      = string
   sensitive = true
 }
 

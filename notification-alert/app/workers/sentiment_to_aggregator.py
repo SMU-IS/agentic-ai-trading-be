@@ -88,12 +88,8 @@ class SentimentAggregator:
 
                         post_id = data.get("id")
                         post_id = post_id.strip('"')
-                        await self.r.hset(
-                            f"{POST_TIMESTAMP}:{post_id}",
-                            "vectorised_timestamp",        
-                            sg_time.isoformat()           
-                        )
-                        print(f"⏱️ Post {post_id}: Timestamped at Vectorisation Stage → {sg_time}")                                                   
+
+                        metadata = json.loads(data.get("metadata", "{}"))                                                 
 
                         for ticker, meta in ticker_meta.items():
                             aggregator_data = {
@@ -103,7 +99,8 @@ class SentimentAggregator:
                                 "event_type_meta": meta.get("event_type") or "",
                                 "sentiment_score": meta.get("sentiment_score") or 0.0,
                                 "event_description": meta.get("event_description") or "",
-                                "sentiment_reasoning": meta.get("sentiment_reasoning") or ""
+                                "sentiment_reasoning": meta.get("sentiment_reasoning") or "",
+                                'source': f"reddit:{metadata.get('subreddit')}" if metadata.get("subreddit") else ""
                             }
 
                             await self.r.xadd(
@@ -111,6 +108,13 @@ class SentimentAggregator:
                                 aggregator_data,
                             )
                             print("🔁 News event:", aggregator_data)
+                            
+                        await self.r.hset(
+                            f"{POST_TIMESTAMP}:{post_id}",
+                            "aggregator_timestamp",
+                            sg_time.isoformat()
+                        )
+                        print(f"⏱️ Post {post_id}: Timestamped at Aggregation Stage → {sg_time}")                            
 
                         await self.r.xack(self.sentiment_stream, self.group_name, event_id)
                         print(f"✅ Acked {event_id}")                        

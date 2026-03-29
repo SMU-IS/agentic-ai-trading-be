@@ -204,9 +204,11 @@ class TradingViewIdeasStreamIngestion:
                             f"{POST_TIMESTAMP}:{row['id']}",
                             mapping={
                                 "scraped_timestamp": sg_now,
-                                "vectorised_timestamp": "",
+                                "posted_timestamp":  row["timestamps"],
                             }
                         )
+                        self.redis.expire(f"{POST_TIMESTAMP}:{row['id']}", 345600)  # 4 days
+
                         logger.info(f"⏱️ Post {row['id']}: Timestamped at Scraping Stage")
 
                         cycle_published += 1

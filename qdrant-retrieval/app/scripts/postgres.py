@@ -1,5 +1,6 @@
 import json
 import asyncpg
+import ssl
 from app.core.config import env_config
 from app.core.logger import logger
 from datetime import datetime
@@ -10,15 +11,40 @@ _pool = None
 async def get_pool() -> asyncpg.Pool:
     global _pool
     if _pool is None:
-        _pool = await asyncpg.create_pool(
-            host=env_config.postgres_host,
-            port=env_config.postgres_port,
-            user=env_config.postgres_user,
-            database=env_config.postgres_db,
-            min_size=2,
-            max_size=10,
-        )
-        logger.info("✅ PostgreSQL pool created")
+        try:
+            ssl_context = None
+            if env_config.postgres_ssl_mode in ("verify-ca", "verify-full"):
+                ssl_context = ssl.create_default_context(cafile=env_config.postgres_ca_cert)
+                if env_config.postgres_ssl_mode == "verify-ca":
+                    ssl_context.check_hostname = False
+            elif env_config.postgres_ssl_mode == "require":
+                # Basic 'require' mode without certificate verification
+                ssl_context = ssl.create_default_context()
+                ssl_context.check_hostname = False
+                ssl_context.verify_mode = ssl.CERT_NONE
+
+            _pool = await asyncpg.create_pool(
+                host=env_config.postgres_host,
+                port=env_config.postgres_port,
+                user=env_config.postgres_user,
+                password=env_config.postgres_password,
+                database=env_config.postgres_db,
+                ssl=ssl_context or env_config.postgres_ssl_mode,
+                min_size=2,
+                max_size=10,
+            )
+            logger.info("✅ PostgreSQL pool created")
+
+        except ssl.SSLError as e:
+            logger.error(f"SSL configuration error: {e}")
+            raise
+        except asyncpg.PostgresConnectionError as e:
+            logger.error(f"Failed to connect to PostgreSQL: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error creating PostgreSQL pool: {e}")
+            raise
+
     return _pool
 
 
@@ -31,29 +57,34 @@ async def close_pool():
 
 
 async def init_db():
-    pool = await get_pool()
-    async with pool.acquire() as conn:
-        await conn.execute("""
-            CREATE TABLE IF NOT EXISTS posts (
-                id                 TEXT PRIMARY KEY,
-                content_type       TEXT,
-                native_id          TEXT,
-                source             TEXT,
-                author             TEXT,
-                url                TEXT,
-                content            JSONB,
-                engagement         JSONB,
-                metadata           JSONB,
-                images             JSONB,
-                links              JSONB,
-                ticker_metadata    JSONB,
-                sentiment_analysis JSONB,
-                vectorised         BOOLEAN DEFAULT FALSE,
-                created_at         TIMESTAMPTZ,
-                processed_at       TIMESTAMPTZ DEFAULT NOW()
-            )
-        """)
-        logger.info("✅ PostgreSQL table ready")
+    try:
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS posts (
+                    id                 TEXT PRIMARY KEY,
+                    content_type       TEXT,
+                    native_id          TEXT,
+                    source             TEXT,
+                    author             TEXT,
+                    url                TEXT,
+                    content            JSONB,
+                    engagement         JSONB,
+                    metadata           JSONB,
+                    images             JSONB,
+                    links              JSONB,
+                    ticker_metadata    JSONB,
+                    sentiment_analysis JSONB,
+                    vectorised         BOOLEAN DEFAULT FALSE,
+                    created_at         TIMESTAMPTZ,
+                    processed_at       TIMESTAMPTZ DEFAULT NOW()
+                )
+            """)
+            logger.info("✅ PostgreSQL table ready")
+            return True
+    except Exception as e:
+        logger.error(f"❌ Failed to initialise PostgreSQL table: {e}")
+        return False
 
 
 async def save_post(decoded: dict, vectorised: bool = False):

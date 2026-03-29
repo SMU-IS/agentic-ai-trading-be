@@ -85,3 +85,14 @@ include:
   - path: ./qdrant-retrieval/docker-compose.yml
     env_file: ./qdrant-retrieval/.env
     project_directory: ./qdrant-retrieval
+
+  # === News Scraper TradingView Microservice ===
+  - path: ./news-scraper-tradingview/docker-compose.yml
+    env_file: ./news-scraper-tradingview/.env
+    project_directory: ./news-scraper-tradingview
+
+  # === Metrics Tracker Microservice ===
+  - path: ./metrics-tracker/docker-compose.yml
+    env_file: ./metrics-tracker/.env
+    project_directory: ./metrics-tracker
+

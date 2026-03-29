@@ -160,9 +160,10 @@ class TradingViewIdeasBatchIngestion:
                         f"{POST_TIMESTAMP}:{row['id']}",
                         mapping={
                             "scraped_timestamp": sg_now,
-                            "vectorised_timestamp": "",
                         }
                     )
+                    self.redis.expire(f"{POST_TIMESTAMP}:{row['id']}", 345600)  # 4 days
+
                     logger.info(f"⏱️ Post {row['id']}: Timestamped at Scraping Stage")
 
                     total_published += 1
