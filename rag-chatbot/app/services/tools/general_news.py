@@ -50,7 +50,7 @@ async def get_general_news(query: str, tickers: List[str] = None):
             else:
                 context = "\n\n".join(
                     [
-                        f"Headline: {d.get('headline', 'No headline')}\nContent: {d.get('content_preview', 'No content preview')}"
+                        f"Topic ID: {d.get('topic_id', 'N/A')}\nContent: {d.get('text_content', 'No content available')}"
                         for d in results
                     ]
                 )
