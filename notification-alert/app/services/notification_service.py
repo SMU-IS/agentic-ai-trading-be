@@ -27,17 +27,26 @@ async def notify_users(payload: dict, user_id: str | None = None):
 @router.websocket("/ws/notifications")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    user_id = None  
+    user_id = websocket.headers.get("X-USER-ID")
+    # print(user_id)
+
+    
+    if not user_id:
+        await websocket.close(code=4001)
+        return
 
     try:
-        token = websocket.headers.get("authorization")
-        if token and token.startswith("Bearer "):
-            payload = jwt.decode(token, env_config.jwt_token, algorithms=["HS256"])
-            user_id = payload.get("sub")
+        # token = websocket.headers.get("authorization")
+        # if token and token.startswith("Bearer "):
+        #     payload = jwt.decode(token, env_config.jwt_token, algorithms=["HS256"])
+        #     user_id = payload.get("sub")
 
-        if not user_id:
-            await websocket.close(code=4001)
-            return
+        # if not user_id:
+        #     data = await websocket.receive_json()
+        #     token = data.get("token") 
+        #     if token:
+        #         payload = jwt.decode(token, env_config.jwt_token, algorithms=["HS256"])
+        #         user_id = payload.get("sub")
 
         await ws_manager.connect(websocket, user_id)
         print(f"User {user_id} connected")
@@ -55,3 +64,4 @@ async def websocket_endpoint(websocket: WebSocket):
         if user_id:
             ws_manager.disconnect(websocket, user_id)
         raise
+

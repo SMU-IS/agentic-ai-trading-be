@@ -22,6 +22,7 @@ class WSManager:
                 self.user_connections[user_id].remove(websocket)
             if not self.user_connections[user_id]:
                 del self.user_connections[user_id]
+        print("Connected users:", list(self.user_connections.keys()))
 
     async def send_to_user(self, user_id: str, message: dict):
         """Send message to a specific user."""
@@ -52,6 +53,6 @@ class WSManager:
                     conns.remove(ws)
                     if not conns:
                         del self.user_connections[user_id]
-        return True
+        return True 
 
 ws_manager = WSManager()
