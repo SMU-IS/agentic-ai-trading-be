@@ -172,9 +172,9 @@ async def process_message(msg_id: str, data: dict):
     # 1. save to postgres before vectorising — always recorded regardless of outcome
     try:
         await save_post(decoded, vectorised=False)
+        logger.info(f"✅ {post_id}: Saved to Postgres")
     except Exception as e:
         logger.error(f"❌ Postgres save failed for {post_id}: {e}")
-    logger.info(f"✅ {post_id}: Saved to Postgres")
 
 
     # 2. vectorise
@@ -187,9 +187,9 @@ async def process_message(msg_id: str, data: dict):
     # 3. mark as vectorised in postgres
     try:
         await mark_vectorised(post_id)
+        logger.info(f"✅ {post_id}: Marked as vectorised")
     except Exception as e:
         logger.error(f"❌ Postgres update failed for {post_id}: {e}")
-    logger.info(f"✅ {post_id}: Marked as vectorised")
 
     # 4. save to aggregator stream and finalize
     try:
