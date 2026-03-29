@@ -1,1 +1,1 @@
-# News Scraper Service X
+# News Scraper Service
