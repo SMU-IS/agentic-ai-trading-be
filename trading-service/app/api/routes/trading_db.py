@@ -138,7 +138,3 @@ async def get_trading_accounts_by_risk_profile(
         return result
     except RuntimeError as e:
         raise HTTPException(status_code=404, detail=str(e))
-
-###################
-# Notification FE
-###################
