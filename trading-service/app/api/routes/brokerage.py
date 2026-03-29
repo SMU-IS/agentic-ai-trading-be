@@ -111,7 +111,7 @@ logger = logging.getLogger(__name__)
 
 # Dependency to get a broker instance (can be singleton or factory)
 def get_broker(
-    x_user_id: str = Header(default="agent-A", alias="x_user_id"),
+    x_user_id: str = Header(default="agent-A"),
 ) -> AlpacaBrokerClient:
     try:
         print("fetching for user", x_user_id)
@@ -200,7 +200,7 @@ def list_open_orders(
 def list_all_orders(
     limit: int = Query(200, ge=1, le=500),
     broker: AlpacaBrokerClient = Depends(get_broker),
-    x_user_id: str = Header(default="agent-A", alias="x_user_id"),
+    x_user_id: str = Header(default="agent-A"),
 ) -> List[Dict[str, Any]]:
     try:
         cached = _get_cached_orders(x_user_id, limit)
@@ -349,7 +349,7 @@ def create_stop_limit_order(
 def create_bracket_order(
     body: BracketOrderRequestBody,
     broker: AlpacaBrokerClient = Depends(get_broker),
-    x_user_id: str = Header(default="agent-A", alias="x_user_id"),
+    x_user_id: str = Header(default="agent-A"),
 ) -> Dict[str, Any]:
     """
     Submit bracket order (market/limit entry + take profit + stop loss).

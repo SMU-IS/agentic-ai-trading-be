@@ -38,10 +38,13 @@ class EnvConfig(BaseSettings):
     # Postgres
     postgres_host: str = Field(..., validation_alias="POSTGRES_HOST")
     postgres_user: str = Field(..., validation_alias="POSTGRES_USER")
+    postgres_password: str = Field(..., validation_alias="POSTGRES_PASSWORD")
     postgres_port: str = Field(..., validation_alias="POSTGRES_PORT")
     postgres_db: str = Field(..., validation_alias="POSTGRES_DB")
-
-
+    postgres_ssl_mode: str = Field("verify-full", validation_alias="POSTGRES_SSL_MODE")
+    postgres_ca_cert: str = Field(
+        "/certs/global-bundle.pem", validation_alias="POSTGRES_CA_CERT"
+    )
 
 
 env_config = EnvConfig()  # type: ignore

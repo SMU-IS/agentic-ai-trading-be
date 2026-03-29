@@ -7,6 +7,7 @@ WORKDIR /app
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-cache --python 3.12
 
+COPY certs* /certs/
 COPY . .
 
 ENV PATH="/app/.venv/bin:$PATH"
