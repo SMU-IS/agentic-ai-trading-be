@@ -29,6 +29,6 @@ readinessProbe:
     path: /
     port: 5013
   initialDelaySeconds: 5
-  periodSeconds: 10F
+  periodSeconds: 10
 
 secretName: news-scraper-trading-view-secrets
