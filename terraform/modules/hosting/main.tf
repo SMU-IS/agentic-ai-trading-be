@@ -63,6 +63,8 @@ resource "aws_amplify_app" "trading_frontend" {
     NEXT_PUBLIC_NOTIF_API_URL   = var.notif_api_url
     NEXT_PUBLIC_THREAD_API_URL  = var.thread_api_url
     NEXT_PUBLIC_ENABLE_SIGN_UP  = var.enable_sign_up
+    NEXT_PUBLIC_SHOW_BANNER     = var.show_banner
+    NEXT_PUBLIC_BANNER_MESSAGE  = var.banner_message
   }
 
 

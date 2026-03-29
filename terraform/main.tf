@@ -76,6 +76,8 @@ module "hosting" {
   notif_api_url        = var.notif_api_url
   thread_api_url       = var.thread_api_url
   enable_sign_up       = var.enable_sign_up
+  show_banner          = var.show_banner
+  banner_message       = var.banner_message
 }
 
 # =============================================================================

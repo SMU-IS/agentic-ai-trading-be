@@ -97,7 +97,8 @@ class SentimentAggregator:
                                 "event_type_meta": meta.get("event_type") or "",
                                 "sentiment_score": meta.get("sentiment_score") or 0.0,
                                 "event_description": meta.get("event_description") or "",
-                                "sentiment_reasoning": meta.get("sentiment_reasoning") or ""
+                                "sentiment_reasoning": meta.get("sentiment_reasoning") or "",
+                                'subreddit': metadata.get("subreddit")
                             }
 
                             await self.r.xadd(

@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, Request
+from datetime import datetime, timedelta, timezone
 from app.core.constant import APIPath
 from app.services.scraper_controller import scraper_controller
+from app.services.reddit_metrics import RedditMetricsService
 
 router = APIRouter(tags=["Scraper Control"])
 
@@ -27,3 +29,15 @@ async def scraper_status():
         return scraper_controller.status()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.get(APIPath.SCRAPER_METRICS)
+async def reddit_metrics(request: Request):
+    redis_client = request.app.state.redis_client
+    metrics = RedditMetricsService(redis_client)
+
+    return {
+        "total_posts_daily": metrics.get_posts_last_day(),
+        "avg_latency": metrics.get_avg_latency(),
+        "avg_latency_daily": metrics.get_avg_latency_1d()
+    }
+

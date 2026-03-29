@@ -56,3 +56,15 @@ variable "enable_sign_up" {
   type        = bool
   default     = false
 }
+
+variable "show_banner" {
+  description = "Flag to toggle banner display"
+  type        = bool
+  default     = false
+}
+
+variable "banner_message" {
+  description = "Message to display in the banner"
+  type        = string
+  default     = ""
+}

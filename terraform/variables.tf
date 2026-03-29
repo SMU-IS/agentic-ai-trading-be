@@ -124,6 +124,16 @@ variable "enable_sign_up" {
   sensitive = true
 }
 
+variable "show_banner" {
+  type      = bool
+  sensitive = true
+}
+
+variable "banner_message" {
+  type      = string
+  sensitive = true
+}
+
 # =============================================================================
 # Terraform State Backend Configuration
 # =============================================================================
