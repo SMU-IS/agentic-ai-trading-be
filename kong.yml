@@ -186,3 +186,27 @@ services:
       - name: sentiment-healthcheck
         paths: ["/api/v1/sentiment-analysis/healthcheck"]
         strip_path: true
+
+  # --- News Scraper TradingView (5013) ---
+  - name: news-scraper-tradingview-service
+    url: http://news-scraper-tradingview-service:5013
+    routes:
+      - name: news-scraper-tradingview-healthcheck
+        paths: ["/api/v1/news-scraper-tradingview/healthcheck"]
+        strip_path: true
+
+  # --- Metrics Tracker (5014) ---
+  - name: metrics-tracker-service
+    url: http://metrics-tracker:5014
+    routes:
+      - name: metrics-healthcheck
+        paths: ["/api/v1/metrics/healthcheck"]
+        strip_path: true
+      - name: metrics-protected
+        paths: ["/api/v1/metrics"]
+        strip_path: true
+        plugins:
+          - name: jwt
+            config:
+              claims_to_verify: ["exp"]
+              secret_is_base64: false

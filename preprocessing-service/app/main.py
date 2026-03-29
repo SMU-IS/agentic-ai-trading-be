@@ -2,12 +2,10 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
 from redis import Redis
-import redis.asyncio as aioredis
 
 from app.core.config import env_config
 from app.core.constant import APIPath
 from app.core.logger import logger
-from app.services.metrics import MetricsTracker
 
 # ================= Redis (Health Only) =================
 redis_client = Redis(
@@ -16,15 +14,6 @@ redis_client = Redis(
     password=env_config.redis_password,
     decode_responses=True,
 )
-
-async_redis = aioredis.Redis(
-    host=env_config.redis_host,
-    port=int(env_config.redis_port),
-    password=env_config.redis_password,
-    decode_responses=True,
-)
-
-metrics = MetricsTracker(async_redis, "preprocessing")
 
 app = FastAPI(
     title="Preprocessing Service",
@@ -46,7 +35,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 # ================= HEALTH CHECK =================
-@app.get("/")
+@app.get("/", tags=["Health Check"])
 def health_check():
     try:
         redis_client.ping()
@@ -88,12 +77,6 @@ def health_check():
             "redis": False,
             "worker_alive": False,
         }
-
-
-# ================= METRICS =================
-@app.get("/metrics")
-async def get_metrics():
-    return await metrics.get_metrics_all_windows()
 
 
 app.include_router(api_router)
