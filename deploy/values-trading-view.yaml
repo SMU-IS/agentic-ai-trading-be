@@ -7,27 +7,27 @@ image:
 
 service:
   type: ClusterIP
-  port: 50013
-  targetPort: 50013
+  port: 5013
+  targetPort: 5013
 
 startupProbe:
   httpGet:
     path: /
-    port: 50013
+    port: 5013
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
     path: /
-    port: 50013
+    port: 5013
   initialDelaySeconds: 10
   periodSeconds: 20
 
 readinessProbe:
   httpGet:
     path: /
-    port: 50013
+    port: 5013
   initialDelaySeconds: 5
   periodSeconds: 10
 
