@@ -30,6 +30,10 @@ class DeepAnalysis(BaseModel):
         default=None,
         description="reddit post id"
     )
+    source: Optional[str] = Field(
+        default=None,
+        description="origin source of the news"
+    )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert DeepAnalysis to dictionary, recursively handling nested models."""
@@ -72,6 +76,7 @@ class TickerSentiment:
     # sentiment_confidence: float = 0.0
     sentiment_reasoning: str = ""
     news_id: Optional[str] = None
+    source: Optional[str] = None
     # Optional metadata
     timestamp: Optional[datetime] = None
 
@@ -149,6 +154,7 @@ class TickerSentiment:
         # init['sentiment_confidence'] = float(data.get('sentiment_confidence', 0.0))
         init['sentiment_reasoning'] = data.get('sentiment_reasoning', '')
         init['news_id'] = data.get('id', '')
+        init['source'] = data.get('source', None)
 
         # optional: use stream id as OfficialName or just ignore
         # init['OfficialName'] = data.get('id', '')

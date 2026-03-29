@@ -19,6 +19,9 @@ class EnvConfig(BaseSettings):
     redis_trading_noti_stream: str = os.getenv(
         "REDIS_TRADING_NOTI_STREAM", "trade_notification_stream"
     )
+    redis_service_control_key: str = os.getenv(
+        "REDIS_SERVICE_CONTROL_KEY", "services:trading-agent-m"
+    )
 
     # Perplexity
     perplexity_api_key: str = os.getenv("PERPLEXITY_API_KEY")

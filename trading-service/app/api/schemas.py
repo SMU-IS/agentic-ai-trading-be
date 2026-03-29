@@ -96,6 +96,7 @@ class TradeSignal(str, Enum):
 class DeepAnalysis(BaseModel):
     id: Optional[str] = Field(None, description="Signal ID")
     news_id: Optional[str] = Field(None, description="Original news / reddit post ID")
+    source: Optional[str] = Field(None, description="Origin source of the news")
     ticker: str = Field(..., description="Stock ticker")
     rumor_summary: str = Field(..., description="1-sentence recap")
     credibility: Credibility = Field(..., description="Low|Medium|High")

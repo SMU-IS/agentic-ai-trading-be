@@ -1,11 +1,23 @@
-aioredis>=2.0.1
-langgraph>=0.0.40
-pydantic>=2.5.0
-pydantic-settings>=2.1.0
-openai>=1.3.0
-redis>=5.0.0
 fastapi>=0.104.1
 uvicorn>=0.24.0
-qdrant-client<=1.16.2
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Redis (async support built-in since v5)
+redis>=5.0.0
+
+# HTTP clients
+requests>=2.31.0
+httpx>=0.25.0
+
+# LangChain
+langchain-core>=0.3.0
 langchain-perplexity<=0.1.2
 langchain_groq<=0.3.8
+langgraph>=0.0.40
+
+# Vector DB
+qdrant-client<=1.16.2
+
+# Utils
+python-dotenv>=1.0.0
