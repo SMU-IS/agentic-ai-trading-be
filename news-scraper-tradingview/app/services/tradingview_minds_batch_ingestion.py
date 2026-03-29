@@ -12,7 +12,7 @@ Usage (standalone test):
 import json
 import time
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 
 from tradingview_scraper.symbols.minds import Minds
@@ -37,12 +37,22 @@ class TradingViewMindsBatchIngestion:
     STREAM_NAME = "raw_news_stream"
     DEDUP_SET_NAME = "tradingview_minds"
     INTER_TICKER_DELAY = 2
+    BATCH_MAX_AGE_DAYS = 5
 
     def __init__(self, redis_client=None):
         self.redis = redis_client or get_redis_client()
         self.scraper = Minds()
 
     # ── Row building ──────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _parse_post_time(mind: dict) -> datetime | None:
+        """Parse the post creation time as a UTC datetime."""
+        created_str = mind.get("created", "")
+        try:
+            return datetime.strptime(created_str, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        except (ValueError, TypeError):
+            return None
 
     @staticmethod
     def _dedup_key(mind: dict) -> str:
@@ -104,7 +114,10 @@ class TradingViewMindsBatchIngestion:
         total_scraped = 0
         total_published = 0
         total_duplicates = 0
+        total_too_old = 0
         errors = []
+
+        cutoff = datetime.now(timezone.utc) - timedelta(days=self.BATCH_MAX_AGE_DAYS)
 
         for ticker in tickers:
             candidates = get_ticker_candidates(ticker)
@@ -131,6 +144,12 @@ class TradingViewMindsBatchIngestion:
                 total_scraped += len(items)
 
                 for mind in items:
+                    # Time boundary: skip posts older than BATCH_MAX_AGE_DAYS
+                    post_time = self._parse_post_time(mind)
+                    if post_time and post_time < cutoff:
+                        total_too_old += 1
+                        continue
+
                     dedup_key = self._dedup_key(mind)
                     if not dedup_key:
                         logger.warning(f"[Minds Batch] Skipping mind with empty uid for {ticker}")
@@ -167,6 +186,7 @@ class TradingViewMindsBatchIngestion:
             "total_scraped": total_scraped,
             "total_published": total_published,
             "total_duplicates": total_duplicates,
+            "total_too_old": total_too_old,
             "errors": errors,
         }
         logger.info(f"[Minds Batch] Complete — {json.dumps(summary, indent=2)}")
