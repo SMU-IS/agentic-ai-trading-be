@@ -8,11 +8,11 @@
   <img width="220" height="204" alt="agent" src="https://github.com/user-attachments/assets/82d27a27-f71c-42ac-bf51-5b1a83893e6a" />
 </p>
 
-## 🤖 Agentic AI Trading Portfolio Backen
+## 🤖 Agentic AI Trading Portfolio Backend X !!
 
 Agent M - A dynamic, fully autonomous trading portfolio companion designed to navigate the complex digital financial landscape. Leveraging a multi-agent AI architecture, the platform transforms real-time market data, traditional news, and internet sentiment into personalised, actionable investment decisions.
 
-The system operates on behalf of users to mitigate information overload and circumvent human emotional bias, executing optimised buy or sell orders via external brokerage APIs within user-defined risk guardrails
+The system operates on behalf of users to mitigate information overload and circumvent human emotional bias, executing optimised buy or sell orders via external brokerage APIs within user-defined risk guardrails.
 
 ## ⚙️ System Architecture
 

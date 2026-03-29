@@ -37,4 +37,8 @@ readinessProbe:
     port: 5012
   initialDelaySeconds: 30
 
+worker:
+  enabled: true
+  command: ["python", "-m", "app.services.sentiment_analysis_worker"]
+
 secretName: sentiment-analysis-secrets

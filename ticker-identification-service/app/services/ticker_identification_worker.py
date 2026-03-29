@@ -35,7 +35,6 @@ CLEANED_REDIS_KEY = "tickeridentification:cleaned_tickers"
 ALIAS_REDIS_KEY = "tickeridentification:alias_mapping"
 
 PERSIST_INTERVAL = 1800
-TICKER_FLUSH_INTERVAL = 900
 
 BATCH_SIZE = 3
 RECOVER_BATCH_SIZE = 10
@@ -129,44 +128,6 @@ async def finalize_message(msg_id: str):
 
 
 # ==========================================================
-# PERIODIC TICKER FLUSH (15 MINUTES)
-# ==========================================================
-async def flush_tickers_periodically(ticker_service: TickerIdentificationService):
-    try:
-        while True:
-            await asyncio.sleep(TICKER_FLUSH_INTERVAL)
-            await flush_tickers(ticker_service)
-
-    except asyncio.CancelledError:
-        logger.warning("🛑 Ticker flush task stopped")
-        raise
-
-
-async def flush_tickers(ticker_service: TickerIdentificationService):
-    tickers = await load_all_tickers_from_event_service()
-    if not tickers:
-        logger.info("🟡 No tickers found in event service")
-        return
-
-    logger.info(f"🚀 Enriching {len(tickers)} tickers")
-
-    aliases = ticker_service.get_aliases(list(tickers))
-
-    pipe = redis_client.pipeline()
-
-    for ticker, data in aliases.items():
-        pipe.hset(
-            "all_identified_tickers",
-            ticker,
-            json.dumps(data),
-        )
-
-    await pipe.execute()
-
-    logger.info("✅ Tickers flushed")
-
-
-# ==========================================================
 # DISTRIBUTED LOCK FOR STATIC STATE WRITES
 # ==========================================================
 async def persist_if_changed(ticker_service: TickerIdentificationService):
@@ -178,7 +139,7 @@ async def persist_if_changed(ticker_service: TickerIdentificationService):
     ):
         return
 
-    now = asyncio.get_event_loop().time()
+    now = asyncio.get_running_loop().time()
     if now - _last_persist_time < PERSIST_DEBOUNCE:
         return
 
@@ -241,19 +202,6 @@ async def persist_static_state():
     except asyncio.CancelledError:
         logger.warning("🛑 Persist task stopped")
         raise
-
-
-# ==========================================================
-# SYNC WITH EVENT IDENTIFIER
-# ==========================================================
-async def load_all_tickers_from_event_service():
-    tickers = await redis_client.hkeys(
-        "eventidentification:all_identified_tickers"
-    )
-
-    logger.info(f"📥 Loaded {len(tickers)} tickers from event service")
-
-    return set(tickers)
 
 
 # ==========================================================
@@ -346,7 +294,7 @@ async def process_message(msg_id: str, data: dict, ticker_service: TickerIdentif
     )
     print(f"⏱️ Post {post_id}: Timestamped at ticker Stage → {sg_now}")
 
-    await preproc_stream.acknowledge(CONSUMER_GROUP, msg_id)
+    await finalize_message(msg_id)
     logger.info(f"✅ Processed Post {post_id}")
 
     await persist_if_changed(ticker_service)
@@ -415,9 +363,6 @@ async def worker_loop(ticker_service):
 
     heartbeat_task = asyncio.create_task(send_heartbeat())
     persist_task = asyncio.create_task(persist_static_state())
-    ticker_flush_task = asyncio.create_task(
-        flush_tickers_periodically(ticker_service)
-    )
 
     # non-blocking — new messages consumed immediately
     asyncio.create_task(recover_pending_messages(ticker_service))
@@ -453,15 +398,12 @@ async def worker_loop(ticker_service):
         raise
 
     finally:
-        await flush_tickers(ticker_service)
         heartbeat_task.cancel()
         persist_task.cancel()
-        ticker_flush_task.cancel()
 
         await asyncio.gather(
             heartbeat_task,
             persist_task,
-            ticker_flush_task,
             return_exceptions=True,
         )
 

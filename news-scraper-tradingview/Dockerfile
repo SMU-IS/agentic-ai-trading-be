@@ -17,4 +17,4 @@ ENV REDIS_PASSWORD=
 ENV REDIS_STREAM=tradingview_stream
 ENV PYTHONUNBUFFERED=1
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5003"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "5013"]

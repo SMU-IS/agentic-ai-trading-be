@@ -189,7 +189,7 @@ services:
 
   # --- News Scraper TradingView (5013) ---
   - name: news-scraper-tradingview-service
-    url: http://news-scraper-tradingview-service:5013
+    url: http://news-scraper-tradingview:5013
     routes:
       - name: news-scraper-tradingview-healthcheck
         paths: ["/api/v1/news-scraper-tradingview/healthcheck"]
@@ -205,8 +205,4 @@ services:
       - name: metrics-protected
         paths: ["/api/v1/metrics"]
         strip_path: true
-        plugins:
-          - name: jwt
-            config:
-              claims_to_verify: ["exp"]
-              secret_is_base64: false
+

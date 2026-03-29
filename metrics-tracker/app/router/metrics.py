@@ -9,7 +9,7 @@ from app.services.pipeline_metrics import (
     SERVICE_SNAPSHOT_KEY,
 )
 
-router = APIRouter(prefix="/metrics")
+router = APIRouter()
 
 
 @router.get("/pipeline")
@@ -20,7 +20,7 @@ async def get_pipeline_funnel():
     return json.loads(data)
 
 
-@router.get("/services")
+@router.get("/service")
 async def get_service_metrics():
     data = await redis_client.get(SERVICE_SNAPSHOT_KEY)
     if not data:
@@ -32,8 +32,8 @@ async def get_service_metrics():
 async def refresh_pipeline_metrics():
     await compute_pipeline_metrics()
     funnel   = await redis_client.get(FUNNEL_SNAPSHOT_KEY)
-    services = await redis_client.get(SERVICE_SNAPSHOT_KEY)
+    service = await redis_client.get(SERVICE_SNAPSHOT_KEY)
     return {
         "pipeline": json.loads(funnel),
-        "services": json.loads(services),
+        "service": json.loads(service),
     }

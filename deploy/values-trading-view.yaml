@@ -1,39 +1,34 @@
 replicaCount: 1
 
 image:
-  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/qdrant-retrieval
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/news-scraper-tradingview
   tag: v1
   pullPolicy: Always
 
 service:
   type: ClusterIP
-  port: 5009
-  targetPort: 5009
+  port: 5013
+  targetPort: 5013
 
 startupProbe:
   httpGet:
     path: /
-    port: 5009
+    port: 5013
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
     path: /
-    port: 5009
+    port: 5013
   initialDelaySeconds: 10
   periodSeconds: 20
 
 readinessProbe:
   httpGet:
     path: /
-    port: 5009
+    port: 5013
   initialDelaySeconds: 5
   periodSeconds: 10
 
-worker:
-  enabled: true
-  replicaCount: 2
-  command: ["python", "-m", "app.services.qdrant_vectorisation_worker"]
-
-secretName: qdrant-retrieval-secrets
+secretName: news-scraper-trading-view-secrets
