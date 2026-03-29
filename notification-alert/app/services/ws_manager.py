@@ -12,6 +12,8 @@ class WSManager:
         self.user_connections[user_id].append(websocket)
         self.all_connections.append(websocket)
 
+        print("Connected users:", list(self.user_connections.keys()))
+
     def disconnect(self, websocket: WebSocket, user_id: str):
         if websocket in self.all_connections:
             self.all_connections.remove(websocket)
