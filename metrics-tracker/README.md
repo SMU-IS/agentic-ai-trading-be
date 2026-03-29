@@ -49,7 +49,7 @@ The system operates on behalf of users to mitigate information overload and circ
 To get the microservices backend up and running locally, follow these steps:
 
 - Ensure Docker is running
-- Setup Environment Variables: Create a `.env` file in the individual directory and configure keys.
+- Setup Environment Variables: Create a `.env` file in the individual directory and configure keys
 - Launch Containers: Run the following command to build and start the services in detached mode `docker compose up -d`
 - Access the Server: Once the containers are healthy, the server is available at `http://localhost:8000`
 - Refer to Swagger API documentation for the API routes
