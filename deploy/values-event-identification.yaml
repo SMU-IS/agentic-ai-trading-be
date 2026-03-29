@@ -37,4 +37,8 @@ readinessProbe:
     port: 5011
   initialDelaySeconds: 30
 
+worker:
+  enabled: true
+  command: ["python", "-m", "app.services.event_identification_worker"]
+
 secretName: event-identification-secrets

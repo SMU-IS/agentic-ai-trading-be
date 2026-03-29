@@ -37,4 +37,9 @@ readinessProbe:
     port: 5002
   initialDelaySeconds: 30
 
+worker:
+  enabled: true
+  replicaCount: 2
+  command: ["python", "-m", "app.services.preprocessing_worker"]
+
 secretName: preprocessing-service-secrets

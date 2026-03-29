@@ -37,4 +37,8 @@ readinessProbe:
     port: 5010
   initialDelaySeconds: 30
 
+worker:
+  enabled: true
+  command: ["python", "-m", "app.services.ticker_identification_worker"]
+
 secretName: ticker-identification-secrets
