@@ -72,14 +72,16 @@ class QueryQdrantService:
             list[dict[str, Any]]: List of documents with metadata and similarity score.
         """
 
-        filter_by_tickers = models.Filter(
-            must=[
-                models.FieldCondition(
-                    key="metadata.tickers",
-                    match=models.MatchAny(any=payload.tickers),
-                )
-            ]
-        )
+        filter_by_tickers = None
+        if payload.tickers:
+            filter_by_tickers = models.Filter(
+                must=[
+                    models.FieldCondition(
+                        key="metadata.tickers",
+                        match=models.MatchAny(any=payload.tickers),
+                    )
+                ]
+            )
 
         try:
             results = await self.vector_store.asimilarity_search_with_score(

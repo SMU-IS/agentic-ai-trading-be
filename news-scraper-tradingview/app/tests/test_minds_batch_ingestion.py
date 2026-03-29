@@ -8,6 +8,7 @@ Coverage:
                 skips duplicates, empty tickers, exception handling
 """
 
+from datetime import datetime, timezone, timedelta
 from unittest.mock import MagicMock, patch
 
 import fakeredis
@@ -18,13 +19,21 @@ from app.services.tradingview_minds_batch_ingestion import TradingViewMindsBatch
 # Tickers the tests control — mirrors what get_tickers_from_redis would return
 _TEST_TICKERS = ["AAPL", "JPM"]
 
+# Recent timestamp (within 5-day batch window)
+_RECENT_UTC = datetime.now(timezone.utc) - timedelta(hours=1)
+_RECENT_CREATED = _RECENT_UTC.strftime("%Y-%m-%d %H:%M:%S")
+
+# Old timestamp (outside 5-day batch window)
+_OLD_UTC = datetime.now(timezone.utc) - timedelta(days=10)
+_OLD_CREATED = _OLD_UTC.strftime("%Y-%m-%d %H:%M:%S")
+
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def _make_mind(
     uid="mind001",
     text="AAPL looking bullish above 200MA.",
-    created="2026-03-15 10:00:00",
+    created=None,
     author_username="trader123",
     total_likes=25,
     total_comments=5,
@@ -34,7 +43,7 @@ def _make_mind(
     return {
         "uid": uid,
         "text": text,
-        "created": created,
+        "created": created or _RECENT_CREATED,
         "author": {"username": author_username},
         "url": url,
         "total_likes": total_likes,
@@ -99,9 +108,9 @@ class TestTradingViewMindsBatchIngestion:
     def test_happy_build_row_timestamp_parsed_from_string(self):
         """[HAPPY] created string '%Y-%m-%d %H:%M:%S' is converted to ISO."""
         row = TradingViewMindsBatchIngestion._build_row(
-            _make_mind(created="2026-03-15 10:00:00"), "AAPL"
+            _make_mind(created=_RECENT_CREATED), "AAPL"
         )
-        assert "2026-03-15" in row["timestamps"]
+        assert "T" in row["timestamps"]
 
     def test_happy_build_row_author_username(self):
         """[HAPPY] author field is populated from mind's author.username."""
@@ -206,7 +215,7 @@ class TestTradingViewMindsBatchIngestion:
         self.ingestion.scraper.get_minds.return_value = _success_response([])
         summary = self.ingestion.run()
         for key in ("source", "tickers_processed", "total_scraped",
-                    "total_published", "total_duplicates", "errors"):
+                    "total_published", "total_duplicates", "total_too_old", "errors"):
             assert key in summary
 
     @patch("app.services.tradingview_minds_batch_ingestion.time.sleep", return_value=None)
@@ -245,3 +254,28 @@ class TestTradingViewMindsBatchIngestion:
         summary = self.ingestion.run()
         assert len(summary["errors"]) == 1
         assert summary["total_published"] == 1
+
+    # ── Time boundary ──────────────────────────────────────────────────────────
+
+    @patch("app.services.tradingview_minds_batch_ingestion.time.sleep", return_value=None)
+    def test_happy_old_posts_filtered_by_time_boundary(self, _sleep):
+        """[HAPPY] Posts older than BATCH_MAX_AGE_DAYS are skipped."""
+        # Use distinct uids per ticker to avoid cross-ticker dedup
+        aapl_items = [_make_mind(uid="old_a", created=_OLD_CREATED), _make_mind(uid="new_a", created=_RECENT_CREATED)]
+        jpm_items = [_make_mind(uid="old_j", created=_OLD_CREATED), _make_mind(uid="new_j", created=_RECENT_CREATED)]
+        self.ingestion.scraper.get_minds.side_effect = [
+            _success_response(aapl_items),
+            _success_response(jpm_items),
+        ]
+        summary = self.ingestion.run()
+        assert summary["total_too_old"] == 2  # old_mind filtered out for both tickers
+        assert summary["total_published"] == 2  # new_mind published for both tickers
+
+    @patch("app.services.tradingview_minds_batch_ingestion.time.sleep", return_value=None)
+    def test_boundary_all_posts_too_old(self, _sleep):
+        """[BOUNDARY] All posts older than cutoff → nothing published."""
+        old_minds = [_make_mind(uid=f"old{i}", created=_OLD_CREATED) for i in range(3)]
+        self.ingestion.scraper.get_minds.return_value = _success_response(old_minds)
+        summary = self.ingestion.run()
+        assert summary["total_published"] == 0
+        assert summary["total_too_old"] == 6  # 3 per ticker × 2 tickers

@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from app.services.query_qdrant import QueryQdrantService
 
 @pytest.fixture
@@ -63,3 +63,51 @@ async def test_retrieve_all_news_error(mock_qdrant_strategy):
     
     with pytest.raises(RuntimeError, match="Failed to scroll documents: Qdrant error"):
         await service.retrieve_all_news()
+
+@pytest.mark.asyncio
+async def test_retrieve_ticker_insights_with_tickers(mock_qdrant_strategy):
+    service = QueryQdrantService()
+    from app.schemas.query_docs_payload import QueryDocsRequest
+    from qdrant_client import models
+    
+    payload = QueryDocsRequest(query="test query", limit=5, tickers=["AAPL", "MSFT"])
+    
+    # Mock similarity search result
+    mock_doc = MagicMock()
+    mock_doc.metadata = {"topic_id": "topic_1", "text_content": "Article content"}
+    service.vector_store.asimilarity_search_with_score = AsyncMock(return_value=[(mock_doc, 0.95)])
+    
+    result = await service.retrieve_ticker_insights(payload)
+    
+    assert len(result) == 1
+    assert result[0]["topic_id"] == "topic_1"
+    assert result[0]["similarity_score"] == 0.95
+    
+    # Verify filter was created and passed
+    args, kwargs = service.vector_store.asimilarity_search_with_score.call_args
+    assert kwargs["filter"] is not None
+    assert isinstance(kwargs["filter"], models.Filter)
+    # Check if AAPL and MSFT are in the filter
+    ticker_condition = kwargs["filter"].must[0]
+    assert ticker_condition.match.any == ["AAPL", "MSFT"]
+
+@pytest.mark.asyncio
+async def test_retrieve_ticker_insights_without_tickers(mock_qdrant_strategy):
+    service = QueryQdrantService()
+    from app.schemas.query_docs_payload import QueryDocsRequest
+    
+    payload = QueryDocsRequest(query="general query", limit=5, tickers=[])
+    
+    # Mock similarity search result
+    mock_doc = MagicMock()
+    mock_doc.metadata = {"topic_id": "topic_2", "text_content": "General article content"}
+    service.vector_store.asimilarity_search_with_score = AsyncMock(return_value=[(mock_doc, 0.88)])
+    
+    result = await service.retrieve_ticker_insights(payload)
+    
+    assert len(result) == 1
+    assert result[0]["topic_id"] == "topic_2"
+    
+    # Verify filter was None
+    args, kwargs = service.vector_store.asimilarity_search_with_score.call_args
+    assert kwargs["filter"] is None

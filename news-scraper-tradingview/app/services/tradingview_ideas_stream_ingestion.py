@@ -12,7 +12,7 @@ Usage (standalone test):
 
 import time
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 
 from tradingview_scraper.symbols.ideas import Ideas
@@ -41,12 +41,41 @@ class TradingViewIdeasStreamIngestion:
     INTER_TICKER_DELAY = 3
     TICKER_REFRESH_INTERVAL = 300
     MAX_MEMORY_CACHE = 50_000
+    STREAM_BOOTSTRAP_MINUTES = 15  # on first run (no HWM), only look back this far
+    HWM_KEY_PREFIX = "hwm:tradingview_ideas"  # per-ticker high-water mark in Redis
 
     def __init__(self, redis_client=None):
         self.redis = redis_client or get_redis_client()
         self.scraper = Ideas()
         self.seen_in_memory: set = set()
         self._running = True
+
+    # ── Time filtering ─────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _parse_post_time(idea: dict) -> datetime | None:
+        """Parse the post creation time as a UTC datetime."""
+        raw_ts = idea.get("timestamp", 0)
+        try:
+            return datetime.fromtimestamp(int(raw_ts), tz=timezone.utc)
+        except (ValueError, TypeError, OSError):
+            return None
+
+    def _get_hwm(self, ticker: str) -> datetime:
+        """Get the high-water mark for a ticker. Falls back to now - bootstrap window."""
+        key = f"{self.HWM_KEY_PREFIX}:{ticker}"
+        val = self.redis.get(key)
+        if val:
+            try:
+                return datetime.fromisoformat(val)
+            except (ValueError, TypeError):
+                pass
+        return datetime.now(timezone.utc) - timedelta(minutes=self.STREAM_BOOTSTRAP_MINUTES)
+
+    def _set_hwm(self, ticker: str, ts: datetime):
+        """Update the high-water mark for a ticker."""
+        key = f"{self.HWM_KEY_PREFIX}:{ticker}"
+        self.redis.set(key, ts.isoformat(), ex=7 * 86400)  # expire after 7 days of inactivity
 
     # ── Row building ──────────────────────────────────────────────────────────
 
@@ -137,7 +166,20 @@ class TradingViewIdeasStreamIngestion:
 
                     items = result[:self.ITEMS_PER_TICKER]
 
+                    # Per-ticker high-water mark: only accept posts newer than HWM
+                    hwm = self._get_hwm(ticker)
+                    max_post_time = hwm  # track newest post to update HWM
+
                     for idea in items:
+                        # Time boundary: skip posts at or before the high-water mark
+                        post_time = self._parse_post_time(idea)
+                        if post_time and post_time <= hwm:
+                            cycle_duplicates += 1
+                            continue
+
+                        if post_time and post_time > max_post_time:
+                            max_post_time = post_time
+
                         dedup_key = self._dedup_key(idea)
                         if not dedup_key or dedup_key == "unknown::":
                             continue
@@ -170,6 +212,10 @@ class TradingViewIdeasStreamIngestion:
                         logger.info(f"⏱️ Post {row['id']}: Timestamped at Scraping Stage")
 
                         cycle_published += 1
+
+                    # Update high-water mark for this ticker
+                    if max_post_time > hwm:
+                        self._set_hwm(ticker, max_post_time)
 
                 except Exception as e:
                     logger.error(f"[Ideas Stream] Error scraping {ticker}: {e}", exc_info=True)

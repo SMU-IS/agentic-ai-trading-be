@@ -188,6 +188,7 @@ class WorkflowManager:
         analysis = await analyzer.analyze(news_content, article)
         analyzer.print_analysis(analysis)
         analysis.news_id = article.news_id.strip('"') # Remove inproper quotes
+        analysis.source = article.source
         state["deep_analysis"] = analysis
         
 

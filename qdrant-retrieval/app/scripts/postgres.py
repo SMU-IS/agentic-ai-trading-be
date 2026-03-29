@@ -11,37 +11,52 @@ _pool = None
 async def get_pool() -> asyncpg.Pool:
     global _pool
     if _pool is None:
-        ssl_context = None
-        if env_config.postgres_ssl_mode in ("verify-ca", "verify-full"):
-            ssl_context = ssl.create_default_context(cafile=env_config.postgres_ca_cert)
-            if env_config.postgres_ssl_mode == "verify-ca":
+        try:
+            ssl_context = None
+            if env_config.postgres_ssl_mode in ("verify-ca", "verify-full"):
+                ssl_context = ssl.create_default_context(cafile=env_config.postgres_ca_cert)
+                if env_config.postgres_ssl_mode == "verify-ca":
+                    ssl_context.check_hostname = False
+            elif env_config.postgres_ssl_mode == "require":
+                # Basic 'require' mode without certificate verification
+                ssl_context = ssl.create_default_context()
                 ssl_context.check_hostname = False
-        elif env_config.postgres_ssl_mode == "require":
-             # Basic 'require' mode without certificate verification
-             ssl_context = ssl.create_default_context()
-             ssl_context.check_hostname = False
-             ssl_context.verify_mode = ssl.CERT_NONE
+                ssl_context.verify_mode = ssl.CERT_NONE
 
-        _pool = await asyncpg.create_pool(
-            host=env_config.postgres_host,
-            port=env_config.postgres_port,
-            user=env_config.postgres_user,
-            password=env_config.postgres_password,
-            database=env_config.postgres_db,
-            ssl=ssl_context or env_config.postgres_ssl_mode,
-            min_size=2,
-            max_size=10,
-        )
-        logger.info("✅ PostgreSQL pool created")
+            _pool = await asyncpg.create_pool(
+                host=env_config.postgres_host,
+                port=env_config.postgres_port,
+                user=env_config.postgres_user,
+                password=env_config.postgres_password,
+                database=env_config.postgres_db,
+                ssl=ssl_context or env_config.postgres_ssl_mode,
+                min_size=2,
+                max_size=10,
+            )
+            logger.info("✅ PostgreSQL pool created")
+
+        except ssl.SSLError as e:
+            logger.error(f"SSL configuration error: {e}")
+            raise
+        except asyncpg.PostgresConnectionError as e:
+            logger.error(f"Failed to connect to PostgreSQL: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error creating PostgreSQL pool: {e}")
+            raise
+
     return _pool
 
 
 async def close_pool():
     global _pool
     if _pool:
-        await _pool.close()
-        _pool = None
-        logger.info("🛑 PostgreSQL pool closed")
+        try:
+            await _pool.close()
+            _pool = None
+            logger.info("🛑 PostgreSQL pool closed")
+        except Exception as e:
+            logger.error(f"❌ Failed to close PostgreSQL pool: {e}")
 
 
 async def init_db():
@@ -69,12 +84,18 @@ async def init_db():
                 )
             """)
             logger.info("✅ PostgreSQL table ready")
+            return True
     except Exception as e:
         logger.error(f"❌ Failed to initialise PostgreSQL table: {e}")
+        return False
 
 
 async def save_post(decoded: dict, vectorised: bool = False):
-    pool = await get_pool()
+    try:
+        pool = await get_pool()
+    except Exception as e:
+        logger.error(f"❌ Could not acquire pool in save_post: {e}")
+        raise
 
     raw_ts = decoded.get("timestamps")
     if isinstance(raw_ts, str):
@@ -121,7 +142,11 @@ async def save_post(decoded: dict, vectorised: bool = False):
         raise
 
 async def mark_vectorised(post_id: str):
-    pool = await get_pool()
+    try:
+        pool = await get_pool()
+    except Exception as e:
+        logger.error(f"❌ Could not acquire pool in mark_vectorised: {e}")
+        raise
     try:
         async with pool.acquire() as conn:
             await conn.execute(
