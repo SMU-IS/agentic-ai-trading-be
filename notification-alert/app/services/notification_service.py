@@ -5,6 +5,9 @@ from typing import List
 import json
 import jwt
 import asyncio
+from fastapi import APIRouter, Header
+
+from app.core.constant import APIPath
 
 router = APIRouter()
 connections: List[WebSocket] = [] 
@@ -25,9 +28,9 @@ async def notify_users(payload: dict, user_id: str | None = None):
         return await ws_manager.broadcast(payload)
 
 @router.websocket("/ws/notifications")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket, user_id: str):
     await websocket.accept()
-    user_id = websocket.headers.get("X-USER-ID")
+    # user_id = websocket.headers.get("X-USER-ID")
     # print(user_id)
 
     
@@ -64,4 +67,12 @@ async def websocket_endpoint(websocket: WebSocket):
         if user_id:
             ws_manager.disconnect(websocket, user_id)
         raise
+
+@router.get(APIPath.USER)
+def get_current_user(x_user_id: str = Header(...)):
+    if not x_user_id:
+        return {"error": "User ID not found"}, 401
+
+    return {"status": "success", "user_id": x_user_id}
+
 

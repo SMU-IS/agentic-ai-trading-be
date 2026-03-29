@@ -116,10 +116,10 @@ class StreamConsumer:
                                             )
                                             
                                         full_signal = response.json()
-                                        # notification_payload = {
-                                        #     "type": "SIGNAL_GENERATED",
-                                        #     "signal_id": "test_signal"
-                                        # }
+                                        notification_payload = {
+                                            "type": "SIGNAL_GENERATED",
+                                            "signal_id": full_signal
+                                        }
                                         delivered = await notify_users(notification_payload)
                                         if delivered:
                                             logger.info("✅ Sent signal notification: %s", notification_payload)
