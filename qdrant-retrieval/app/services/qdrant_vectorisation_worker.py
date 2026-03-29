@@ -336,7 +336,7 @@ async def main():
     await setup_consumer_group()
 
     # ✅ init postgres table (idempotent — safe to run every startup)
-    # await init_db()
+    await init_db()
 
     # ✅ ensure qdrant indexes once at startup
     await vector_service.ensure_indexes()
@@ -365,7 +365,7 @@ async def main():
             worker_task.cancel()
 
         await asyncio.gather(worker_task, return_exceptions=True)
-        # await close_pool()       # ← close postgres pool
+        await close_pool()       # ← close postgres pool
         await redis_client.aclose()
 
 
