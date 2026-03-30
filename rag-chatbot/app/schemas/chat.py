@@ -38,3 +38,8 @@ class TradeHistory(BaseModel):
     order_id: str = Field(
         ..., description="The order ID to get the previously executed trade history"
     )
+
+
+class TradeHistoryRange(BaseModel):
+    after: str = Field(..., description="Start date in YYYY-MM-DD format")
+    until: str = Field(..., description="End date in YYYY-MM-DD format")

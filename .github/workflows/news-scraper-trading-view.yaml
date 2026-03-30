@@ -10,7 +10,7 @@ on:
     paths: ["news-scraper-tradingview/**"]
 
 jobs:
-  rag-bot-workflow:
+  trading-view-scraper-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
     with:
       working-directory: "news-scraper-tradingview"

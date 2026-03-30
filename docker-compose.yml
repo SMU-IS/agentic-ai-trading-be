@@ -95,4 +95,3 @@ include:
   - path: ./metrics-tracker/docker-compose.yml
     env_file: ./metrics-tracker/.env
     project_directory: ./metrics-tracker
-
