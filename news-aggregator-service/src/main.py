@@ -8,7 +8,6 @@ from src.config import settings
 from src.services.redis_service import RedisService
 from src.workflows.main_workflow import setup_workflow
 
-
 SERVICE_POLL_INTERVAL = 10  # seconds
 
 SERVICE_POLL_INTERVAL = 10  # seconds
@@ -31,8 +30,16 @@ async def lifespan(app_: FastAPI):
     print(f"🔑 Qdrant URL: {settings.news_analysis_qdrant_url}")
     print(f"🔑 Trading URL: {settings.aggregator_base_url}")
     print(f"🔑 LLM Provider: {settings.llm_provider}")
-    print(f"🔑 Perplexity API Key: {settings.pplx_api_key[:4]}..." if settings.pplx_api_key else "None")
-    print(f"🔑 Groq API Key: {settings.groq_api_key[:4]}..." if settings.groq_api_key else "None")
+    print(
+        f"🔑 Perplexity API Key: {settings.pplx_api_key[:4]}..."
+        if settings.pplx_api_key
+        else "None"
+    )
+    print(
+        f"🔑 Groq API Key: {settings.groq_api_key[:4]}..."
+        if settings.groq_api_key
+        else "None"
+    )
     print(f"🔑 Model: {settings.model}")
 
     print("🔑 Redis config:")
@@ -48,7 +55,9 @@ async def lifespan(app_: FastAPI):
     # Seed initial state
     initial_enabled = await redis_service.get_service_enabled()
     status_str = "▶️  ENABLED" if initial_enabled else "⏸️  PAUSED"
-    print(f"🔑 Service control key: {settings.redis_service_control_key} → {status_str}")
+    print(
+        f"🔑 Service control key: {settings.redis_service_control_key} → {status_str}"
+    )
     if initial_enabled:
         service_enabled.set()
 
@@ -59,10 +68,14 @@ async def lifespan(app_: FastAPI):
                 enabled = await redis_service.get_service_enabled()
                 if enabled and not service_enabled.is_set():
                     service_enabled.set()
-                    print(f"▶️  Service ENABLED  (key={settings.redis_service_control_key})")
+                    print(
+                        f"▶️  Service ENABLED  (key={settings.redis_service_control_key})"
+                    )
                 elif not enabled and service_enabled.is_set():
                     service_enabled.clear()
-                    print(f"⏸️  Service PAUSED   (key={settings.redis_service_control_key})")
+                    print(
+                        f"⏸️  Service PAUSED   (key={settings.redis_service_control_key})"
+                    )
             except Exception as e:
                 print(f"⚠️  Service control poll error: {e}")
             await asyncio.sleep(SERVICE_POLL_INTERVAL)
@@ -90,7 +103,7 @@ async def lifespan(app_: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
-@app.get("/")
+@app.get("/healthcheck")
 async def health_check():
     """Health check endpoint with dependency verification."""
     if redis_service is None:
