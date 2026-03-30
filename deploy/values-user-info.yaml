@@ -32,3 +32,6 @@ readinessProbe:
   initialDelaySeconds: 30
 
 secretName: user-info-secrets
+
+ingress:
+  enabled: false

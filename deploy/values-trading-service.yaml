@@ -30,3 +30,6 @@ readinessProbe:
   initialDelaySeconds: 30
 
 secretName: trading-service-secrets
+
+ingress:
+  enabled: false

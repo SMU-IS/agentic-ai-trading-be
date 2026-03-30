@@ -32,3 +32,6 @@ readinessProbe:
   periodSeconds: 10
 
 secretName: rag-chatbot-secrets
+
+ingress:
+  enabled: false

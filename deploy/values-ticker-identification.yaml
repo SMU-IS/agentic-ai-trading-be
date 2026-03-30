@@ -10,7 +10,7 @@ resources:
 
 image:
   repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/ticker-identification-service
-  tag: v1
+  tag: 2e8ae96a866c7739fd6946de962122ab7a584d51
   pullPolicy: Always
 
 service:
@@ -42,3 +42,6 @@ worker:
   command: ["python", "-m", "app.services.ticker_identification_worker"]
 
 secretName: ticker-identification-service-secrets
+
+ingress:
+  enabled: false

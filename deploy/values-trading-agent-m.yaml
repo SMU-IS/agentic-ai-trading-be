@@ -32,3 +32,6 @@ readinessProbe:
   periodSeconds: 10
 
 secretName: trading-agent-m-secrets
+
+ingress:
+  enabled: false

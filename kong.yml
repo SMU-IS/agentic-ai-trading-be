@@ -56,7 +56,7 @@ plugins:
 services:
   # --- RAG Chatbot (5001) ---
   - name: rag-chatbot-service
-    url: http://rag-chatbot-service:5001
+    url: http://rag-chatbot-infra:5001
     routes:
       - name: rag-healthcheck
         paths: ["/api/v1/rag/healthcheck"]
@@ -72,7 +72,7 @@ services:
 
   # --- Preprocessing (5002) ---
   - name: preprocessing-service
-    url: http://preprocessing:5002
+    url: http://preprocessing-infra:5002
     routes:
       - name: preprocessing-healthcheck
         paths: ["/api/v1/preprocessing/healthcheck"]
@@ -80,7 +80,7 @@ services:
 
   # --- News Scraper (5003) ---
   - name: news-scraper-service
-    url: http://news-scraper-service:5003
+    url: http://news-scraper-infra:5003
     routes:
       - name: news-scraper-healthcheck
         paths: ["/api/v1/news-scraper/healthcheck"]
@@ -88,7 +88,7 @@ services:
 
   # --- Notification (5004) ---
   - name: notification-service
-    url: http://notification-service:5004
+    url: http://notification-alert-infra:5004
     routes:
       - name: notification-healthcheck
         paths: ["/api/v1/notification/healthcheck"]
@@ -96,7 +96,7 @@ services:
 
   # --- User Service (5005) ---
   - name: user-info-service
-    url: http://user-info-service:5005
+    url: http://user-info-infra:5005
     routes:
       - name: auth-healthcheck
         paths: ["/api/v1/auth/healthcheck"]
@@ -121,7 +121,7 @@ services:
 
   # --- Trading Agent M (5006) ---
   - name: trading-agent-m-service
-    url: http://trading-agent-m-service:5006
+    url: http://trading-agent-m-infra:5006
     routes:
       - name: agent-m-healthcheck
         paths: ["/api/v1/agent-m/healthcheck"]
@@ -129,7 +129,7 @@ services:
 
   # --- Trading Service (5007) ---
   - name: trading-service
-    url: http://broker-service:5007
+    url: http://trading-infra:5007
     routes:
       - name: trading-healthcheck
         paths: ["/api/v1/trading/healthcheck"]
@@ -145,7 +145,7 @@ services:
 
   # --- News Aggregator (5008) ---
   - name: news-aggregator-service
-    url: http://news-aggregator:5008
+    url: http://news-aggregator-infra:5008
     routes:
       - name: news-aggregator-healthcheck
         paths: ["/api/v1/news-aggregator/healthcheck"]
@@ -153,7 +153,7 @@ services:
 
   # --- Qdrant Retrieval (5009) ---
   - name: qdrant-retrieval-service
-    url: http://qdrant-retrieval:5009
+    url: http://qdrant-retrieval-infra:5009
     routes:
       - name: qdrant-healthcheck
         paths: ["/api/v1/qdrant/healthcheck"]
@@ -169,7 +169,7 @@ services:
 
   # --- Ticker Identification (5010) ---
   - name: ticker-id-service
-    url: http://ticker-identification:5010
+    url: http://ticker-identification-infra:5010
     routes:
       - name: ticker-id-healthcheck
         paths: ["/api/v1/ticker-identification/healthcheck"]
@@ -177,7 +177,7 @@ services:
 
   # --- Event Identification (5011) ---
   - name: event-id-service
-    url: http://event-identification:5011
+    url: http://event-identification-infra:5011
     routes:
       - name: event-id-healthcheck
         paths: ["/api/v1/event-identification/healthcheck"]
@@ -185,7 +185,7 @@ services:
 
   # --- Sentiment Analysis (5012) ---
   - name: sentiment-service
-    url: http://sentiment-analysis:5012
+    url: http://sentiment-analysis-infra:5012
     routes:
       - name: sentiment-healthcheck
         paths: ["/api/v1/sentiment-analysis/healthcheck"]
@@ -193,7 +193,7 @@ services:
 
   # --- News Scraper TradingView (5013) ---
   - name: news-scraper-tradingview-service
-    url: http://news-scraper-tradingview:5013
+    url: http://news-scraper-tradingview-infra:5013
     routes:
       - name: news-scraper-tradingview-healthcheck
         paths: ["/api/v1/news-scraper-tradingview/healthcheck"]
@@ -201,7 +201,7 @@ services:
 
   # --- Metrics Tracker (5014) ---
   - name: metrics-tracker-service
-    url: http://metrics-tracker:5014
+    url: http://metrics-tracker-infra:5014
     routes:
       - name: metrics-healthcheck
         paths: ["/api/v1/metrics/healthcheck"]
@@ -209,4 +209,3 @@ services:
       - name: metrics-protected
         paths: ["/api/v1/metrics"]
         strip_path: true
-

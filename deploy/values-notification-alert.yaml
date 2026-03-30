@@ -32,3 +32,6 @@ readinessProbe:
   periodSeconds: 10
 
 secretName: notification-alert-secrets
+
+ingress:
+  enabled: false

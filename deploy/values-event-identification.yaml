@@ -42,3 +42,6 @@ worker:
   command: ["python", "-m", "app.services.event_identification_worker"]
 
 secretName: event-identification-service-secrets
+
+ingress:
+  enabled: false

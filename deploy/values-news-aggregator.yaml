@@ -40,3 +40,6 @@ readinessProbe:
   periodSeconds: 10
 
 secretName: news-aggregator-service-secrets
+
+ingress:
+  enabled: false

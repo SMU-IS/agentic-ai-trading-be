@@ -43,3 +43,6 @@ worker:
   command: ["python", "-m", "app.services.preprocessing_worker"]
 
 secretName: preprocessing-service-secrets
+
+ingress:
+  enabled: false

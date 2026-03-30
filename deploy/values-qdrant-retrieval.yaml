@@ -37,3 +37,6 @@ worker:
   command: ["python", "-m", "app.services.qdrant_vectorisation_worker"]
 
 secretName: qdrant-retrieval-secrets
+
+ingress:
+  enabled: false

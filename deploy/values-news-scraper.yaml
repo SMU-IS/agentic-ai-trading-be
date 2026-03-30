@@ -38,3 +38,6 @@ readinessProbe:
   initialDelaySeconds: 30
 
 secretName: news-scraper-secrets
+
+ingress:
+  enabled: false

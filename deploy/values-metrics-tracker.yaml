@@ -32,3 +32,6 @@ readinessProbe:
   periodSeconds: 10
 
 secretName: metrics-tracker-service-secrets
+
+ingress:
+  enabled: false

@@ -42,3 +42,6 @@ worker:
   command: ["python", "-m", "app.services.sentiment_analysis_worker"]
 
 secretName: sentiment-analysis-secrets
+
+ingress:
+  enabled: false
