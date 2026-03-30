@@ -26,13 +26,13 @@ async def lifespan(app_: FastAPI):
     # Startup
     print("🚀 Starting services...")
     print("🔑 Loading config from .env...")
-    print(f"🔑 Qdrant URL: {settings.qdrant_url}")
-    print(f"🔑 Trading URL: {settings.aggregator_url}")
+    print(f"🔑 Qdrant URL: {settings.news_analysis_qdrant_url}")
+    print(f"🔑 Trading URL: {settings.aggregator_base_url}")
     print(f"🔑 LLM Provider: {settings.llm_provider}")
     print(f"🔑 Perplexity API Key: {settings.pplx_api_key[:4]}..." if settings.pplx_api_key else "None")
     print(f"🔑 Groq API Key: {settings.groq_api_key[:4]}..." if settings.groq_api_key else "None")
     print(f"🔑 Model: {settings.model}")
-    
+
     print("🔑 Redis config:")
     print(f"  Host: {settings.redis_host}")
     print(f"  Port: {settings.redis_port}")
