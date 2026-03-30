@@ -229,7 +229,7 @@ async def run_aggregator():
             await compute_pipeline_metrics()
         except Exception as e:
             print(f"[pipeline_metrics] aggregator error: {e}")
-        await asyncio.sleep(300)  # every 5 mins
+        await asyncio.sleep(900)  # every 15 mins
 
 
 if __name__ == "__main__":

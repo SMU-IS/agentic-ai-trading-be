@@ -14,7 +14,7 @@ async def test_get_general_news_only_query():
     """Test get_general_news with only the query provided."""
     mock_response = {
         "results": [
-            {"headline": "Market News", "content_preview": "Stock market update"},
+            {"topic_id": "topic_1", "text_content": "Market News: Stock market update"},
         ]
     }
 
@@ -28,6 +28,7 @@ async def test_get_general_news_only_query():
         result = await get_general_news.ainvoke({"query": "What is the market doing?"})
 
         assert "Market News" in result["context"]
+        assert "topic_1" in result["context"]
         assert len(result["results"]) == 1
         
         # Verify the payload sent to the mock post
@@ -41,8 +42,8 @@ async def test_get_general_news_only_query():
 async def test_get_general_news_success():
     mock_response = {
         "results": [
-            {"headline": "News 1", "content_preview": "Content 1"},
-            {"headline": "News 2", "content_preview": "Content 2"},
+            {"topic_id": "topic_1", "text_content": "News 1 Content"},
+            {"topic_id": "topic_2", "text_content": "News 2 Content"},
         ]
     }
 
@@ -55,6 +56,7 @@ async def test_get_general_news_success():
         result = await get_general_news.ainvoke({"query": "test", "tickers": ["AAPL"]})
 
         assert "News 1" in result["context"]
+        assert "topic_1" in result["context"]
         assert len(result["results"]) == 2
 
 

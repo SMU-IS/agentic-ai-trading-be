@@ -34,6 +34,12 @@ variable "db_password" {
   sensitive   = true
 }
 
+variable "bastion_security_group_id" {
+  description = "Security group ID of the bastion host"
+  type        = string
+  default     = null
+}
+
 variable "environment" {
   description = "Deployment environment (e.g., dev, prod)"
   type        = string

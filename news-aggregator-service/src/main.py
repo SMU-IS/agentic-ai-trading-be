@@ -11,6 +11,8 @@ from src.workflows.main_workflow import setup_workflow
 
 SERVICE_POLL_INTERVAL = 10  # seconds
 
+SERVICE_POLL_INTERVAL = 10  # seconds
+
 # Global state
 redis_service: RedisService = None
 workflow = None

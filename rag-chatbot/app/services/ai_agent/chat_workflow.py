@@ -14,6 +14,7 @@ from app.services.ai_agent.nodes import (
     llm_chat_node,
     should_summarise,
     summarise_node,
+    trade_history_list_node,
     trade_history_node,
 )
 from app.services.ai_agent.state import AgentState
@@ -32,7 +33,9 @@ class ChatWorkflow:
 
     async def _route(
         self, state: AgentState
-    ) -> Literal["trade_history", "general_news", "llm_chat", "clarify"]:
+    ) -> Literal[
+        "trade_history", "general_news", "llm_chat", "clarify", "trade_history_list"
+    ]:
 
         structured_llm = self.llm.with_structured_output(RouterDecision)
         current_order = state.get("order_id", "None")
@@ -45,8 +48,10 @@ class ChatWorkflow:
             "route to 'trade_history'.\n"
             "2. If they ask about a NEW order ID, route to 'trade_history'.\n"
             "3. If they ask about market trends or news, route to 'general_news'.\n"
-            "4. If they are making general conversation, introductions, or asking about themselves, route to 'llm_chat'.\n"
-            "5. If the user's intent is completely unclear, route to 'clarify' with low confidence.\n"
+            "4. If they ask for their trade history, list of orders, or trades for a period (e.g., 'past 1 day', 'last week'), "
+            "route to 'trade_history_list'.\n"
+            "5. If they are making general conversation, introductions, or asking about themselves, route to 'llm_chat'.\n"
+            "6. If the user's intent is completely unclear, route to 'clarify' with low confidence.\n"
             "Return the 'next_node', 'reasoning', and 'confidence' (0.0-1.0)."
         )
 
@@ -88,10 +93,12 @@ class ChatWorkflow:
         )
         bound_summarise_node = partial(summarise_node, llm=self.llm)
         bound_format_node = partial(format_response_node, llm=self.llm)
+        bound_trade_history_list_node = partial(trade_history_list_node, llm=self.llm)
 
         # 1. Add Nodes
         graph.add_node("extract_order_id", extract_order_id_node)
         graph.add_node("trade_history", trade_history_node)
+        graph.add_node("trade_history_list", bound_trade_history_list_node)
         graph.add_node("general_news", general_news_node)
         graph.add_node("llm_chat", bound_chat_node)
         graph.add_node("clarify", clarification_node)
@@ -102,7 +109,7 @@ class ChatWorkflow:
         graph.set_entry_point("extract_order_id")
 
         # 3. Define Conditional Routing from Entry
-        # Routes can go to: trade_history, general_news, llm_chat, or clarify
+        # Routes can go to: trade_history, general_news, llm_chat, clarify, or trade_history_list
         graph.add_conditional_edges(
             "extract_order_id",
             self._route,
@@ -111,12 +118,14 @@ class ChatWorkflow:
                 "general_news": "general_news",
                 "llm_chat": "llm_chat",
                 "clarify": "clarify",
+                "trade_history_list": "trade_history_list",
             },
         )
 
         # 4. Route processing nodes that need formatting
         graph.add_edge("trade_history", "format_response")
         graph.add_edge("general_news", "format_response")
+        graph.add_edge("trade_history_list", "format_response")
 
         # 5. Nodes that already have AI messages go straight to summary check
         exit_nodes = ["llm_chat", "clarify", "format_response"]

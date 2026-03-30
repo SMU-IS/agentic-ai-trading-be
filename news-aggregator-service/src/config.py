@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     redis_service_control_key: str = os.getenv(
         "REDIS_SERVICE_CONTROL_KEY", "services:news-aggregator-service"
     )
+    redis_service_control_key: str = os.getenv(
+        "REDIS_SERVICE_CONTROL_KEY", "services:news-aggregator-service"
+    )
 
     class Config:
         env_file = ".env"

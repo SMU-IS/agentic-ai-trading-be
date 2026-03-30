@@ -47,3 +47,13 @@ output "lb_controller_irsa_role_arn" {
   description = "ARN of the IAM role for Service Account for AWS Load Balancer Controller"
   value       = module.lb_controller_irsa_role.iam_role_arn
 }
+
+output "bastion_security_group_id" {
+  description = "Security group ID of the bastion host"
+  value       = aws_security_group.bastion_sg.id
+}
+
+output "bastion_instance_id" {
+  description = "ID of the bastion host"
+  value       = aws_instance.bastion.id
+}
