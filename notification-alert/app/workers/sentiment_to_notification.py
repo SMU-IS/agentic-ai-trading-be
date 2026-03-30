@@ -1,6 +1,8 @@
-import json
 import asyncio
+import json
+
 from redis.asyncio import Redis
+
 from app.core.config import env_config
 from app.core.logger import logger
 
@@ -41,17 +43,27 @@ class SentimentBridge:
 
                     tickers_info = []
                     for ticker, meta in ticker_meta.items():
-                        tickers_info.append({
-                            "symbol": ticker,
-                            "event_type": meta.get("event_type") or "",
-                            "sentiment_label": meta.get("sentiment_label") or ""
-                        })
+                        tickers_info.append(
+                            {
+                                "symbol": ticker,
+                                "event_type": meta.get("event_type") or "",
+                                "sentiment_label": meta.get("sentiment_label") or "",
+                            }
+                        )
 
                     notification_data = {
                         "id": (data.get("id") or "").strip('"'),
-                        "headline": json.loads(data.get("content") or "{}").get("title", ""),
+                        "headline": json.loads(data.get("content") or "{}").get(
+                            "title", ""
+                        ),
+                        "body": json.loads(data.get("content") or "{}").get("body", ""),
                         "tickers": json.dumps(tickers_info),
-                        "event_description": "; ".join([meta.get("event_description") or "" for meta in ticker_meta.values()])
+                        "event_description": "; ".join(
+                            [
+                                meta.get("event_description") or ""
+                                for meta in ticker_meta.values()
+                            ]
+                        ),
                     }
 
                     await self.r.xadd(
@@ -59,5 +71,3 @@ class SentimentBridge:
                         notification_data,
                     )
                     print("🔁 News event:", notification_data)
-
-                    # last_id = event_id
