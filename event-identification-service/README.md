@@ -81,4 +81,4 @@ In Collaboration With UBS.
 
 <a href="https://www.linkedin.com/in/shawn-ng-yh/">
   <img src="https://github.com/user-attachments/assets/6bd4f3a7-6784-402a-b891-03d91e15d705" width="80">
-</a> &nbsp;
+</a>
