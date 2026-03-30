@@ -20,7 +20,7 @@ async def trade_history_list_node(state: AgentState, llm) -> dict[str, Any]:
     """
     logger.info("Executing trade_history_list_node")
 
-    query = state.get("query", "")
+    _ = state.get("query", "")
     msg_id = str(uuid.uuid4())
 
     now = datetime.now()
