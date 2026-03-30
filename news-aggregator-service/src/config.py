@@ -28,10 +28,10 @@ class Settings(BaseSettings):
     
     news_analysis_qdrant_url: str = os.getenv(
         "NEWS_ANALYSIS_QDRANT_URL",
-        "http://qdrant-retrieval-infra:5009/qdrant/ticker-events",
+        "http://qdrant-retrieval-infra:5009/ticker-events",
     )
     aggregator_base_url: str = os.getenv(
-        "AGGREGATOR_BASE_URL", "http://localhost:8000/api/v1/trading"
+        "AGGREGATOR_BASE_URL", "http://trading-service-infra:5007/api/v1/trading"
     )
     redis_service_control_key: str = os.getenv(
         "REDIS_SERVICE_CONTROL_KEY", "services:news-aggregator-service"
