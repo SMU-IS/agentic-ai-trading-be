@@ -16,6 +16,7 @@ Coverage:
              skips items with empty dedup key
 """
 
+from datetime import datetime, timezone, timedelta
 from unittest.mock import MagicMock, patch
 
 import fakeredis
@@ -24,14 +25,24 @@ import pytest
 from app.services.tradingview_minds_stream_ingestion import TradingViewMindsStreamIngestion
 from app.services.tradingview_ideas_stream_ingestion import TradingViewIdeasStreamIngestion
 
+# Recent timestamp (within 15-min bootstrap window)
+_RECENT_UTC = datetime.now(timezone.utc) - timedelta(minutes=2)
+_RECENT_CREATED = _RECENT_UTC.strftime("%Y-%m-%d %H:%M:%S")
+_RECENT_EPOCH = int(_RECENT_UTC.timestamp())
+
+# Old timestamp (outside bootstrap window)
+_OLD_UTC = datetime.now(timezone.utc) - timedelta(hours=2)
+_OLD_CREATED = _OLD_UTC.strftime("%Y-%m-%d %H:%M:%S")
+_OLD_EPOCH = int(_OLD_UTC.timestamp())
+
 
 # ── Shared helpers ─────────────────────────────────────────────────────────────
 
-def _make_mind(uid="m001", text="Bull run incoming!", created="2026-03-15 10:00:00"):
+def _make_mind(uid="m001", text="Bull run incoming!", created=None):
     return {
         "uid": uid,
         "text": text,
-        "created": created,
+        "created": created or _RECENT_CREATED,
         "author": {"username": "trader1"},
         "url": "https://tradingview.com/u/trader1/",
         "total_likes": 5,
@@ -40,10 +51,10 @@ def _make_mind(uid="m001", text="Bull run incoming!", created="2026-03-15 10:00:
     }
 
 
-def _make_idea(author="analyst1", timestamp=1710000000, title="AAPL Setup"):
+def _make_idea(author="analyst1", timestamp=None, title="AAPL Setup"):
     return {
         "author": author,
-        "timestamp": timestamp,
+        "timestamp": timestamp if timestamp is not None else _RECENT_EPOCH,
         "title": title,
         "description": "Technical breakout setup.",
         "chart_url": "https://tradingview.com/chart/AAPL/abc/",
@@ -163,6 +174,47 @@ class TestTradingViewMindsStreamIngestion:
         self.ingestion.run()
         assert self.r.xlen("raw_news_stream") == 0
 
+    # HWM (high-water mark) ---------------------------------------------------
+
+    @patch("app.services.tradingview_minds_stream_ingestion.time.sleep")
+    def test_happy_old_post_filtered_by_hwm(self, mock_sleep):
+        """[HAPPY] Post older than bootstrap window is skipped."""
+        self.ingestion.scraper.get_minds.return_value = {
+            "status": "success", "data": [_make_mind(uid="old1", created=_OLD_CREATED)]
+        }
+        mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
+        self.ingestion.run()
+        assert self.r.xlen("raw_news_stream") == 0
+
+    @patch("app.services.tradingview_minds_stream_ingestion.time.sleep")
+    def test_happy_hwm_updated_after_cycle(self, mock_sleep):
+        """[HAPPY] HWM is written to Redis after processing a ticker."""
+        self.ingestion.scraper.get_minds.return_value = {
+            "status": "success", "data": [_make_mind(uid="m001")]
+        }
+        mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
+        self.ingestion.run()
+        hwm_val = self.r.get("hwm:tradingview_minds:AAPL")
+        assert hwm_val is not None
+
+    @patch("app.services.tradingview_minds_stream_ingestion.time.sleep")
+    def test_happy_hwm_prevents_re_ingestion(self, mock_sleep):
+        """[HAPPY] After HWM is set, same-timestamp post is not re-ingested."""
+        mind = _make_mind(uid="m001")
+        self.ingestion.scraper.get_minds.return_value = {
+            "status": "success", "data": [mind]
+        }
+        # First cycle: publishes the post and sets HWM
+        call_count = [0]
+        def stop_after_two(n):
+            call_count[0] += 1
+            if call_count[0] >= 3:
+                self.ingestion._running = False
+        mock_sleep.side_effect = stop_after_two
+        self.ingestion.run()
+        # Post published once (first cycle), not again on second cycle
+        assert self.r.xlen("raw_news_stream") == 1
+
 
 # ── TradingViewIdeasStreamIngestion ────────────────────────────────────────────
 
@@ -199,11 +251,11 @@ class TestTradingViewIdeasStreamIngestion:
     @patch("app.services.tradingview_ideas_stream_ingestion.time.sleep")
     def test_happy_run_adds_to_in_memory_cache(self, mock_sleep):
         """[HAPPY] Dedup key of published idea is added to seen_in_memory."""
-        idea = _make_idea(author="u1", timestamp=100, title="Setup")
+        idea = _make_idea(author="u1", timestamp=_RECENT_EPOCH, title="Setup")
         self.ingestion.scraper.scrape.return_value = [idea]
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
-        expected_key = "u1:100:Setup"
+        expected_key = f"u1:{_RECENT_EPOCH}:Setup"
         assert expected_key in self.ingestion.seen_in_memory
 
     # BOUNDARY PATH ------------------------------------------------------------
@@ -211,8 +263,8 @@ class TestTradingViewIdeasStreamIngestion:
     @patch("app.services.tradingview_ideas_stream_ingestion.time.sleep")
     def test_boundary_layer1_dedup_in_memory(self, mock_sleep):
         """[BOUNDARY] Idea already in seen_in_memory is counted as duplicate."""
-        idea = _make_idea(author="u1", timestamp=100, title="Setup")
-        dedup_key = "u1:100:Setup"
+        idea = _make_idea(author="u1", timestamp=_RECENT_EPOCH, title="Setup")
+        dedup_key = f"u1:{_RECENT_EPOCH}:Setup"
         self.ingestion.seen_in_memory.add(dedup_key)
         self.ingestion.scraper.scrape.return_value = [idea]
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
@@ -222,9 +274,9 @@ class TestTradingViewIdeasStreamIngestion:
     @patch("app.services.tradingview_ideas_stream_ingestion.time.sleep")
     def test_boundary_layer2_dedup_redis(self, mock_sleep):
         """[BOUNDARY] Idea already in Redis dedup store is skipped."""
-        self.r.set("tradingview_ideas:u1:100:Setup", 1)
+        self.r.set(f"tradingview_ideas:u1:{_RECENT_EPOCH}:Setup", 1)
         self.ingestion.scraper.scrape.return_value = [
-            _make_idea(author="u1", timestamp=100, title="Setup")
+            _make_idea(author="u1", timestamp=_RECENT_EPOCH, title="Setup")
         ]
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
@@ -273,3 +325,24 @@ class TestTradingViewIdeasStreamIngestion:
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
         assert len(self.ingestion.seen_in_memory) == 0
+
+    # HWM (high-water mark) ---------------------------------------------------
+
+    @patch("app.services.tradingview_ideas_stream_ingestion.time.sleep")
+    def test_happy_old_idea_filtered_by_hwm(self, mock_sleep):
+        """[HAPPY] Idea older than bootstrap window is skipped."""
+        self.ingestion.scraper.scrape.return_value = [
+            _make_idea(author="old_u", timestamp=_OLD_EPOCH, title="Old Idea")
+        ]
+        mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
+        self.ingestion.run()
+        assert self.r.xlen("raw_news_stream") == 0
+
+    @patch("app.services.tradingview_ideas_stream_ingestion.time.sleep")
+    def test_happy_hwm_updated_after_cycle(self, mock_sleep):
+        """[HAPPY] HWM is written to Redis after processing a ticker."""
+        self.ingestion.scraper.scrape.return_value = [_make_idea()]
+        mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
+        self.ingestion.run()
+        hwm_val = self.r.get("hwm:tradingview_ideas:AAPL")
+        assert hwm_val is not None

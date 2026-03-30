@@ -8,7 +8,7 @@ Coverage:
                  respects ITEMS_PER_TICKER, empty ticker list
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from unittest.mock import MagicMock, patch
 
 import fakeredis
@@ -19,12 +19,18 @@ from app.services.tradingview_ideas_batch_ingestion import TradingViewIdeasBatch
 # Tickers the tests control — mirrors what get_tickers_from_redis would return
 _TEST_TICKERS = ["AAPL", "TSLA"]
 
+# Recent timestamp (within 5-day batch window)
+_RECENT_EPOCH = int((datetime.now(timezone.utc) - timedelta(hours=1)).timestamp())
+
+# Old timestamp (outside 5-day batch window)
+_OLD_EPOCH = int((datetime.now(timezone.utc) - timedelta(days=10)).timestamp())
+
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
 def _make_idea(
     author="analyst1",
-    timestamp=1710000000,
+    timestamp=None,
     title="AAPL Breakout Setup",
     description="Technical analysis of AAPL showing a bullish pattern.",
     chart_url="https://www.tradingview.com/chart/AAPL/abc123/",
@@ -35,7 +41,7 @@ def _make_idea(
 ):
     return {
         "author": author,
-        "timestamp": timestamp,
+        "timestamp": timestamp if timestamp is not None else _RECENT_EPOCH,
         "title": title,
         "description": description,
         "chart_url": chart_url,
@@ -95,10 +101,11 @@ class TestTradingViewIdeasBatchIngestion:
         assert row["source"] == "tradingview_ideas_batch"
 
     def test_happy_build_row_timestamp_converted_to_iso(self):
-        """[HAPPY] Unix timestamp is converted to ISO-8601 string."""
-        idea = _make_idea(timestamp=1710000000)
+        """[HAPPY] Unix timestamp is converted to ISO-8601 string (SGT)."""
+        from zoneinfo import ZoneInfo
+        idea = _make_idea(timestamp=_RECENT_EPOCH)
         row = TradingViewIdeasBatchIngestion._build_row(idea, "AAPL")
-        expected = datetime.fromtimestamp(1710000000, tz=timezone.utc).isoformat()
+        expected = datetime.fromtimestamp(_RECENT_EPOCH, tz=timezone.utc).astimezone(ZoneInfo("Asia/Singapore")).isoformat()
         assert row["timestamps"] == expected
 
     def test_happy_build_row_content_fields(self):
@@ -133,8 +140,8 @@ class TestTradingViewIdeasBatchIngestion:
     def test_happy_run_publishes_new_items(self, _sleep):
         """[HAPPY] New ideas are published to the Redis stream."""
         # Use distinct dedup keys per ticker so cross-ticker dedup doesn't reduce count
-        ideas_aapl = [_make_idea(author=f"aapl_u{i}", timestamp=i, title=f"Idea A{i}") for i in range(3)]
-        ideas_tsla = [_make_idea(author=f"tsla_u{i}", timestamp=i, title=f"Idea B{i}") for i in range(3)]
+        ideas_aapl = [_make_idea(author=f"aapl_u{i}", timestamp=_RECENT_EPOCH + i, title=f"Idea A{i}") for i in range(3)]
+        ideas_tsla = [_make_idea(author=f"tsla_u{i}", timestamp=_RECENT_EPOCH + i, title=f"Idea B{i}") for i in range(3)]
         self.ingestion.scraper.scrape.side_effect = [ideas_aapl, ideas_tsla]
 
         summary = self.ingestion.run()
@@ -147,7 +154,7 @@ class TestTradingViewIdeasBatchIngestion:
     @patch("app.services.tradingview_ideas_batch_ingestion.time.sleep", return_value=None)
     def test_happy_run_skips_duplicates(self, _sleep):
         """[HAPPY] Same ideas on second run are detected as duplicates."""
-        ideas = [_make_idea(author="user1", timestamp=100, title="AAPL Setup")]
+        ideas = [_make_idea(author="user1", timestamp=_RECENT_EPOCH, title="AAPL Setup")]
         self.ingestion.scraper.scrape.return_value = ideas
 
         self.ingestion.run()
@@ -178,8 +185,8 @@ class TestTradingViewIdeasBatchIngestion:
         """[BOUNDARY] Only up to ITEMS_PER_TICKER items taken per ticker."""
         limit = TradingViewIdeasBatchIngestion.ITEMS_PER_TICKER
         # Use distinct dedup keys per ticker to avoid cross-ticker deduplication
-        many_aapl = [_make_idea(author=f"a{i}", timestamp=i, title=f"AAPL Idea {i}") for i in range(50)]
-        many_tsla = [_make_idea(author=f"t{i}", timestamp=i, title=f"TSLA Idea {i}") for i in range(50)]
+        many_aapl = [_make_idea(author=f"a{i}", timestamp=_RECENT_EPOCH + i, title=f"AAPL Idea {i}") for i in range(50)]
+        many_tsla = [_make_idea(author=f"t{i}", timestamp=_RECENT_EPOCH + i, title=f"TSLA Idea {i}") for i in range(50)]
         self.ingestion.scraper.scrape.side_effect = [many_aapl, many_tsla]
         self.ingestion.run()
         published = self.r.xlen("raw_news_stream")
@@ -217,3 +224,31 @@ class TestTradingViewIdeasBatchIngestion:
         self.ingestion.scraper.scrape.return_value = []
         self.ingestion.run()
         assert mock_sleep.call_count == 2   # once per ticker
+
+    # ── Time boundary ──────────────────────────────────────────────────────────
+
+    @patch("app.services.tradingview_ideas_batch_ingestion.time.sleep", return_value=None)
+    def test_happy_old_posts_filtered_by_time_boundary(self, _sleep):
+        """[HAPPY] Posts older than BATCH_MAX_AGE_DAYS are skipped."""
+        # Use distinct dedup keys per ticker to avoid cross-ticker dedup
+        aapl_items = [
+            _make_idea(author="old_a", timestamp=_OLD_EPOCH, title="Old Idea"),
+            _make_idea(author="new_a", timestamp=_RECENT_EPOCH, title="New Idea"),
+        ]
+        tsla_items = [
+            _make_idea(author="old_t", timestamp=_OLD_EPOCH, title="Old Idea"),
+            _make_idea(author="new_t", timestamp=_RECENT_EPOCH, title="New Idea"),
+        ]
+        self.ingestion.scraper.scrape.side_effect = [aapl_items, tsla_items]
+        summary = self.ingestion.run()
+        assert summary["total_too_old"] == 2  # old_idea filtered for both tickers
+        assert summary["total_published"] == 2  # new_idea published for both tickers
+
+    @patch("app.services.tradingview_ideas_batch_ingestion.time.sleep", return_value=None)
+    def test_boundary_all_posts_too_old(self, _sleep):
+        """[BOUNDARY] All posts older than cutoff → nothing published."""
+        old_ideas = [_make_idea(author=f"old{i}", timestamp=_OLD_EPOCH + i, title=f"Old {i}") for i in range(3)]
+        self.ingestion.scraper.scrape.return_value = old_ideas
+        summary = self.ingestion.run()
+        assert summary["total_published"] == 0
+        assert summary["total_too_old"] == 6  # 3 per ticker × 2 tickers

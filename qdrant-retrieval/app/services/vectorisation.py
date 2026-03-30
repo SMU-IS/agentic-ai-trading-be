@@ -38,9 +38,9 @@ class VectorisationService:
         Idempotent: Checks and creates necessary indexes for efficient querying.
         """
 
-        await self._setup_indexing(field_name="tickers")
-        await self._setup_indexing(field_name="tickers_metadata[].ticker")
-        await self._setup_indexing(field_name="tickers_metadata[].event_type")
+        await self._setup_indexing(field_name="metadata.tickers")
+        await self._setup_indexing(field_name="metadata.tickers_metadata[].ticker")
+        await self._setup_indexing(field_name="metadata.tickers_metadata[].event_type")
 
     async def get_sanitised_news_payload(self, processed_source: SourcePayload):
         fields = processed_source.fields

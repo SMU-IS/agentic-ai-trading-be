@@ -27,7 +27,7 @@ async def general_news_node(state: AgentState) -> dict[str, Any]:
 
         # Call the tool with just the query. The tool now handles tickers optionally.
         result = await get_general_news.ainvoke({"query": query})
-        logger.info("General news retrieved")
+        logger.info(f"General news retrieved {result}")
 
         return {
             "messages": [SystemMessage(content=json.dumps(result), id=msg_id)],

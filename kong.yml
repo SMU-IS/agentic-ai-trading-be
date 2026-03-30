@@ -48,6 +48,10 @@ plugins:
               kong.service.request.set_header("X-USER-ID", jwt.claims.sub)
             end
           end
+  - name: rate-limiting
+    config:
+      minute: 100
+      policy: local
 
 services:
   # --- RAG Chatbot (5001) ---

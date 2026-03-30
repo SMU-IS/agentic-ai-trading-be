@@ -16,6 +16,17 @@ resource "aws_security_group" "rds" {
     cidr_blocks = [var.vpc_cidr_block]
   }
 
+  dynamic "ingress" {
+    for_each = var.bastion_security_group_id != null ? [1] : []
+    content {
+      description     = "PostgreSQL from Bastion"
+      from_port       = 5432
+      to_port         = 5432
+      protocol        = "tcp"
+      security_groups = [var.bastion_security_group_id]
+    }
+  }
+
   egress {
     from_port   = 0
     to_port     = 0

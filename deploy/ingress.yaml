@@ -195,3 +195,7 @@ spec:
             pathType: Prefix
             backend:
               service: { name: qdrant-retrieval-infra, port: { number: 5009 } }
+          - path: /api/v1/news-aggregator
+            pathType: Prefix
+            backend:
+              service: { name: news-aggregator-service-infra, port: { number: 5008 } }

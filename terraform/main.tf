@@ -35,11 +35,12 @@ module "databases" {
   vpc_id         = module.networking.vpc_id
   vpc_cidr_block = module.networking.vpc_cidr_block
   # DB remains in private subnets for safety
-  private_subnets = module.networking.private_subnet_ids
-  db_name         = each.value.db_name
-  db_username     = each.value.username
-  db_password     = each.value.password
-  environment     = var.environment
+  private_subnets           = module.networking.private_subnet_ids
+  bastion_security_group_id = module.compute.bastion_security_group_id
+  db_name                   = each.value.db_name
+  db_username               = each.value.username
+  db_password               = each.value.password
+  environment               = var.environment
 }
 
 # Storage Module (S3 + CloudFront)
@@ -361,14 +362,14 @@ resource "kubectl_manifest" "karpenter_node_pool" {
           requirements = [
             { key = "karpenter.sh/capacity-type", operator = "In", values = ["spot"] },
             { key = "kubernetes.io/arch", operator = "In", values = ["arm64"] },
-            { key = "karpenter.k8s.aws/instance-family", operator = "In", values = ["t4g"] },
-            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["micro", "small"] }
+            { key = "karpenter.k8s.aws/instance-family", operator = "In", values = ["t4g", "c7g", "m7g", "r7g"] },
+            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["micro", "small", "medium", "large", "xlarge"] }
           ]
         }
       }
       limits = {
-        cpu    = 20
-        memory = "40Gi"
+        cpu    = 40
+        memory = "80Gi"
       }
       disruption = {
         consolidationPolicy = "WhenEmptyOrUnderutilized"

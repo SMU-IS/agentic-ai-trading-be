@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "infra.fullname" . }}-policy
+  labels:
+    {{- include "infra.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "infra.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow traffic from Kong Gateway
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: kong
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.port }}
+    # Allow traffic from other microservices in the same namespace (Internal Communication)
+    - from:
+        - podSelector: {} # Allows from all pods in the same namespace
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.port }}

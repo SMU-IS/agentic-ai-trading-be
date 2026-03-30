@@ -10,7 +10,7 @@ services:
     ports:
       - "5009:5009"
     volumes:
-      - .:/code
+      - ./app:/app/app
     environment:
       - STORAGE_PROVIDER=${STORAGE_PROVIDER}
       - LLM_PROVIDER=${LLM_PROVIDER}

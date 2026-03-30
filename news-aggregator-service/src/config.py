@@ -29,7 +29,7 @@ class Settings(BaseSettings):
 
     # URLs
     news_analysis_qdrant_url: str = "http://qdrant-retrieval-infra:5009/ticker-events"
-    aggregator_base_url: str = "http://trading-service-infra:5007/api/v1/trading"
+    aggregator_base_url: str = "http://trading-service-infra:5007/trading"
 
     # Service control
     redis_service_control_key: str = "services:news-aggregator-service"
