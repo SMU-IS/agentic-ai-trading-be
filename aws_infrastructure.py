@@ -31,9 +31,9 @@ graph_attr = {
     "fontsize": "32",
     "bgcolor": BG_COLOR,
     "splines": "polyline",
-    "pad": "1.0",
-    "nodesep": "1.5",
-    "ranksep": "2.0",
+    "pad": "0.5",
+    "nodesep": "0.8",
+    "ranksep": "1.0",
     "fontname": "Helvetica",
 }
 
@@ -50,7 +50,7 @@ cluster_attr = {
 }
 
 with Diagram(
-    "AWS Infrastructure",
+    "Agent M AWS Infrastructure",
     show=False,
     filename="aws_infrastructure",
     direction="LR",
@@ -65,25 +65,34 @@ with Diagram(
         cloudfront = CloudFront("CloudFront\n(API Acceleration)")
         ecr = EC2ContainerRegistry("ECR\n(Image Registry)")
 
-    with Cluster("VPC (10.0.0.0/16)", graph_attr=cluster_attr):
+    # --- Primary VPC ---
+    with Cluster("Primary VPC (us-east-1)", graph_attr=cluster_attr):
         igw = InternetGateway("Internet Gateway")
 
-        with Cluster("Public Subnets (us-east-1a/b)", graph_attr=cluster_attr):
+        with Cluster("Public Subnets", graph_attr=cluster_attr):
             nlb = ELB("NLB\n(Internet-Facing)")
 
-            with Cluster("EKS: Compute Cluster (v1.35)", graph_attr=cluster_attr):
+            with Cluster("Scalable EKS Cluster", graph_attr=cluster_attr):
                 eks_master = EKS("EKS Control Plane")
-                kong = Kong("Kong Ingress\n(DB-less)")
+                kong = Kong("Kong Ingress\n(HA Configuration)")
 
-                with Cluster("Node Fleet (Spot/Graviton)"):
-                    system_nodes = EC2("System Nodes\n(t4g.small)")
-                    app_nodes = EC2("App Pods\n(t4g.micro)")
-                    karpenter = AutoScaling("Karpenter\n(Autoscaler)")
+                with Cluster("Auto-Scaling Node Fleet"):
+                    app_nodes = EC2("Scalable App Pods\n(HPA / Spot)")
+                    karpenter = AutoScaling("Karpenter\n(Elastic Scaling)")
 
-        with Cluster("Private Subnets (Isolated Data)", graph_attr=cluster_attr):
-            rds = RDS("RDS PostgreSQL\n(db.t4g.micro)")
+        with Cluster("Private Subnets", graph_attr=cluster_attr):
+            rds = RDS("RDS PostgreSQL\n(Multi-AZ Master)")
 
-    s3 = S3("S3 Buckets\n(State/Metrics)")
+    # --- Replica VPC (Simulation) ---
+    with Cluster("Replica VPC (us-west-2 / DR)", graph_attr=cluster_attr):
+        with Cluster("Public Subnets (Standby)"):
+            nlb_dr = ELB("NLB\n(Standby)")
+            eks_dr = EKS("EKS Cluster\n(Warm Standby)")
+
+        with Cluster("Private Subnets (Data Sync)"):
+            rds_dr = RDS("RDS Read Replica\n(DR Instance)")
+
+    s3 = S3("S3 Buckets\n(Replicated Store)")
 
     # --- Precise Route & Logical Connections ---
 
@@ -92,15 +101,34 @@ with Diagram(
 
     # 2. API Route (The specified path)
     dns >> Edge(color=COLOR_PRIMARY, label=" api. Subdomain") >> cloudfront
-    cloudfront >> Edge(color=COLOR_PRIMARY, label=" Origin Request") >> igw >> nlb
+    cloudfront >> Edge(color=COLOR_PRIMARY, label=" Primary Path") >> igw >> nlb
     nlb >> Edge(color=COLOR_PRIMARY) >> kong
-    kong >> Edge(color=COLOR_ACCENT, label=" ClusterIP") >> app_nodes
+    kong >> Edge(color=COLOR_ACCENT, label=" ClusterIP / Policy") >> app_nodes
 
-    # 3. Data & Storage Access (Restricted to Private/Internal)
+    # 3. Internal & Mesh Communication
+    (
+        app_nodes
+        >> Edge(color=COLOR_ACCENT, style="dashed", label=" Service-to-Service")
+        >> app_nodes
+    )
     app_nodes >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Secure TCP") >> rds
     app_nodes >> Edge(color=COLOR_SECONDARY, style="dotted") >> s3
 
-    # 4. Cluster Management
+    # 4. Replication & DR Logical Flow
+    (
+        rds
+        >> Edge(color=COLOR_ACCENT, style="dashed", label=" Cross-Region Replication")
+        >> rds_dr
+    )
+    s3 >> Edge(color=COLOR_SECONDARY, style="dotted", label=" Replication") >> s3
+
+    # 5. Failover Path (Optional Visibility)
+    (
+        cloudfront
+        >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Failover Path")
+        >> nlb_dr
+    )
+
+    # 6. Cluster Management
     karpenter >> Edge(color=COLOR_ACCENT, style="dashed") >> app_nodes
     ecr >> Edge(color=COLOR_SECONDARY, style="dotted", label=" Pull") >> app_nodes
-    eks_master - system_nodes
