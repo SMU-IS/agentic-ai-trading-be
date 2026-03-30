@@ -165,11 +165,16 @@ async def compute_pipeline_metrics():
     if tv_keys:
         tv_latencies = [l for k in tv_keys for l in svc_latencies[k]]
         scrapers["scraper:tradingview"] = {
-            **{f"{k[len('scraper:tradingview_'):]}_processed": scrapers[k]["processed"] for k in tv_keys},
-            "avg_latency_s": _avg(tv_latencies),
+            "minds_processed": scrapers.get("scraper:tradingview_minds", {}).get("processed", 0),
+            "ideas_processed": scrapers.get("scraper:tradingview_ideas", {}).get("processed", 0),
+            "avg_latency_s":   _avg(tv_latencies),
         }
         for k in tv_keys:
             del scrapers[k]
+
+    # Always include reddit and tradingview with defaults if missing
+    scrapers.setdefault("scraper:reddit",      {"processed": 0, "avg_latency_s": None})
+    scrapers.setdefault("scraper:tradingview", {"minds_processed": 0, "ideas_processed": 0, "avg_latency_s": None})
 
     funnel_snapshot = {
         "computed_at":      now.isoformat(),
