@@ -1,1 +1,1 @@
-# Trading Agent
+# Trading Agent :)

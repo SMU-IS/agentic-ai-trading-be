@@ -31,4 +31,4 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10
 
-secretName: metrics-tracker-secrets
+secretName: metrics-tracker-service-secrets

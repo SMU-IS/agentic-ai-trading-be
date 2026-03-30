@@ -41,4 +41,4 @@ worker:
   enabled: true
   command: ["python", "-m", "app.services.ticker_identification_worker"]
 
-secretName: ticker-identification-secrets
+secretName: ticker-identification-service-secrets
