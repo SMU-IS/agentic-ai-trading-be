@@ -1,7 +1,7 @@
 import os
-
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
-
+load_dotenv()
 
 class Settings(BaseSettings):
     redis_host: str = os.getenv("REDIS_HOST", "localhost:6379")
@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     model: str = os.getenv("MODEL", "sonar")
     pplx_api_key: str = os.getenv("PPLX_API_KEY", "your-default-api-key")
     groq_api_key: str = os.getenv("GROQ_API_KEY", "your-default-api-key")
-    llm_provider: str = os.getenv("LLM_PROVIDER", "groq")
+    llm_provider: str = os.getenv("LLM_PROVIDER", "perplexity")
     
     news_analysis_qdrant_url: str = os.getenv(
         "NEWS_ANALYSIS_QDRANT_URL",
