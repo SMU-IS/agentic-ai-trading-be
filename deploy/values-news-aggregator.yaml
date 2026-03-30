@@ -39,4 +39,4 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10
 
-secretName: news-aggregator-secrets
+secretName: news-aggregator-service-secrets

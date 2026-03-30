@@ -41,4 +41,4 @@ worker:
   enabled: true
   command: ["python", "-m", "app.services.event_identification_worker"]
 
-secretName: event-identification-secrets
+secretName: event-identification-service-secrets

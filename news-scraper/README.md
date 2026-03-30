@@ -4,6 +4,8 @@
   <img src="https://img.shields.io/github/v/release/SMU-IS/agentic-ai-trading-be" alt="Release Badge">
 </p>
 
+:)
+
 <p align="center">
   <img width="220" height="204" alt="agent" src="https://github.com/user-attachments/assets/82d27a27-f71c-42ac-bf51-5b1a83893e6a" />
 </p>
