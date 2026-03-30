@@ -94,15 +94,30 @@ spec:
             backend:
               service: { name: rag-chatbot-infra, port: { number: 5001 } }
 
+          - path: /api/v1/preprocessing/healthcheck
+            pathType: Exact
+            backend:
+              service: { name: preprocessing-infra, port: { number: 5002 } }
+
           - path: /api/v1/preprocessing
             pathType: Prefix
             backend:
               service: { name: preprocessing-infra, port: { number: 5002 } }
 
+          - path: /api/v1/news-scraper/healthcheck
+            pathType: Exact
+            backend:
+              service: { name: news-scraper-infra, port: { number: 5003 } }
+
           - path: /api/v1/news-scraper
             pathType: Prefix
             backend:
               service: { name: news-scraper-infra, port: { number: 5003 } }
+
+          - path: /api/v1/notification/healthcheck
+            pathType: Exact
+            backend:
+              service: { name: notification-alert-infra, port: { number: 5004 } }
 
           - path: /api/v1/notification
             pathType: Prefix
@@ -158,6 +173,11 @@ spec:
             pathType: Prefix
             backend:
               service: { name: news-scraper-tradingview-infra, port: { number: 5013 } }
+
+          - path: /api/v1/metrics/healthcheck
+            pathType: Exact
+            backend:
+              service: { name: metrics-tracker-service-infra, port: { number: 5014 } }
 
           - path: /api/v1/metrics
             pathType: Prefix

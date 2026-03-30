@@ -88,12 +88,13 @@ app = FastAPI(
     title="News Scraper Service",
     description="Scraps Reddit for news and stores in Redis",
     lifespan=lifespan,
+    root_path="/api/v1/news-scraper",
 )
 
 app.include_router(scraper_router)
 
 
-@app.get("/")
+@app.get("/healthcheck")
 def healthcheck():
     try:
         redis_client = RedisStreamStorage().r
