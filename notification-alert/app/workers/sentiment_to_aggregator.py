@@ -101,6 +101,7 @@ class SentimentAggregator:
                                 "event_description": meta.get("event_description") or "",
                                 "sentiment_reasoning": meta.get("sentiment_reasoning") or "",
                                 'source': f"reddit:{metadata.get('subreddit')}" if metadata.get("subreddit") else ""
+                                # 'source': metadata.get('subreddit') or ""
                             }
 
                             await self.r.xadd(

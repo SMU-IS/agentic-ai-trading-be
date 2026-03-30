@@ -50,6 +50,7 @@ class SentimentBridge:
                     notification_data = {
                         "id": (data.get("id") or "").strip('"'),
                         "headline": json.loads(data.get("content") or "{}").get("title", ""),
+                        "body": json.loads(data.get("content") or "{}").get("body", ""),
                         "tickers": json.dumps(tickers_info),
                         "event_description": "; ".join([meta.get("event_description") or "" for meta in ticker_meta.values()])
                     }
@@ -60,4 +61,3 @@ class SentimentBridge:
                     )
                     print("🔁 News event:", notification_data)
 
-                    # last_id = event_id
