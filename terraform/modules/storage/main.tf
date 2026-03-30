@@ -27,9 +27,9 @@ resource "aws_s3_bucket" "new_buckets" {
 
 # Lifecycle rule to move objects to Intelligent-Tiering to save costs
 resource "aws_s3_bucket_lifecycle_configuration" "new_buckets_lifecycle" {
-  for_each = aws_s3_bucket.new_buckets
+  for_each = local.buckets_to_create
 
-  bucket = each.value.id
+  bucket = aws_s3_bucket.new_buckets[each.key].id
 
   rule {
     id     = "move-to-intelligent-tiering"
@@ -60,9 +60,9 @@ resource "aws_s3_bucket" "existing_buckets" {
 
 # Lifecycle rule for existing buckets
 resource "aws_s3_bucket_lifecycle_configuration" "existing_buckets_lifecycle" {
-  for_each = aws_s3_bucket.existing_buckets
+  for_each = var.import_existing_buckets
 
-  bucket = each.value.id
+  bucket = aws_s3_bucket.existing_buckets[each.key].id
 
   rule {
     id     = "move-to-intelligent-tiering"
@@ -81,9 +81,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "existing_buckets_lifecycle" {
 # Public Access Block for new buckets
 # =============================================================================
 resource "aws_s3_bucket_public_access_block" "new_buckets_access" {
-  for_each = aws_s3_bucket.new_buckets
+  for_each = local.buckets_to_create
 
-  bucket = each.value.id
+  bucket = aws_s3_bucket.new_buckets[each.key].id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -95,9 +95,9 @@ resource "aws_s3_bucket_public_access_block" "new_buckets_access" {
 # Public Access Block for existing buckets
 # =============================================================================
 resource "aws_s3_bucket_public_access_block" "existing_buckets_access" {
-  for_each = aws_s3_bucket.existing_buckets
+  for_each = var.import_existing_buckets
 
-  bucket = each.value.id
+  bucket = aws_s3_bucket.existing_buckets[each.key].id
 
   block_public_acls       = true
   block_public_policy     = true
