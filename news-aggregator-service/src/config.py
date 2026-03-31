@@ -17,9 +17,9 @@ class Settings(BaseSettings):
 
     # Thresholds
     sentiment_min_threshold: float = 0.2
-    sentiment_threshold: float = 0.75
-    volume_threshold: int = 8
-    hours_window: int = 1
+    sentiment_threshold: float = 0.70
+    volume_threshold: int = 3
+    hours_window: int = 24
 
     # LLM
     model: str = "sonar"

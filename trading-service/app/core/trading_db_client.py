@@ -66,7 +66,7 @@ class MongoDBClient:
                 "suggested_qty": doc.get("risk_evaluation", {}).get("suggested_qty"),
                 "reasonings":    doc.get("reasonings"),
                 "profile":       doc.get("profile"),
-                "created_at":    doc["_id"].generation_time.isoformat() if doc.get("_id") else None,
+                "timestamp":    doc["_id"].generation_time.isoformat() if doc.get("_id") else None,
             }
             for doc in cursor
         ]
