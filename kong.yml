@@ -28,6 +28,7 @@ plugins:
           "X-Requested-With",
           "X-AUTH-TOKEN",
           "X-USER-ID",
+          "X-User-Id",
         ]
       exposed_headers: ["X-Auth-Token"]
       credentials: true
