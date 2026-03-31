@@ -111,8 +111,8 @@ jobs:
             kubectl get pods -l app.kubernetes.io/instance=${{ inputs.image-name }}
           fi
 
-      - name: Apply Ingress
-        run: |
-          if [ -f "${{ inputs.ingress-path }}" ]; then
-            kubectl apply -f ${{ inputs.ingress-path }}
-          fi
+      # - name: Apply Ingress
+      #   run: |
+      #     if [ -f "${{ inputs.ingress-path }}" ]; then
+      #       kubectl apply -f ${{ inputs.ingress-path }}
+      #     fi
