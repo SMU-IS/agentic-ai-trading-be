@@ -11,12 +11,12 @@ Required env var: TELEGRAM_BOT_TOKEN
 
 import httpx
 from app.config import settings
+from app.core.services import services
 
 _CHAT_ID       = "-1003833243237"
 _THREAD_SIGNAL = 2
 _THREAD_ORDER  = 3
 _API_BASE      = "https://api.telegram.org/bot{token}/sendMessage"
-
 
 async def _send(text: str, thread_id: int) -> dict:
     url = _API_BASE.format(token=settings.telegram_bot_token)
@@ -61,18 +61,20 @@ async def post_signal(signal: dict) -> None:
     refs_text = "\n".join(f"  • {r}" for r in refs[:3]) if refs else "N/A"
 
     text = (
-        f"{action_icon} <b>{action} Signal for  {ticker}</b>\n"
-        f"{cred_icon} Credibility: <b>{credibility}</b>\n"
-        f"{conf_icon} Confidence: <b>{confidence}/10</b>\n"
+        f"{action_icon} <b>{action if action != 'NO_TRADE' else 'No Trade'} Signal for {ticker}</b>\n"
+        f"{cred_icon} <code>Credibility: {credibility}</code>\n"
+        f"{conf_icon} <code>Confidence: {confidence}/10</code>\n"
 
-        f"\n💡 <b>Rumor Summary</b>\n"
+        f"\n💡 <code>Rumor Summary</code>\n"
         f"<i>{summary}</i>\n"
 
-        f"\n🔍 <b>Confirmation</b>\n"
+        f"\n🔍 <code>Confirmation</code>\n"
         f"<i>{rationale}</i>\n"
-        f"<blockquote>{cred_reason}</blockquote>\n"
 
-        f"\n🔗 <b>Sources</b>\n"
+        f"\n👨🏿 <code>Analysis</code>\n"
+        f"<blockquote expandable>{cred_reason}</blockquote>\n"
+
+        f"\n🔗 <code>Sources</code>\n"
         f"{refs_text}"
     )
     await _send(text, _THREAD_SIGNAL)
@@ -84,8 +86,8 @@ async def post_order(order: dict) -> None:
     Post an order execution result to the Orders topic.
     """
     symbol     = order.get("symbol", "N/A")
-    action     = order.get("action", order.get("side", "N/A"))
-    profile    = order.get("profile", "N/A")
+    action     = order.get("action", order.get("side", "N/A")).title()
+    profile    = order.get("profile", "N/A").title()
     user_id    = order.get("user_id", "N/A")
     order_id   = order.get("order_id", "N/A")
     reasonings = order.get("reasonings", "")
@@ -99,6 +101,11 @@ async def post_order(order: dict) -> None:
     icon   = "✅"
     thesis = reasonings
 
+    profile_icon = "🛡️" if profile == "Conservative" else "🚀"
+    action_icon = "🟢" if str(action).upper() == "BUY" else "🔴" if str(action).upper() == "SELL" else "⚪"
+
+    username = services.trading_db.get_alias_name(user_id) or user_id
+
     stats = (
         f"{'Qty:':<9}{str(qty):<10}R:R:    {rr}\n"
         f"{'Risk:':<9}{str(rps):<10}Reward: {rwps}\n"
@@ -106,12 +113,13 @@ async def post_order(order: dict) -> None:
     )
 
     text = (
-        f"<b>{icon} Order EXECUTED — {symbol}</b>\n\n"
-        f"Side:    <b>{action}</b> | Profile: <b>{profile}</b>\n"
-        f"User:    <code>{user_id}</code>\n"
-        f"<code>{stats}</code>\n"
-        f"OrderID: <code>{order_id}</code>\n\n"
-        f"<b>Thesis</b>\n<blockquote>{thesis}</blockquote>"
+        f"<b>{icon} Order Executed on {symbol}</b>\n\n"
+        f"<code>Side:    {action_icon} {action}</code>\n"
+        f"<code>Profile: {profile_icon} {profile}</code>\n"
+        f"<code>User:    {username}</code>\n\n"
+        f"<code>{stats}</code>\n\n"
+        f"<code>OrderID: </code>\n<blockquote>{order_id}</blockquote>\n\n"
+        f"<code>Thesis:</code>\n<blockquote expandable>{thesis}</blockquote>"
     )
     await _send(text, _THREAD_ORDER)
     print(f"   [📬 Telegram] Order posted | {symbol} {action}")
