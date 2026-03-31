@@ -73,3 +73,52 @@ metadata:
 username: agentic-ai-user-service
 credentials:
   - agentic-ai-jwt-secret
+
+---
+# === 3. ADDITIONAL UTILITY PLUGINS ===
+
+# Inject User ID from JWT Claim
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: inject-user-id
+  namespace: default
+config:
+  add:
+    headers:
+    - X-User-Id:$(jwt_claims['sub'])
+plugin: request-transformer
+
+---
+# JWT ID Extractor (Custom Logic)
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: jwt-id-extractor
+  namespace: default
+config:
+  access:
+  - |
+    local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
+    local auth_header = kong.request.get_header("authorization")
+    if auth_header then
+      local token = auth_header:gsub("Bearer ", "")
+      local jwt, err = jwt_decoder:new(token)
+      if jwt and jwt.claims then
+        kong.service.request.set_header("X-User-Id", jwt.claims.sub)
+      end
+    end
+plugin: pre-function
+
+---
+# Map Consumer Username to X-User-Id Header
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: map-user-id-header
+  namespace: default
+config:
+  add:
+    headers:
+    - x-user-id:$(headers['x-consumer-username'])
+plugin: request-transformer
