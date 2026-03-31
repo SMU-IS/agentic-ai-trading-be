@@ -73,8 +73,10 @@ async def setup_consumer_group():
 
 
 async def finalize_message(msg_id: str):
-    await event_stream.acknowledge(CONSUMER_GROUP, msg_id)
-    await event_stream.delete(msg_id)
+    async with redis_client.pipeline(transaction=False) as pipe:
+        await pipe.xack(EVENT_STREAM_NAME, CONSUMER_GROUP, msg_id)
+        await pipe.xdel(EVENT_STREAM_NAME, msg_id)
+        await pipe.execute()
 
 
 # ==========================================================
@@ -237,6 +239,7 @@ async def cleanup_dead_consumers():
 # ==========================================================
 async def worker_loop():
     last_cleanup = 0
+    last_recovery = 0
 
     heartbeat_task = asyncio.create_task(send_heartbeat())
 
@@ -251,6 +254,10 @@ async def worker_loop():
             if now - last_cleanup > CLEANUP_INTERVAL:
                 await cleanup_dead_consumers()
                 last_cleanup = now
+
+            if now - last_recovery > CLEANUP_INTERVAL:
+                asyncio.create_task(recover_pending_messages())
+                last_recovery = now
 
             entries = await event_stream.read_group(
                 group_name=CONSUMER_GROUP,
