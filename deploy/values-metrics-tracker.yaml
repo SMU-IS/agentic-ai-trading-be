@@ -40,9 +40,9 @@ ingress:
     paths:
       - path: /api/v1/metrics/healthcheck
         pathType: Exact
-  protected:
-    enabled: true
-    paths:
       - path: /api/v1/metrics
         pathType: Prefix
+  protected:
+    enabled: false
+    paths: []
 
