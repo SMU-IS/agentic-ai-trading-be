@@ -380,3 +380,50 @@ resource "kubectl_manifest" "karpenter_node_pool" {
 
   depends_on = [helm_release.karpenter]
 }
+
+# =============================================================================
+# Logging and Observability - Fluent Bit
+# =============================================================================
+
+resource "kubernetes_namespace" "logging" {
+  metadata {
+    name = "logging"
+  }
+}
+
+# AWS For Fluent Bit Helm Release
+resource "helm_release" "fluent_bit" {
+  name       = "fluent-bit"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-for-fluent-bit"
+  version    = "0.1.34" # Stabilized version
+  namespace  = kubernetes_namespace.logging.metadata[0].name
+
+  # Ensure the cluster is ready before deploying
+  depends_on = [
+    module.compute,
+    time_sleep.wait_for_cluster
+  ]
+
+  values = [
+    <<-EOT
+    serviceAccount:
+      create: true
+      name: fluent-bit
+      annotations:
+        eks.amazonaws.com/role-arn: ${module.fluent_bit_irsa_role.iam_role_arn}
+    cloudWatch:
+      enabled: true
+      region: ${var.aws_region}
+      logGroupName: /aws/eks/${var.cluster_name}/logs
+      autoCreateGroup: true
+      logStreamPrefix: "fluent-bit-"
+    firehose:
+      enabled: false
+    kinesis:
+      enabled: false
+    elasticsearch:
+      enabled: false
+    EOT
+  ]
+}

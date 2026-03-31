@@ -40,7 +40,7 @@ resource "aws_grafana_workspace" "main" {
   account_access_type      = "CURRENT_ACCOUNT"
   authentication_providers = ["AWS_SSO"]
   permission_type          = "SERVICE_MANAGED"
-  data_sources             = ["PROMETHEUS"]
+  data_sources             = ["PROMETHEUS", "CLOUDWATCH"]
 
   # Grafana needs an IAM role to assume to access data sources
   role_arn = aws_iam_role.grafana.arn
@@ -76,4 +76,31 @@ resource "aws_iam_role" "grafana" {
 resource "aws_iam_role_policy_attachment" "grafana_amp_read" {
   role       = aws_iam_role.grafana.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonPrometheusQueryAccess"
+}
+
+# Attach policy to Grafana role to allow it to read from CloudWatch
+resource "aws_iam_role_policy_attachment" "grafana_cloudwatch_read" {
+  role       = aws_iam_role.grafana.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
+}
+
+# IAM Role for Fluent Bit Service Account (IRSA)
+# This role allows Fluent Bit to create log groups and push logs to CloudWatch
+module "fluent_bit_irsa_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name                           = "${var.cluster_name}-fluent-bit"
+  attach_cloudwatch_observability_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.compute.oidc_provider_arn
+      namespace_service_accounts = ["logging:fluent-bit"]
+    }
+  }
+
+  tags = {
+    Environment = var.environment
+  }
 }
