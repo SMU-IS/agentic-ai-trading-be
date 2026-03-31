@@ -6,12 +6,18 @@ Continuously polls TradingView Ideas for each tracked ticker in a round-robin
 fashion, deduplicating at both in-memory and Redis levels, and pushes new items
 into the Redis stream.
 
+Optimisations (v2):
+  - Parallel scraping via ThreadPoolExecutor (WORKER_COUNT workers).
+  - Reduced inter-ticker delay (1 s), poll interval (60 s), per-ticker timeout (10 s).
+
 Usage (standalone test):
     python -m app.services.tradingview_ideas_stream_ingestion
 """
 
 import time
 import logging
+import threading
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 
@@ -37,17 +43,20 @@ class TradingViewIdeasStreamIngestion:
     ITEMS_PER_TICKER = 5
     STREAM_NAME = "raw_news_stream"
     DEDUP_SET_NAME = "tradingview_ideas"
-    POLL_INTERVAL = 120          # Ideas update less frequently than Minds
-    INTER_TICKER_DELAY = 3
+    POLL_INTERVAL = 60           # reduced from 120 to match Minds cadence
+    INTER_TICKER_DELAY = 1       # reduced from 3
     TICKER_REFRESH_INTERVAL = 300
     MAX_MEMORY_CACHE = 50_000
     STREAM_BOOTSTRAP_MINUTES = 15  # on first run (no HWM), only look back this far
     HWM_KEY_PREFIX = "hwm:tradingview_ideas"  # per-ticker high-water mark in Redis
+    WORKER_COUNT = 3             # parallel scraping threads
+    PER_TICKER_TIMEOUT = 10      # max seconds per ticker (Ideas uses 1 API call)
 
     def __init__(self, redis_client=None):
         self.redis = redis_client or get_redis_client()
         self.scraper = Ideas()
         self.seen_in_memory: set = set()
+        self._seen_lock = threading.Lock()  # protects seen_in_memory across workers
         self._running = True
 
     # ── Time filtering ─────────────────────────────────────────────────────────
@@ -123,15 +132,94 @@ class TradingViewIdeasStreamIngestion:
             },
         }
 
+    # ── Per-ticker scraping (runs inside a worker thread) ─────────────────────
+
+    def _scrape_ticker(self, ticker: str) -> tuple[int, int]:
+        """Scrape a single ticker. Returns (published, duplicates)."""
+        published = 0
+        duplicates = 0
+
+        result = self.scraper.scrape(
+            symbol=ticker,
+            startPage=1,
+            endPage=1,
+            sort="recent"
+        )
+
+        if not isinstance(result, list):
+            logger.warning(f"[Ideas Stream] Unexpected result for {ticker}")
+            return published, duplicates
+
+        items = result[:self.ITEMS_PER_TICKER]
+
+        # Per-ticker high-water mark: only accept posts newer than HWM
+        hwm = self._get_hwm(ticker)
+        max_post_time = hwm
+
+        for idea in items:
+            post_time = self._parse_post_time(idea)
+            if post_time and post_time <= hwm:
+                duplicates += 1
+                continue
+
+            if post_time and post_time > max_post_time:
+                max_post_time = post_time
+
+            dedup_key = self._dedup_key(idea)
+            if not dedup_key or dedup_key == "unknown::":
+                continue
+
+            # Layer 1: In-memory dedup (thread-safe)
+            with self._seen_lock:
+                if dedup_key in self.seen_in_memory:
+                    duplicates += 1
+                    continue
+
+            # Layer 2: Redis dedup (persistent, 3-day TTL)
+            if check_and_mark_seen(self.redis, dedup_key, self.DEDUP_SET_NAME):
+                with self._seen_lock:
+                    self.seen_in_memory.add(dedup_key)
+                duplicates += 1
+                continue
+
+            with self._seen_lock:
+                self.seen_in_memory.add(dedup_key)
+            row = self._build_row(idea, ticker)
+            publish_to_stream(self.redis, self.STREAM_NAME, row)
+
+            sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
+            self.redis.hset(
+                f"{POST_TIMESTAMP}:{row['id']}",
+                mapping={
+                    "scraped_timestamp": sg_now,
+                    "posted_timestamp":  row["timestamps"],
+                }
+            )
+            self.redis.expire(f"{POST_TIMESTAMP}:{row['id']}", 345600)  # 4 days
+
+            logger.info(f"⏱️ Post {row['id']}: Timestamped at Scraping Stage")
+
+            published += 1
+
+        # Update high-water mark for this ticker
+        if max_post_time > hwm:
+            self._set_hwm(ticker, max_post_time)
+
+        time.sleep(self.INTER_TICKER_DELAY)
+        return published, duplicates
+
     # ── Main entry point ──────────────────────────────────────────────────────
 
     def run(self):
-        """Continuously poll TradingView Ideas in a round-robin across tickers."""
+        """Continuously poll TradingView Ideas using parallel workers."""
         tickers = get_tickers_from_redis(self.redis)
         last_ticker_refresh = time.time()
         cycle_count = 0
 
-        logger.info(f"[Ideas Stream] Starting with {len(tickers)} tickers, polling every {self.POLL_INTERVAL}s")
+        logger.info(
+            f"[Ideas Stream] Starting with {len(tickers)} tickers, "
+            f"{self.WORKER_COUNT} workers, polling every {self.POLL_INTERVAL}s"
+        )
 
         while self._running:
             cycle_count += 1
@@ -145,82 +233,22 @@ class TradingViewIdeasStreamIngestion:
                 last_ticker_refresh = time.time()
                 logger.info(f"[Ideas Stream] Refreshed tickers: {len(tickers)} active")
 
-            for ticker_idx, ticker in enumerate(tickers):
-                if not self._running:
-                    break
-
-                if ticker_idx > 0 and ticker_idx % 20 == 0:
-                    logger.info(f"[Ideas Stream] Cycle {cycle_count} progress: {ticker_idx}/{len(tickers)} tickers")
-
-                try:
-                    result = self.scraper.scrape(
-                        symbol=ticker,
-                        startPage=1,
-                        endPage=1,
-                        sort="recent"
-                    )
-
-                    if not isinstance(result, list):
-                        logger.warning(f"[Ideas Stream] Unexpected result for {ticker}")
-                        continue
-
-                    items = result[:self.ITEMS_PER_TICKER]
-
-                    # Per-ticker high-water mark: only accept posts newer than HWM
-                    hwm = self._get_hwm(ticker)
-                    max_post_time = hwm  # track newest post to update HWM
-
-                    for idea in items:
-                        # Time boundary: skip posts at or before the high-water mark
-                        post_time = self._parse_post_time(idea)
-                        if post_time and post_time <= hwm:
-                            cycle_duplicates += 1
-                            continue
-
-                        if post_time and post_time > max_post_time:
-                            max_post_time = post_time
-
-                        dedup_key = self._dedup_key(idea)
-                        if not dedup_key or dedup_key == "unknown::":
-                            continue
-
-                        # Layer 1: In-memory dedup
-                        if dedup_key in self.seen_in_memory:
-                            cycle_duplicates += 1
-                            continue
-
-                        # Layer 2: Redis dedup (persistent, 3-day TTL)
-                        if check_and_mark_seen(self.redis, dedup_key, self.DEDUP_SET_NAME):
-                            self.seen_in_memory.add(dedup_key)
-                            cycle_duplicates += 1
-                            continue
-
-                        self.seen_in_memory.add(dedup_key)
-                        row = self._build_row(idea, ticker)
-                        publish_to_stream(self.redis, self.STREAM_NAME, row)
-
-                        sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
-                        self.redis.hset(
-                            f"{POST_TIMESTAMP}:{row['id']}",
-                            mapping={
-                                "scraped_timestamp": sg_now,
-                                "posted_timestamp":  row["timestamps"],
-                            }
-                        )
-                        self.redis.expire(f"{POST_TIMESTAMP}:{row['id']}", 345600)  # 4 days
-
-                        logger.info(f"⏱️ Post {row['id']}: Timestamped at Scraping Stage")
-
-                        cycle_published += 1
-
-                    # Update high-water mark for this ticker
-                    if max_post_time > hwm:
-                        self._set_hwm(ticker, max_post_time)
-
-                except Exception as e:
-                    logger.error(f"[Ideas Stream] Error scraping {ticker}: {e}", exc_info=True)
-
-                time.sleep(self.INTER_TICKER_DELAY)
+            # Parallel scraping across tickers
+            with ThreadPoolExecutor(max_workers=self.WORKER_COUNT) as pool:
+                futures = {pool.submit(self._scrape_ticker, t): t for t in tickers}
+                for future in futures:
+                    if not self._running:
+                        break
+                    try:
+                        pub, dup = future.result(timeout=self.PER_TICKER_TIMEOUT)
+                        cycle_published += pub
+                        cycle_duplicates += dup
+                    except FuturesTimeoutError:
+                        ticker = futures[future]
+                        logger.warning(f"[Ideas Stream] Timeout scraping {ticker}, skipping")
+                    except Exception as e:
+                        ticker = futures[future]
+                        logger.error(f"[Ideas Stream] Error scraping {ticker}: {e}", exc_info=True)
 
             cycle_elapsed = time.time() - cycle_start
             logger.info(
@@ -232,7 +260,8 @@ class TradingViewIdeasStreamIngestion:
             # Prevent in-memory set from growing unbounded
             if len(self.seen_in_memory) > self.MAX_MEMORY_CACHE:
                 logger.info("[Ideas Stream] Pruning in-memory dedup set")
-                self.seen_in_memory.clear()
+                with self._seen_lock:
+                    self.seen_in_memory.clear()
 
             # Wait for the remainder of the poll interval
             remaining = self.POLL_INTERVAL - cycle_elapsed
