@@ -4,6 +4,7 @@ from langgraph.graph import StateGraph, END
 from src.services.redis_service import RedisService
 from src.services.llm_service import LLMService
 from src.services.database import post_deepanalysis
+from src.services.telegram import post_signal_to_telegram
 from src.agents import ThresholdMonitor, DeepAnalyzer, lookup_qdrant
 from src.models.state import DeepAnalysis, TickerSentiment
 import os
@@ -191,6 +192,8 @@ class WorkflowManager:
         analysis.source = article.source
         state["deep_analysis"] = analysis
         
+        # post signal on telegram
+        post_signal_to_telegram(analysis)
 
         # Post the analysis
         response = post_deepanalysis(analysis)

@@ -193,6 +193,10 @@ class MongoDBClient:
         
         return {"user_id": user_id, "risk_profile": risk_profile.value}
         
+    def get_alias_name(self, user_id: str) -> Optional[str]:
+        doc = self.accounts.find_one({"user_id": user_id}, {"alias_name": 1})
+        return doc.get("alias_name") if doc else None
+
     # For trading-agent to run trades
     def get_all_trading_accounts(self) -> list[dict]:
         docs = self.accounts.find()
