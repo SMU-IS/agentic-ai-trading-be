@@ -43,3 +43,14 @@ secretName: news-aggregator-service-secrets
 
 ingress:
   enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/news-aggregator/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/news-aggregator
+        pathType: Prefix
+

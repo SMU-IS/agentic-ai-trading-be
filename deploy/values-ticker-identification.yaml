@@ -45,3 +45,14 @@ secretName: ticker-identification-service-secrets
 
 ingress:
   enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/ticker-identification/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/ticker-identification
+        pathType: Prefix
+

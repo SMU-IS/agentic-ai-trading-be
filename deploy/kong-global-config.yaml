@@ -1,0 +1,75 @@
+# Secret for JWT Authentication
+apiVersion: v1
+kind: Secret
+metadata:
+  name: agentic-ai-jwt-secret
+  namespace: default
+  labels:
+    konghq.com/credential: jwt
+type: Opaque
+stringData:
+  kongCredType: jwt
+  key: agentic-ai-user-service
+  algorithm: HS256
+  secret: L5TjuuTAlM8MMcZ9nyhB9QkLXxgyW8tGlPQc40rJcMt # TODO: Move to a Secret Provider/Vault
+
+---
+# JWT Plugin Configuration
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: jwt-auth
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "kong"
+config:
+  claims_to_verify:
+    - exp
+  secret_is_base64: false
+  header_names:
+    - authorization
+plugin: jwt
+
+---
+# Global CORS Plugin Configuration
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: global-cors
+  namespace: default
+config:
+  origins:
+    - "http://localhost:3000"
+    - "https://main.d3f0x7kvo77xiu.amplifyapp.com"
+    - "https://agentic-m.com"
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+  headers:
+    [
+      "Accept",
+      "Accept-Version",
+      "Content-Length",
+      "Content-MD5",
+      "Content-Type",
+      "Date",
+      "Authorization",
+      "X-Requested-With",
+      "X-Auth-Token",
+    ]
+  exposed_headers: ["X-Auth-Token"]
+  credentials: true
+  max_age: 3600
+  preflight_continue: false
+plugin: cors
+
+---
+# === 2. CONSUMERS ===
+apiVersion: configuration.konghq.com/v1
+kind: KongConsumer
+metadata:
+  name: agentic-ai-user-service
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "kong"
+username: agentic-ai-user-service
+credentials:
+  - agentic-ai-jwt-secret

@@ -17,6 +17,5 @@ jobs:
       cluster-name: "agentic-m-cluster"
       image-name: "trading-service"
       values-file: "deploy/values-trading-service.yaml"
-      ingress-path: "deploy/ingress.yaml"
       secret-key: "TRADING_SERVICE_SECRETS"
     secrets: inherit
