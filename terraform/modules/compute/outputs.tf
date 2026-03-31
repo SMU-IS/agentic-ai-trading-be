@@ -57,3 +57,8 @@ output "bastion_instance_id" {
   description = "ID of the bastion host"
   value       = aws_instance.bastion.id
 }
+
+output "oidc_provider_arn" {
+  description = "The ARN of the OIDC Provider for the EKS cluster"
+  value       = module.eks.oidc_provider_arn
+}

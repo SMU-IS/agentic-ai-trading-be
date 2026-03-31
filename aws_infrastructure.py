@@ -8,6 +8,7 @@
 from diagrams import Cluster, Diagram, Edge
 from diagrams.aws.compute import EC2, EKS, AutoScaling, EC2ContainerRegistry
 from diagrams.aws.database import RDS
+from diagrams.aws.management import AmazonManagedGrafana, AmazonManagedPrometheus
 from diagrams.aws.mobile import Amplify
 from diagrams.aws.network import (
     ELB,
@@ -94,6 +95,10 @@ with Diagram(
 
     s3 = S3("S3 Buckets\n(Replicated Store)")
 
+    with Cluster("Observability & Monitoring", graph_attr=cluster_attr):
+        prometheus = AmazonManagedPrometheus("AWS Prometheus\n(Metrics Store)")
+        grafana = AmazonManagedGrafana("AWS Grafana\n(Visualizations)")
+
     # --- Precise Route & Logical Connections ---
 
     # 1. Frontend Route
@@ -132,3 +137,7 @@ with Diagram(
     # 6. Cluster Management
     karpenter >> Edge(color=COLOR_ACCENT, style="dashed") >> app_nodes
     ecr >> Edge(color=COLOR_SECONDARY, style="dotted", label=" Pull") >> app_nodes
+
+    # 7. Observability Flow
+    app_nodes >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Export Metrics") >> prometheus
+    prometheus >> Edge(color=COLOR_PRIMARY) >> grafana
