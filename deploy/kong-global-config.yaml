@@ -54,7 +54,6 @@ config:
       "Authorization",
       "X-Requested-With",
       "X-Auth-Token",
-      "X-User-Id",
     ]
   exposed_headers: ["X-Auth-Token"]
   credentials: true

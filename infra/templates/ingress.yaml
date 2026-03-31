@@ -38,7 +38,7 @@ metadata:
     {{- include "infra.labels" . | nindent 4 }}
   annotations:
     konghq.com/strip-path: "true"
-    konghq.com/plugins: "global-cors, jwt-auth, jwt-id-extractor"
+    konghq.com/plugins: "global-cors, jwt-auth"
     {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
