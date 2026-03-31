@@ -110,8 +110,8 @@ async def post_order(order: dict) -> None:
         f"Side:    <b>{action}</b> | Profile: <b>{profile}</b>\n"
         f"User:    <code>{user_id}</code>\n"
         f"<code>{stats}</code>\n"
-        f"OrderID: <code>{order_id}</code>\n"
-        f"\n<blockquote>{thesis}</blockquote>"
+        f"OrderID: <code>{order_id}</code>\n\n"
+        f"<b>Thesis</b>\n<blockquote>{thesis}</blockquote>"
     )
     await _send(text, _THREAD_ORDER)
     print(f"   [📬 Telegram] Order posted | {symbol} {action}")
