@@ -34,4 +34,4 @@ readinessProbe:
 secretName: metrics-tracker-service-secrets
 
 ingress:
-  enabled: false
+  enabled: true

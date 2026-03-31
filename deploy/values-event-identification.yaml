@@ -44,4 +44,4 @@ worker:
 secretName: event-identification-service-secrets
 
 ingress:
-  enabled: false
+  enabled: true

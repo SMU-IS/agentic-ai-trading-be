@@ -44,4 +44,4 @@ worker:
 secretName: ticker-identification-service-secrets
 
 ingress:
-  enabled: false
+  enabled: true

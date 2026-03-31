@@ -32,4 +32,4 @@ readinessProbe:
 secretName: trading-service-secrets
 
 ingress:
-  enabled: false
+  enabled: true

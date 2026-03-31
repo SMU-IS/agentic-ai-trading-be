@@ -42,4 +42,4 @@ readinessProbe:
 secretName: news-aggregator-service-secrets
 
 ingress:
-  enabled: false
+  enabled: true

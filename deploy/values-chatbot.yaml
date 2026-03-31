@@ -34,4 +34,4 @@ readinessProbe:
 secretName: rag-chatbot-secrets
 
 ingress:
-  enabled: false
+  enabled: true

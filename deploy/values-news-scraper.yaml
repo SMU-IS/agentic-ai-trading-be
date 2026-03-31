@@ -40,4 +40,4 @@ readinessProbe:
 secretName: news-scraper-secrets
 
 ingress:
-  enabled: false
+  enabled: true

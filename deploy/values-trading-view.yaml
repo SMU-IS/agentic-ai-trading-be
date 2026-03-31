@@ -34,4 +34,4 @@ readinessProbe:
 secretName: news-scraper-trading-view-secrets
 
 ingress:
-  enabled: false
+  enabled: true

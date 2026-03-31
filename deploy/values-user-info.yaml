@@ -34,4 +34,4 @@ readinessProbe:
 secretName: user-info-secrets
 
 ingress:
-  enabled: false
+  enabled: true

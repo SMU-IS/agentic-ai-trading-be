@@ -39,4 +39,4 @@ worker:
 secretName: qdrant-retrieval-secrets
 
 ingress:
-  enabled: false
+  enabled: true

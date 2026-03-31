@@ -34,4 +34,4 @@ readinessProbe:
 secretName: notification-alert-secrets
 
 ingress:
-  enabled: false
+  enabled: true

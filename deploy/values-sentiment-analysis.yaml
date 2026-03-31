@@ -44,4 +44,4 @@ worker:
 secretName: sentiment-analysis-secrets
 
 ingress:
-  enabled: false
+  enabled: true

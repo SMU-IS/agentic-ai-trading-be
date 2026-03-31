@@ -34,4 +34,4 @@ readinessProbe:
 secretName: trading-agent-m-secrets
 
 ingress:
-  enabled: false
+  enabled: true
