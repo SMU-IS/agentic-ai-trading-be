@@ -81,6 +81,16 @@ class UserRequest(BaseModel):
 
 router = APIRouter()
 
+
+@router.get("/debug/whoami")
+def debug_whoami(x_user_id: str = Header(default=None)):
+    """Debug endpoint — returns the x-user-id header received by the service."""
+    return {
+        "x_user_id": x_user_id,
+        "source":    "header" if x_user_id is not None else "missing",
+    }
+
+
 # ── In-memory TTL cache for /orders/all ───────────────────────────────────────
 _orders_cache: Dict[Tuple[str, int], Tuple[float, List]] = {}
 _CACHE_TTL = 30  # seconds
