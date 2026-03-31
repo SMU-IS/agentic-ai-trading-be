@@ -1,6 +1,6 @@
 # =============================================================================
 # networking         - VPC, subnets, NAT gateways (none - public nodes for cost)
-# compute            - EKS cluster with Karpenter (spot instances, t4g.small system, t4g.micro apps)
+# compute            - EKS cluster with Karpenter (on-demand instances, t4g.small system, t4g.micro apps)
 # databases          - RDS (db.t4g.micro - smallest available Graviton)
 # storage            - S3 buckets, CloudFront CDN
 # container_registry - ECR repositories
@@ -18,7 +18,7 @@ module "networking" {
   environment     = var.environment
 }
 
-# Compute Module (EKS with Karpenter - Public Spot Instances)
+# Compute Module (EKS with Karpenter - Public On-Demand Instances)
 module "compute" {
   source       = "./modules/compute"
   cluster_name = var.cluster_name
@@ -360,7 +360,7 @@ resource "kubectl_manifest" "karpenter_node_pool" {
             name  = "default"
           }
           requirements = [
-            { key = "karpenter.sh/capacity-type", operator = "In", values = ["spot"] },
+            { key = "karpenter.sh/capacity-type", operator = "In", values = ["on-demand"] },
             { key = "kubernetes.io/arch", operator = "In", values = ["arm64"] },
             { key = "karpenter.k8s.aws/instance-family", operator = "In", values = ["t4g", "c7g", "m7g", "r7g"] },
             { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["micro", "small", "medium", "large", "xlarge"] }

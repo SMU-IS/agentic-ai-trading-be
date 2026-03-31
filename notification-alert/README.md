@@ -130,7 +130,7 @@ The backend is built using a highly decoupled microservices architecture:
    ```
 
 4. **Verify Deployment**:
-   - Live App: [https://agentic-m.com](https://agentic-m.com)
+   - Live Demo: [https://agentic-m.com](https://agentic-m.com)
    - API Endpoint: [http://api.agentic-m.com/api/v1/rag/healthcheck](http://api.agentic-m.com/api/v1/rag/healthcheck)
 
 ## 🗳️ Acknowledgement
