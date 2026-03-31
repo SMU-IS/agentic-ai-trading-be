@@ -78,7 +78,7 @@ with Diagram(
                 kong = Kong("Kong Ingress\n(HA Configuration)")
 
                 with Cluster("Auto-Scaling Node Fleet"):
-                    app_nodes = EC2("Scalable App Pods\n(HPA / Spot)")
+                    app_nodes = EC2("Scalable App Pods\n(HPA / On-Demand)")
                     karpenter = AutoScaling("Karpenter\n(Elastic Scaling)")
 
         with Cluster("Private Subnets", graph_attr=cluster_attr):
