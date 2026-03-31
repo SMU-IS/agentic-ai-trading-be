@@ -35,3 +35,14 @@ secretName: metrics-tracker-service-secrets
 
 ingress:
   enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/metrics/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/metrics
+        pathType: Prefix
+

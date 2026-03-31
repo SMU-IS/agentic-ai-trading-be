@@ -33,3 +33,14 @@ secretName: trading-service-secrets
 
 ingress:
   enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/trading/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/trading
+        pathType: Prefix
+

@@ -45,3 +45,14 @@ secretName: event-identification-service-secrets
 
 ingress:
   enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/event-identification/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/event-identification
+        pathType: Prefix
+

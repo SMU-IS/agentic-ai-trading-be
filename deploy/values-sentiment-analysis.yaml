@@ -45,3 +45,14 @@ secretName: sentiment-analysis-secrets
 
 ingress:
   enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/sentiment-analysis/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/sentiment-analysis
+        pathType: Prefix
+
