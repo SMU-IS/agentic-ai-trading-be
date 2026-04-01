@@ -134,10 +134,12 @@ async def get_cluster_metrics():
     client = AMPQueryClient()
 
     # 1. Uptime Percentage (over last 24h)
+    # We use a more robust 'at least one node up' logic to represent cluster availability.
+    # This prevents node rotations or short-lived pods from dragging down the average.
     uptime_queries = [
+        'avg_over_time(clamp_max(sum(up{job="kubernetes-nodes"}), 1)[24h:1m]) * 100',
+        'avg_over_time(clamp_max(sum(up), 1)[24h:1m]) * 100',
         'avg(avg_over_time(up{job="kubernetes-nodes"}[24h])) * 100',
-        "avg(avg_over_time(up[24h])) * 100",
-        "sum(avg_over_time(up[24h])) / count(up) * 100",
     ]
 
     uptime = 0.0
