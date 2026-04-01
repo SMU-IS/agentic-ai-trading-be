@@ -20,9 +20,7 @@ async def _get_order_details(order_id: str, user_id: str):
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(
-                alpacca_broker_api, headers=headers, timeout=10.0
-            )
+            response = await client.get(alpacca_broker_api, headers=headers)
             response.raise_for_status()
             order_details = response.json()
             logger.info(f"Order details fetched for order id {order_id}")
