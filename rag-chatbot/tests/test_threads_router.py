@@ -27,7 +27,7 @@ async def test_get_user_threads_success():
     
     # Execute request
     # Note: root_path is /api/v1/rag, so the endpoint is /threads
-    response = client.get("/threads?user_id=user_123")
+    response = client.get("/threads", headers={"x-user-id": "user_123"})
     
     # Assert
     assert response.status_code == 200

@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.runnables import RunnableConfig
 
 from app.services.ai_agent.chat_workflow import ChatWorkflow
 from app.services.ai_agent.state import AgentState
@@ -58,10 +59,11 @@ async def test_trade_history_list_node_extraction():
             "order_id": None,
             "query": "show me the trades for the past 1 day",
             "variables": {},
-            "metadata": {},
+            "metadata": {"user_id": "user123"},
         }
         
-        result = await trade_history_list_node(state, llm)
+        config = {"metadata": {"user_id": "user123"}}
+        result = await trade_history_list_node(state, config, llm)
         assert "messages" in result
         assert isinstance(result["messages"][0], SystemMessage)
         assert '"orders": []' in result["messages"][0].content
