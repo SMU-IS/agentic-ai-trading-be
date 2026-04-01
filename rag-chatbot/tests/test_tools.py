@@ -92,7 +92,7 @@ async def test_get_order_details_success():
         mock_get.return_value.json.return_value = mock_response
         mock_get.return_value.raise_for_status = MagicMock()
 
-        result = await _get_order_details("order123")
+        result = await _get_order_details("order123", "user123")
 
         assert result == ("AAPL", 150.0, "buy", "low", "none", "RSI oversold")
 
@@ -106,8 +106,9 @@ async def test_get_trade_history_details_success():
     ) as mock_get_details:
         mock_get_details.return_value = mock_order_details
 
+        config = {"metadata": {"user_id": "user123"}}
         result = await get_trade_history_details.ainvoke(
-            {"query": "why buy?", "order_id": "order123"}
+            {"order_id": "order123"}, config=config
         )
 
         assert result.ticker == "AAPL"
@@ -123,8 +124,9 @@ async def test_get_trade_history_details_failure():
         side_effect=Exception("API Error"),
     ):
         with pytest.raises(Exception) as excinfo:
+            config = {"metadata": {"user_id": "user123"}}
             await get_trade_history_details.ainvoke(
-                {"query": "why buy?", "order_id": "order123"}
+                {"order_id": "order123"}, config=config
             )
 
         assert "Unable to retrieve trade history details" in str(excinfo.value)
