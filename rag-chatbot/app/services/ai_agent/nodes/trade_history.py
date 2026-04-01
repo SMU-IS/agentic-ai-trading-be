@@ -3,6 +3,7 @@ import uuid
 from typing import Any
 
 from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.runnables import RunnableConfig
 
 from app.services.ai_agent.state import AgentState
 from app.utils.logger import setup_logging
@@ -10,7 +11,7 @@ from app.utils.logger import setup_logging
 logger = setup_logging()
 
 
-async def trade_history_node(state: AgentState) -> dict[str, Any]:
+async def trade_history_node(state: AgentState, config: RunnableConfig) -> dict[str, Any]:
     """
     Node to handle trade history queries.
 
@@ -19,6 +20,7 @@ async def trade_history_node(state: AgentState) -> dict[str, Any]:
 
     Args:
         state: The current agent state
+        config: The configuration for the run
 
     Returns:
         Updated state with the trade history response
@@ -43,7 +45,9 @@ async def trade_history_node(state: AgentState) -> dict[str, Any]:
     try:
         from app.services.tools.trade_history import get_trade_history_details
 
-        result = await get_trade_history_details.ainvoke({"order_id": order_id})
+        result = await get_trade_history_details.ainvoke(
+            {"order_id": order_id}, config=config
+        )
         logger.info(f"Trade history retrieved for order_id: {order_id}")
         return {
             "messages": [SystemMessage(content=json.dumps(result.dict()), id=msg_id)],
