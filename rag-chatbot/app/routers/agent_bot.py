@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
 
 from app.core.config import env_config
