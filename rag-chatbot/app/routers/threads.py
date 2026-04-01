@@ -1,8 +1,9 @@
+from fastapi import APIRouter, Depends, Request
+
 from app.core.constant import APIPath
 from app.schemas.chat import ThreadResponse
 from app.services.bot_memory import BotMemory
 from app.utils.decode_jwt import get_current_user_id
-from fastapi import APIRouter, Depends, Header, Request
 
 router = APIRouter(tags=["Threads"])
 
