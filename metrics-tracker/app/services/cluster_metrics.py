@@ -135,40 +135,55 @@ async def get_cluster_metrics():
     client = AMPQueryClient()
 
     # 1. Uptime Percentage (over last 24h)
-    uptime_query = 'avg(avg_over_time(up{job="kubernetes-nodes"}[24h])) * 100'
-    uptime_data = await client.query(uptime_query)
+    # Try multiple common uptime queries
+    uptime_queries = [
+        'avg(avg_over_time(up{job="kubernetes-nodes"}[24h])) * 100',
+        "avg(avg_over_time(up[24h])) * 100",
+        "sum(avg_over_time(up[24h])) / count(up) * 100",
+    ]
 
     uptime = 0.0
-    if uptime_data and uptime_data.get("data", {}).get("result"):
-        uptime = float(uptime_data["data"]["result"][0]["value"][1])
-    else:
+    for q in uptime_queries:
+        uptime_data = await client.query(q)
+        if uptime_data and uptime_data.get("data", {}).get("result"):
+            try:
+                uptime = float(uptime_data["data"]["result"][0]["value"][1])
+                if uptime > 0:
+                    break
+            except (IndexError, ValueError):
+                continue
+
+    if uptime == 0.0:
         uptime = await get_cluster_uptime_from_cw()
 
     # 2. Average Latency (over last 1h)
-    # Standard Ingress: rate(nginx_ingress_controller_request_duration_seconds_sum[1h]) / rate(nginx_ingress_controller_request_duration_seconds_count[1h])
-    latency_query = "avg(rate(kong_http_request_duration_seconds_sum[1h]) / rate(kong_http_request_duration_seconds_count[1h]))"
-    latency_data = await client.query(latency_query)
+    latency_queries = [
+        "avg(rate(kong_http_request_duration_seconds_sum[1h]) / rate(kong_http_request_duration_seconds_count[1h]))",
+        "avg(rate(nginx_ingress_controller_request_duration_seconds_sum[1h]) / rate(nginx_ingress_controller_request_duration_seconds_count[1h]))",
+        "avg(rate(http_request_duration_seconds_sum[1h]) / rate(http_request_duration_seconds_count[1h]))",
+    ]
 
     latency_ms = 0.0
-    if (
-        latency_data
-        and latency_data.get("data", {}).get("result")
-        and latency_data["data"]["result"]
-    ):
-        latency_ms = float(latency_data["data"]["result"][0]["value"][1]) * 1000
-    else:
-        # Try generic Kubernetes service latency if available
-        fallback_query = "avg(rate(http_request_duration_seconds_sum[1h]) / rate(http_request_duration_seconds_count[1h]))"
-        latency_data = await client.query(fallback_query)
+    for q in latency_queries:
+        latency_data = await client.query(q)
         if (
             latency_data
             and latency_data.get("data", {}).get("result")
             and latency_data["data"]["result"]
         ):
-            latency_ms = float(latency_data["data"]["result"][0]["value"][1]) * 1000
+            try:
+                latency_ms = float(latency_data["data"]["result"][0]["value"][1]) * 1000
+                if latency_ms > 0:
+                    break
+            except (IndexError, ValueError):
+                continue
 
     return {
         "uptime_percentage": round(uptime, 2),
         "average_latency_ms": round(latency_ms, 2),
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "debug": {
+            "load_balancer": env_config.load_balancer_name,
+            "prometheus_url_configured": bool(env_config.prometheus_url),
+        },
     }
