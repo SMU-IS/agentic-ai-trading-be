@@ -17,8 +17,8 @@ class EnvConfig(BaseSettings):
     redis_port: int = Field(..., validation_alias="REDIS_PORT")
     redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
 
-    aws_access_key_id: str = Field(..., validation_alias="AWS_BUCKET_ACCESS_KEY")
-    aws_secret_access_key: str = Field(..., validation_alias="AWS_BUCKET_SECRET")
+    aws_access_key_id: str | None = Field(default=None, validation_alias="AWS_BUCKET_ACCESS_KEY")
+    aws_secret_access_key: str | None = Field(default=None, validation_alias="AWS_BUCKET_SECRET")
     aws_region: str = Field(..., validation_alias="AWS_REGION")
     aws_bucket_name: str = Field(..., validation_alias="AWS_BUCKET_NAME")
 
