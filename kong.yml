@@ -52,6 +52,7 @@ plugins:
     config:
       minute: 100
       policy: local
+  - name: prometheus
 
 services:
   # --- RAG Chatbot (5001) ---

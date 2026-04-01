@@ -14,5 +14,8 @@ services:
       - AWS_BUCKET_SECRET=${AWS_BUCKET_SECRET}
       - AWS_REGION=${AWS_REGION}
       - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+      - PROMETHEUS_URL=${PROMETHEUS_URL}
+      - CLUSTER_NAME=${CLUSTER_NAME}
+      - LOAD_BALANCER_NAME=${LOAD_BALANCER_NAME}
     command: uvicorn app.main:app --host 0.0.0.0 --port 5014
     restart: unless-stopped
