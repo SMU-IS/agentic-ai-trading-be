@@ -83,11 +83,26 @@ router = APIRouter()
 
 
 @router.get("/debug/whoami")
-def debug_whoami(x_user_id: str = Header(default=None)):
-    """Debug endpoint — returns the x-user-id header received by the service."""
+def debug_whoami(
+    x_user_id: str = Header(default=None),
+    authorization: str = Header(default=None)
+):
+    """Debug endpoint — returns the identity state received by the service."""
+    extracted_uid = x_user_id
+    
+    if not extracted_uid and authorization and authorization.startswith("Bearer "):
+        try:
+            token = authorization.replace("Bearer ", "")
+            payload = jwt.decode(token, options={"verify_signature": False})
+            extracted_uid = payload.get("sub")
+        except Exception:
+            pass
+
     return {
-        "x_user_id": x_user_id,
-        "source":    "header" if x_user_id is not None else "missing",
+        "x_user_id_header": x_user_id,
+        "auth_header_found": authorization is not None,
+        "final_extracted_user_id": extracted_uid,
+        "source": "header" if x_user_id else ("jwt-token" if extracted_uid else "missing"),
     }
 
 
