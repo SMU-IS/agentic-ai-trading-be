@@ -123,12 +123,31 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+import jwt
+
 # Dependency to get a broker instance (can be singleton or factory)
 def get_broker(
-    x_user_id: str = Header(default="agent-A"),
+    x_user_id: str = Header(default=None),
+    authorization: str = Header(default=None),
 ) -> AlpacaBrokerClient:
+    """Gets the broker client, extracting user_id from X-User-Id or JWT if needed."""
+    
+    # 1. If X-User-Id is missing, extract 'sub' from the JWT Bearer token
+    if not x_user_id and authorization and authorization.startswith("Bearer "):
+        try:
+            token = authorization.replace("Bearer ", "")
+            # We skip verification because Kong already validated the signature
+            payload = jwt.decode(token, options={"verify_signature": False})
+            x_user_id = payload.get("sub")
+        except Exception as e:
+            logger.warning(f"Failed to decode JWT for user identification: {e}")
+
+    # 2. Final fallback to default user
+    if not x_user_id:
+        x_user_id = "agent-A"
+
     try:
-        print("fetching for user", x_user_id)
+        print(f"Fetching broker for user: {x_user_id}")
         api_key, api_secret, paper = services.trading_db._load_user_account_from_mongo(
             x_user_id
         )

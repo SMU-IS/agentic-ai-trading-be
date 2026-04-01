@@ -135,7 +135,7 @@ The backend is built using a highly decoupled microservices architecture:
 
 ## 🗳️ Acknowledgement
 
-Developed by SMU **Mvidia (Team 2)**, IS484 Project Experience in collaboration with **UBS**.
+Developed by **Mvidia (Team 2)**, IS484 Project Experience in collaboration with **UBS**.
 
 <a href="https://www.linkedin.com/in/joshydavid/"><img src="https://github.com/user-attachments/assets/f9dd5867-724a-4dff-a2ad-61c81ea6e3b5" width="80" title="Joshua David"></a>&nbsp;
 <a href="https://www.linkedin.com/in/bryancjh/"><img src="https://github.com/user-attachments/assets/cc1782b1-e71f-410a-97a4-cfec08bccead" width="80" title="Bryan Chia"></a>&nbsp;
