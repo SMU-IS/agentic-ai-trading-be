@@ -1,7 +1,7 @@
 from app.core.constant import APIPath
 from app.schemas.chat import ThreadResponse
 from app.services.bot_memory import BotMemory
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Header, Request
 
 router = APIRouter(tags=["Threads"])
 
@@ -13,7 +13,7 @@ def get_bot_memory(request: Request) -> BotMemory:
 
 @router.get(APIPath.THREADS, response_model=list[ThreadResponse])
 async def get_user_threads(
-    user_id: str,
+    x_user_id: str = Header(..., alias="x-user-id"),
     limit: int = 20,
     offset: int = 0,
     bot_memory: BotMemory = Depends(get_bot_memory),
@@ -29,5 +29,5 @@ async def get_user_threads(
     Returns:
     - A list of thread objects with thread_id, title, and updated_at
     """
-    threads = await bot_memory.aget_user_threads(user_id, limit=limit, offset=offset)
+    threads = await bot_memory.aget_user_threads(x_user_id, limit=limit, offset=offset)
     return threads

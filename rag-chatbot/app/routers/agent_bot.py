@@ -22,11 +22,12 @@ def get_agent_bot_service(request: Request):
 @router.post(APIPath.CHAT)
 async def chat_stream(
     chat_data: ChatRequest,
+    x_user_id: str = Header(..., alias="x-user-id"),
     agent_bot_service: AgentBotService = Depends(get_agent_bot_service),
 ):
     return StreamingResponse(
         agent_bot_service.invoke_agent(
-            chat_data.query, chat_data.order_id, chat_data.user_id, chat_data.session_id
+            chat_data.query, chat_data.order_id, x_user_id, chat_data.session_id
         ),
         media_type="text/event-stream",
     )
