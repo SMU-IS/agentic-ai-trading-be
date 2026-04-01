@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timedelta, timezone
 
 import aiohttp
@@ -135,7 +134,6 @@ async def get_cluster_metrics():
     client = AMPQueryClient()
 
     # 1. Uptime Percentage (over last 24h)
-    # Try multiple common uptime queries
     uptime_queries = [
         'avg(avg_over_time(up{job="kubernetes-nodes"}[24h])) * 100',
         "avg(avg_over_time(up[24h])) * 100",
@@ -182,8 +180,4 @@ async def get_cluster_metrics():
         "uptime_percentage": round(uptime, 2),
         "average_latency_ms": round(latency_ms, 2),
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "debug": {
-            "load_balancer": env_config.load_balancer_name,
-            "prometheus_url_configured": bool(env_config.prometheus_url),
-        },
     }
