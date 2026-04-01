@@ -25,6 +25,7 @@ class EnvConfig(BaseSettings):
     # Monitoring
     prometheus_url: str = Field(default="", validation_alias="PROMETHEUS_URL")
     cluster_name: str = Field(default="trading-cluster", validation_alias="CLUSTER_NAME")
+    load_balancer_name: str = Field(default="", validation_alias="LOAD_BALANCER_NAME")
 
 
 env_config = EnvConfig()  # type: ignore
