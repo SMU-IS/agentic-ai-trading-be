@@ -83,16 +83,11 @@ router = APIRouter()
 
 
 @router.get("/debug/whoami")
-def debug_whoami(
-    x_user_id: str = Header(default=None),
-    authorization: str = Header(default=None)
-):
-    """Debug endpoint — returns the headers received by the service."""
+def debug_whoami(x_user_id: str = Header(default=None)):
+    """Debug endpoint — returns the x-user-id header received by the service."""
     return {
         "x_user_id": x_user_id,
-        "authorization_found": authorization is not None,
-        "authorization_prefix": authorization[:15] if authorization else None,
-        "source": "x-user-id-header" if x_user_id else ("auth-header" if authorization else "missing"),
+        "source":    "header" if x_user_id is not None else "missing",
     }
 
 

@@ -28,7 +28,6 @@ config:
   secret_is_base64: false
   header_names:
     - authorization
-  forward_header: true
 plugin: jwt
 
 ---
