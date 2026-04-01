@@ -206,6 +206,26 @@ resource "kubernetes_config_map" "rds_certs" {
   }
 }
 
+# Dynamic JWT Secret for Kong
+resource "kubernetes_secret" "jwt_secret" {
+  metadata {
+    name      = "agentic-ai-jwt-secret"
+    namespace = "default"
+    labels = {
+      "konghq.com/credential" = "jwt"
+    }
+  }
+
+  type = "Opaque"
+
+  data = {
+    kongCredType = "jwt"
+    key          = "agentic-ai-user-service" # This MUST match the 'iss' claim in your JWT
+    algorithm    = "HS256"
+    secret       = var.jwt_secret
+  }
+}
+
 # Kong Gateway Helm Release
 resource "helm_release" "kong" {
   namespace  = "default"

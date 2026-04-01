@@ -1,19 +1,3 @@
-# Secret for JWT Authentication
-apiVersion: v1
-kind: Secret
-metadata:
-  name: agentic-ai-jwt-secret
-  namespace: default
-  labels:
-    konghq.com/credential: jwt
-type: Opaque
-stringData:
-  kongCredType: jwt
-  key: agentic-ai-user-service
-  algorithm: HS256
-  secret: L5TjuuTAlM8MMcZ9nyhB9QkLXxgyW8tGlPQc40rJcMt # TODO: Move to a Secret Provider/Vault
-
----
 # JWT Plugin Configuration
 apiVersion: configuration.konghq.com/v1
 kind: KongPlugin
@@ -26,6 +10,7 @@ config:
   claims_to_verify:
     - exp
   secret_is_base64: false
+  key_claim_name: iss
   header_names:
     - authorization
 plugin: jwt
@@ -86,7 +71,7 @@ metadata:
 config:
   add:
     headers:
-    - X-User-Id:$(jwt_claims['sub'])
+      - X-User-Id:$(jwt_claims['sub'])
 plugin: request-transformer
 
 ---
@@ -98,16 +83,16 @@ metadata:
   namespace: default
 config:
   access:
-  - |
-    local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
-    local auth_header = kong.request.get_header("authorization")
-    if auth_header then
-      local token = auth_header:gsub("Bearer ", "")
-      local jwt, err = jwt_decoder:new(token)
-      if jwt and jwt.claims then
-        kong.service.request.set_header("X-User-Id", jwt.claims.sub)
+    - |
+      local jwt_decoder = require "kong.plugins.jwt.jwt_parser"
+      local auth_header = kong.request.get_header("authorization")
+      if auth_header then
+        local token = auth_header:gsub("Bearer ", "")
+        local jwt, err = jwt_decoder:new(token)
+        if jwt and jwt.claims then
+          kong.service.request.set_header("X-User-Id", jwt.claims.sub)
+        end
       end
-    end
 plugin: pre-function
 
 ---
@@ -120,5 +105,5 @@ metadata:
 config:
   add:
     headers:
-    - x-user-id:$(headers['x-consumer-username'])
+      - x-user-id:$(headers['x-consumer-username'])
 plugin: request-transformer

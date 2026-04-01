@@ -121,6 +121,13 @@ variable "thread_api_url" {
   type      = string
   sensitive = true
 }
+
+variable "jwt_secret" {
+  type        = string
+  description = "Secret used for signing and verifying JWTs"
+  sensitive   = true
+}
+
 variable "enable_sign_up" {
   type      = bool
   sensitive = true
