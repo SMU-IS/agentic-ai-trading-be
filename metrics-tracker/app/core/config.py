@@ -22,5 +22,9 @@ class EnvConfig(BaseSettings):
     aws_region: str = Field(..., validation_alias="AWS_REGION")
     aws_bucket_name: str = Field(..., validation_alias="AWS_BUCKET_NAME")
 
+    # Monitoring
+    prometheus_url: str = Field(default="", validation_alias="PROMETHEUS_URL")
+    cluster_name: str = Field(default="trading-cluster", validation_alias="CLUSTER_NAME")
+
 
 env_config = EnvConfig()  # type: ignore

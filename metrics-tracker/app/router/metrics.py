@@ -8,6 +8,7 @@ from app.services.pipeline_metrics import (
     FUNNEL_SNAPSHOT_KEY,
     SERVICE_SNAPSHOT_KEY,
 )
+from app.services.cluster_metrics import get_cluster_metrics
 
 router = APIRouter()
 
@@ -26,6 +27,18 @@ async def get_service_metrics():
     if not data:
         raise HTTPException(status_code=404, detail="No snapshot yet — aggregator may still be starting up")
     return json.loads(data)
+
+
+@router.get("/cluster")
+async def get_cluster_status():
+    """
+    Returns the cluster uptime (percentage) and average latency from AMP/CloudWatch.
+    """
+    try:
+        metrics = await get_cluster_metrics()
+        return metrics
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch cluster metrics: {str(e)}")
 
 
 @router.post("/refresh")
