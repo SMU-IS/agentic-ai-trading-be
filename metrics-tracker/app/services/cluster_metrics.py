@@ -64,7 +64,7 @@ async def get_cluster_uptime_from_cw():
 
     now = datetime.now(timezone.utc)
     start_time = now - timedelta(hours=24)
-    
+
     try:
         # Query HealthyHostCount and UnHealthyHostCount
         # Note: Dimensions for NLB (NetworkELB) usually require TargetGroup and LoadBalancer
@@ -72,53 +72,64 @@ async def get_cluster_uptime_from_cw():
         response = cw_client.get_metric_data(
             MetricDataQueries=[
                 {
-                    'Id': 'healthy',
-                    'MetricStat': {
-                        'Metric': {
-                            'Namespace': 'AWS/NetworkELB',
-                            'MetricName': 'HealthyHostCount',
-                            'Dimensions': [{'Name': 'LoadBalancer', 'Value': env_config.load_balancer_name}]
+                    "Id": "healthy",
+                    "MetricStat": {
+                        "Metric": {
+                            "Namespace": "AWS/NetworkELB",
+                            "MetricName": "HealthyHostCount",
+                            "Dimensions": [
+                                {
+                                    "Name": "LoadBalancer",
+                                    "Value": env_config.load_balancer_name,
+                                }
+                            ],
                         },
-                        'Period': 300,
-                        'Stat': 'Average',
+                        "Period": 300,
+                        "Stat": "Average",
                     },
                 },
                 {
-                    'Id': 'unhealthy',
-                    'MetricStat': {
-                        'Metric': {
-                            'Namespace': 'AWS/NetworkELB',
-                            'MetricName': 'UnHealthyHostCount',
-                            'Dimensions': [{'Name': 'LoadBalancer', 'Value': env_config.load_balancer_name}]
+                    "Id": "unhealthy",
+                    "MetricStat": {
+                        "Metric": {
+                            "Namespace": "AWS/NetworkELB",
+                            "MetricName": "UnHealthyHostCount",
+                            "Dimensions": [
+                                {
+                                    "Name": "LoadBalancer",
+                                    "Value": env_config.load_balancer_name,
+                                }
+                            ],
                         },
-                        'Period': 300,
-                        'Stat': 'Average',
+                        "Period": 300,
+                        "Stat": "Average",
                     },
-                }
+                },
             ],
             StartTime=start_time,
             EndTime=now,
         )
 
-        healthy_values = response['MetricDataResults'][0]['Values']
-        unhealthy_values = response['MetricDataResults'][1]['Values']
+        healthy_values = response["MetricDataResults"][0]["Values"]
+        unhealthy_values = response["MetricDataResults"][1]["Values"]
 
         if not healthy_values:
             return 0.0
 
         total_data_points = len(healthy_values)
         uptime_points = 0
-        
-        for h, u in zip(healthy_values, unhealthy_values or [0]*total_data_points):
-            if h > 0: # At least one host is healthy
+
+        for h, u in zip(healthy_values, unhealthy_values or [0] * total_data_points):
+            if h > 0:  # At least one host is healthy
                 uptime_points += 1
-        
+
         uptime_pct = (uptime_points / total_data_points) * 100
         return round(uptime_pct, 2)
 
     except Exception as e:
         print(f"CloudWatch Uptime Query failed: {e}")
         return 0.0
+
 
 async def get_cluster_metrics():
     client = AMPQueryClient()
