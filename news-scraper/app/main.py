@@ -70,6 +70,11 @@ async def lifespan(app: FastAPI):
         "investing",
         "options",
         "stockmarket",
+        "stocks_picks",
+        "shortsqueeze",
+        "ValueInvesting",
+        "pennystocks",
+        "stockstobuytoday"
     ]
     app.state.storage = storage
     app.state.redis_client = redis_client
