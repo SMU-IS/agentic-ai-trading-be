@@ -10,6 +10,7 @@ from diagrams.aws.compute import EC2, EKS, AutoScaling, EC2ContainerRegistry
 from diagrams.aws.database import RDS
 from diagrams.aws.management import AmazonManagedGrafana, AmazonManagedPrometheus, Cloudwatch
 from diagrams.aws.mobile import Amplify
+from diagrams.aws.security import WAF
 from diagrams.aws.network import (
     ELB,
     VPC,
@@ -62,6 +63,7 @@ with Diagram(
     dns = Route53("Route 53\n(agentic-m.com)")
 
     with Cluster("Global Edge Services"):
+        waf = WAF("AWS WAF\n(Edge Security)")
         amplify = Amplify("AWS Amplify\n(Frontend Hosting)")
         cloudfront = CloudFront("CloudFront\n(API Acceleration)")
         ecr = EC2ContainerRegistry("ECR\n(Image Registry)")
@@ -106,7 +108,7 @@ with Diagram(
     dns >> Edge(color=COLOR_PRIMARY, label=" Main Domain") >> amplify
 
     # 2. API Route (The specified path)
-    dns >> Edge(color=COLOR_PRIMARY, label=" api. Subdomain") >> cloudfront
+    dns >> Edge(color=COLOR_PRIMARY, label=" api. Subdomain") >> waf >> cloudfront
     cloudfront >> Edge(color=COLOR_PRIMARY, label=" Primary Path") >> igw >> nlb
     nlb >> Edge(color=COLOR_PRIMARY) >> kong
     kong >> Edge(color=COLOR_ACCENT, label=" ClusterIP / Policy") >> app_nodes

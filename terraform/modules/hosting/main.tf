@@ -108,6 +108,7 @@ resource "aws_cloudfront_distribution" "kong_api" {
   comment         = "CloudFront for Kong API ${var.environment}"
   price_class     = "PriceClass_100"
   aliases         = ["api.agentic-m.com"]
+  web_acl_id      = aws_wafv2_web_acl.api_waf.arn
 
   default_cache_behavior {
     allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
