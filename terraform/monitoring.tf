@@ -22,7 +22,7 @@ module "amp_irsa_role" {
   oidc_providers = {
     main = {
       provider_arn               = module.compute.oidc_provider_arn
-      namespace_service_accounts = ["monitoring:prometheus-amp-server"]
+      namespace_service_accounts = []
     }
   }
 

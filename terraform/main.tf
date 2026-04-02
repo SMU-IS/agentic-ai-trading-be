@@ -211,15 +211,10 @@ resource "helm_release" "kong" {
       - name: kong-declarative-config
         mountPath: /usr/local/kong/declarative/
 
-    # Enable Prometheus Metrics Scrapping
     status:
       enabled: true
       http:
         enabled: true
-      annotations:
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8100"
-        prometheus.io/path: "/metrics"
 
     proxy:
       annotations:
