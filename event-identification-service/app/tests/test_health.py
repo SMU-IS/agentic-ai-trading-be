@@ -115,7 +115,7 @@ def test_healthcheck_scan_requires_multiple_iterations():
     assert "worker_page2" in data["active_workers"]
 
 
-def test_healthcheck_worker_id_extracted_from_key(service=None):
+def test_healthcheck_worker_id_extracted_from_key():
     """Worker ID is correctly stripped from the full heartbeat key name."""
     mock_redis = MagicMock()
     mock_redis.ping.return_value = True
