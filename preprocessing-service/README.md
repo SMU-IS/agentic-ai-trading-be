@@ -44,7 +44,7 @@ The system operates on behalf of users to mitigate information overload and circ
 - **📊 Interactive Visualisation Dashboard**: Provides real-time sentiment indicators per ticker, profit and loss (P&L) trends, and current portfolio holdings.
 - **🔔 Notification System**: Delivers critical alerts when breaking news directly impacts a user’s specific holdings and confirms autonomous trade executions.
 
-## 🚀 Getting Started :)
+## 🚀 Getting Startedd
 
 To get the microservices backend up and running locally, follow these steps:
 
