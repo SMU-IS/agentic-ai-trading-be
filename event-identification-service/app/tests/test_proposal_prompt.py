@@ -6,10 +6,19 @@ Test: _propose_new_events_with_llm
 """
 
 import json
+import sys
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from app.services._03_event_identification import EventIdentifierService
+
+def _import_event_identifier_service():
+    """Import the real EventIdentifierService, bypassing the conftest module mock."""
+    sys.modules.pop("app.services._03_event_identification", None)
+    with patch("app.services._03_event_identification.ChatGroq"), \
+         patch("app.services._03_event_identification.JsonOutputParser"), \
+         patch("app.services._03_event_identification.PromptTemplate"):
+        from app.services._03_event_identification import EventIdentifierService
+    return EventIdentifierService
 
 # ==========================================================
 # FIXTURES
@@ -84,6 +93,7 @@ MOCK_PROPOSAL = {
 
 
 def build_service():
+    EventIdentifierService = _import_event_identifier_service()
     service = EventIdentifierService(event_list=EVENT_LIST)
     # replace LLM with mock so no real API calls
     service.llm = MagicMock()
@@ -172,7 +182,7 @@ async def test_existing_events_section_included_in_prompt():
                 mock_chain = MagicMock()
                 mock_chain.ainvoke = AsyncMock(return_value=MOCK_PROPOSAL)
 
-                with patch("langchain_core.prompts.PromptTemplate.__or__", return_value=mock_chain):
+                with patch("app.services._03_event_identification.PromptTemplate", return_value=MagicMock(__or__=MagicMock(return_value=mock_chain))):
                     await service._propose_new_events_with_llm(TEXT, UNMATCHED_COMPANY, filtered)
 
     if captured_prompts:
@@ -200,7 +210,7 @@ async def test_existing_events_section_absent_when_empty():
     mock_chain.ainvoke = AsyncMock(return_value=MOCK_PROPOSAL)
 
     with patch.object(PromptTemplate, "format", capturing_format):
-        with patch("langchain_core.prompts.PromptTemplate.__or__", return_value=mock_chain):
+        with patch("app.services._03_event_identification.PromptTemplate", return_value=MagicMock(__or__=MagicMock(return_value=mock_chain))):
             await service._propose_new_events_with_llm(TEXT, UNMATCHED_COMPANY, existing_events_str="")
 
     if captured_prompts:
@@ -218,7 +228,7 @@ async def test_proposal_returns_dict_on_success():
     mock_chain.ainvoke = AsyncMock(return_value=MOCK_PROPOSAL)
     mock_chain.__or__ = MagicMock(return_value=mock_chain)
 
-    with patch("langchain_core.prompts.PromptTemplate.__or__", return_value=mock_chain):
+    with patch("app.services._03_event_identification.PromptTemplate", return_value=MagicMock(__or__=MagicMock(return_value=mock_chain))):
         result = await service._propose_new_events_with_llm(TEXT, UNMATCHED_COMPANY)
 
     assert isinstance(result, dict)
@@ -252,7 +262,7 @@ async def test_proposal_enforces_category_consistency():
     mock_chain.ainvoke = AsyncMock(return_value=wrong_category_response)
     mock_chain.__or__ = MagicMock(return_value=mock_chain)
 
-    with patch("langchain_core.prompts.PromptTemplate.__or__", return_value=mock_chain):
+    with patch("app.services._03_event_identification.PromptTemplate", return_value=MagicMock(__or__=MagicMock(return_value=mock_chain))):
         result = await service._propose_new_events_with_llm(TEXT, UNMATCHED_COMPANY)
 
     assert result["TSMC"]["primary_event_category"] == "COMPANY_EVENT"
@@ -272,7 +282,7 @@ async def test_proposal_retries_on_failure():
     ])
     mock_chain.__or__ = MagicMock(return_value=mock_chain)
 
-    with patch("langchain_core.prompts.PromptTemplate.__or__", return_value=mock_chain):
+    with patch("app.services._03_event_identification.PromptTemplate", return_value=MagicMock(__or__=MagicMock(return_value=mock_chain))):
         with patch("asyncio.sleep", new_callable=AsyncMock):
             result = await service._propose_new_events_with_llm(TEXT, UNMATCHED_COMPANY)
 
@@ -285,7 +295,7 @@ async def test_proposal_returns_empty_after_all_retries_fail():
     mock_chain = MagicMock()
     mock_chain.ainvoke = AsyncMock(side_effect=Exception("always fails"))
 
-    with patch("langchain_core.prompts.PromptTemplate.__or__", return_value=mock_chain):
+    with patch("app.services._03_event_identification.PromptTemplate", return_value=MagicMock(__or__=MagicMock(return_value=mock_chain))):
         with patch("asyncio.sleep", new_callable=AsyncMock):
             result = await service._propose_new_events_with_llm(TEXT, UNMATCHED_COMPANY)
 
@@ -343,7 +353,7 @@ async def test_filtered_events_str_only_contains_matching_category():
     })
     mock_chain.__or__ = MagicMock(return_value=mock_chain)
 
-    with patch("langchain_core.prompts.PromptTemplate.__or__", return_value=mock_chain):
+    with patch("app.services._03_event_identification.PromptTemplate", return_value=MagicMock(__or__=MagicMock(return_value=mock_chain))):
         await service._identify_primary_tickers(
             text="TSMC announced a joint venture with Samsung.",
             ticker_metadata={"TSMC": {"sentiment_score": 0.7, "sentiment_label": "positive"}},
@@ -413,7 +423,7 @@ async def test_filtered_events_str_contains_external_events_only():
     })
     mock_chain.__or__ = MagicMock(return_value=mock_chain)
 
-    with patch("langchain_core.prompts.PromptTemplate.__or__", return_value=mock_chain):
+    with patch("app.services._03_event_identification.PromptTemplate", return_value=MagicMock(__or__=MagicMock(return_value=mock_chain))):
         await service._identify_primary_tickers(
             text="FTC launched antitrust investigation into Apple.",
             ticker_metadata={"AAPL": {"sentiment_score": 0.3, "sentiment_label": "negative"}},
@@ -485,7 +495,7 @@ async def test_filtered_events_str_contains_both_categories():
     })
     mock_chain.__or__ = MagicMock(return_value=mock_chain)
 
-    with patch("langchain_core.prompts.PromptTemplate.__or__", return_value=mock_chain):
+    with patch("app.services._03_event_identification.PromptTemplate", return_value=MagicMock(__or__=MagicMock(return_value=mock_chain))):
         await service._identify_primary_tickers(
             text="TSMC announced a joint venture. FTC launched antitrust investigation into Apple.",
             ticker_metadata={

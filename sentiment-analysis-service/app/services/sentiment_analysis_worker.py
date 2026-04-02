@@ -30,7 +30,7 @@ RECOVER_BATCH_SIZE = 10
 MIN_IDLE_MS = 30000
 CLEANUP_INTERVAL = 300
 
-POST_TIMESTAMP = "post_timestamps"
+POST_TIMESTAMP = env_config.post_timestamp_key
 REMOVED_POSTS_COUNTER = "sentiment_analysis:removed_posts_count"
 DUP_POSTS_COUNTER = "sentiment_analysis:duplicate_posts_count"
 
@@ -133,6 +133,12 @@ async def process_message(msg_id: str, data: dict):
     if await is_duplicate(post_id):
         logger.info(f"⚠️ Duplicate post {post_id} — skipping")
         await redis_client.incr(DUP_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+    existing_end = await redis_client.hget(f"{POST_TIMESTAMP}:{post_id}", "sentiment_timestamp")
+    if existing_end:
+        logger.info(f"⚠️ Post {post_id} already processed (sentiment_timestamp exists) — finalizing only")
         await finalize_message(msg_id)
         return
 
