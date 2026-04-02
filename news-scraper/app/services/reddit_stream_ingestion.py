@@ -100,14 +100,15 @@ class RedditStreamService:
             sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
 
             post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
-            self.redis.hset(
-                post_key,
-                mapping={
-                    "scraped_timestamp": sg_now,
-                    "posted_timestamp":  post_time.isoformat(),
-                }
-            )
-            self.redis.expire(post_key, 345600)  # 4 days
+            if not self.redis.exists(post_key):
+                self.redis.hset(
+                    post_key,
+                    mapping={
+                        "scraped_timestamp": sg_now,
+                        "posted_timestamp":  post_time.isoformat(),
+                    }
+                )
+                self.redis.expire(post_key, 345600)  # 4 days
             logger.info(f"⏱️ Post {post.id}: Timestamped at Scraping Stage")
 
             post_id = row["native_id"]

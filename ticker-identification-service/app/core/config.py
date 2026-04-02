@@ -6,12 +6,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ENV_PATH = os.path.join(BASE_DIR, ".env")
+_env_file = os.environ.get("ENV_FILE", ".env")
+_base_env = os.path.join(BASE_DIR, ".env")
+_override_env = os.path.join(BASE_DIR, _env_file)
+_env_files = (_base_env,) if _env_file == ".env" else (_base_env, _override_env)
 
 
 class EnvConfig(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=ENV_PATH, env_file_encoding="utf-8", extra="ignore"
+        env_file=_env_files, env_file_encoding="utf-8", extra="ignore"
     )
     
     # S3
@@ -29,6 +32,7 @@ class EnvConfig(BaseSettings):
     redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
     redis_ticker_stream: str = Field(..., validation_alias="TICKER_STREAM")
     redis_preproc_stream: str = Field(..., validation_alias="PREPROC_STREAM")
+    post_timestamp_key: str = Field(default="post_timestamps", validation_alias="POST_TIMESTAMP_KEY")
 
     # Groq
     groq_api_key: Optional[str] = Field(default=None, validation_alias="GROQ_API_KEY")

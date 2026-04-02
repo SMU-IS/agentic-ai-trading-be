@@ -37,7 +37,7 @@ PROCESSED_POSTS_COUNTER = "vectorisation:processed_posts_count"
 REMOVED_POSTS_COUNTER = "vectorisation:removed_posts_count"
 DUP_POSTS_COUNTER = "vectorisation:duplicate_posts_count"
 
-POST_TIMESTAMP = "post_timestamps"
+POST_TIMESTAMP = env_config.post_timestamp_key
 
 # ==========================================================
 # RETRY CONFIG
@@ -153,6 +153,12 @@ async def process_message(msg_id: str, data: dict):
     if await is_duplicate(post_id):
         logger.info(f"⚠️ Duplicate post {post_id} — skipping")
         await redis_client.incr(DUP_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+    existing_end = await redis_client.hget(f"{POST_TIMESTAMP}:{post_id}", "qdrant_timestamp")
+    if existing_end:
+        logger.info(f"⚠️ Post {post_id} already processed (qdrant_timestamp exists) — finalizing only")
         await finalize_message(msg_id)
         return
 

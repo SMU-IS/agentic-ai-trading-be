@@ -52,7 +52,7 @@ async def test_ensure_indexes(mock_strategy):
     
     mock_client.create_payload_index.assert_any_call(
         collection_name="news_analysis_compiled",
-        field_name="tickers",
+        field_name="metadata.tickers",
         field_schema=pytest.importorskip("qdrant_client.models").PayloadSchemaType.KEYWORD
     )
 

@@ -31,6 +31,41 @@ module "amp_irsa_role" {
   }
 }
 
+# IAM Role for Metrics Tracker Service (IRSA)
+# This role allows the metrics-tracker to query AMP and CloudWatch
+module "metrics_tracker_irsa_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name = "${var.cluster_name}-metrics-tracker"
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.compute.oidc_provider_arn
+      namespace_service_accounts = ["default:metrics-tracker-service-infra"]
+    }
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "metrics_tracker_amp_query" {
+  role       = module.metrics_tracker_irsa_role.iam_role_name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonPrometheusQueryAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "metrics_tracker_cw_read" {
+  role       = module.metrics_tracker_irsa_role.iam_role_name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "metrics_tracker_s3_full" {
+  role       = module.metrics_tracker_irsa_role.iam_role_name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
 # =============================================================================
 # Amazon Managed Grafana (AMG)
 # =============================================================================
