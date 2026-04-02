@@ -91,53 +91,6 @@ resource "time_sleep" "wait_for_cluster" {
   create_duration = "60s"
 }
 
-# Fetch cluster details dynamically to ensure the most up-to-date endpoint
-data "aws_eks_cluster" "cluster" {
-  name = module.compute.cluster_name
-  # Ensure we wait for the cluster to be ready before fetching data
-  depends_on = [module.compute]
-}
-
-# Kubernetes Provider
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", module.compute.cluster_name]
-  }
-}
-
-# Helm Provider
-provider "helm" {
-  kubernetes {
-    host                   = data.aws_eks_cluster.cluster.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      args        = ["eks", "get-token", "--cluster-name", module.compute.cluster_name]
-    }
-  }
-}
-
-# Kubectl Provider - Robust handling for CRDs
-provider "kubectl" {
-  apply_retry_count      = 5
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-  load_config_file       = false
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", module.compute.cluster_name]
-  }
-}
-
 # =============================================================================
 # AWS Load Balancer Controller Installation
 # =============================================================================

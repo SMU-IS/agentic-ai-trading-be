@@ -38,7 +38,7 @@ Agent M leverages a multi-agent AI architecture to transform real-time market da
 ## ☁️ AWS Architecture
 
 <p align="center">
-  <img width="2789" height="2264" alt="aws_infrastructure" src="https://github.com/user-attachments/assets/e26d8a0f-20b3-470b-8c80-73057bf66dd2" />
+  <img width="3033" height="2526" alt="aws_infrastructure" src="https://github.com/user-attachments/assets/2e0f6edc-3cff-404e-a401-6a1bf19b1d60" />
 </p>
 
 ## 🚀 Features
