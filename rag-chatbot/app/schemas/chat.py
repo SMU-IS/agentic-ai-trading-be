@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 class ChatRequest(BaseModel):
     query: str
     order_id: str | None = None
-    user_id: str = Field(..., description="Unique ID of the user")
+    user_id: str | None = Field(None, description="Unique ID of the user (extracted from header if not provided)")
     session_id: str = Field(
         ..., description="Unique ID for the chat thread/conversation"
     )

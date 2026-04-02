@@ -1,6 +1,6 @@
 # =============================================================================
 # networking         - VPC, subnets, NAT gateways (none - public nodes for cost)
-# compute            - EKS cluster with Karpenter (spot instances, t4g.small system, t4g.micro apps)
+# compute            - EKS cluster with Karpenter (on-demand instances, t4g.small system, t4g.micro apps)
 # databases          - RDS (db.t4g.micro - smallest available Graviton)
 # storage            - S3 buckets, CloudFront CDN
 # container_registry - ECR repositories
@@ -18,7 +18,7 @@ module "networking" {
   environment     = var.environment
 }
 
-# Compute Module (EKS with Karpenter - Public Spot Instances)
+# Compute Module (EKS with Karpenter - Public On-Demand Instances)
 module "compute" {
   source       = "./modules/compute"
   cluster_name = var.cluster_name
@@ -206,6 +206,26 @@ resource "kubernetes_config_map" "rds_certs" {
   }
 }
 
+# Dynamic JWT Secret for Kong
+resource "kubernetes_secret" "jwt_secret" {
+  metadata {
+    name      = "agentic-ai-jwt-secret"
+    namespace = "default"
+    labels = {
+      "konghq.com/credential" = "jwt"
+    }
+  }
+
+  type = "Opaque"
+
+  data = {
+    kongCredType = "jwt"
+    key          = "agentic-ai-user-service" # This MUST match the 'iss' claim in your JWT
+    algorithm    = "HS256"
+    secret       = var.jwt_secret
+  }
+}
+
 # Kong Gateway Helm Release
 resource "helm_release" "kong" {
   namespace  = "default"
@@ -237,6 +257,16 @@ resource "helm_release" "kong" {
     extraConfigMaps:
       - name: kong-declarative-config
         mountPath: /usr/local/kong/declarative/
+
+    # Enable Prometheus Metrics Scrapping
+    status:
+      enabled: true
+      http:
+        enabled: true
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8100"
+        prometheus.io/path: "/metrics"
 
     proxy:
       annotations:
@@ -360,7 +390,7 @@ resource "kubectl_manifest" "karpenter_node_pool" {
             name  = "default"
           }
           requirements = [
-            { key = "karpenter.sh/capacity-type", operator = "In", values = ["spot"] },
+            { key = "karpenter.sh/capacity-type", operator = "In", values = ["on-demand"] },
             { key = "kubernetes.io/arch", operator = "In", values = ["arm64"] },
             { key = "karpenter.k8s.aws/instance-family", operator = "In", values = ["t4g", "c7g", "m7g", "r7g"] },
             { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["micro", "small", "medium", "large", "xlarge"] }
@@ -379,4 +409,51 @@ resource "kubectl_manifest" "karpenter_node_pool" {
   })
 
   depends_on = [helm_release.karpenter]
+}
+
+# =============================================================================
+# Logging and Observability - Fluent Bit
+# =============================================================================
+
+resource "kubernetes_namespace" "logging" {
+  metadata {
+    name = "logging"
+  }
+}
+
+# AWS For Fluent Bit Helm Release
+resource "helm_release" "fluent_bit" {
+  name       = "fluent-bit"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-for-fluent-bit"
+  version    = "0.1.34" # Stabilized version
+  namespace  = kubernetes_namespace.logging.metadata[0].name
+
+  # Ensure the cluster is ready before deploying
+  depends_on = [
+    module.compute,
+    time_sleep.wait_for_cluster
+  ]
+
+  values = [
+    <<-EOT
+    serviceAccount:
+      create: true
+      name: fluent-bit
+      annotations:
+        eks.amazonaws.com/role-arn: ${module.fluent_bit_irsa_role.iam_role_arn}
+    cloudWatch:
+      enabled: true
+      region: ${var.aws_region}
+      logGroupName: /aws/eks/${var.cluster_name}/logs
+      autoCreateGroup: true
+      logStreamPrefix: "fluent-bit-"
+    firehose:
+      enabled: false
+    kinesis:
+      enabled: false
+    elasticsearch:
+      enabled: false
+    EOT
+  ]
 }

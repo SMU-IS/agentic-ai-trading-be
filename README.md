@@ -24,8 +24,6 @@
 
 Agent M leverages a multi-agent AI architecture to transform real-time market data, traditional news, and internet sentiment into personalized, actionable investment decisions. The platform operates on behalf of users to mitigate information overload and circumvent human emotional bias, executing optimized buy or sell orders via external brokerage APIs within user-defined risk guardrails.
 
----
-
 ## ⚙️ Key Features
 
 - **🤖 Multi-Agent AI Architecture**: Sophisticated multi-agent system coordinating tasks from data ingestion to trade execution.
@@ -37,27 +35,23 @@ Agent M leverages a multi-agent AI architecture to transform real-time market da
 - **📊 Interactive Dashboard**: Real-time sentiment indicators, P&L trends, and portfolio visualization.
 - **🔔 Proactive Notifications**: Critical alerts for breaking news affecting holdings and trade execution confirmations.
 
----
-
-### ☁️ AWS Architecture
+## ☁️ AWS Architecture
 
 <p align="center">
-  <img width="2772" height="1935" alt="aws_infrastructure" src="https://github.com/user-attachments/assets/e88b39cc-f1d9-4ee2-b4df-f8a42cdfabcd" />
+  <img width="2789" height="2264" alt="aws_infrastructure" src="https://github.com/user-attachments/assets/e26d8a0f-20b3-470b-8c80-73057bf66dd2" />
 </p>
 
-### 🚀 Features
+## 🚀 Features
 
 <p align="center">
   <img width="1000" alt="agent-m-features" src="https://github.com/user-attachments/assets/f5e2e749-a417-42a0-a39e-2d24fb0850a5" />
 </p>
 
-### ⚙️ System Architecture
+## ⚙️ System Architecture
 
 <p align="center">
   <img width="1442" alt="Agent M Architecture" src="https://github.com/user-attachments/assets/d4e42a75-0ea0-4020-9746-6925d36defa1" />
 </p>
-
----
 
 ## 🧩 Microservices Overview
 
@@ -76,8 +70,6 @@ The backend is built using a highly decoupled microservices architecture:
 | **Notification Alert**          | Dispatches real-time alerts via various channels.        | Python             |
 | **Metrics Tracker**             | Monitors portfolio performance and system health.        | Python             |
 
----
-
 ## 👨‍💻 Tech Stack
 
 ### 🌐 API & Gateway Layer
@@ -88,8 +80,10 @@ The backend is built using a highly decoupled microservices architecture:
 
 ### 🧠 Intelligence & Agentic Logic
 
-- [🔗 LangChain](https://langchain.com) & [🦜 LangGraph](https://langchain.com/langgraph)
+- [🔗 LangChain](https://langchain.com)
+- [🦜 LangGraph](https://langchain.com/langgraph)
 - [✨ Google Gemini](https://ai.google.dev)
+- [⚡ Groq](https://groq.com)
 - [🦙 Ollama](https://ollama.com)
 - [🧠 FinBERT](https://huggingface.co/yiyanghkust/finbert-tone)
 
@@ -104,10 +98,8 @@ The backend is built using a highly decoupled microservices architecture:
 
 - [🔨 Terraform](https://developer.hashicorp.com/terraform)
 - [☁️ Amazon Web Services](https://aws.amazon.com)
-- [🐳 Docker & Docker Compose](https://www.docker.com)
+- [🐳 Docker](https://www.docker.com)
 - [☸️ Kubernetes (EKS)](https://aws.amazon.com/eks/)
-
----
 
 ## 🚀 Getting Started
 
@@ -139,10 +131,7 @@ The backend is built using a highly decoupled microservices architecture:
 
 4. **Verify Deployment**:
    - Live App: [https://agentic-m.com](https://agentic-m.com)
-   - API Gateway: [http://api.agentic-m.com/api/v1/rag/healthcheck](http://api.agentic-m.com/api/v1/rag/healthcheck)
-   - Services are accessible via: `http://localhost:8000/api/v1/<service-name>`
-
----
+   - API Endpoint: [http://api.agentic-m.com/api/v1/rag/healthcheck](http://api.agentic-m.com/api/v1/rag/healthcheck)
 
 ## 🗳️ Acknowledgement
 

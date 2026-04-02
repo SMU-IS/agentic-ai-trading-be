@@ -34,4 +34,15 @@ readinessProbe:
 secretName: news-scraper-trading-view-secrets
 
 ingress:
-  enabled: false
+  enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/news-scraper-tradingview/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/news-scraper-tradingview
+        pathType: Prefix
+

@@ -12,7 +12,7 @@ BROKER_URL = env_config.trading_service_url
 PROFILE_PARAMS: dict[RiskProfile, ProfileParams] = {
     RiskProfile.CONSERVATIVE: ProfileParams(
         penny_block       = True,
-        min_confidence    = 0.75,
+        min_confidence    = 0.70,
         max_entry_dev_pct = 0.01,
         min_rr            = 1.0,
         min_vol_ratio     = 0.8,
@@ -71,9 +71,10 @@ async def evaluate_risk_for_user(
 
     has_conflict     = conflict.get("has_conflict", False)
     current_position = conflict.get("current_position")
-    should_execute   = not (has_conflict and current_position is not None)
+    trade_blocked    = assessment.risk_status == "BLOCKED" or assessment.adjusted_trade.qty == 0
+    should_execute   = not (has_conflict and current_position is not None) and not trade_blocked
 
-    print(f"   [🛡️ Risk] user={user_id} | profile={profile.value} | should_execute={should_execute}")
+    print(f"   [🛡️ Risk] user={user_id} | profile={profile.value} | status={assessment.risk_status} | should_execute={should_execute}")
     return RiskAdjResult(
         user_id                = user_id,       
         profile                = profile,            
@@ -166,7 +167,7 @@ async def fetch_buying_power(user_id) -> float:
     """Fetch Yahoo historical + key indicators for LLM prompts."""
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
-            resp = await client.get(f"{ALPACA_BASE_URL}/account", headers={"x_user_id": user_id})
+            resp = await client.get(f"{ALPACA_BASE_URL}/account", headers={"x-user-id": user_id})
             if resp.status_code != 200:
                 return {"error": "Error fetching buying power"}
 
@@ -201,7 +202,7 @@ async def resolve_conflicting_position(
                     "intended_qty": qty,
                     "auto_resolve": True,
                 },
-                headers={"x_user_id": user_id}
+                headers={"x-user-id": user_id}
             )
 
             # Extract key info you want
@@ -656,18 +657,27 @@ def _calculate_sl_tp(
     elif not is_sell and yahoo.high_3d > entry:
         tp_candidates.append((yahoo.high_3d, "3D range high"))
 
-    # Conservative: take profit early (closest target).
+    # Filter out TP candidates that are too close to entry (< 0.5 ATR away)
+    # or on the wrong side of entry
+    min_tp_distance = atr * 0.5
+    valid_tp = [
+        (tp, method) for tp, method in tp_candidates
+        if abs(tp - entry) >= min_tp_distance
+        and (tp < entry if is_sell else tp > entry)
+    ]
+
+    # Conservative: take profit early (closest valid target).
     # Aggressive: reach for the furthest structural level.
-    if tp_candidates:
+    if valid_tp:
         if profile == RiskProfile.CONSERVATIVE:
-            tp_candidates.sort(key=lambda x: abs(x[0] - entry))
+            valid_tp.sort(key=lambda x: abs(x[0] - entry))
         else:
-            tp_candidates.sort(key=lambda x: abs(x[0] - entry), reverse=True)
-        take_profit, tp_method = tp_candidates[0]
+            valid_tp.sort(key=lambda x: abs(x[0] - entry), reverse=True)
+        take_profit, tp_method = valid_tp[0]
     else:
-        mult = 2.0 if profile == RiskProfile.CONSERVATIVE else 3.0
+        mult = 1.5 if profile == RiskProfile.CONSERVATIVE else 2.0
         take_profit = entry - atr * mult if is_sell else entry + atr * mult
-        tp_method   = f"ATR fallback ({mult}×)"
+        tp_method   = f"ATR fallback ({mult}x)"
 
     # ── ENFORCE SL/TP CAPS — tightest of ATR or % from entry ─────
     if p is not None:

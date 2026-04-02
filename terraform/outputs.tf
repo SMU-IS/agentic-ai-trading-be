@@ -71,3 +71,24 @@ output "backend_api_url" {
   description = "The DNS name of the Kong Gateway Load Balancer"
   value       = try(data.kubernetes_service.kong_proxy.status[0].load_balancer[0].ingress[0].hostname, "Waiting for Load Balancer...")
 }
+
+# Monitoring Outputs
+output "prometheus_workspace_id" {
+  description = "ID of the AMP workspace"
+  value       = aws_prometheus_workspace.main.id
+}
+
+output "prometheus_endpoint" {
+  description = "Endpoint for Prometheus Remote Write"
+  value       = aws_prometheus_workspace.main.prometheus_endpoint
+}
+
+output "grafana_url" {
+  description = "URL for the Grafana workspace"
+  value       = "https://${aws_grafana_workspace.main.endpoint}"
+}
+
+output "amp_irsa_role_arn" {
+  description = "ARN of the IAM role for the Prometheus agent in EKS"
+  value       = module.amp_irsa_role.iam_role_arn
+}

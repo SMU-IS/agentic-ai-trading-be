@@ -8,6 +8,7 @@
 from diagrams import Cluster, Diagram, Edge
 from diagrams.aws.compute import EC2, EKS, AutoScaling, EC2ContainerRegistry
 from diagrams.aws.database import RDS
+from diagrams.aws.management import AmazonManagedGrafana, AmazonManagedPrometheus, Cloudwatch
 from diagrams.aws.mobile import Amplify
 from diagrams.aws.network import (
     ELB,
@@ -77,7 +78,7 @@ with Diagram(
                 kong = Kong("Kong Ingress\n(HA Configuration)")
 
                 with Cluster("Auto-Scaling Node Fleet"):
-                    app_nodes = EC2("Scalable App Pods\n(HPA / Spot)")
+                    app_nodes = EC2("Scalable App Pods\n(HPA / On-Demand)")
                     karpenter = AutoScaling("Karpenter\n(Elastic Scaling)")
 
         with Cluster("Private Subnets", graph_attr=cluster_attr):
@@ -93,6 +94,11 @@ with Diagram(
             rds_dr = RDS("RDS Read Replica\n(DR Instance)")
 
     s3 = S3("S3 Buckets\n(Replicated Store)")
+
+    with Cluster("Observability & Monitoring", graph_attr=cluster_attr):
+        prometheus = AmazonManagedPrometheus("AWS Prometheus\n(Metrics Store)")
+        cloudwatch = Cloudwatch("CloudWatch\n(Logs & Alarms)")
+        grafana = AmazonManagedGrafana("AWS Grafana\n(Visualizations)")
 
     # --- Precise Route & Logical Connections ---
 
@@ -132,3 +138,9 @@ with Diagram(
     # 6. Cluster Management
     karpenter >> Edge(color=COLOR_ACCENT, style="dashed") >> app_nodes
     ecr >> Edge(color=COLOR_SECONDARY, style="dotted", label=" Pull") >> app_nodes
+
+    # 7. Observability Flow
+    app_nodes >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Export Metrics") >> prometheus
+    app_nodes >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Export Logs") >> cloudwatch
+    prometheus >> Edge(color=COLOR_PRIMARY) >> grafana
+    cloudwatch >> Edge(color=COLOR_PRIMARY) >> grafana

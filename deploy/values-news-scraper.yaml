@@ -40,4 +40,15 @@ readinessProbe:
 secretName: news-scraper-secrets
 
 ingress:
-  enabled: false
+  enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/news-scraper/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/news-scraper
+        pathType: Prefix
+

@@ -1,4 +1,5 @@
 import httpx
+from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
 
 from app.core.config import env_config
@@ -9,17 +10,18 @@ from app.utils.logger import setup_logging
 logger = setup_logging()
 
 
-async def _get_trade_history_list(after: str, until: str):
+async def _get_trade_history_list(after: str, until: str, user_id: str):
     if not after or not until:
         logger.error("Missing 'after' or 'until' date for trade history list query.")
         raise ValueError("Both 'after' and 'until' dates are required.")
 
     url = f"{env_config.order_details_query_url}/all"
     params = {"after": after, "until": until}
+    headers = {"x-user-id": user_id, "Content-Type": "application/json"}
 
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(url, params=params)
+            response = await client.get(url, params=params, headers=headers)
             response.raise_for_status()
             orders = response.json()
             logger.info(f"Orders fetched for period {after} to {until}")
@@ -45,7 +47,9 @@ async def _get_trade_history_list(after: str, until: str):
 
 
 @tool(args_schema=TradeHistoryRange)
-async def get_trade_history_list(after: str, until: str) -> TradeHistoryListResponse:
+async def get_trade_history_list(
+    after: str, until: str, config: RunnableConfig
+) -> TradeHistoryListResponse:
     """
     Retrieve a list of trades executed within a specific date range.
 
@@ -62,9 +66,10 @@ async def get_trade_history_list(after: str, until: str) -> TradeHistoryListResp
     """
 
     logger.info(f"Fetching trade history list from {after} to {until}")
+    user_id = config.get("metadata", {}).get("user_id", "unknown-user")
 
     try:
-        orders_data = await _get_trade_history_list(after, until)
+        orders_data = await _get_trade_history_list(after, until, user_id)
 
         # Transform the data into the expected format
         orders = []

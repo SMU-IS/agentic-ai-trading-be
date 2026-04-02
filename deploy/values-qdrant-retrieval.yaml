@@ -39,4 +39,15 @@ worker:
 secretName: qdrant-retrieval-secrets
 
 ingress:
-  enabled: false
+  enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/qdrant/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/qdrant
+        pathType: Prefix
+

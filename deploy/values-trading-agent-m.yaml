@@ -34,4 +34,15 @@ readinessProbe:
 secretName: trading-agent-m-secrets
 
 ingress:
-  enabled: false
+  enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/agent-m/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/agent-m
+        pathType: Prefix
+

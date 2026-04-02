@@ -4,6 +4,7 @@ import dataclasses
 from typing import Dict, Any, List
 from app.agents.state import AgentState
 from app.core.config import env_config
+from app.services.telegram_service import post_order_to_telegram
 
 TRADING_DB_BASE_URL = f"{env_config.trading_service_url}/decisions"
 
@@ -67,6 +68,11 @@ async def node_trade_logging(redis_service, state: AgentState) -> AgentState:
     if all_payload:
         result = await post_order_to_db(all_payload)
         print(f"   [✅ Trade Logging] DB upload complete | success={result.get('success')} failed={result.get('failed')}")
+
+    if db_payload_executions:
+        print(f"   [📬 Telegram] Posting {len(db_payload_executions)} executed order(s) to Telegram")
+        await asyncio.gather(*[post_order_to_telegram(o) for o in db_payload_executions])
+    
     if notification_order_id:
         news_id = state["signal_data"].news_id
         ticker  = state["signal_data"].ticker

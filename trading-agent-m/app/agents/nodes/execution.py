@@ -61,7 +61,7 @@ async def node_execute_trade_logic(
 
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
-            resp = await client.post(f"{BROKER_URL}/orders/bracket", json=payload, headers={"x_user_id": account_id},)
+            resp = await client.post(f"{BROKER_URL}/orders/bracket", json=payload, headers={"x-user-id": account_id},)
 
             if resp.status_code in [200, 201]:
                 result = resp.json()

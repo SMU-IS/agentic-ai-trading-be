@@ -94,7 +94,7 @@ app = FastAPI(
 app.include_router(scraper_router)
 
 
-@app.get("/healthcheck")
+@app.get("/")
 def healthcheck():
     try:
         redis_client = RedisStreamStorage().r

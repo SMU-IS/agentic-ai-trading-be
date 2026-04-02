@@ -17,6 +17,5 @@ jobs:
       cluster-name: "agentic-m-cluster"
       image-name: "notification-alert"
       values-file: "deploy/values-notification-alert.yaml"
-      ingress-path: "deploy/ingress.yaml"
       secret-key: "NOTIFICATION_ALERT_SECRETS"
     secrets: inherit

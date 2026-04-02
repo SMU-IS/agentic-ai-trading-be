@@ -17,6 +17,5 @@ jobs:
       cluster-name: "agentic-m-cluster"
       image-name: "event-identification-service"
       values-file: "deploy/values-event-identification.yaml"
-      ingress-path: "deploy/ingress.yaml"
       secret-key: "EVENT_IDENTIFICATION_SECRETS"
     secrets: inherit

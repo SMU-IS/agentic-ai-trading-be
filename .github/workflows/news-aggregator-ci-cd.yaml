@@ -17,6 +17,5 @@ jobs:
       cluster-name: "agentic-m-cluster"
       image-name: "news-aggregator-service"
       values-file: "deploy/values-news-aggregator.yaml"
-      ingress-path: "deploy/ingress.yaml"
       secret-key: "NEWS_AGGREGATOR_SECRETS"
     secrets: inherit

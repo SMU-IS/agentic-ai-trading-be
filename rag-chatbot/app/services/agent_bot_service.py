@@ -12,7 +12,7 @@ from app.core.s3_config import S3ConfigService
 from app.schemas.chat import ChatHistoryResponse
 from app.services.ai_agent import AgentState, ChatWorkflow
 from app.services.bot_memory import BotMemory
-from app.services.redis_service import RedisService
+from app.services.redis_service import get_redis_service
 from app.services.tools import RAG_BOT_TOOLS
 from app.utils.logger import setup_logging
 
@@ -30,7 +30,7 @@ class AgentBotService:
         self.aws_s3_bucket_name: str = env_config.aws_bucket_name
         self.aws_s3_file_name: str = env_config.aws_file_name
 
-        self.redis_service = RedisService()
+        self.redis_service = get_redis_service()
         self.bot_cached_key = RedisCacheKeys.AGENT_BOT_PROMPT.value
         self._prompt_cache = None
 

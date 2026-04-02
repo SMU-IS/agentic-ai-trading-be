@@ -17,6 +17,5 @@ jobs:
       cluster-name: "agentic-m-cluster"
       image-name: "qdrant-retrieval"
       values-file: "deploy/values-qdrant-retrieval.yaml"
-      ingress-path: "deploy/ingress.yaml"
       secret-key: "QDRANT_RETRIEVAL_SECRETS"
     secrets: inherit
