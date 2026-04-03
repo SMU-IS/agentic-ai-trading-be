@@ -1,4 +1,5 @@
 import time
+from operator import itemgetter
 from typing import Any, AsyncGenerator, Dict
 
 from langchain_core.chat_history import (
@@ -41,6 +42,7 @@ class InfoAgentService:
             model=settings.model_name,
             api_key=SecretStr(settings.groq_api_key),
             temperature=0.1,
+            streaming=True,
         )
 
     def _get_embeddings(self):
@@ -79,13 +81,9 @@ class InfoAgentService:
         def format_docs(docs):
             return "\n\n".join(doc.page_content for doc in docs)
 
-        # Retrieve documents then format them
-        retrieval_chain = self.retriever | format_docs
-
-        # Full linear chain
         chain = (
             RunnablePassthrough.assign(
-                context=lambda x: retrieval_chain.invoke(x["question"])
+                context=itemgetter("question") | self.retriever | format_docs
             )
             | prompt
             | self.llm
@@ -119,7 +117,7 @@ class InfoAgentService:
 
     async def ainvoke(
         self, question: str, session_id: str
-    ) -> AsyncGenerator[str, None]:
+    ) -> AsyncGenerator[Dict[str, Any], None]:
         config = {"configurable": {"session_id": session_id}}
 
         chain_with_history = RunnableWithMessageHistory(
@@ -138,10 +136,14 @@ class InfoAgentService:
         ):
             kind = event["event"]
 
-            if kind == "on_chat_model_stream":
+            if kind == "on_retriever_start":
+                yield {"status": "Searching knowledge base..."}
+
+            elif kind == "on_chat_model_stream":
                 chunk = event["data"].get("chunk")
                 if chunk and hasattr(chunk, "content"):
-                    yield chunk.content
+                    if chunk.content:
+                        yield {"token": chunk.content}
 
             elif kind == "on_chat_model_end":
                 output = event["data"].get("output")
