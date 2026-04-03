@@ -57,7 +57,8 @@ variable "services" {
     "trading-service",
     "user-info",
     "news-scraper-tradingview",
-    "metrics-tracker-service"
+    "metrics-tracker-service",
+    "info-agent-service"
   ]
 }
 
