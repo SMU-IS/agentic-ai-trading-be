@@ -40,9 +40,9 @@ readinessProbe:
   periodSeconds: 10
 
 podAnnotations:
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "5008"
-  prometheus.io/path: "/metrics"
+  # prometheus.io/scrape: "true"
+  # prometheus.io/port: "5008"
+  # prometheus.io/path: "/metrics"
 
 secretName: news-aggregator-service-secrets
 

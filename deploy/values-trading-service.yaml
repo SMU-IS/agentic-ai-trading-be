@@ -30,9 +30,9 @@ readinessProbe:
   initialDelaySeconds: 30
 
 podAnnotations:
-  prometheus.io/scrape: "true"
-  prometheus.io/port: "5007"
-  prometheus.io/path: "/metrics"
+  # prometheus.io/scrape: "true"
+  # prometheus.io/port: "5007"
+  # prometheus.io/path: "/metrics"
 
 secretName: trading-service-secrets
 
