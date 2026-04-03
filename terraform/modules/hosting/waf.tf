@@ -152,7 +152,7 @@ resource "aws_wafv2_web_acl" "api_waf" {
 resource "aws_s3_bucket" "waf_logs" {
   provider = aws.us_east_1
   bucket   = "aws-waf-logs-${var.cluster_name}-${var.environment}"
-  
+
   # Allow WAF to be deleted if bucket is not empty (careful in prod)
   force_destroy = true
 
