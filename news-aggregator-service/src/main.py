@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
-from prometheus_fastapi_instrumentator import Instrumentator
 from src.config import settings
 from src.services.redis_service import RedisService
 from src.workflows.main_workflow import setup_workflow
@@ -102,9 +101,6 @@ async def lifespan(app_: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
-# Initialize Prometheus Instrumentator
-Instrumentator().instrument(app).expose(app)
 
 
 @app.get("/")

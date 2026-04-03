@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.routing import APIRouter
-from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.core.db import db_manager
 from app.routers import agent_bot, threads
@@ -34,9 +33,6 @@ app = FastAPI(
     },
     root_path="/api/v1/rag",
 )
-
-# Initialize Prometheus Instrumentator
-Instrumentator().instrument(app).expose(app)
 
 
 @app.exception_handler(Exception)

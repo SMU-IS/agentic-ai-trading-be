@@ -6,7 +6,6 @@ from fastapi.responses import JSONResponse
 from langchain_perplexity import (
     ChatPerplexity,  # Requires: pip install langchain-perplexity
 )
-from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.core.config import env_config
 from app.services.redis_service import RedisService  # Your RedisService class
@@ -82,9 +81,6 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
-# Initialize Prometheus Instrumentator
-Instrumentator().instrument(app).expose(app)
 
 
 @app.get("/")
