@@ -29,6 +29,11 @@ readinessProbe:
     port: 5007
   initialDelaySeconds: 30
 
+podAnnotations:
+  # prometheus.io/scrape: "true"
+  # prometheus.io/port: "5007"
+  # prometheus.io/path: "/metrics"
+
 secretName: trading-service-secrets
 
 ingress:
@@ -43,4 +48,3 @@ ingress:
     paths:
       - path: /api/v1/trading
         pathType: Prefix
-

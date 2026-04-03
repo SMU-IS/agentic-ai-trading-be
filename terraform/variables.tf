@@ -143,6 +143,11 @@ variable "banner_message" {
   sensitive = true
 }
 
+variable "show_cloudwatch_metrics" {
+  type      = bool
+  sensitive = true
+}
+
 # =============================================================================
 # Terraform State Backend Configuration
 # =============================================================================

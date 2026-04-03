@@ -31,6 +31,11 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10
 
+podAnnotations:
+  # prometheus.io/scrape: "true"
+  # prometheus.io/port: "5001"
+  # prometheus.io/path: "/metrics"
+
 secretName: rag-chatbot-secrets
 
 ingress:
@@ -45,4 +50,3 @@ ingress:
     paths:
       - path: /api/v1/rag
         pathType: Prefix
-

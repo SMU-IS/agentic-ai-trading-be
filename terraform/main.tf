@@ -66,19 +66,20 @@ module "hosting" {
     aws.us_east_1 = aws.us_east_1
   }
 
-  cluster_name         = var.cluster_name
-  amplify_repository   = var.amplify_repository
-  amplify_access_token = var.amplify_access_token
-  environment          = var.environment
-  base_api_url         = var.base_api_url
-  chat_api_url         = var.chat_api_url
-  finnhub_api_key      = var.finnhub_api_key
-  logokit_api_key      = var.logokit_api_key
-  notif_api_url        = var.notif_api_url
-  thread_api_url       = var.thread_api_url
-  enable_sign_up       = var.enable_sign_up
-  show_banner          = var.show_banner
-  banner_message       = var.banner_message
+  cluster_name            = var.cluster_name
+  amplify_repository      = var.amplify_repository
+  amplify_access_token    = var.amplify_access_token
+  environment             = var.environment
+  base_api_url            = var.base_api_url
+  chat_api_url            = var.chat_api_url
+  finnhub_api_key         = var.finnhub_api_key
+  logokit_api_key         = var.logokit_api_key
+  notif_api_url           = var.notif_api_url
+  thread_api_url          = var.thread_api_url
+  enable_sign_up          = var.enable_sign_up
+  show_banner             = var.show_banner
+  banner_message          = var.banner_message
+  show_cloudwatch_metrics = var.show_cloudwatch_metrics
 }
 
 # =============================================================================
@@ -363,45 +364,45 @@ resource "kubectl_manifest" "karpenter_node_pool" {
 # Logging and Observability - Fluent Bit
 # =============================================================================
 
-resource "kubernetes_namespace" "logging" {
-  metadata {
-    name = "logging"
-  }
-}
+# resource "kubernetes_namespace" "logging" {
+#   metadata {
+#     name = "logging"
+#   }
+# }
 
-# AWS For Fluent Bit Helm Release
-resource "helm_release" "fluent_bit" {
-  name       = "fluent-bit"
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-for-fluent-bit"
-  version    = "0.1.34" # Stabilized version
-  namespace  = kubernetes_namespace.logging.metadata[0].name
+# # AWS For Fluent Bit Helm Release
+# resource "helm_release" "fluent_bit" {
+#   name       = "fluent-bit"
+#   repository = "https://aws.github.io/eks-charts"
+#   chart      = "aws-for-fluent-bit"
+#   version    = "0.1.34" # Stabilized version
+#   namespace  = kubernetes_namespace.logging.metadata[0].name
 
-  # Ensure the cluster is ready before deploying
-  depends_on = [
-    module.compute,
-    time_sleep.wait_for_cluster
-  ]
+#   # Ensure the cluster is ready before deploying
+#   depends_on = [
+#     module.compute,
+#     time_sleep.wait_for_cluster
+#   ]
 
-  values = [
-    <<-EOT
-    serviceAccount:
-      create: true
-      name: fluent-bit
-      annotations:
-        eks.amazonaws.com/role-arn: ${module.fluent_bit_irsa_role.iam_role_arn}
-    cloudWatch:
-      enabled: true
-      region: ${var.aws_region}
-      logGroupName: /aws/eks/${var.cluster_name}/logs
-      autoCreateGroup: true
-      logStreamPrefix: "fluent-bit-"
-    firehose:
-      enabled: false
-    kinesis:
-      enabled: false
-    elasticsearch:
-      enabled: false
-    EOT
-  ]
-}
+#   values = [
+#     <<-EOT
+#     serviceAccount:
+#       create: true
+#       name: fluent-bit
+#       annotations:
+#         eks.amazonaws.com/role-arn: ${module.fluent_bit_irsa_role.iam_role_arn}
+#     cloudWatch:
+#       enabled: true
+#       region: ${var.aws_region}
+#       logGroupName: /aws/eks/${var.cluster_name}/logs
+#       autoCreateGroup: true
+#       logStreamPrefix: "fluent-bit-"
+#     firehose:
+#       enabled: false
+#     kinesis:
+#       enabled: false
+#     elasticsearch:
+#       enabled: false
+#     EOT
+#   ]
+# }
