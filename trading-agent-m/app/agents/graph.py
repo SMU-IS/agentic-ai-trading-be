@@ -18,7 +18,6 @@ from app.core.config import env_config
 from app.services.trading_workflow import TradingWorkflow
 from langchain_perplexity import ChatPerplexity  # Requires: pip install langchain-perplexity
 
-
 # 1. Initialize clients via config/env
 llm = ChatPerplexity(
     pplx_api_key=env_config.perplexity_api_key,  # PPLX_API_KEY env var [web:11]

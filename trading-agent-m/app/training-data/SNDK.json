@@ -1,0 +1,84 @@
+{
+  "_id": {
+    "$oid": "69ce7ae048314fecc66a210d"
+  },
+  "order_id": "5a1baaca-e50f-4e6e-86d8-c4d82f08cfc1",
+  "symbol": "SNDK",
+  "action": "SELL",
+  "confidence": 0.7,
+  "reasonings": "Citron Research short report highlights cyclical NAND oversupply risks and Samsung competition dominance, triggering 4-5% price drop with alignment to historical cycles (2008, 2012, 2018 peaks crushed by supply ramps)[2][3][4]. Despite 175% YTD and 1200% 12-month surge on AI hype, reaction shows overextension with recent dump into potential resistance near 600 post-Citron, while analysts bullish (mean PT 700.94) but outlier short validates fade[1][4][5]. Technical setup: entry at 600 near current levels post-drop, SL at 660 (10% above, above recent highs), TP at 420 (30% below, toward low analyst PT 235 adjusted for swing). Volatility high from parabolic rise supports 2-5 day swing against euphoria into cycle normalization warning[3][4].",
+  "market_data": {
+    "alpaca": {
+      "latest_quote": {
+        "symbol": "SNDK",
+        "bid_price": 650.34,
+        "bid_size": 100,
+        "ask_price": 725,
+        "ask_size": 400,
+        "timestamp": "2026-04-02T14:19:04.943963+00:00",
+        "conditions": [
+          "R"
+        ],
+        "tape": "C"
+      },
+      "latest_trade": {
+        "symbol": "SNDK",
+        "price": 692.85,
+        "size": 100,
+        "exchange": "V",
+        "conditions": [
+          "@"
+        ],
+        "timestamp": "2026-04-02T14:18:35.616801+00:00",
+        "id": "1717",
+        "tape": "C"
+      },
+      "spread": 74.65999999999997
+    },
+    "yahoo": {
+      "current_price": 694.8138,
+      "open": 642.52001953125,
+      "high": 694.89990234375,
+      "low": 641,
+      "close": 694.594970703125,
+      "adj_close": 694.594970703125,
+      "volume": 6588103,
+      "candle_type": "strong_bullish",
+      "body_size": 8.105,
+      "body_pct": 0.966,
+      "upper_wick": 0.305,
+      "lower_wick": 1.52,
+      "rsi": 53.6,
+      "vol_ratio": 0.36,
+      "atr14": 61.433,
+      "sma20": 661.3552490234375,
+      "sma50": 618.7261016845703,
+      "sma200": 264.09715061187745,
+      "golden_cross": false,
+      "death_cross": false,
+      "high_3d": 710.85,
+      "low_3d": 578.42,
+      "is_penny": false,
+      "support": 517,
+      "resistance": 777.6,
+      "period_summary": "Apr 02, 2025 - Apr 02, 2026 (252 trading days)",
+      "macd": 15.4374,
+      "macd_signal": 21.5523,
+      "macd_histogram": -6.1149,
+      "macd_bullish": false,
+      "macd_bearish": false,
+      "bb_upper": 787.039,
+      "bb_middle": 661.355,
+      "bb_lower": 535.672,
+      "bb_width": 0.38,
+      "bb_position": 0.632,
+      "bb_squeeze": false,
+      "bb_upper_break": false,
+      "bb_lower_break": false
+    },
+    "timestamp": 170406.907
+  },
+  "signal_id": "69ce7ad948314fecc66a210a",
+  "user_id": "c7a62795-48eb-4892-9b51-cf87d78e0415",
+  "profile": "conservative"
+}
