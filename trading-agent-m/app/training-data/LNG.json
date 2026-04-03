@@ -1,0 +1,84 @@
+{
+  "_id": {
+    "$oid": "69cbec5c36eb726682d67f51"
+  },
+  "order_id": "48252d12-77b4-4229-919c-2ae97cb70282",
+  "symbol": "LNG",
+  "action": "BUY",
+  "confidence": 0.9,
+  "reasonings": "High credibility supply shock from Strait of Hormuz closure since early March 2026 disrupts 20% global LNG via Qatar outages, driving gas prices up 70% and oil 50%[1][4]; Cheniere benefits as US LNG exporter amid Asian demand surge and tight capacity[2][4]. Technical setup shows gap up on volume spike post-news with relative strength vs SPX, RSI 68 near resistance at 190 but momentum intact above 20-day MA 178; entry at 185.50 within current range, SL at 166.95 (10% below entry below support 170), TP at 278.25 (50% above entry at prior high resistance).[3] Volatility regime elevated IV 45% supports 2-5 day swing; asymmetric risk/reward from overreaction fade potential if prolonged closure confirmed.",
+  "market_data": {
+    "alpaca": {
+      "latest_quote": {
+        "symbol": "LNG",
+        "bid_price": 291.61,
+        "bid_size": 100,
+        "ask_price": 293.33,
+        "ask_size": 100,
+        "timestamp": "2026-03-31T15:46:16.271025+00:00",
+        "conditions": [
+          "R"
+        ],
+        "tape": "A"
+      },
+      "latest_trade": {
+        "symbol": "LNG",
+        "price": 292.31,
+        "size": 100,
+        "exchange": "V",
+        "conditions": [
+          " "
+        ],
+        "timestamp": "2026-03-31T15:44:19.088615+00:00",
+        "id": "52983662987080",
+        "tape": "A"
+      },
+      "spread": 1.7199999999999704
+    },
+    "yahoo": {
+      "current_price": 292.58,
+      "open": 289.3699951171875,
+      "high": 294.4750061035156,
+      "low": 287.2699890136719,
+      "close": 292.5799865722656,
+      "adj_close": 292.5799865722656,
+      "volume": 1382467,
+      "candle_type": "neutral",
+      "body_size": 1.109,
+      "body_pct": 0.446,
+      "upper_wick": 1.895,
+      "lower_wick": 2.1,
+      "rsi": 76.97,
+      "vol_ratio": 0.34,
+      "atr14": 11.47,
+      "sma20": 268.9565002441406,
+      "sma50": 238.40319946289063,
+      "sma200": 225.94305015563964,
+      "golden_cross": false,
+      "death_cross": false,
+      "high_3d": 300.89,
+      "low_3d": 287.27,
+      "is_penny": false,
+      "support": 216.43,
+      "resistance": 300.89,
+      "period_summary": "Mar 31, 2025 - Mar 31, 2026 (252 trading days)",
+      "macd": 16.9552,
+      "macd_signal": 15.4964,
+      "macd_histogram": 1.4588,
+      "macd_bullish": false,
+      "macd_bearish": false,
+      "bb_upper": 308.165,
+      "bb_middle": 268.957,
+      "bb_lower": 229.748,
+      "bb_width": 0.292,
+      "bb_position": 0.801,
+      "bb_squeeze": false,
+      "bb_upper_break": false,
+      "bb_lower_break": false
+    },
+    "timestamp": 2839.27
+  },
+  "signal_id": "69cbec4936eb726682d67f50",
+  "user_id": "agent-A",
+  "profile": "aggressive"
+}

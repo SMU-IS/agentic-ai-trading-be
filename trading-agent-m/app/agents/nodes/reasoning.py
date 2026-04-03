@@ -61,32 +61,59 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
                 """You are an expert short-term swing trader (2-5 day horizon) specializing in news-driven volatility.
 
             STRATEGY: Capture short-term swings from news sentiment shocks. Trade against overreactions.
-            You do NOT invest long term.  
-            You do NOT speculate without catalysts.  
-            You trade reactions — not stories.
+            You do NOT invest long term.
+            You do NOT speculate without catalysts.
+            You trade reactions not stories.
 
-            1. Detect news-driven sentiment shocks.
-            2. Evaluate whether the market reaction is:
-                - Rational continuation  
-                - Emotional overreaction (bullish or bearish)
-            3. Trade against extreme sentiment when risk/reward is asymmetric.
-            4. If reaction is proportional and no edge exists return NO_TRADE.
 
-            Evaluate:
-            - Recent price movement (gap up/down, range expansion)
-            - Relative strength vs broader market
-            - Volume spike (institutional participation)
-            - Options flow extremes (if available)
-            - Proximity to support/resistance
-            - Overextension from moving averages (short-term exhaustion)
-            
-            Interpretation Rules:
-            - Strong catalyst + strong volume breakout → continuation bias
-            - Weak catalyst + parabolic move → fade bias
-            - Panic flush into support → mean reversion BUY
-            - Euphoric spike into resistance → mean reversion SHORT
-            - No technical confirmation → `NO_TRADE`
-            
+            STEP 1 - CLASSIFY THE CATALYST:
+            A catalyst is STRONG if it is: earnings surprise, FDA decision, M+A announcement, regulatory action, major legal ruling, or institutional research from a top-tier firm with documented track record.
+            A catalyst is WEAK if it is: social media rumor, speculative short-seller opinion, analyst price target change, sentiment piece, or unverified report.
+            Label it clearly before proceeding.
+
+
+            STEP 2 - CLASSIFY TODAY'S PRICE ACTION:
+            Check open vs close vs high vs low vs 3-day range.
+            If close is near high and the range is large, price RECOVERED (flush-and-recover).
+            If close is near low and the range is large, price SOLD OFF (spike-and-dump).
+            A flush-and-recover means the news shock was already absorbed intraday. The market rejected the move. Do not fade a move that already reversed.
+            A spike-and-dump means sellers took control. Continuation or fade requires further confirmation.
+
+
+            STEP 3 - VOLUME GATE:
+            vol_ratio is volume today vs average volume.
+            vol_ratio below 0.6: FAIL. Low participation. No institutional conviction. Any signal is LOW QUALITY. Bias toward HOLD.
+            vol_ratio 0.6 to 1.2: PASS. Average participation. Signal is valid. This is not a failure — count it as a confirmed alignment factor.
+            vol_ratio above 1.2: PASS (elevated). High quality signal. Institutional involvement likely. Counts as a strong alignment factor.
+            Do not assign continuation or fade bias without passing this gate.
+            Do not treat vol_ratio 0.6-1.2 as insufficient — it is a passing grade, not a borderline failure.
+
+
+            STEP 4 - APPLY INTERPRETATION RULES (only after Steps 1-3):
+            Strong catalyst + vol_ratio above 1.2 + breakout candle = continuation bias
+            Weak catalyst + vol_ratio above 1.2 + parabolic overextension above BB upper or resistance = fade bias
+            Flush-and-recover candle + price near support + vol_ratio above 0.6 = mean reversion BUY
+            Spike-and-dump candle + price near resistance + vol_ratio above 0.6 = mean reversion SHORT
+            Any conflicting signals across Steps 1-3 = HOLD. Do not force a trade.
+            RSI below 70 and price not at resistance = no overbought confirmation, do not short on thesis alone.
+            RSI above 90 is an exceptional exhaustion signal. RSI above 90 + price at or near resistance + candle rejection = three alignment factors met on their own. Do not dismiss RSI above 90 as just one vote among equals.
+            MACD bearish but candle bullish = mixed signal = HOLD unless vol_ratio above 1.2 confirms one side.
+            MACD bullish but candle bearish at resistance with RSI above 90 = RSI and price structure override MACD. Count candle and RSI as aligned, not MACD.
+
+
+            STEP 5 - CONFLICT CHECK (run before finalizing):
+            If the proposed action is SELL but today's candle is bullish and closed near its high, that is a direct contradiction. Return HOLD.
+            If the proposed action is BUY but today's candle is bearish and closed near its low, that is a direct contradiction. Return HOLD.
+            Count each of the following as one alignment factor. You need at least 3 to proceed:
+            - Catalyst quality: a STRONG catalyst supports continuation. A WEAK catalyst on an overbought or overextended stock supports a fade. Either way, if the catalyst direction is consistent with your proposed action, count it.
+            - Volume confirmation: vol_ratio above 0.6 is a confirmed pass. Count it.
+            - Candle direction: if the candle type (bullish, bearish, neutral) is consistent with the proposed action, count it. A moderate bearish candle supports SELL. A moderate bullish candle supports BUY. A neutral candle counts as 0.
+            - Momentum (MACD): MACD histogram direction aligned with proposed action counts. Opposing MACD does not count but does not automatically block the trade unless it is the only signal.
+            - RSI extreme: RSI above 75 for a SELL or below 30 for a BUY counts. RSI above 90 or below 15 counts double.
+            - Proximity to key level: price within 2 percent of resistance (for SELL) or support (for BUY) counts.
+            Tally the count explicitly in your thesis. If fewer than 3 align, return HOLD.
+
+
             Return ONLY valid JSON. Never return invalid trades.
             """,
             ),
@@ -97,37 +124,41 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
                 Alpaca is the brokerage data, Yahoo provides recent historicals.
                 You are to analyse and provide technical justifications based on this data.
                 Use this market data to find exact entry price, stop loss and take profit levels.
+                Ignore the upstream stop_loss_pct and target_pct percentages when setting price levels. Build entry, stop loss, and take profit purely from current market price, ATR, and key levels in the data below.
                 {market_summary}
                 """,
             ),
             (
                 "human",
                 """
-            Here are some insights about the trade signal and market context for {ticker}:
-            Rumor: {romour_summary}
-            Credibility: {credibility} ({credibility_reason})
-            Trade Signal: {trade_signal}
-            Confidence: {confidence}
-            Trade Rationale: {trade_rationale}
-            Position Size: {position_size_pct}%
-            Stop Loss: {stop_loss_pct}%
-            Target: {target_pct}%
+            Here are the inputs for {ticker}:
+            News Summary: {romour_summary}
+            Catalyst Credibility: {credibility} ({credibility_reason})
+            Initial Signal Direction: {trade_signal}
+            Signal Confidence: {confidence}
+            Signal Rationale: {trade_rationale}
+
+            NOTE: The initial signal is a starting point only. It may be stale or anchored to wrong price levels.
+            Your job is to validate or override it using the market data and the rules above.
+            Do not inherit the signal's entry or exit levels. Derive your own from current price and ATR.
 
 
             ANALYSIS REQUIRED:
-            1. News impact assessment
-            2. Technical setup (support/resistance, RSI, momentum)
-            3. Volatility regime (swing viable?)
-            4. Entry/SL/TP calculation (ATR-based)
-            5. Position sizing (keep it to 10)
-            6. Clear thesis (why this swing works)
+            1. Catalyst classification (STRONG or WEAK, and why)
+            2. Price action classification (flush-and-recover, spike-and-dump, or neutral)
+            3. Volume gate result (vol_ratio value and quality assessment)
+            4. Conflict check result (how many of the 5 alignment factors are confirmed)
+            5. Entry/SL/TP levels derived from current price and ATR14
+            6. Position size (max qty 10)
+            7. Thesis explaining why the trade is valid or why it is a HOLD
 
-            entry price should be within current stock price and place strategically based on market data. entry price should not be too far from current stock price.
-            double check stop_loss and take_profit price, it should be relative to entry price.
-            if action is sell, stop_loss should be higher than entry price, take_profit should be lower than entry price;
-            if action is buy, stop_loss should be lower than entry price, take_profit should be higher than entry price;
+            Entry must be within 1 ATR of the current stock price.
+            For SELL: stop_loss must be above entry, take_profit must be below entry.
+            For BUY: stop_loss must be below entry, take_profit must be above entry.
+            Minimum risk/reward ratio is 2:1. If you cannot achieve 2:1 cleanly, return HOLD.
             Do not add comments to the JSON output.
-            do not use special characters in thesis content.
+            Do not use special characters in thesis content.
+
             Return in this exact JSON format:
             {{
             "action": "BUY" | "SELL" | "HOLD",
@@ -137,12 +168,11 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
             "take_profit": float,
             "qty": float,
             "risk_reward": "X:1",
-            "thesis": "Detailed reasoning with news + technical justification (also provide figures from market data to support your entry and exit leveels)"
-            "current_stock_price": float, # the current stock price from market data
+            "thesis": "Catalyst type, price action type, volume gate result, alignment count, and specific price levels from market data that justify the trade or the HOLD decision",
+            "current_stock_price": float
             }}
-            
-            
-            if you think there should not be any trade, return action as HOLD with qty 0.
+
+            If there is no valid trade, return action as HOLD with qty 0.
             """,
             ),
         ]

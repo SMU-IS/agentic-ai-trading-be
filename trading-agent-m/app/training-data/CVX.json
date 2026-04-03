@@ -1,0 +1,84 @@
+{
+  "_id": {
+    "$oid": "69cb794dd178cc244b785774"
+  },
+  "order_id": "96c03cc9-576c-42d1-9e93-9c9af83b99a1",
+  "symbol": "CVX",
+  "action": "SELL",
+  "confidence": 0.85,
+  "reasonings": "Euphoric spike on Iran conflict and Strait of Hormuz risks driving oil to 100/bbl with CVX surging from 186 in early March to ATH 214.71 on Mar 30 amid volume spike to 10M shares, but parabolic 12% monthly gain shows overextension into resistance at 215 with CEO note on underpriced risk already fueling analyst targets of 200-212 hit; recent pullback to 210.71 after-hours indicates exhaustion for 2-5 day mean reversion fade as weak catalyst relative to move lacks continuation confirmation beyond hype.[1][3] Entry at current close 210.71, SL above Mar 30 high 214.71 (4.00 risk), TP at Mar 26 low 201.00 (9.71 reward) near prior support for asymmetric setup in elevated volatility regime post-news shock.",
+  "market_data": {
+    "alpaca": {
+      "latest_quote": {
+        "symbol": "CVX",
+        "bid_price": 202.11,
+        "bid_size": 100,
+        "ask_price": 0,
+        "ask_size": 0,
+        "timestamp": "2026-03-30T20:00:03.390151+00:00",
+        "conditions": [
+          "R"
+        ],
+        "tape": "A"
+      },
+      "latest_trade": {
+        "symbol": "CVX",
+        "price": 210.76,
+        "size": 100,
+        "exchange": "V",
+        "conditions": [
+          " "
+        ],
+        "timestamp": "2026-03-30T19:59:58.671410+00:00",
+        "id": "52983982666842",
+        "tape": "A"
+      },
+      "spread": 0
+    },
+    "yahoo": {
+      "current_price": 210.71,
+      "open": 213.25999450683594,
+      "high": 214.7100067138672,
+      "low": 210.2899932861328,
+      "close": 210.7100067138672,
+      "adj_close": 210.7100067138672,
+      "volume": 10393100,
+      "candle_type": "moderate_bearish",
+      "body_size": 1.196,
+      "body_pct": 0.577,
+      "upper_wick": 1.45,
+      "lower_wick": 0.42,
+      "rsi": 92.28,
+      "vol_ratio": 0.69,
+      "atr14": 4.468,
+      "sma20": 197.96699905395508,
+      "sma50": 186.07819915771483,
+      "sma200": 161.62099983215333,
+      "golden_cross": false,
+      "death_cross": false,
+      "high_3d": 214.71,
+      "low_3d": 205.16,
+      "is_penny": false,
+      "support": 178.74,
+      "resistance": 214.71,
+      "period_summary": "Mar 31, 2025 - Mar 30, 2026 (251 trading days)",
+      "macd": 7.0788,
+      "macd_signal": 6.2999,
+      "macd_histogram": 0.7789,
+      "macd_bullish": false,
+      "macd_bearish": false,
+      "bb_upper": 214.18,
+      "bb_middle": 197.967,
+      "bb_lower": 181.754,
+      "bb_width": 0.164,
+      "bb_position": 0.893,
+      "bb_squeeze": false,
+      "bb_upper_break": false,
+      "bb_lower_break": false
+    },
+    "timestamp": 36297.602
+  },
+  "signal_id": "69cb7943d178cc244b785773",
+  "user_id": "agent-A",
+  "profile": "aggressive"
+}
