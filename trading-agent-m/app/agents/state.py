@@ -432,3 +432,9 @@ class ProfileParams:
 
     # Volume penalty
     low_vol_qty_mult:   float   # 1.0 = no reduction
+
+    # Risk score threshold — trades below this score are BLOCKED, not just REVIEW
+    min_risk_score:     float   # e.g. 0.72 = block if score < 0.72
+
+    # RR ceiling — TP is pulled in if RR exceeds this to keep targets realistic
+    max_rr:             float   # e.g. 3.0 = never allow RR above 3:1

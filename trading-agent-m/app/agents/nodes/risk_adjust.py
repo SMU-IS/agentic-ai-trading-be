@@ -13,30 +13,34 @@ PROFILE_PARAMS: dict[RiskProfile, ProfileParams] = {
     RiskProfile.CONSERVATIVE: ProfileParams(
         penny_block       = True,
         min_confidence    = 0.70,
-        max_entry_dev_pct = 0.01,
-        min_rr            = 1.0,
-        min_vol_ratio     = 0.8,
-        sl_atr_mult       = 1.0,
-        tp_atr_mult       = 1.5,
-        max_sl_pct        = 0.03,   # SL max 3% from entry
-        max_tp_pct        = 0.06,   # TP max 6% from entry
-        max_risk_pct      = 0.005,
-        max_position_pct  = 0.02,
-        low_vol_qty_mult  = 0.5,
+        max_entry_dev_pct = 0.01,   # kept for reference, entry no longer snapped
+        min_rr            = 2.0,    # must achieve 2:1 — aligns with reasoning floor
+        max_rr            = 3.0,    # cap at 3:1 — locks in realistic 2-5 day target
+        min_vol_ratio     = 0.6,    # require average volume participation
+        sl_atr_mult       = 1.0,    # reference only — SL preserved from reasoning
+        tp_atr_mult       = 2.0,    # reference only — TP bounded by RR cap
+        max_sl_pct        = 0.05,   # SL hard cap 5% from entry
+        max_tp_pct        = 0.12,   # TP hard cap 12% from entry
+        max_risk_pct      = 0.01,   # max 1% of buying power at risk per trade
+        max_position_pct  = 0.03,   # max 3% of buying power per position
+        low_vol_qty_mult  = 0.5,    # halve qty when volume is low
+        min_risk_score    = 0.72,   # block trade if score below this
     ),
     RiskProfile.AGGRESSIVE: ProfileParams(
         penny_block       = False,
-        min_confidence    = 0.70,
-        max_entry_dev_pct = 0.02,
-        min_rr            = 1.5,
-        min_vol_ratio     = 0.0,
-        sl_atr_mult       = 1.5,
-        tp_atr_mult       = 2.0,
-        max_sl_pct        = 0.08,   # SL max 8% from entry
-        max_tp_pct        = 0.15,   # TP max 15% from entry
-        max_risk_pct      = 0.015,
-        max_position_pct  = 0.05,
-        low_vol_qty_mult  = 1.0,
+        min_confidence    = 0.65,
+        max_entry_dev_pct = 0.02,   # kept for reference, entry no longer snapped
+        min_rr            = 2.5,    # reach for higher reward to justify larger risk
+        max_rr            = 4.0,    # cap at 4:1 — allows more stretch, still realistic
+        min_vol_ratio     = 0.0,    # no volume block — aggressive takes the trade
+        sl_atr_mult       = 1.5,    # reference only — SL preserved from reasoning
+        tp_atr_mult       = 2.5,    # reference only — TP bounded by RR cap
+        max_sl_pct        = 0.10,   # SL hard cap 10% from entry
+        max_tp_pct        = 0.25,   # TP hard cap 25% from entry
+        max_risk_pct      = 0.03,   # max 3% of buying power at risk per trade
+        max_position_pct  = 0.06,   # max 6% of buying power per position
+        low_vol_qty_mult  = 0.7,    # 30% qty reduction — aggressive holds full size
+        min_risk_score    = 0.62,   # lower bar — accepts more trades with higher risk
     ),
 }
 
@@ -412,46 +416,117 @@ def risk_evaluation_metrics(
         )
         return _blocked_assessment(adjusted, blocks)
 
-    # ── ADJUSTMENT 1: ENTRY PRICE ────────────────────────────────
-    # Snap to bid (SELL) or ask (BUY) when entry deviates too far.
-    market_ref    = yahoo_data.current_price   # replace with bid/ask if available
-    dev_pct       = abs(trade.entry_price - market_ref) / market_ref
-
+    # ── ENTRY: PRESERVED FROM REASONING ─────────────────────────
+    # Reasoning sets entry at structural levels (anticipatory or at-market).
+    # Risk layer does not snap or override entry — it is trusted as-is.
+    market_ref = yahoo_data.current_price
+    dev_pct    = abs(trade.entry_price - market_ref) / market_ref
     if dev_pct > p.max_entry_dev_pct:
-        original_entry = trade.entry_price
-        adjusted.entry_price = market_ref
         issues.append({
             "field":      "entry_price",
-            "reason":     f"Entry deviates {dev_pct:.1%} > {p.max_entry_dev_pct:.0%} max.",
-            "adjustment": f"${original_entry:.2f} → ${market_ref:.2f} (current market)",
+            "reason":     f"Entry deviates {dev_pct:.1%} from market (anticipatory or stale).",
+            "adjustment": f"Entry ${trade.entry_price:.2f} preserved — reasoning owns this level.",
         })
 
-    entry = adjusted.entry_price
+    entry = adjusted.entry_price   # unchanged
 
-    # ── ADJUSTMENT 2: STOP LOSS, TAKE PROFIT ──────────────────────────────────
-    correct_sl, correct_tp, level_method = _calculate_sl_tp(
-        entry, trade.action, yahoo_data, profile, p
-    )
+    # ── STOP LOSS: PRESERVED FROM REASONING ──────────────────────
+    # SL is set by reasoning at the structural invalidation level with buffer.
+    # Risk layer enforces a hard % cap only — does not move SL inward.
+    sl_cap_pct = entry * (1 + p.max_sl_pct) if is_sell else entry * (1 - p.max_sl_pct)
+    if is_sell and trade.stop_loss > sl_cap_pct:
+        adjusted.stop_loss = sl_cap_pct
+        issues.append({
+            "field":      "stop_loss",
+            "reason":     f"SL ${trade.stop_loss:.2f} exceeds hard cap {p.max_sl_pct:.0%} from entry.",
+            "adjustment": f"${trade.stop_loss:.2f} → ${sl_cap_pct:.2f}",
+        })
+    elif not is_sell and trade.stop_loss < sl_cap_pct:
+        adjusted.stop_loss = sl_cap_pct
+        issues.append({
+            "field":      "stop_loss",
+            "reason":     f"SL ${trade.stop_loss:.2f} exceeds hard cap {p.max_sl_pct:.0%} from entry.",
+            "adjustment": f"${trade.stop_loss:.2f} → ${sl_cap_pct:.2f}",
+        })
+
+    # ── TAKE PROFIT: REASONING TP IS THE CEILING ─────────────────
+    # Reasoning sets TP at a structural level. Risk layer never extends beyond it.
+    # Profile's min_rr is a gate: if reasoning's TP doesn't meet it, block the trade.
+    risk_per_share   = abs(entry - adjusted.stop_loss)
+    reasoning_reward = abs(trade.take_profit - entry)
+    reasoning_rr     = reasoning_reward / risk_per_share if risk_per_share > 0 else 0.0
+
+    if reasoning_rr >= p.min_rr:
+        # Reasoning TP meets profile requirement — use it as the ceiling
+        adjusted.take_profit = trade.take_profit
+        tp_method = f"Reasoning TP preserved (RR {reasoning_rr:.1f}:1 >= profile min {p.min_rr}:1)"
+    else:
+        # Reasoning TP does not meet profile RR. TP cannot be extended beyond
+        # reasoning's structural target — block rather than overshoot the level.
+        blocks.append(
+            f"[{profile.value.upper()}] Reasoning TP yields {reasoning_rr:.1f}:1 RR, "
+            f"below {profile.value} minimum {p.min_rr}:1. "
+            f"TP cannot be extended beyond reasoning's structural target "
+            f"${trade.take_profit:.2f}. Trade blocked."
+        )
+        return _blocked_assessment(adjusted, blocks)
+
+    tp_method = f"Reasoning TP ${trade.take_profit:.2f} preserved as ceiling (RR {reasoning_rr:.1f}:1)"
+
+    # ── RR CEILING: pull TP in if RR exceeds profile max ─────────
+    # Prevents unrealistically high RR from a tight SL against a far structural target.
+    # Keeps TP within a realistic 2-5 day swing range.
+    if reasoning_rr > p.max_rr:
+        tp_at_max_rr = (
+            entry - (risk_per_share * p.max_rr) if is_sell
+            else entry + (risk_per_share * p.max_rr)
+        )
+        adjusted.take_profit = round(tp_at_max_rr, 4)
+        tp_method = (
+            f"TP pulled in from ${trade.take_profit:.2f} to ${adjusted.take_profit:.2f} "
+            f"— RR {reasoning_rr:.1f}:1 exceeded {profile.value} max {p.max_rr}:1"
+        )
+        issues.append({
+            "field":      "take_profit",
+            "reason":     f"RR {reasoning_rr:.1f}:1 exceeds {profile.value} max {p.max_rr}:1.",
+            "adjustment": tp_method,
+        })
+
+    # Enforce hard TP % cap
+    tp_cap_pct = entry * (1 - p.max_tp_pct) if is_sell else entry * (1 + p.max_tp_pct)
+    if is_sell and adjusted.take_profit < tp_cap_pct:
+        adjusted.take_profit = tp_cap_pct
+        issues.append({
+            "field":      "take_profit",
+            "reason":     f"TP exceeds hard cap {p.max_tp_pct:.0%} from entry.",
+            "adjustment": f"Capped at ${tp_cap_pct:.2f}",
+        })
+    elif not is_sell and adjusted.take_profit > tp_cap_pct:
+        adjusted.take_profit = tp_cap_pct
+        issues.append({
+            "field":      "take_profit",
+            "reason":     f"TP exceeds hard cap {p.max_tp_pct:.0%} from entry.",
+            "adjustment": f"Capped at ${tp_cap_pct:.2f}",
+        })
+
     issues.append({
-    "field":      "sl_tp_method",
-    "reason":     "SL/TP anchored to structural levels, not ATR multiples.",
-    "adjustment": level_method,
-})
-    adjusted.take_profit = correct_tp
-    adjusted.stop_loss = correct_sl
+        "field":      "sl_tp_method",
+        "reason":     "SL preserved from reasoning. TP adjusted to profile RR.",
+        "adjustment": tp_method,
+    })
 
     # ── RISK CALCULATIONS ────────────────────────────────────────
     risk_per_share   = abs(entry - adjusted.stop_loss)
     reward_per_share = abs(adjusted.take_profit - entry)
     actual_rr        = reward_per_share / risk_per_share if risk_per_share > 0 else 0.0
 
-    # ── GATE 3: R:R ──────────────────────────────────────────────
+    # ── GATE 3: R:R — BLOCK if below profile minimum ─────────────
     if actual_rr < p.min_rr:
-        issues.append({
-            "field":      "risk_reward",
-            "reason":     f"[{profile.value.upper()}] R:R {actual_rr:.2f} below minimum {p.min_rr}.",
-            "adjustment": "Proceeding with reduced position confidence.",
-        })
+        blocks.append(
+            f"[{profile.value.upper()}] R:R {actual_rr:.2f}:1 below profile minimum {p.min_rr}:1. "
+            f"Trade does not meet {profile.value} reward threshold."
+        )
+        return _blocked_assessment(adjusted, blocks)
 
     # ── POSITION SIZING ──────────────────────────────────────────
     max_risk_dollars    = account_bp * p.max_risk_pct
@@ -533,7 +608,8 @@ def risk_evaluation_metrics(
         max_risk_5pct   = f"${max_risk_dollars:.0f}",
     )
 
-    status = "APPROVED" if score >= 0.75 and not blocks else "REVIEW"
+    # APPROVED only if score meets profile threshold — REVIEW is treated as BLOCKED
+    status = "APPROVED" if score >= p.min_risk_score and not blocks else "BLOCKED"
 
     return RiskAssessment(
         risk_status   = status,
@@ -571,139 +647,3 @@ def _blocked_assessment(
     )
 
 
-def _calculate_sl_tp(
-    entry:      float,
-    action:     TradeAction,
-    yahoo:      YahooTechnicalData,
-    profile:    RiskProfile,
-    p:          ProfileParams = None,
-) -> tuple[float, float, str]:
-    """
-    Returns (stop_loss, take_profit, method_used).
-    Priority: structural levels > band edges > SMA > 3D range.
-    ATR multipliers (sl_atr_mult / tp_atr_mult) from ProfileParams act as
-    hard caps — structural levels are clamped if they exceed the limit.
-    """
-    is_sell = action == TradeAction.SELL
-    atr     = _atr_guard(yahoo.atr14, yahoo.current_price)
-
-    # ── STOP LOSS ────────────────────────────────────────────────
-    sl_candidates: list[tuple[float, str]] = []
-
-    # 1. SMA50 — thesis invalidation level (strongest)
-    if yahoo.sma50 and yahoo.sma50 > 0:
-        if is_sell and yahoo.sma50 > entry:
-            sl_candidates.append((yahoo.sma50 * 1.002, "SMA50 + 0.2% buffer"))
-        elif not is_sell and yahoo.sma50 < entry:
-            sl_candidates.append((yahoo.sma50 * 0.998, "SMA50 - 0.2% buffer"))
-
-    # 2. Bollinger Band edge — expansion/squeeze invalidation
-    if is_sell and yahoo.bb_upper > entry:
-        sl_candidates.append((yahoo.bb_upper, "BB upper band"))
-    elif not is_sell and yahoo.bb_lower < entry:
-        sl_candidates.append((yahoo.bb_lower, "BB lower band"))
-
-    # 3. 3D range boundary — momentum invalidation
-    if is_sell:
-        sl_candidates.append((yahoo.high_3d, "3D range high"))
-    else:
-        sl_candidates.append((yahoo.low_3d, "3D range low"))
-
-    # Pick the SL closest to entry that still clears a minimum ATR buffer.
-    # Conservative: tighter SL (closest valid candidate).
-    # Aggressive: allow the furthest for more breathing room.
-    min_sl_distance = atr * 0.5   # hard floor — SL can never be < 0.5 ATR away
-
-    valid_sl = [
-        (sl, method) for sl, method in sl_candidates
-        if abs(sl - entry) >= min_sl_distance
-        and (sl > entry if is_sell else sl < entry)
-    ]
-
-    if profile == RiskProfile.CONSERVATIVE:
-        # Tightest valid SL = smallest loss if wrong
-        valid_sl.sort(key=lambda x: abs(x[0] - entry))
-    else:
-        # Widest valid SL = more room before invalidation
-        valid_sl.sort(key=lambda x: abs(x[0] - entry), reverse=True)
-
-    if valid_sl:
-        stop_loss, sl_method = valid_sl[0]
-    else:
-        # Fallback only if no structural level qualifies
-        mult = 1.0 if profile == RiskProfile.CONSERVATIVE else 1.5
-        stop_loss  = entry + atr * mult if is_sell else entry - atr * mult
-        sl_method  = f"ATR fallback ({mult}×)"
-
-    # ── TAKE PROFIT ──────────────────────────────────────────────
-    tp_candidates: list[tuple[float, str]] = []
-
-    # 1. Hard structural support/resistance (primary target)
-    if is_sell and yahoo.support < entry:
-        tp_candidates.append((yahoo.support, "structural support"))
-    elif not is_sell and yahoo.resistance > entry:
-        tp_candidates.append((yahoo.resistance, "structural resistance"))
-
-    # 2. BB middle (mean-reversion target — ideal for post-spike fades)
-    if yahoo.bb_middle and yahoo.bb_middle > 0:
-        if is_sell and yahoo.bb_middle < entry:
-            tp_candidates.append((yahoo.bb_middle, "BB midline / SMA20"))
-        elif not is_sell and yahoo.bb_middle > entry:
-            tp_candidates.append((yahoo.bb_middle, "BB midline / SMA20"))
-
-    # 3. 3D range boundary (near-term acceptance zone)
-    if is_sell and yahoo.low_3d < entry:
-        tp_candidates.append((yahoo.low_3d, "3D range low"))
-    elif not is_sell and yahoo.high_3d > entry:
-        tp_candidates.append((yahoo.high_3d, "3D range high"))
-
-    # Filter out TP candidates that are too close to entry (< 0.5 ATR away)
-    # or on the wrong side of entry
-    min_tp_distance = atr * 0.5
-    valid_tp = [
-        (tp, method) for tp, method in tp_candidates
-        if abs(tp - entry) >= min_tp_distance
-        and (tp < entry if is_sell else tp > entry)
-    ]
-
-    # Conservative: take profit early (closest valid target).
-    # Aggressive: reach for the furthest structural level.
-    if valid_tp:
-        if profile == RiskProfile.CONSERVATIVE:
-            valid_tp.sort(key=lambda x: abs(x[0] - entry))
-        else:
-            valid_tp.sort(key=lambda x: abs(x[0] - entry), reverse=True)
-        take_profit, tp_method = valid_tp[0]
-    else:
-        mult = 1.5 if profile == RiskProfile.CONSERVATIVE else 2.0
-        take_profit = entry - atr * mult if is_sell else entry + atr * mult
-        tp_method   = f"ATR fallback ({mult}x)"
-
-    # ── ENFORCE SL/TP CAPS — tightest of ATR or % from entry ─────
-    if p is not None:
-        sl_cap_atr = entry + atr * p.sl_atr_mult if is_sell else entry - atr * p.sl_atr_mult
-        sl_cap_pct = entry * (1 + p.max_sl_pct)  if is_sell else entry * (1 - p.max_sl_pct)
-        tp_cap_atr = entry - atr * p.tp_atr_mult if is_sell else entry + atr * p.tp_atr_mult
-        tp_cap_pct = entry * (1 - p.max_tp_pct)  if is_sell else entry * (1 + p.max_tp_pct)
-
-        # Tightest SL = closest to entry (smallest loss if stopped out)
-        sl_cap = min(sl_cap_atr, sl_cap_pct) if is_sell else max(sl_cap_atr, sl_cap_pct)
-        # Tightest TP = closest to entry (earliest exit)
-        tp_cap = max(tp_cap_atr, tp_cap_pct) if is_sell else min(tp_cap_atr, tp_cap_pct)
-
-        if is_sell and stop_loss > sl_cap:
-            stop_loss = sl_cap
-            sl_method += f" [capped: ATR={p.sl_atr_mult}x / {p.max_sl_pct:.0%}]"
-        elif not is_sell and stop_loss < sl_cap:
-            stop_loss = sl_cap
-            sl_method += f" [capped: ATR={p.sl_atr_mult}x / {p.max_sl_pct:.0%}]"
-
-        if is_sell and take_profit < tp_cap:
-            take_profit = tp_cap
-            tp_method += f" [capped: ATR={p.tp_atr_mult}x / {p.max_tp_pct:.0%}]"
-        elif not is_sell and take_profit > tp_cap:
-            take_profit = tp_cap
-            tp_method += f" [capped: ATR={p.tp_atr_mult}x / {p.max_tp_pct:.0%}]"
-
-    method = f"SL: {sl_method} | TP: {tp_method}"
-    return round(stop_loss, 4), round(take_profit, 4), method

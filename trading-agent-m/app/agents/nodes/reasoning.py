@@ -124,7 +124,8 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
                 Alpaca is the brokerage data, Yahoo provides recent historicals.
                 You are to analyse and provide technical justifications based on this data.
                 Use this market data to find exact entry price, stop loss and take profit levels.
-                Ignore the upstream stop_loss_pct and target_pct percentages when setting price levels. Build entry, stop loss, and take profit purely from current market price, ATR, and key levels in the data below.
+                Ignore the upstream stop_loss_pct and target_pct percentages when setting price levels. Build entry, stop loss, and take profit purely from ATR and key levels in the data below.
+                Entry may be priced at an anticipated key level ahead of current price when conditions warrant. See entry pricing rules in the human message.
                 {market_summary}
                 """,
             ),
@@ -148,14 +149,54 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
             2. Price action classification (flush-and-recover, spike-and-dump, or neutral)
             3. Volume gate result (vol_ratio value and quality assessment)
             4. Conflict check result (how many of the 5 alignment factors are confirmed)
-            5. Entry/SL/TP levels derived from current price and ATR14
-            6. Position size (max qty 10)
-            7. Thesis explaining why the trade is valid or why it is a HOLD
+            5. Entry type determination (at-market or anticipatory — see rules below)
+            6. Entry/SL/TP levels built from key levels and ATR14
+            7. Position size (max qty 10)
+            8. Thesis explaining why the trade is valid or why it is a HOLD
 
-            Entry must be within 1 ATR of the current stock price.
+
+            ENTRY PRICING RULES:
+            There are two valid entry modes. Determine which applies before setting price levels.
+
+            AT-MARKET ENTRY:
+            Use when price is already at or within 0.5 ATR of a key level (support for BUY, resistance for SELL).
+            Set entry at or very near current stock price.
+
+            ANTICIPATORY ENTRY (limit order):
+            Use when RSI is extreme (below 20 for BUY, above 80 for SELL) AND price has not yet reached the nearest key structural level.
+            The key level is where the flush or spike is expected to terminate: support zone, BB lower, or BB upper.
+            Set entry AT the anticipated key level, not at current price.
+            Anticipatory entry must be within 2 ATR of current price. If the key level is more than 2 ATR away, use AT-MARKET instead.
+            Anticipatory entry is a limit order — the trade only activates if price reaches that level.
+
+            For ANTICIPATORY BUY:
+            Entry = the higher of: structural support or BB lower (more conservative, less likely to overshoot)
+            Stop loss = the lower invalidation level (BB lower or structural support, whichever is lower) minus 0.25 ATR as buffer. Place SL through the level, not at it, to avoid stop hunts.
+            Take profit = SMA20 or BB middle minus 0.15 ATR as buffer. Stop short of the target level so the order fills before a potential reversal at that level.
+
+            For ANTICIPATORY SELL:
+            Entry = the lower of: structural resistance or BB upper (more conservative)
+            Stop loss = the upper invalidation level (BB upper or structural resistance, whichever is higher) plus 0.25 ATR as buffer. Place SL through the level, not at it.
+            Take profit = SMA20 or BB middle plus 0.15 ATR as buffer. Stop short of the target so the order fills before a potential bounce at that level.
+
+            For AT-MARKET BUY:
+            Stop loss = the nearest structural support or BB lower minus 0.25 ATR. Go through the level, not at it.
+            Take profit = the nearest resistance, SMA20, or BB middle minus 0.15 ATR. Stop short of the target.
+
+            For AT-MARKET SELL:
+            Stop loss = the nearest structural resistance or BB upper plus 0.25 ATR. Go through the level, not at it.
+            Take profit = the nearest support, SMA20, or BB middle plus 0.15 ATR. Stop short of the target.
+
+            SL AND TP PLACEMENT PRINCIPLE:
+            Stop loss must sit beyond the invalidation level by a small buffer so normal volatility and stop hunts do not prematurely close the trade.
+            Take profit must stop just short of the target level so the order fills before the level triggers a natural reversal or slowdown.
+            Never place SL or TP exactly on a round number, moving average, or support/resistance line. Always offset by the buffer amounts above.
+
+            UNIVERSAL RULES:
             For SELL: stop_loss must be above entry, take_profit must be below entry.
             For BUY: stop_loss must be below entry, take_profit must be above entry.
-            Minimum risk/reward ratio is 2:1. If you cannot achieve 2:1 cleanly, return HOLD.
+            Minimum risk/reward ratio is 2:1. If you cannot achieve 2:1 with either entry mode, return HOLD.
+            State clearly in the thesis whether the entry is at-market or anticipatory, and which key level it targets.
             Do not add comments to the JSON output.
             Do not use special characters in thesis content.
 
@@ -168,7 +209,7 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
             "take_profit": float,
             "qty": float,
             "risk_reward": "X:1",
-            "thesis": "Catalyst type, price action type, volume gate result, alignment count, and specific price levels from market data that justify the trade or the HOLD decision",
+            "thesis": "Catalyst type, price action type, volume gate result, alignment count, entry mode (at-market or anticipatory), key level targeted, and specific price levels that justify the trade or the HOLD decision",
             "current_stock_price": float
             }}
 
