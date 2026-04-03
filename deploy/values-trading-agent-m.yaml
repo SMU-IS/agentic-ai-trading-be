@@ -45,11 +45,8 @@ ingress:
     paths:
       - path: /api/v1/agent-m/healthcheck
         pathType: Exact
-      - path: /api/v1/agent-m/metrics
-        pathType: Exact
   protected:
     enabled: true
     paths:
       - path: /api/v1/agent-m
         pathType: Prefix
-

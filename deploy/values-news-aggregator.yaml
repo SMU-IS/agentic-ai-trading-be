@@ -53,11 +53,8 @@ ingress:
     paths:
       - path: /api/v1/news-aggregator/healthcheck
         pathType: Exact
-      - path: /api/v1/news-aggregator/metrics
-        pathType: Exact
   protected:
     enabled: true
     paths:
       - path: /api/v1/news-aggregator
         pathType: Prefix
-

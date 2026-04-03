@@ -43,11 +43,8 @@ ingress:
     paths:
       - path: /api/v1/trading/healthcheck
         pathType: Exact
-      - path: /api/v1/trading/metrics
-        pathType: Exact
   protected:
     enabled: true
     paths:
       - path: /api/v1/trading
         pathType: Prefix
-
