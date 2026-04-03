@@ -31,6 +31,11 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10
 
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "5006"
+  prometheus.io/path: "/metrics"
+
 secretName: trading-agent-m-secrets
 
 ingress:
@@ -39,6 +44,8 @@ ingress:
     enabled: true
     paths:
       - path: /api/v1/agent-m/healthcheck
+        pathType: Exact
+      - path: /api/v1/agent-m/metrics
         pathType: Exact
   protected:
     enabled: true

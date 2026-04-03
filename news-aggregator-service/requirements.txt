@@ -21,3 +21,4 @@ qdrant-client<=1.16.2
 
 # Utils
 python-dotenv>=1.0.0
+prometheus-fastapi-instrumentator>=7.0.0

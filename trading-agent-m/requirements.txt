@@ -30,3 +30,4 @@ tenacity==9.0.0
 ruff==0.7.0
 black==24.8.0
 mypy==1.11.2
+prometheus-fastapi-instrumentator>=7.0.0
