@@ -49,8 +49,14 @@ async def _attempt_order_lookup(
     logger.info("No order_id found, attempting to find order by ticker and date")
 
     try:
-        # Extract search criteria (ticker, dates)
+        # Extract search criteria (ticker, dates, or a reference to an order)
         criteria = await _extract_search_criteria(state, llm)
+        
+        # If the LLM successfully resolved a reference (e.g. 'the first one') to an ID
+        if criteria.order_id:
+            logger.info(f"LLM resolved reference to order_id: {criteria.order_id}")
+            return criteria.order_id
+
         if not (criteria.ticker and criteria.after and criteria.until):
             return None
 
@@ -85,9 +91,10 @@ async def _extract_search_criteria(state: AgentState, llm) -> TradeHistorySearch
 
     instructions = (
         f"You are a trade information extraction assistant. Today's date is {today} ({weekday}).\n"
-        "Extract the stock ticker and date range from the user query.\n"
-        "If they say 'last week', 'after' should be 7 days ago and 'until' should be today.\n"
-        "Return the 'ticker' (e.g., 'AAPL'), 'after', and 'until' (YYYY-MM-DD)."
+        "1. Extract the stock ticker and date range from the user query (e.g., 'AAPL', 'last week').\n"
+        "2. If the user refers to a previous message (e.g., 'the first one', 'that buy order', 'ORD123'), "
+        "resolve it to a concrete 'order_id' from the conversation history.\n"
+        "Return the 'ticker', 'after', 'until' (YYYY-MM-DD), and 'order_id' if applicable."
     )
 
     structured_llm = llm.with_structured_output(TradeHistorySearch)
@@ -99,21 +106,30 @@ async def _extract_search_criteria(state: AgentState, llm) -> TradeHistorySearch
     )
 
 
-def _format_multiple_orders_response(
-    ticker: str, orders: list, msg_id: str
-) -> dict[str, Any]:
+def _format_multiple_orders_response(ticker: str, orders: list, msg_id: str) -> dict[str, Any]:
     """Formats a clarification message when multiple matching orders are found."""
-    order_list = ", ".join(
-        [
-            f"{o['side']} {o['symbol']} on {o['created_at']} (ID: {o['id']})"
-            for o in orders
-        ]
+    
+    order_items = []
+    for i, o in enumerate(orders, 1):
+        # Format date if possible (e.g. 2026-04-02T05:42... -> 2026-04-02)
+        raw_date = o.get('created_at', 'Unknown date')
+        display_date = raw_date.split('T')[0] if 'T' in raw_date else raw_date
+        
+        item = f"{i}. **{o['side'].upper()}** {o['symbol']} on {display_date} (ID: `{o['id']}`)"
+        order_items.append(item)
+    
+    order_list_str = "\n".join(order_items)
+    
+    content = (
+        f"I found {len(orders)} orders for **{ticker}** in that period. "
+        "Which one are you interested in?\n\n"
+        f"{order_list_str}"
     )
+    
     return {
         "messages": [
             AIMessage(
-                content=f"I found {len(orders)} orders for {ticker} in that period. "
-                f"Which one are you interested in? {order_list}",
+                content=content,
                 id=msg_id,
             )
         ]
@@ -159,7 +175,7 @@ async def _fetch_and_format_trade_details(
         )
         logger.info(f"Trade history retrieved for order_id: {order_id}")
         return {
-            "messages": [SystemMessage(content=json.dumps(result.dict()), id=msg_id)],
+            "messages": [SystemMessage(content=json.dumps(result.model_dump()), id=msg_id)],
             "order_id": order_id,
         }
     except Exception as e:
