@@ -6,14 +6,25 @@ Agent M utilizes a decoupled microservices architecture. The "Brain" is powered 
 ## Microservices Breakdown
 | Service | Tech Stack | Responsibility |
 | :--- | :--- | :--- |
-| **User Info** | Go (Gin) | Profiles, Auth, and Preferences. |
-| **Trading Agent** | Python (LangGraph) | Core decision-making logic and trade signals. |
-| **RAG Chatbot** | Python (FastAPI) | News and portfolio context retrieval. |
-| **News Scrapers** | Python | Real-time ingestion from Yahoo Finance, Reddit, and X. |
-| **Sentiment Analysis** | Python (FinBERT) | Financial-specific NLP scoring. |
-| **Qdrant Retrieval** | Python | High-performance vector memory for RAG. |
+| **User Info** | Go (Gin) | Manages user profiles, preferences, and authentication. |
+| **Trading Agent M** | Python (LangGraph) | Core agentic logic and decision-making engine. |
+| **RAG Chatbot** | Python (FastAPI) | LLM-driven interaction for portfolio and news queries. |
+| **Information Agent** | Python (FastAPI) | Answers user queries about platform features and usage. |
+| **News Scrapers** | Python | Specialized scrapers for Yahoo Finance and TradingView. |
+| **Sentiment Analysis** | Python (FinBERT) | Processes news through FinBERT for financial sentiment. |
+| **Ticker/Event Identification** | Python | Identifies relevant stocks and financial events in text. |
+| **Qdrant Retrieval** | Python | Manages vector embeddings for efficient news retrieval. |
+| **Trading Service** | Python (Alpaca) | Interface for brokerage API integrations (Alpaca). |
+| **Notification Alert** | Python | Dispatches real-time alerts via various channels. |
+| **Metrics Tracker** | Python | Monitors portfolio performance and system health. |
+| **News Aggregator** | Python | Orchestrates and consolidates scraped news data. |
+| **Preprocessing** | Python | Cleans and prepares raw data for analysis. |
 
-## Infrastructure Layer
+## Intelligence & Infrastructure
+* **LLMs:** Powered by **Google Gemini**, **Groq**, and **Ollama**.
+* **Orchestration:** **LangGraph** and **LangChain** for multi-agent workflows.
+* **Databases:** **PostgreSQL** (Transactional), **MongoDB** (Documents), **Redis** (Caching), and **Qdrant** (Vector).
+* **Execution:** Hosted within a **Scalable EKS Cluster** across multiple Availability Zones.
 
 ### Networking & Security
 * **Edge Defense:** Traffic is routed via **Route 53** through **AWS WAF** (Edge Security) and **CloudFront** for API acceleration.
