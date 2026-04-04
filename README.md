@@ -31,6 +31,7 @@ Agent M leverages a multi-agent AI architecture to transform real-time market da
 - **NLP-Powered Analysis**: Advanced NLP (spaCy, NLTK, FinBERT) for event extraction and sentiment scoring.
 - **Credibility & Fact-Checking**: AI-driven validation of news claims and source reliability scoring.
 - **RAG-Powered Chatbot**: Natural language interface for querying news history and portfolio context using Retrieval-Augmented Generation.
+- **Application Knowledge Base**: Dedicated information agent to assist users with platform features and technical documentation.
 - **Autonomous Trading**: Synthesis of market signals with portfolio context to execute trades via APIs (e.g., Alpaca, IBKR).
 - **Interactive Dashboard**: Real-time sentiment indicators, P&L trends, and portfolio visualization.
 - **Proactive Notifications**: Critical alerts for breaking news affecting holdings and trade execution confirmations.
@@ -62,6 +63,7 @@ The backend is built using a highly decoupled microservices architecture:
 | **User Info**                   | Manages user profiles, preferences, and authentication.  | Go (Gin)           |
 | **Trading Agent M**             | Core agentic logic and decision-making engine.           | Python (LangGraph) |
 | **RAG Chatbot**                 | LLM-driven interaction for portfolio and news queries.   | Python (FastAPI)   |
+| **Information Agent**           | Answers user queries about platform features and usage.  | Python (FastAPI)   |
 | **News Scrapers**               | Specialized scrapers for Yahoo Finance and TradingView.  | Python             |
 | **Sentiment Analysis**          | Processes news through FinBERT for financial sentiment.  | Python             |
 | **Ticker/Event Identification** | Identifies relevant stocks and financial events in text. | Python             |
