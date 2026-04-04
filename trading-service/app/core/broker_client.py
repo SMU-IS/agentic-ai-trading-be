@@ -88,6 +88,17 @@ class AlpacaBrokerClient:
             secret_key=api_secret,
         )
 
+    # --------- Market clock ---------
+
+    def get_clock(self) -> Dict[str, Any]:
+        clock = self.client.get_clock()
+        return {
+            "is_open":    clock.is_open,
+            "timestamp":  clock.timestamp.isoformat(),
+            "next_open":  clock.next_open.isoformat(),
+            "next_close": clock.next_close.isoformat(),
+        }
+
     # --------- Account / positions / orders ---------
 
     def get_account(self) -> Dict[str, Any]:

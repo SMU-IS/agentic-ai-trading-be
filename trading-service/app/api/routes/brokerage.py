@@ -147,6 +147,15 @@ def health() -> Dict[str, str]:
     return {"status": "Alpacca service is healthy"}
 
 
+@router.get("/clock")
+def get_market_clock(broker: AlpacaBrokerClient = Depends(get_broker)):
+    """Returns Alpaca market clock — is_open, next_open, next_close."""
+    try:
+        return broker.get_clock()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ---------- Debugging / info ----------
 @router.get("/debug_feed")
 def debug_feed(broker: AlpacaBrokerClient = Depends(get_broker)):
