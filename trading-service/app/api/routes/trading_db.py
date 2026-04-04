@@ -140,27 +140,27 @@ async def get_trading_accounts_by_risk_profile(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/agent-settings", response_model=Dict[str, Any])
+@router.get("/agent-settings/{user_id}", response_model=Dict[str, Any])
 async def get_agent_settings(
-    x_user_id: str = Header(default="agent-A"),
+    user_id: str,
     client: MongoDBClient = Depends(lambda: mongo_client)
 ) -> Dict[str, Any]:
     try:
-        return client.get_agent_settings(x_user_id)
+        return client.get_agent_settings(user_id)
     except RuntimeError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/agent-settings", response_model=Dict[str, Any])
+@router.post("/agent-settings/{user_id}", response_model=Dict[str, Any])
 async def update_agent_settings(
+    user_id: str,
     req: UpdateAgentSettingsRequest,
-    x_user_id: str = Header(default="agent-A"),
     client: MongoDBClient = Depends(lambda: mongo_client)
 ) -> Dict[str, Any]:
     try:
-        return client.update_agent_settings(x_user_id, req.model_dump(exclude_none=True))
+        return client.update_agent_settings(user_id, req.model_dump(exclude_none=True))
     except RuntimeError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
