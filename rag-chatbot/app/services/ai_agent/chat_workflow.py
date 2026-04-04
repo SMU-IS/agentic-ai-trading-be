@@ -73,11 +73,8 @@ class ChatWorkflow:
                 )
                 return "clarify"
 
-            if decision.next_node == "trade_history" and not current_order:
-                logger.info(
-                    "trade_history selected but no order_id found, routing to clarify"
-                )
-                return "clarify"
+            if decision.next_node == "trade_history":
+                return "trade_history"
 
             return decision.next_node
 
@@ -94,10 +91,11 @@ class ChatWorkflow:
         bound_summarise_node = partial(summarise_node, llm=self.llm)
         bound_format_node = partial(format_response_node, llm=self.llm)
         bound_trade_history_list_node = partial(trade_history_list_node, llm=self.llm)
+        bound_trade_history_node = partial(trade_history_node, llm=self.llm)
 
         # 1. Add Nodes
         graph.add_node("extract_order_id", extract_order_id_node)
-        graph.add_node("trade_history", trade_history_node)
+        graph.add_node("trade_history", bound_trade_history_node)
         graph.add_node("trade_history_list", bound_trade_history_list_node)
         graph.add_node("general_news", general_news_node)
         graph.add_node("llm_chat", bound_chat_node)
