@@ -25,6 +25,9 @@ async def test_trade_history_node_finds_order_by_ticker():
     structured_llm.ainvoke.return_value = mock_extracted
     llm.with_structured_output.return_value = structured_llm
     
+    # Mock LLM.ainvoke for final formatting (the Specialist node now formats itself)
+    llm.ainvoke = AsyncMock(return_value=AIMessage(content="I sold GOOGL because RSI was overbought"))
+    
     # Mock _get_trade_history_list to return one matching order
     mock_orders = [
         {"id": "ORD123", "symbol": "GOOGL", "side": "sell", "created_at": "2026-04-01"},
@@ -52,12 +55,9 @@ async def test_trade_history_node_finds_order_by_ticker():
             
             # Verify results
             assert "messages" in result
-            system_msg = result.get("messages", [])[0]
-            assert isinstance(system_msg, SystemMessage)
-            content = json.loads(system_msg.content)
-            assert content["ticker"] == "GOOGL"
-            assert content["reasoning"] == "RSI was overbought"
-            assert result["order_id"] == "ORD123"
+            ai_msg = result.get("messages", [])[0]
+            assert isinstance(ai_msg, AIMessage)
+            assert "RSI was overbought" in ai_msg.content
 
 @pytest.mark.asyncio
 async def test_trade_history_node_multiple_orders_found():

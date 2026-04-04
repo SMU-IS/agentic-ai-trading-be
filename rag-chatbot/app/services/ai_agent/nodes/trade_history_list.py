@@ -59,8 +59,20 @@ async def trade_history_list_node(
             f"Trade history list retrieved for period: {date_range.after} to {date_range.until}"
         )
 
+        prompt = (
+            "You are a helpful trading assistant. "
+            "Take the raw list of trades and present them in a clear, formatted bulleted list. "
+            "Be concise."
+        )
+
+        response = await llm.ainvoke([
+            SystemMessage(content=prompt),
+            SystemMessage(content=json.dumps(result.model_dump())),
+            *state["messages"][-3:],
+        ], config={"tags": ["user_response"]})
+
         return {
-            "messages": [SystemMessage(content=json.dumps(result.dict()), id=msg_id)],
+            "messages": [response],
         }
 
     except Exception as e:
