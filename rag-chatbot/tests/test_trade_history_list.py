@@ -1,7 +1,7 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage
 
 from app.schemas.chat import TradeHistoryRange
 from app.schemas.router_decision import RouterDecision
@@ -40,6 +40,8 @@ async def test_route_to_trade_history_list(agent_graph):
 
 @pytest.mark.asyncio
 async def test_trade_history_list_node_extraction():
+    from langchain_core.messages import AIMessage
+
     from app.services.ai_agent.nodes.trade_history_list import trade_history_list_node
 
     llm = MagicMock()
@@ -49,9 +51,13 @@ async def test_trade_history_list_node_extraction():
         return_value=mock_trade_history_range
     )
 
+    # Mock final formatting LLM call
+    llm.ainvoke = AsyncMock(return_value=AIMessage(content="You have no orders."))
+
     # Mock tool call
     mock_tool_result = MagicMock()
-    mock_tool_result.dict.return_value = {"orders": []}
+    # Updated to model_dump() for Pydantic V2
+    mock_tool_result.model_dump.return_value = {"orders": []}
 
     with patch(
         "app.services.tools.trade_history_list.get_trade_history_list"
@@ -70,5 +76,5 @@ async def test_trade_history_list_node_extraction():
         config = {"metadata": {"user_id": "user123"}}
         result = await trade_history_list_node(state, config, llm)
         assert "messages" in result
-        assert isinstance(result["messages"][0], SystemMessage)
-        assert '"orders": []' in result["messages"][0].content
+        assert isinstance(result["messages"][0], AIMessage)
+        assert "no orders" in result["messages"][0].content.lower()

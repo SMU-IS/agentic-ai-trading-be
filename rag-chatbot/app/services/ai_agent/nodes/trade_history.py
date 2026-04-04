@@ -39,7 +39,7 @@ async def trade_history_node(
         return _request_order_id_clarification(msg_id)
 
     # 3. Retrieve and format trade details
-    return await _fetch_and_format_trade_details(order_id, config, msg_id)
+    return await _fetch_and_format_trade_details(order_id, config, msg_id, llm, state)
 
 
 async def _attempt_order_lookup(
@@ -167,16 +167,29 @@ def _request_order_id_clarification(msg_id: str) -> dict[str, Any]:
 
 
 async def _fetch_and_format_trade_details(
-    order_id: str, config: RunnableConfig, msg_id: str
+    order_id: str, config: RunnableConfig, msg_id: str, llm, state: AgentState
 ) -> dict[str, Any]:
-    """Calls the trade history tool and formats the final system response."""
+    """Calls the trade history tool and formats the final system response using LLM."""
     try:
         result = await get_trade_history_details.ainvoke(
             {"order_id": order_id}, config=config
         )
         logger.info(f"Trade history retrieved for order_id: {order_id}")
+        
+        prompt = (
+            "You are a helpful trading assistant. "
+            "Explain the following trade details and the reasoning behind them to the user. "
+            "Make it conversational and informative."
+        )
+
+        response = await llm.ainvoke([
+            SystemMessage(content=prompt),
+            SystemMessage(content=json.dumps(result.model_dump())),
+            *state["messages"][-3:],
+        ], config={"tags": ["user_response"]})
+
         return {
-            "messages": [SystemMessage(content=json.dumps(result.model_dump()), id=msg_id)],
+            "messages": [response],
             "order_id": order_id,
         }
     except Exception as e:

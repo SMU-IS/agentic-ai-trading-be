@@ -32,6 +32,9 @@ async def test_trade_history_node_resolves_ordinal_selection():
     structured_llm.ainvoke.return_value = mock_extracted
     llm.with_structured_output.return_value = structured_llm
 
+    # Mock LLM.ainvoke for final formatting
+    llm.ainvoke = AsyncMock(return_value=AIMessage(content="RSI was overbought"))
+
     # Mock get_trade_history_details to return order details for ORD123
     from app.schemas.order_details import OrderDetailsResponse
 
