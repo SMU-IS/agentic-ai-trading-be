@@ -1,7 +1,7 @@
-# Agent M: Agentic AI Trading Portfolio
+# Agent M - Agentic AI Trading Portfolio
 
 ## Project Mission
-Agent M is a dynamic, fully autonomous trading companion designed to navigate the complex digital financial landscape. It transforms real-time market sentiment into actionable trade decisions, allowing retail investors to trade with the speed and logic of institutional desks.
+Agent M is a dynamic, fully autonomous trading companion designed to navigate the complex digital financial landscape. It transforms real-time market sentiment into actionable trade decisions, allowing retail investors to trade with the speed and logic of institutional desks. It continuously monitors market news, runs sentiment analysis, and executes optimised buy and sell orders through your broker - all without you lifting a finger.
 
 ## Core Value Proposition
 * **Mitigate Bias:** Removes human emotional triggers (FOMO/Panic) from the execution layer.

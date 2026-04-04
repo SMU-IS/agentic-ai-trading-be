@@ -1,15 +1,18 @@
-# Agent M Feature Set
+# Agent M Features
 
-## Real-Time Data & Analysis
-* **NLP-Powered Extraction:** Uses spaCy and NLTK to identify specific financial events (e.g., "Earnings Beat", "CEO Exit").
-* **Credibility Scoring:** An AI-driven validation layer that scores news sources to prevent "fake news" trades.
-* **Sentiment Indicators:** Visualized real-time "heat" per stock ticker.
+## Core Intelligence
+* **Autonomous Trading:** Agent M continuously monitors market news, runs sentiment analysis, and executes optimized buy and sell orders through your broker—all without you lifting a finger.
+* **News Intelligence:** Agent M scrapes Reddit, Yahoo Finance, Bloomberg, and more—then scores each article for sentiment and credibility so only the most reliable signals drive decisions.
+* **Sentiment-Weighted Signals:** Processes real-time data to provide "top sentiment signals" for your specific watchlist.
 
-## Trading & Portfolio Management
-* **Autonomous Execution:** Direct integration with Alpaca APIs.
-* **Risk Guardrails:** User-defined limits on drawdown, position sizing, and daily loss.
-* **Interactive Dashboard:** High-fidelity visualization of P&L trends and current holdings.
+## Risk & Portfolio Management
+* **Risk Controls:** Configure max position sizes, drawdown limits, and sector caps. Agent M will never breach your limits—no matter how strong the signal.
+* **Smart Alerts:** Get notified the instant breaking news directly impacts a stock you hold—and receive trade confirmations the moment Agent M acts on your behalf.
+* **Automated Guardrails:** Users can set specific constraints, such as:
+    > "Set my max single-position size to 8% and pause trading if daily loss exceeds 3%."
 
-## Communication Layer
-* **Proactive Notifications:** Real-time alerts for breaking news affecting current portfolio positions.
-* **RAG-Driven Chat:** Users can ask, "Why did you buy NVDA this morning?" and receive a cited response.
+## Interactive Experience
+* **AskAI (RAG-Driven Chat):** Ask anything about your holdings, past trades, or market events. Agent M retrieves verified news and portfolio context to give you grounded, specific answers.
+* **Plain Language Explanations:** Your portfolio is explained in simple terms, answering questions like:
+    > "Why did Agent M sell my TSLA position last week?"
+* **Dynamic Responses:** High-fidelity visual feedback for every action, from trade executions to risk management updates.

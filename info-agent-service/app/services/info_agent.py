@@ -30,11 +30,11 @@ store: Dict[str, Dict[str, Any]] = {}
 
 
 class InfoAgentService:
-    def __init__(self):
+    def __init__(self, k=5):
         self.llm = self._get_llm()
         self.embeddings = self._get_embeddings()
         self.vector_store = self._get_vector_store()
-        self.retriever = self.vector_store.as_retriever(search_kwargs={"k": 3})
+        self.retriever = self.vector_store.as_retriever(search_kwargs={"k": k})
         self.chain = self._build_chain()
 
     def _get_llm(self):
@@ -79,6 +79,13 @@ class InfoAgentService:
         )
 
         def format_docs(docs):
+            logger.info(f"Retrieved {len(docs)} documents.")
+            for i, doc in enumerate(docs):
+                logger.debug(
+                    f"Doc {i + 1} source: {doc.metadata.get('source', 'unknown')}"
+                )
+                logger.info(f"Doc {i + 1} content preview: {doc.page_content[:200]}...")
+
             return "\n\n".join(doc.page_content for doc in docs)
 
         chain = (
