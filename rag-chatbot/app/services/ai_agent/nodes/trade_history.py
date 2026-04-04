@@ -92,6 +92,7 @@ async def _extract_search_criteria(state: AgentState, llm) -> TradeHistorySearch
     instructions = (
         f"You are a trade information extraction assistant. Today's date is {today} ({weekday}).\n"
         "1. Extract the stock ticker and date range from the user query (e.g., 'AAPL', 'last week').\n"
+        "   - If no date range is mentioned, default 'after' to 30 days ago and 'until' to today.\n"
         "2. If the user refers to a previous message (e.g., 'the first one', 'that buy order', 'ORD123'), "
         "resolve it to a concrete 'order_id' from the conversation history.\n"
         "Return the 'ticker', 'after', 'until' (YYYY-MM-DD), and 'order_id' if applicable."
