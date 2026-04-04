@@ -197,6 +197,38 @@ class MongoDBClient:
         doc = self.accounts.find_one({"user_id": user_id, "is_active": True}, {"alias_name": 1})
         return doc.get("alias_name") if doc else None
 
+    def update_agent_settings(self, user_id: str, updates: dict) -> Dict[str, Any]:
+        doc = self.accounts.find_one({"user_id": user_id, "is_active": True})
+        if not doc:
+            raise RuntimeError(f"No active account found for user_id={user_id}")
+
+        fields = {}
+        if "risk_profile" in updates and updates["risk_profile"] is not None:
+            fields["risk_profile"] = updates.pop("risk_profile")
+        for k, v in updates.items():
+            if v is not None:
+                fields[f"agent_setting.{k}"] = v
+
+        if fields:
+            self.accounts.update_one({"user_id": user_id}, {"$set": fields})
+        return self.get_agent_settings(user_id)
+
+    def get_agent_settings(self, user_id: str) -> Dict[str, Any]:
+        doc = self.accounts.find_one(
+            {"user_id": user_id, "is_active": True},
+            {"risk_profile": 1, "agent_setting": 1}
+        )
+        if not doc:
+            raise RuntimeError(f"No active account found for user_id={user_id}")
+        settings = doc.get("agent_setting") or {}
+        return {
+            "user_id":              user_id,
+            "risk_profile":         doc.get("risk_profile"),
+            "reddit_enabled":       settings.get("reddit_enabled", False),
+            "tradingview_enabled":  settings.get("tradingview_enabled", False),
+            "reddit_forums":        settings.get("reddit_forums", []),
+        }
+
     # For trading-agent to run trades
     def get_all_trading_accounts(self) -> list[dict]:
         docs = self.accounts.find({"is_active": True})
