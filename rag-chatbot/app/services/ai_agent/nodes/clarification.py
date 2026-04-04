@@ -20,9 +20,9 @@ def clarification_node(state: AgentState) -> Dict[str, Any]:
     clarification_prompt = (
         "I'm not fully sure about the details of your request. "
         "Could you please clarify:\n"
-        "- If you're asking about a specific order, please provide the Order ID (e.g., 'Order 123' or 'transaction: ABC')\n"
-        "- If you're asking about market news, please let me know which asset or sector you're interested in\n"
-        "- If you have a general question, just let me know!"
+        "∙ If you're asking about a specific order, please provide the Order ID (e.g., 'Order 123' or 'transaction: ABC')\n"
+        "∙ If you're asking about market news, please let me know which asset or sector you're interested in\n"
+        "∙ If you have a general question, just let me know!"
     )
 
     clarification_message = AIMessage(content=clarification_prompt)

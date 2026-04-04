@@ -43,3 +43,9 @@ class TradeHistory(BaseModel):
 class TradeHistoryRange(BaseModel):
     after: str = Field(..., description="Start date in YYYY-MM-DD format")
     until: str = Field(..., description="End date in YYYY-MM-DD format")
+
+
+class TradeHistorySearch(BaseModel):
+    ticker: str = Field(..., description="The stock ticker mentioned (e.g. 'AAPL', 'GOOGL')")
+    after: str = Field(..., description="Start date in YYYY-MM-DD format")
+    until: str = Field(..., description="End date in YYYY-MM-DD format")
