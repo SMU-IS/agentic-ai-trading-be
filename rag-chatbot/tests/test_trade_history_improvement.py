@@ -91,7 +91,7 @@ async def test_trade_history_node_multiple_orders_found():
         assert "messages" in result
         ai_msg = result["messages"][0]
         assert isinstance(ai_msg, AIMessage)
-        assert f"found {len(mock_orders)} orders for GOOGL" in ai_msg.content
+        assert f"found {len(mock_orders)} orders for **GOOGL**" in ai_msg.content
         assert "ORD123" in ai_msg.content
         assert "ORD789" in ai_msg.content
 
@@ -121,4 +121,4 @@ async def test_trade_history_node_no_orders_found():
         assert "messages" in result
         ai_msg = result["messages"][0]
         assert isinstance(ai_msg, AIMessage)
-        assert "couldn't find any trades for GOOGL" in ai_msg.content
+        assert "couldn't find any trades for **GOOGL**" in ai_msg.content

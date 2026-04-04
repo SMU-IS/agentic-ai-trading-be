@@ -143,7 +143,7 @@ def _format_no_orders_response(
     return {
         "messages": [
             AIMessage(
-                content=f"I couldn't find any trades for {criteria.ticker} "
+                content=f"I couldn't find any trades for **{criteria.ticker}** "
                 f"between {criteria.after} and {criteria.until}.",
                 id=msg_id,
             )
