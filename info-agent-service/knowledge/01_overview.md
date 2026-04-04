@@ -1,12 +1,12 @@
 # Agent M - Agentic AI Trading Portfolio
 
 ## Project Mission
-Agent M is a dynamic, fully autonomous trading companion designed to navigate the complex digital financial landscape. It transforms real-time market sentiment into actionable trade decisions, allowing retail investors to trade with the speed and logic of institutional desks. It continuously monitors market news, runs sentiment analysis, and executes optimised buy and sell orders through your broker - all without you lifting a finger.
+Agent M is a dynamic, fully autonomous trading companion designed to navigate the complex digital financial landscape. It transforms real-time market sentiment into actionable trade decisions, allowing retail investors to trade with the speed and logic of institutional desks. It continuously monitors market news, runs sentiment analysis, and executes optimised buy and sell orders through the **Alpaca Brokerage API** - all without you lifting a finger.
 
 ## Core Value Proposition
 * **Mitigate Bias:** Removes human emotional triggers (FOMO/Panic) from the execution layer.
 * **Information Synthesis:** Ingests vast amounts of unstructured data (Social Media, News) that a human cannot process in real-time.
-* **Autonomous Execution:** Moves from "Signal" to "Order" in milliseconds across major market sessions.
+* **Autonomous Execution:** Moves from "Signal" to "Order" in milliseconds across major market sessions via **Alpaca's low-latency infrastructure**.
 
 ## The "No Black Box" Promise
 Unlike traditional "Black Box" AI, Agent M prioritizes transparency. Every trade execution is backed by a visible reasoning chain, deterministic routing, and a clear audit trail of the sentiment signals that triggered the move.
