@@ -210,14 +210,16 @@ class TradingViewMindsStreamIngestion:
                         publish_to_stream(self.redis, self.STREAM_NAME, row)
 
                         sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
-                        self.redis.hset(
-                            f"{POST_TIMESTAMP}:{row['id']}",
-                            mapping={
-                                "scraped_timestamp": sg_now,
-                                "posted_timestamp":  row["timestamps"],
-                            }
-                        )
-                        self.redis.expire(f"{POST_TIMESTAMP}:{row['id']}", 345600)  # 4 days
+                        post_key = f"{POST_TIMESTAMP}:{row['id']}"
+                        if not self.redis.exists(post_key):
+                            self.redis.hset(
+                                post_key,
+                                mapping={
+                                    "scraped_timestamp": sg_now,
+                                    "posted_timestamp":  row["timestamps"],
+                                }
+                            )
+                            self.redis.expire(post_key, 345600)  # 4 days
 
                         logger.info(f"⏱️ Post {row['id']}: Timestamped at Scraping Stage")
 

@@ -8,7 +8,9 @@
 from diagrams import Cluster, Diagram, Edge
 from diagrams.aws.compute import EC2, EKS, AutoScaling, EC2ContainerRegistry
 from diagrams.aws.database import RDS
+from diagrams.aws.management import AmazonManagedGrafana, AmazonManagedPrometheus, Cloudwatch
 from diagrams.aws.mobile import Amplify
+from diagrams.aws.security import WAF
 from diagrams.aws.network import (
     ELB,
     VPC,
@@ -61,6 +63,7 @@ with Diagram(
     dns = Route53("Route 53\n(agentic-m.com)")
 
     with Cluster("Global Edge Services"):
+        waf = WAF("AWS WAF\n(Edge Security)")
         amplify = Amplify("AWS Amplify\n(Frontend Hosting)")
         cloudfront = CloudFront("CloudFront\n(API Acceleration)")
         ecr = EC2ContainerRegistry("ECR\n(Image Registry)")
@@ -77,7 +80,7 @@ with Diagram(
                 kong = Kong("Kong Ingress\n(HA Configuration)")
 
                 with Cluster("Auto-Scaling Node Fleet"):
-                    app_nodes = EC2("Scalable App Pods\n(HPA / Spot)")
+                    app_nodes = EC2("Scalable App Pods\n(HPA / On-Demand)")
                     karpenter = AutoScaling("Karpenter\n(Elastic Scaling)")
 
         with Cluster("Private Subnets", graph_attr=cluster_attr):
@@ -94,13 +97,18 @@ with Diagram(
 
     s3 = S3("S3 Buckets\n(Replicated Store)")
 
+    with Cluster("Observability & Monitoring", graph_attr=cluster_attr):
+        prometheus = AmazonManagedPrometheus("AWS Prometheus\n(Metrics Store)")
+        cloudwatch = Cloudwatch("CloudWatch\n(Logs & Alarms)")
+        grafana = AmazonManagedGrafana("AWS Grafana\n(Visualizations)")
+
     # --- Precise Route & Logical Connections ---
 
     # 1. Frontend Route
     dns >> Edge(color=COLOR_PRIMARY, label=" Main Domain") >> amplify
 
     # 2. API Route (The specified path)
-    dns >> Edge(color=COLOR_PRIMARY, label=" api. Subdomain") >> cloudfront
+    dns >> Edge(color=COLOR_PRIMARY, label=" api. Subdomain") >> waf >> cloudfront
     cloudfront >> Edge(color=COLOR_PRIMARY, label=" Primary Path") >> igw >> nlb
     nlb >> Edge(color=COLOR_PRIMARY) >> kong
     kong >> Edge(color=COLOR_ACCENT, label=" ClusterIP / Policy") >> app_nodes
@@ -132,3 +140,9 @@ with Diagram(
     # 6. Cluster Management
     karpenter >> Edge(color=COLOR_ACCENT, style="dashed") >> app_nodes
     ecr >> Edge(color=COLOR_SECONDARY, style="dotted", label=" Pull") >> app_nodes
+
+    # 7. Observability Flow
+    app_nodes >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Export Metrics") >> prometheus
+    app_nodes >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Export Logs") >> cloudwatch
+    prometheus >> Edge(color=COLOR_PRIMARY) >> grafana
+    cloudwatch >> Edge(color=COLOR_PRIMARY) >> grafana

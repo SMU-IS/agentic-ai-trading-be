@@ -16,6 +16,7 @@ dependencies = [
     "langgraph>=1.0.9",
     "langgraph-checkpoint-postgres>=3.0.5",
     "psycopg[binary,pool]>=3.3.3",
+    "PyJWT>=2.10.1",
     "pydantic-settings>=2.13.1",
     "python-dotenv>=1.2.1",
     "redisvl>=0.14.1",

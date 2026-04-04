@@ -1,0 +1,47 @@
+replicaCount: 1
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/info-agent-service
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 5015
+  targetPort: 5015
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 5015
+  failureThreshold: 30
+  periodSeconds: 10
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 5015
+  initialDelaySeconds: 10
+  periodSeconds: 20
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 5015
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+secretName: info-agent-service-secrets
+
+ingress:
+  enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/info-agent/healthcheck
+        pathType: Exact
+      - path: /api/v1/info-agent
+        pathType: Prefix
+  protected:
+    enabled: false
+    paths: []

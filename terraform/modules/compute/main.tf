@@ -45,7 +45,7 @@ module "eks" {
     system = {
       ami_type       = "AL2023_ARM_64_STANDARD"
       instance_types = ["t4g.small"]
-      capacity_type  = "SPOT"
+      capacity_type  = "ON_DEMAND"
 
       # Essential for public nodes to reach EKS control plane
       associate_public_ip_address = true

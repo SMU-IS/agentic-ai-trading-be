@@ -10,12 +10,10 @@ from app.utils.logger import setup_logging
 logger = setup_logging()
 
 
-async def general_news_node(state: AgentState) -> dict[str, Any]:
+async def general_news_node(state: AgentState, llm) -> dict[str, Any]:
     """
     Node to handle general news queries.
-
-    This node is executed when the user query does not contain an order_id.
-    It passes the query to the news tool, which performs retrieval.
+    Passes data through LLM for formatting before returning.
     """
     logger.info("Executing general_news_node")
 
@@ -25,12 +23,23 @@ async def general_news_node(state: AgentState) -> dict[str, Any]:
     try:
         from app.services.tools.general_news import get_general_news
 
-        # Call the tool with just the query. The tool now handles tickers optionally.
         result = await get_general_news.ainvoke({"query": query})
-        logger.info(f"General news retrieved {result}")
+        logger.info(f"General news retrieved for query: {query}")
+
+        prompt = (
+            "You are a helpful trading assistant. "
+            "Format the following news data into a concise, professional summary for the user. "
+            "Focus on the most relevant details."
+        )
+
+        response = await llm.ainvoke([
+            SystemMessage(content=prompt),
+            SystemMessage(content=json.dumps(result)),
+            *state["messages"][-3:],
+        ], config={"tags": ["user_response"]})
 
         return {
-            "messages": [SystemMessage(content=json.dumps(result), id=msg_id)],
+            "messages": [response],
         }
 
     except Exception as e:

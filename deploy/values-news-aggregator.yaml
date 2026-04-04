@@ -39,7 +39,22 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10
 
+podAnnotations:
+  # prometheus.io/scrape: "true"
+  # prometheus.io/port: "5008"
+  # prometheus.io/path: "/metrics"
+
 secretName: news-aggregator-service-secrets
 
 ingress:
-  enabled: false
+  enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/news-aggregator/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/news-aggregator
+        pathType: Prefix

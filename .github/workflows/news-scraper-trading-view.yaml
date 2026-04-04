@@ -17,6 +17,5 @@ jobs:
       cluster-name: "agentic-m-cluster"
       image-name: "news-scraper-tradingview"
       values-file: "deploy/values-trading-view.yaml"
-      ingress-path: "deploy/ingress.yaml"
       secret-key: "NEWS_SCRAPER_TRADING_VIEW_SECRETS"
     secrets: inherit

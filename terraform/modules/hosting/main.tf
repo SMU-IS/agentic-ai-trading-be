@@ -63,18 +63,18 @@ resource "aws_amplify_app" "trading_frontend" {
   }
 
   environment_variables = {
-    ENV                         = var.environment
-    NEXT_PUBLIC_BASE_API_URL    = var.base_api_url
-    NEXT_PUBLIC_CHAT_API_URL    = var.chat_api_url
-    NEXT_PUBLIC_FINNHUB_API_KEY = var.finnhub_api_key
-    NEXT_PUBLIC_LOGOKIT_API_KEY = var.logokit_api_key
-    NEXT_PUBLIC_NOTIF_API_URL   = var.notif_api_url
-    NEXT_PUBLIC_THREAD_API_URL  = var.thread_api_url
-    NEXT_PUBLIC_ENABLE_SIGN_UP  = var.enable_sign_up
-    NEXT_PUBLIC_SHOW_BANNER     = var.show_banner
-    NEXT_PUBLIC_BANNER_MESSAGE  = var.banner_message
+    ENV                                 = var.environment
+    NEXT_PUBLIC_BASE_API_URL            = var.base_api_url
+    NEXT_PUBLIC_CHAT_API_URL            = var.chat_api_url
+    NEXT_PUBLIC_FINNHUB_API_KEY         = var.finnhub_api_key
+    NEXT_PUBLIC_LOGOKIT_API_KEY         = var.logokit_api_key
+    NEXT_PUBLIC_NOTIF_API_URL           = var.notif_api_url
+    NEXT_PUBLIC_THREAD_API_URL          = var.thread_api_url
+    NEXT_PUBLIC_ENABLE_SIGN_UP          = var.enable_sign_up
+    NEXT_PUBLIC_SHOW_BANNER             = var.show_banner
+    NEXT_PUBLIC_BANNER_MESSAGE          = var.banner_message
+    NEXT_PUBLIC_SHOW_CLOUDWATCH_METRICS = var.show_cloudwatch_metrics
   }
-
 
   tags = {
     Environment = var.environment
@@ -108,6 +108,7 @@ resource "aws_cloudfront_distribution" "kong_api" {
   comment         = "CloudFront for Kong API ${var.environment}"
   price_class     = "PriceClass_100"
   aliases         = ["api.agentic-m.com"]
+  web_acl_id      = aws_wafv2_web_acl.api_waf.arn
 
   default_cache_behavior {
     allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]

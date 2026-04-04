@@ -44,7 +44,7 @@ CLEANUP_INTERVAL = 300
 TICKER_LIST_LOCK_KEY = "ticker_static_state_write_lock"
 TICKER_LIST_LOCK_TTL = 30
 
-POST_TIMESTAMP = "post_timestamps"
+POST_TIMESTAMP = env_config.post_timestamp_key
 
 # ==========================================================
 # RATE LIMITING
@@ -256,6 +256,12 @@ async def process_message(msg_id: str, data: dict, ticker_service: TickerIdentif
     if await is_duplicate(post_id):
         logger.info(f"⚠️ Duplicate post {post_id} — skipping")
         await redis_client.incr(DUP_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+    existing_end = await redis_client.hget(f"{POST_TIMESTAMP}:{post_id}", "ticker_timestamp")
+    if existing_end:
+        logger.info(f"⚠️ Post {post_id} already processed (ticker_timestamp exists) — finalizing only")
         await finalize_message(msg_id)
         return
 

@@ -34,4 +34,12 @@ readinessProbe:
 secretName: notification-alert-secrets
 
 ingress:
-  enabled: false
+  enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/notification
+        pathType: Prefix
+  protected:
+    enabled: false
+    paths: []

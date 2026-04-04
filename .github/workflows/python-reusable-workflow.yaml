@@ -15,10 +15,6 @@ on:
       values-file:
         required: true
         type: string
-      ingress-path:
-        required: false
-        type: string
-        default: "deploy/ingress.yaml"
       chart-path:
         required: false
         type: string
@@ -109,10 +105,4 @@ jobs:
           else
             echo "Deployment not found, checking pods..."
             kubectl get pods -l app.kubernetes.io/instance=${{ inputs.image-name }}
-          fi
-
-      - name: Apply Ingress
-        run: |
-          if [ -f "${{ inputs.ingress-path }}" ]; then
-            kubectl apply -f ${{ inputs.ingress-path }}
           fi

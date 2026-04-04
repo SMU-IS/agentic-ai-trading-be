@@ -17,6 +17,5 @@ jobs:
       cluster-name: "agentic-m-cluster"
       image-name: "preprocessing-service"
       values-file: "deploy/values-pre-processing.yaml"
-      ingress-path: "deploy/ingress.yaml"
       secret-key: "PREPROCESSING_SERVICE_SECRETS"
     secrets: inherit

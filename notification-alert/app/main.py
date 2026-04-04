@@ -40,6 +40,6 @@ async def stop_consumers():
     await asyncio.gather(*app.state.tasks, return_exceptions=True)
 
 
-@app.get("/healthcheck")
+@app.get("/")
 def health():
     return {"status": "Notification service is healthy"}
