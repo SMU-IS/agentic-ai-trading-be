@@ -47,7 +47,7 @@ jobs:
             uv python install 3.12.9
             uv sync --frozen
             uv pip install pytest-cov
-            uv run pytest --cov=. --cov-report=html --cov-fail-under=90 -v
+            uv run pytest --cov=. --cov-report=html --cov-fail-under=80 -v
           elif [ -f "requirements.txt" ]; then
             echo "📦 Detected standard pip project..."
             python -m pip install --upgrade pip

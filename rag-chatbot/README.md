@@ -8,7 +8,7 @@
   <img width="250" height="250" alt="Agent-M" src="https://github.com/user-attachments/assets/e5a2b7ac-b397-4db6-88b1-4b61101ab62b" />
 </p>
 
-<h1 align="center">🤖 Agentic M - Agentic AI Trading Portfolio Backend</h1>
+<h1 align="center">🤖 Agent M - Agentic AI Trading Portfolio Backend</h1>
 
 <p align="center">
   <strong>A dynamic, fully autonomous trading portfolio companion designed to navigate the complex digital financial landscape.</strong>
