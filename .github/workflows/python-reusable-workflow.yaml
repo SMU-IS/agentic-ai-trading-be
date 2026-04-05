@@ -1,4 +1,4 @@
-name: Python Reusable CI/CD Workflow
+name: Agent M FastAPI Reusable CI/CD Workflow
 
 on:
   workflow_call:
@@ -41,13 +41,33 @@ jobs:
       - name: Run Tests
         if: inputs.image-name == 'rag-chatbot'
         run: |
-          uv python install 3.12.9
-          uv sync --frozen
-          uvx ruff check .
-          if [ -d "tests" ]; then uv run pytest -v; fi
+          # Check if uv is the intended package manager
+          if [ -f "uv.lock" ]; then
+            echo "⚡ Detected uv project..."
+            uv python install 3.12.9
+            uv sync --frozen
+            uv pip install pytest-cov
+            uv run pytest --cov=. --cov-report=html --cov-fail-under=80 -v
+          elif [ -f "requirements.txt" ]; then
+            echo "📦 Detected standard pip project..."
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+            pip install pytest pytest-cov # Ensure test tools are installed
+            pytest --cov=. --cov-report=html --cov-fail-under=80 -v
+          else
+            echo "❓No recognized dependency file found. Running pytest with system python..."
+            pytest --cov=. --cov-report=html --cov-fail-under=80 -v
+          fi
+      - name: Upload Coverage Report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.image-name }}-coverage-report
+          path: ${{ inputs.working-directory }}/htmlcov/
 
   build:
     runs-on: ubuntu-latest
+    needs: [test]
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-qemu-action@v3
