@@ -114,7 +114,7 @@ jobs:
             -f ${{ inputs.values-file }} \
             --set image.tag=${{ github.sha }} \
             --wait --timeout 10m \
-            --rollback-on-failure \
+            --atomic \
             --cleanup-on-fail
 
       - name: Verify Rollout
