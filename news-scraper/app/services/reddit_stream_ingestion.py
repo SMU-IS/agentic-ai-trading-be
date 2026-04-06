@@ -75,7 +75,7 @@ class RedditStreamService:
                 "native_id": post.id,
                 "source": "reddit_stream",
                 "author": str(post.author),
-                "url": post.url,
+                "url": f"https://www.reddit.com{post.permalink}",
                 "timestamps": post_time.isoformat(),
                 "content":{
                     "title": post.title,
