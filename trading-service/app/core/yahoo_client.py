@@ -146,9 +146,29 @@ class YahooClient:
             }
         }
 
+    @staticmethod
+    def _session_progress_from_clock(clock: dict) -> float:
+        """
+        Returns fraction of NYSE session elapsed (0.0–1.0) using clock data.
+        Formula: elapsed = total_session - time_remaining
+        Total session is always 390 minutes (9:30–16:00 ET).
+        Returns 1.0 when market is closed so vol_ratio is never projected.
+        """
+        if not clock or not clock.get("is_open"):
+            return 1.0
+        try:
+            now   = datetime.fromisoformat(clock["timestamp"])
+            close = datetime.fromisoformat(clock["next_close"])
+            total_sec = 390 * 60
+            remaining = (close - now).total_seconds()
+            elapsed   = total_sec - remaining
+            return max(0.01, min(1.0, elapsed / total_sec))
+        except Exception:
+            return 1.0  # fallback: treat session as complete, use raw volume
+
     # Fundamentals
-    def process_trading_data(self, ticker: str) -> SignalResponse:
-        """Process 1w daily data for all trading signals."""
+    def process_trading_data(self, ticker: str, clock: dict = None) -> SignalResponse:
+        """Process 1y daily data for all trading signals."""
         data = yf.download(
             tickers=ticker,
             period="1y",  # Gets ~5-7 trading days
@@ -165,6 +185,18 @@ class YahooClient:
         signals_df = self.calculate_all_signals(df)
         latest_row = signals_df.iloc[-1]
         signals_dict = self._to_json_safe(latest_row)
+
+        # ── Vol ratio projection ──────────────────────────────────
+        # Today's volume is partial (intraday). Project to full-session
+        # equivalent so the vol gate reflects true participation rate.
+        pct_elapsed = self._session_progress_from_clock(clock)
+        print(f"Session progress: {pct_elapsed*100:.1f}% (clock: {clock})")
+        if 0 < pct_elapsed < 1.0:
+            raw_volume = signals_dict.get("Volume", 0)
+            vol_avg20  = signals_dict.get("vol_avg20", 0)
+            if raw_volume > 0 and vol_avg20 and vol_avg20 > 0:
+                projected = raw_volume / pct_elapsed        # full-session estimate
+                signals_dict["vol_ratio"] = round(projected / vol_avg20, 2)
 
         ticker = yf.Ticker(ticker).info
         market_cap = float(ticker.get('marketCap', 0))
@@ -258,8 +290,8 @@ class YahooClient:
         # RSI (14)
         df["RSI"] = self.calculate_rsi(df["Close"], 14)
 
-        # Volume (20-day avg)
-        df["vol_avg20"] = df["Volume"].rolling(20).mean()
+        # Volume (20-day avg of previous completed sessions — today excluded from its own baseline)
+        df["vol_avg20"] = df["Volume"].shift(1).rolling(20).mean()
         df["vol_ratio"] = df["Volume"] / df["vol_avg20"]
 
         # ATR (14)
