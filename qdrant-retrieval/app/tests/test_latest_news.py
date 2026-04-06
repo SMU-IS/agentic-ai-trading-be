@@ -17,7 +17,7 @@ def mock_qdrant_strategy():
 
 
 @pytest.mark.asyncio
-async def test_retrieve_latest_news_success(mock_qdrant_strategy):
+async def test_retrieve_news_success(mock_qdrant_strategy):
     service = QueryQdrantService()
 
     # Mock Qdrant query_points results
@@ -31,18 +31,20 @@ async def test_retrieve_latest_news_success(mock_qdrant_strategy):
     mock_response.points = [mock_point]
     service.vector_store.client.query_points.return_value = mock_response
 
-    result = await service.retrieve_latest_news(limit=50)
+    # Test with limit=50, offset=0
+    result = await service.retrieve_news(limit=50, offset=0, sort_by_recency=True)
 
-    assert len(result) == 1
-    assert result[0]["topic_id"] == "topic_latest"
-    assert result[0]["text_content"] == "Latest news content"
+    assert len(result["results"]) == 1
+    assert result["results"][0]["topic_id"] == "topic_latest"
+    assert result["next_offset"] is None  # Since only 1 result was returned for a limit of 50
 
     service.vector_store.client.query_points.assert_called_once()
     args, kwargs = service.vector_store.client.query_points.call_args
     assert kwargs["limit"] == 50
-    assert isinstance(kwargs["query"], models.OrderBy)
-    assert kwargs["query"].key == "metadata.timestamp"
-    assert kwargs["query"].direction == models.Direction.DESC
+    assert kwargs["offset"] == 0
+    assert isinstance(kwargs["query"], dict)
+    assert kwargs["query"]["order_by"]["key"] == "metadata.timestamp"
+    assert kwargs["query"]["order_by"]["direction"] == "desc"
 
 
 @pytest.mark.asyncio
@@ -53,6 +55,6 @@ async def test_retrieve_latest_news_error(mock_qdrant_strategy):
     )
 
     with pytest.raises(
-        RuntimeError, match="Failed to query latest documents: Qdrant query error"
+        RuntimeError, match="Failed to query news documents: Qdrant query error"
     ):
-        await service.retrieve_latest_news()
+        await service.retrieve_news()
