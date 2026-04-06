@@ -138,17 +138,6 @@ resource "time_sleep" "wait_for_lb_webhook" {
 # =============================================================================
 
 # Kong Declarative Configuration (DB-less mode)
-resource "kubernetes_config_map" "kong_config" {
-  metadata {
-    name      = "kong-declarative-config"
-    namespace = "default"
-  }
-
-  data = {
-    "kong.yml" = file("${path.module}/../kong.yml")
-  }
-}
-
 resource "kubernetes_config_map" "rds_certs" {
   metadata {
     name      = "rds-certs"
@@ -193,8 +182,7 @@ resource "helm_release" "kong" {
   depends_on = [
     module.compute,
     time_sleep.wait_for_cluster,
-    time_sleep.wait_for_lb_webhook,
-    kubernetes_config_map.kong_config
+    time_sleep.wait_for_lb_webhook
   ]
 
   values = [
@@ -206,11 +194,6 @@ resource "helm_release" "kong" {
 
     env:
       database: "off"
-      declarative_config: "/usr/local/kong/declarative/kong.yml"
-
-    extraConfigMaps:
-      - name: kong-declarative-config
-        mountPath: /usr/local/kong/declarative/
 
     status:
       enabled: true
