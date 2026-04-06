@@ -16,14 +16,14 @@ PROFILE_PARAMS: dict[RiskProfile, ProfileParams] = {
         max_entry_dev_pct = 0.01,   # kept for reference, entry no longer snapped
         min_rr            = 2.0,    # must achieve 2:1 — aligns with reasoning floor
         max_rr            = 3.0,    # cap at 3:1 — locks in realistic 2-5 day target
-        min_vol_ratio     = 0.6,    # require average volume participation
+        min_vol_ratio     = 0.0,    # vol checks removed
         sl_atr_mult       = 1.0,    # reference only — SL preserved from reasoning
         tp_atr_mult       = 2.0,    # reference only — TP bounded by RR cap
         max_sl_pct        = 0.05,   # SL hard cap 5% from entry
         max_tp_pct        = 0.12,   # TP hard cap 12% from entry
         max_risk_pct      = 0.01,   # max 1% of buying power at risk per trade
         max_position_pct  = 0.03,   # max 3% of buying power per position
-        low_vol_qty_mult  = 0.5,    # halve qty when volume is low
+        low_vol_qty_mult  = 1.0,    # no vol penalty
         min_risk_score    = 0.72,   # block trade if score below this
     ),
     RiskProfile.AGGRESSIVE: ProfileParams(
@@ -32,14 +32,14 @@ PROFILE_PARAMS: dict[RiskProfile, ProfileParams] = {
         max_entry_dev_pct = 0.02,   # kept for reference, entry no longer snapped
         min_rr            = 2.5,    # reach for higher reward to justify larger risk
         max_rr            = 4.0,    # cap at 4:1 — allows more stretch, still realistic
-        min_vol_ratio     = 0.0,    # no volume block — aggressive takes the trade
+        min_vol_ratio     = 0.0,    # vol checks removed
         sl_atr_mult       = 1.5,    # reference only — SL preserved from reasoning
         tp_atr_mult       = 2.5,    # reference only — TP bounded by RR cap
         max_sl_pct        = 0.10,   # SL hard cap 10% from entry
         max_tp_pct        = 0.25,   # TP hard cap 25% from entry
         max_risk_pct      = 0.03,   # max 3% of buying power at risk per trade
         max_position_pct  = 0.06,   # max 6% of buying power per position
-        low_vol_qty_mult  = 0.7,    # 30% qty reduction — aggressive holds full size
+        low_vol_qty_mult  = 1.0,    # no vol penalty
         min_risk_score    = 0.62,   # lower bar — accepts more trades with higher risk
     ),
 }
@@ -449,60 +449,49 @@ def risk_evaluation_metrics(
             "adjustment": f"${trade.stop_loss:.2f} → ${sl_cap_pct:.2f}",
         })
 
-    # ── TAKE PROFIT: REASONING TP IS THE CEILING ─────────────────
-    # Reasoning sets TP at a structural level. Risk layer never extends beyond it.
-    # Profile's min_rr is a gate: if reasoning's TP doesn't meet it, block the trade.
+    # ── TAKE PROFIT: ADJUST TO PROFILE RR ───────────────────────
+    # Start from reasoning TP. If it falls short of profile min_rr, extend it.
+    # If it exceeds profile max_rr, pull it in. Then enforce hard % cap.
     risk_per_share   = abs(entry - adjusted.stop_loss)
     reasoning_reward = abs(trade.take_profit - entry)
     reasoning_rr     = reasoning_reward / risk_per_share if risk_per_share > 0 else 0.0
 
-    if reasoning_rr >= p.min_rr:
-        # Reasoning TP meets profile requirement — use it as the ceiling
-        adjusted.take_profit = trade.take_profit
-        tp_method = f"Reasoning TP preserved (RR {reasoning_rr:.1f}:1 >= profile min {p.min_rr}:1)"
-    else:
-        # Reasoning TP does not meet profile RR. TP cannot be extended beyond
-        # reasoning's structural target — block rather than overshoot the level.
-        blocks.append(
-            f"[{profile.value.upper()}] Reasoning TP yields {reasoning_rr:.1f}:1 RR, "
-            f"below {profile.value} minimum {p.min_rr}:1. "
-            f"TP cannot be extended beyond reasoning's structural target "
-            f"${trade.take_profit:.2f}. Trade blocked."
-        )
-        return _blocked_assessment(adjusted, blocks)
+    tp_method = f"Reasoning TP ${trade.take_profit:.2f} (RR {reasoning_rr:.1f}:1)"
 
-    tp_method = f"Reasoning TP ${trade.take_profit:.2f} preserved as ceiling (RR {reasoning_rr:.1f}:1)"
+    # Target TP: clamp reasoning RR between min_rr and max_rr
+    target_rr = max(p.min_rr, min(reasoning_rr, p.max_rr))
+    adjusted.take_profit = round(
+        (entry - risk_per_share * target_rr) if is_sell
+        else (entry + risk_per_share * target_rr),
+        4
+    )
 
-    # ── RR CEILING: pull TP in if RR exceeds profile max ─────────
-    # Prevents unrealistically high RR from a tight SL against a far structural target.
-    # Keeps TP within a realistic 2-5 day swing range.
-    if reasoning_rr > p.max_rr:
-        tp_at_max_rr = (
-            entry - (risk_per_share * p.max_rr) if is_sell
-            else entry + (risk_per_share * p.max_rr)
-        )
-        adjusted.take_profit = round(tp_at_max_rr, 4)
-        tp_method = (
-            f"TP pulled in from ${trade.take_profit:.2f} to ${adjusted.take_profit:.2f} "
-            f"— RR {reasoning_rr:.1f}:1 exceeded {profile.value} max {p.max_rr}:1"
-        )
+    if reasoning_rr < p.min_rr:
         issues.append({
             "field":      "take_profit",
-            "reason":     f"RR {reasoning_rr:.1f}:1 exceeds {profile.value} max {p.max_rr}:1.",
-            "adjustment": tp_method,
+            "reason":     f"Reasoning RR {reasoning_rr:.1f}:1 below {profile.value} min {p.min_rr}:1.",
+            "adjustment": f"TP extended from ${trade.take_profit:.2f} to ${adjusted.take_profit:.2f}",
         })
+        tp_method = f"TP extended to meet min RR {p.min_rr}:1 → ${adjusted.take_profit:.2f}"
+    elif reasoning_rr > p.max_rr:
+        issues.append({
+            "field":      "take_profit",
+            "reason":     f"Reasoning RR {reasoning_rr:.1f}:1 exceeds {profile.value} max {p.max_rr}:1.",
+            "adjustment": f"TP pulled in from ${trade.take_profit:.2f} to ${adjusted.take_profit:.2f}",
+        })
+        tp_method = f"TP pulled in to cap RR at {p.max_rr}:1 → ${adjusted.take_profit:.2f}"
 
-    # Enforce hard TP % cap
+    # Enforce hard TP % cap — if cap is tighter than target, use cap
     tp_cap_pct = entry * (1 - p.max_tp_pct) if is_sell else entry * (1 + p.max_tp_pct)
     if is_sell and adjusted.take_profit < tp_cap_pct:
-        adjusted.take_profit = tp_cap_pct
+        adjusted.take_profit = round(tp_cap_pct, 4)
         issues.append({
             "field":      "take_profit",
             "reason":     f"TP exceeds hard cap {p.max_tp_pct:.0%} from entry.",
             "adjustment": f"Capped at ${tp_cap_pct:.2f}",
         })
     elif not is_sell and adjusted.take_profit > tp_cap_pct:
-        adjusted.take_profit = tp_cap_pct
+        adjusted.take_profit = round(tp_cap_pct, 4)
         issues.append({
             "field":      "take_profit",
             "reason":     f"TP exceeds hard cap {p.max_tp_pct:.0%} from entry.",
@@ -537,22 +526,6 @@ def risk_evaluation_metrics(
     qty_by_position = max_position_dollars / entry      if entry > 0          else 0
     qty             = min(qty_by_risk, qty_by_position)
 
-    # Volume liquidity penalty
-    if yahoo_data.vol_ratio < p.min_vol_ratio and p.low_vol_qty_mult < 1.0:
-        original_qty = qty
-        qty *= p.low_vol_qty_mult
-        issues.append({
-            "field":      "quantity",
-            "reason":     (
-                f"Volume {yahoo_data.vol_ratio:.1f}× below "
-                f"{p.min_vol_ratio:.1f}× threshold."
-            ),
-            "adjustment": (
-                f"{original_qty:.0f} → {qty:.0f} "
-                f"(×{p.low_vol_qty_mult} liquidity discount)"
-            ),
-        })
-
     qty = max(1.0, round(qty))
     adjusted.qty = qty
 
@@ -582,10 +555,6 @@ def risk_evaluation_metrics(
         score += 0.05   # overbought → SELL confirmed
     elif not is_sell and yahoo_data.rsi < 40:
         score += 0.05   # oversold → BUY confirmed
-
-    # Penalise low volume
-    if yahoo_data.vol_ratio < 0.5:
-        score -= 0.05
 
     # Near key level = higher risk
     near_resistance = abs(current_price - resistance) < atr

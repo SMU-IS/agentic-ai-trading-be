@@ -34,7 +34,42 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
     # return state
     ### END OF DEBUG
 
-    market_summary = state["market_data"].to_prompt() if state.get("market_data") else "No market data available."
+    if state.get("market_data"):
+        md = state["market_data"]
+        y  = md.yahoo
+        a  = md.alpaca
+
+        def _f(v, fmt=""):
+            if v is None: return "N/A"
+            try: return f"{v:{fmt}}"
+            except: return str(v)
+
+        rsi_label = "OVERSOLD" if y.rsi and y.rsi < 30 else "OVERBOUGHT" if y.rsi and y.rsi > 75 else "NEUTRAL"
+        spread_pct = (a.spread / a.latest_trade.price * 100) if a.latest_trade.price else 0.0
+
+        market_summary = f"""PRICE ACTION SUMMARY:
+- Current Price: ${_f(a.latest_trade.price, '.3f')} (live broker quote)
+- Candle: {y.candle_type.upper()} (body {_f(y.body_size, '.1f')}%, {_f(y.body_pct, '.0%')} of range)
+- Range: ${_f(y.low, '.3f')} - ${_f(y.high, '.3f')} | ATR14: ${_f(y.atr14, '.3f')}
+- 3D Range: ${_f(y.low_3d, '.3f')} - ${_f(y.high_3d, '.3f')}
+- Penny Stock: {'YES' if y.is_penny else 'NO'}
+
+TECHNICAL INDICATORS:
+- RSI: {_f(y.rsi, '.1f')} ({rsi_label})
+- SMA20: ${_f(y.sma20, '.3f')} | SMA50: ${_f(y.sma50, '.3f')} | SMA200: ${_f(y.sma200, '.3f')}
+- MACD: {_f(y.macd, '.4f')} | Signal: {_f(y.macd_signal, '.4f')} | Histogram: {_f(y.macd_histogram, '+.4f')}
+- BB Lower: ${_f(y.bb_lower, '.3f')} | BB Upper: ${_f(y.bb_upper, '.3f')} | BB Middle: ${_f(y.bb_middle, '.3f')} | Position: {_f(y.bb_position, '.0%')}
+
+MARKET STRUCTURE:
+- Support: ${_f(y.support, '.3f')} | Resistance: ${_f(y.resistance, '.3f')}
+- Data Period: {y.period_summary}
+
+LIVE BROKER QUOTE ({a.latest_trade.symbol}, {a.latest_trade.timestamp}):
+- Bid: ${_f(a.latest_quote.bid_price, '.2f')} x {a.latest_quote.bid_size} | Ask: ${_f(a.latest_quote.ask_price, '.2f')} x {a.latest_quote.ask_size}
+- Spread: ${_f(a.spread, '.3f')} ({spread_pct:.2f}%)"""
+    else:
+        market_summary = "No market data available."
+
     # 2. Prepare enriched input for LLM
     input_vars = {
         "ticker": signal_data.ticker,
@@ -47,12 +82,11 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
         "position_size_pct": signal_data.position_size_pct,
         "stop_loss_pct": signal_data.stop_loss_pct,
         "target_pct": signal_data.target_pct,
-
-        "market_summary": market_summary,
-
+        "market_summary": market_summary
     }
 
     print(f"   [🧠 Swing Trading Brain] Analyzing {signal_data.ticker}...")
+
     # Enhanced prompt for news-driven swing trading
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -73,130 +107,118 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
 
 
             STEP 2 - CLASSIFY TODAY'S PRICE ACTION:
-            Check open vs close vs high vs low vs 3-day range.
-            If close is near high and the range is large, price RECOVERED (flush-and-recover).
-            If close is near low and the range is large, price SOLD OFF (spike-and-dump).
-            A flush-and-recover means the news shock was already absorbed intraday. The market rejected the move. Do not fade a move that already reversed.
-            A spike-and-dump means sellers took control. Continuation or fade requires further confirmation.
+            Use the Candle type, Range (Low-High), and 3D Range from market data.
+            If the candle closed near its high and the range is large relative to ATR14, price RECOVERED (flush-and-recover).
+            If the candle closed near its low and the range is large relative to ATR14, price SOLD OFF (spike-and-dump).
+            A flush-and-recover means the news shock was absorbed intraday — the market rejected the move. Do not fade a move that already reversed.
+            A spike-and-dump means sellers took control. Fade requires further confirmation from RSI and key levels.
+            If the live Current Price (from broker) is more than 1% above the OHLCV High shown in Range, the stock has gapped above yesterday's candle. Treat this as a breakout in the direction of the gap. Do not classify it as neutral.
 
 
-            STEP 3 - VOLUME GATE:
-            vol_ratio is volume today vs average volume.
-            vol_ratio below 0.6: FAIL. Low participation. No institutional conviction. Any signal is LOW QUALITY. Bias toward HOLD.
-            vol_ratio 0.6 to 1.2: PASS. Average participation. Signal is valid. This is not a failure — count it as a confirmed alignment factor.
-            vol_ratio above 1.2: PASS (elevated). High quality signal. Institutional involvement likely. Counts as a strong alignment factor.
-            Do not assign continuation or fade bias without passing this gate.
-            Do not treat vol_ratio 0.6-1.2 as insufficient — it is a passing grade, not a borderline failure.
-
-
-            STEP 4 - APPLY INTERPRETATION RULES (only after Steps 1-3):
-            Strong catalyst + vol_ratio above 1.2 + breakout candle = continuation bias
-            Weak catalyst + vol_ratio above 1.2 + parabolic overextension above BB upper or resistance = fade bias
-            Flush-and-recover candle + price near support + vol_ratio above 0.6 = mean reversion BUY
-            Spike-and-dump candle + price near resistance + vol_ratio above 0.6 = mean reversion SHORT
-            Any conflicting signals across Steps 1-3 = HOLD. Do not force a trade.
+            STEP 3 - APPLY INTERPRETATION RULES (only after Steps 1-2):
+            Strong catalyst + breakout candle = continuation bias
+            Weak catalyst + parabolic overextension above BB upper or resistance = fade bias
+            Flush-and-recover candle + price near support = mean reversion BUY
+            Spike-and-dump candle + price near resistance = mean reversion SHORT
+            Any conflicting signals across Steps 1-2 = HOLD. Do not force a trade.
             RSI below 70 and price not at resistance = no overbought confirmation, do not short on thesis alone.
             RSI above 90 is an exceptional exhaustion signal. RSI above 90 + price at or near resistance + candle rejection = three alignment factors met on their own. Do not dismiss RSI above 90 as just one vote among equals.
-            MACD bearish but candle bullish = mixed signal = HOLD unless vol_ratio above 1.2 confirms one side.
+            MACD bearish but candle bullish = mixed signal = HOLD.
             MACD bullish but candle bearish at resistance with RSI above 90 = RSI and price structure override MACD. Count candle and RSI as aligned, not MACD.
 
 
-            STEP 5 - CONFLICT CHECK (run before finalizing):
-            If the proposed action is SELL but today's candle is bullish and closed near its high, that is a direct contradiction. Return HOLD.
-            If the proposed action is BUY but today's candle is bearish and closed near its low, that is a direct contradiction. Return HOLD.
-            Count each of the following as one alignment factor. You need at least 3 to proceed:
-            - Catalyst quality: a STRONG catalyst supports continuation. A WEAK catalyst on an overbought or overextended stock supports a fade. Either way, if the catalyst direction is consistent with your proposed action, count it.
-            - Volume confirmation: vol_ratio above 0.6 is a confirmed pass. Count it.
-            - Candle direction: if the candle type (bullish, bearish, neutral) is consistent with the proposed action, count it. A moderate bearish candle supports SELL. A moderate bullish candle supports BUY. A neutral candle counts as 0.
-            - Momentum (MACD): MACD histogram direction aligned with proposed action counts. Opposing MACD does not count but does not automatically block the trade unless it is the only signal.
-            - RSI extreme: RSI above 75 for a SELL or below 30 for a BUY counts. RSI above 90 or below 15 counts double.
-            - Proximity to key level: price within 2 percent of resistance (for SELL) or support (for BUY) counts.
-            Tally the count explicitly in your thesis. If fewer than 3 align, return HOLD.
+            STEP 4 - CONFLICT CHECK (run before finalizing):
+            Only return HOLD for a direct contradiction: SELL with a bullish candle closed near its high, or BUY with a bearish candle closed near its low.
+            Count each of the following as one alignment factor:
+            - Catalyst quality: a STRONG catalyst supports continuation. A WEAK catalyst on an overbought or overextended stock supports a fade. Count if direction matches proposed action.
+            - Candle direction: use the Candle field. Bullish candle supports BUY. Bearish candle supports SELL. Neutral = 0.
+            - Momentum (MACD): use the Histogram value. Positive histogram supports BUY. Negative supports SELL. Opposing does not block unless it is the only signal.
+            - RSI extreme: use the RSI value. Above 75 for SELL counts. Below 30 for BUY counts. Above 90 or below 15 counts double. The label (OVERBOUGHT/OVERSOLD/NEUTRAL) in the market data is for reference — always use the actual RSI number.
+            - Proximity to key level: use Support and Resistance from MARKET STRUCTURE. Current Price within 2% of Resistance for SELL counts. Within 2% of Support for BUY counts.
+            Tally the count in your thesis.
+            A STRONG catalyst alone (count = 1) is sufficient to proceed if there are no direct contradictions.
+            A WEAK catalyst requires at least 2 additional confirming factors (total >= 3) before proceeding.
+            Do not block a speculative trade on a STRONG catalyst simply because technicals are neutral.
 
 
             Return ONLY valid JSON. Never return invalid trades.
             """,
             ),
             (
-                "system",
-                """
-                Market data:
-                Alpaca is the brokerage data, Yahoo provides recent historicals.
-                You are to analyse and provide technical justifications based on this data.
-                Use this market data to find exact entry price, stop loss and take profit levels.
-                Ignore the upstream stop_loss_pct and target_pct percentages when setting price levels. Build entry, stop loss, and take profit purely from ATR and key levels in the data below.
-                Entry may be priced at an anticipated key level ahead of current price when conditions warrant. See entry pricing rules in the human message.
-                {market_summary}
-                """,
-            ),
-            (
                 "human",
-                """
-            Here are the inputs for {ticker}:
-            News Summary: {romour_summary}
-            Catalyst Credibility: {credibility} ({credibility_reason})
-            Initial Signal Direction: {trade_signal}
-            Signal Confidence: {confidence}
-            Signal Rationale: {trade_rationale}
+                """MARKET DATA FOR {ticker}:
+All fields below are present. Do not state that any field is unavailable or missing.
 
-            NOTE: The initial signal is a starting point only. It may be stale or anchored to wrong price levels.
-            Your job is to validate or override it using the market data and the rules above.
-            Do not inherit the signal's entry or exit levels. Derive your own from current price and ATR.
+Field reference:
+- Current Price: live broker quote (use this as current_stock_price)
+- Candle: yesterday's OHLCV candle type, body%, body-to-range ratio
+- Range: yesterday's Low - High, ATR14 (14-day average true range in dollars)
+- RSI: momentum oscillator 0-100. OVERBOUGHT label = above 75. OVERSOLD label = below 30.
+- SMA20 / SMA50 / SMA200: simple moving averages — use for trend direction and TP targets
+- MACD / Signal / Histogram: histogram positive = bullish momentum, negative = bearish
+- BB Lower / Upper / Position%: Bollinger Bands. Position 0% = at lower band, 100% = at upper band
+- Support / Resistance: structural levels from 30-day price history — use as SL/TP anchors
+- 3D Range: highest high and lowest low over last 3 days
+- Bid / Ask / Spread: live broker quote — confirms current tradeable price
+
+{market_summary}
+
+---
+
+Here are the inputs for {ticker}:
+News Summary: {romour_summary}
+Catalyst Credibility: {credibility} ({credibility_reason})
+Initial Signal Direction: {trade_signal}
+Signal Confidence: {confidence}
+Signal Rationale: {trade_rationale}
+
+NOTE: The initial signal is a starting point only. It may be stale or anchored to wrong price levels.
+Your job is to validate or override it using the market data and the rules above.
+Do not inherit the signal's entry or exit levels. Derive your own from current price and ATR.
 
 
             ANALYSIS REQUIRED:
             1. Catalyst classification (STRONG or WEAK, and why)
             2. Price action classification (flush-and-recover, spike-and-dump, or neutral)
-            3. Volume gate result (vol_ratio value and quality assessment)
-            4. Conflict check result (how many of the 5 alignment factors are confirmed)
-            5. Entry type determination (at-market or anticipatory — see rules below)
-            6. Entry/SL/TP levels built from key levels and ATR14
-            7. Position size (max qty 10)
-            8. Thesis explaining why the trade is valid or why it is a HOLD
+            3. Conflict check result (how many alignment factors are confirmed)
+            4. Entry type determination (at-market or anticipatory — see rules below)
+            5. Entry/SL/TP levels built from key levels and ATR14
+            6. Position size (max qty 10)
+            7. Thesis explaining why the trade is valid or why it is a HOLD
 
 
             ENTRY PRICING RULES:
-            There are two valid entry modes. Determine which applies before setting price levels.
+            Follow these steps in order. Do not skip steps or estimate — calculate each value explicitly.
 
-            AT-MARKET ENTRY:
-            Use when price is already at or within 0.5 ATR of a key level (support for BUY, resistance for SELL).
-            Set entry at or very near current stock price.
+            STEP A — IDENTIFY KEY LEVELS:
+            From MARKET STRUCTURE: Support, Resistance.
+            From TECHNICAL INDICATORS: BB Lower, BB Upper, BB Middle, SMA20.
+            ATR14 comes from the Range line. Use the exact dollar value shown.
 
-            ANTICIPATORY ENTRY (limit order):
-            Use when RSI is extreme (below 20 for BUY, above 80 for SELL) AND price has not yet reached the nearest key structural level.
-            The key level is where the flush or spike is expected to terminate: support zone, BB lower, or BB upper.
-            Set entry AT the anticipated key level, not at current price.
-            Anticipatory entry must be within 2 ATR of current price. If the key level is more than 2 ATR away, use AT-MARKET instead.
-            Anticipatory entry is a limit order — the trade only activates if price reaches that level.
+            STEP B — CHOOSE ENTRY MODE:
+            AT-MARKET: use when Current Price is within 0.5 x ATR14 of the key level (Support for BUY, Resistance for SELL). Entry = Current Price.
+            ANTICIPATORY: use when RSI is below 20 (BUY) or above 80 (SELL) AND Current Price has not yet reached the structural level. Entry = the key level itself. Must be within 2 x ATR14 of Current Price, otherwise use AT-MARKET.
 
-            For ANTICIPATORY BUY:
-            Entry = the higher of: structural support or BB lower (more conservative, less likely to overshoot)
-            Stop loss = the lower invalidation level (BB lower or structural support, whichever is lower) minus 0.25 ATR as buffer. Place SL through the level, not at it, to avoid stop hunts.
-            Take profit = SMA20 or BB middle minus 0.15 ATR as buffer. Stop short of the target level so the order fills before a potential reversal at that level.
+            STEP C — SET STOP LOSS:
+            For BUY: SL = invalidation level (lower of Support or BB Lower) minus 0.25 x ATR14.
+            For SELL: SL = invalidation level (higher of Resistance or BB Upper) plus 0.25 x ATR14.
+            SL sits beyond the structural level so normal volatility does not trigger it.
 
-            For ANTICIPATORY SELL:
-            Entry = the lower of: structural resistance or BB upper (more conservative)
-            Stop loss = the upper invalidation level (BB upper or structural resistance, whichever is higher) plus 0.25 ATR as buffer. Place SL through the level, not at it.
-            Take profit = SMA20 or BB middle plus 0.15 ATR as buffer. Stop short of the target so the order fills before a potential bounce at that level.
+            STEP D — SET TAKE PROFIT:
+            For BUY: TP = nearest target above entry (Resistance, SMA20, or BB Middle) minus 0.15 x ATR14.
+            For SELL: TP = nearest target below entry (Support, SMA20, or BB Middle) plus 0.15 x ATR14.
+            TP stops short of the target so the order fills before a natural reversal at that level.
 
-            For AT-MARKET BUY:
-            Stop loss = the nearest structural support or BB lower minus 0.25 ATR. Go through the level, not at it.
-            Take profit = the nearest resistance, SMA20, or BB middle minus 0.15 ATR. Stop short of the target.
-
-            For AT-MARKET SELL:
-            Stop loss = the nearest structural resistance or BB upper plus 0.25 ATR. Go through the level, not at it.
-            Take profit = the nearest support, SMA20, or BB middle plus 0.15 ATR. Stop short of the target.
-
-            SL AND TP PLACEMENT PRINCIPLE:
-            Stop loss must sit beyond the invalidation level by a small buffer so normal volatility and stop hunts do not prematurely close the trade.
-            Take profit must stop just short of the target level so the order fills before the level triggers a natural reversal or slowdown.
-            Never place SL or TP exactly on a round number, moving average, or support/resistance line. Always offset by the buffer amounts above.
+            STEP E — VERIFY RISK/REWARD:
+            Calculate: risk = abs(entry - stop_loss), reward = abs(take_profit - entry), RR = reward / risk.
+            Show this calculation explicitly in the thesis: "risk=$X, reward=$X, RR=X:1".
+            If RR is below 2.0, the trade does not have a valid setup — return HOLD.
+            Do not round or inflate the RR figure. Use the exact calculated value.
 
             UNIVERSAL RULES:
             For SELL: stop_loss must be above entry, take_profit must be below entry.
             For BUY: stop_loss must be below entry, take_profit must be above entry.
-            Minimum risk/reward ratio is 2:1. If you cannot achieve 2:1 with either entry mode, return HOLD.
-            State clearly in the thesis whether the entry is at-market or anticipatory, and which key level it targets.
+            State clearly in the thesis the entry mode (at-market or anticipatory) and the key level targeted.
             Do not add comments to the JSON output.
             Do not use special characters in thesis content.
 
@@ -209,7 +231,7 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
             "take_profit": float,
             "qty": float,
             "risk_reward": "X:1",
-            "thesis": "Catalyst type, price action type, volume gate result, alignment count, entry mode (at-market or anticipatory), key level targeted, and specific price levels that justify the trade or the HOLD decision",
+            "thesis": "Catalyst type, price action type, alignment count, entry mode (at-market or anticipatory), key level targeted, and specific price levels that justify the trade or the HOLD decision",
             "current_stock_price": float
             }}
 
@@ -256,13 +278,13 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
                     current_stock_price=0.0,
                     ticker=signal_data.ticker
                 )
-        
+
 
     if decision.action == TradeAction.HOLD:
         print("   [🧠 Brain Decision] No trade opportunity identified. Action: HOLD")
     else:
         print(f"   [🧠 Brain Decision] Trade opportunity identified! Action: {decision.action}, Entry: ${decision.entry_price:.2f}, SL: ${decision.stop_loss:.2f}, TP: ${decision.take_profit:.2f}")
-    
+
     print("   [✅ Brain Output] Formatted Trade Decision:")
     print("-" * 60)
     print(decision.to_prompt())
@@ -293,9 +315,7 @@ def parse_llm_json(response_content: str) -> dict:
     # Step 2: Strip comments & normalize
     raw_json = re.sub(r"//.*?(?=\n|$)", "", raw_json, flags=re.MULTILINE)  # // comments
     raw_json = re.sub(r"/\*.*?\*/", "", raw_json, flags=re.DOTALL)  # /* */ comments
-    raw_json = (
-        raw_json.replace("'", '"').replace("True", "true").replace("False", "false")
-    )  # Fix quotes/booleans
+    raw_json = raw_json.replace("True", "true").replace("False", "false")  # Fix booleans
 
     try:
         decision = json.loads(raw_json)
@@ -306,14 +326,15 @@ def parse_llm_json(response_content: str) -> dict:
         return fallback_decision()
 
 
-def fallback_decision() -> dict:
-    return {
-        "action": "HOLD",
-        "confidence": 0.0,
-        "entry_price": 0.0,
-        "stop_loss": 0.0,
-        "take_profit": 0.0,
-        "qty": 0.0,
-        "risk_reward": "0:1",
-        "thesis": "JSON parsing error - no trade",
-    }
+def fallback_decision() -> TradingDecision:
+    return TradingDecision(
+        action=TradeAction.HOLD,
+        confidence=0.0,
+        entry_price=0.0,
+        stop_loss=0.0,
+        take_profit=0.0,
+        qty=0.0,
+        risk_reward="0:1",
+        thesis="JSON parsing error - no trade",
+        current_stock_price=0.0,
+    )
