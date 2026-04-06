@@ -32,6 +32,9 @@ chroma_db/
 docker-compose.yml
 Dockerfile
 README.md
+main
+user-info
+vendor/
 
 # Env files
 .env
