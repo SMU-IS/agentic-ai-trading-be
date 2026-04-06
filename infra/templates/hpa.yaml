@@ -12,6 +12,10 @@ spec:
     name: {{ include "infra.fullname" . }}
   minReplicas: {{ .Values.autoscaling.minReplicas }}
   maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  # Ensure API HPA only targets API pods and ignores workers
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
   metrics:
     {{- if .Values.autoscaling.targetCPUUtilizationPercentage }}
     - type: Resource

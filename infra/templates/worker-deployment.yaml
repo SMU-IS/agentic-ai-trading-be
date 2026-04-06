@@ -7,7 +7,9 @@ metadata:
     {{- include "infra.labels" . | nindent 4 }}
     app.kubernetes.io/component: worker
 spec:
+  {{- if not (and .Values.worker.autoscaling .Values.worker.autoscaling.enabled) }}
   replicas: {{ .Values.worker.replicaCount | default 1 }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "infra.selectorLabels" . | nindent 6 }}

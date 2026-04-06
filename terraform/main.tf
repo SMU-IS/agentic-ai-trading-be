@@ -322,10 +322,10 @@ resource "kubectl_manifest" "karpenter_node_pool" {
             name  = "default"
           }
           requirements = [
-            { key = "karpenter.sh/capacity-type", operator = "In", values = ["on-demand"] },
+            { key = "karpenter.sh/capacity-type", operator = "In", values = ["spot", "on-demand"] },
             { key = "kubernetes.io/arch", operator = "In", values = ["arm64"] },
             { key = "karpenter.k8s.aws/instance-family", operator = "In", values = ["t4g", "c7g", "m7g", "r7g"] },
-            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["micro", "small", "medium", "large", "xlarge"] }
+            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["medium", "large", "xlarge"] }
           ]
         }
       }
