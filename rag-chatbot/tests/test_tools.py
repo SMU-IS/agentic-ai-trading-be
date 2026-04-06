@@ -36,6 +36,7 @@ async def test_get_general_news_only_query():
         sent_payload = kwargs.get("json", {})
         assert sent_payload["query"] == "What is the market doing?"
         assert sent_payload["tickers"] == []  # Should default to empty list
+        assert sent_payload["limit"] == 50
 
 
 @pytest.mark.asyncio

@@ -32,7 +32,7 @@ async def get_general_news(query: str, tickers: List[str] = None):
 
     payload = {
         "query": query,
-        "limit": 5,
+        "limit": 50,
         "tickers": tickers if tickers else [],
     }
 

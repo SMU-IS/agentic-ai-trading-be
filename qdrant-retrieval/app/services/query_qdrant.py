@@ -2,10 +2,10 @@ from typing import Any
 
 from qdrant_client import models
 
-from app.core.logger import logger
-from app.providers.vector.registry import get_vector_strategy
 from app.core.config import env_config
 from app.core.constant import StorageProviders
+from app.core.logger import logger
+from app.providers.vector.registry import get_vector_strategy
 from app.schemas.query_docs_payload import QueryDocsRequest
 
 
@@ -55,6 +55,40 @@ class QueryQdrantService:
         except Exception as e:
             logger.error(f"❌ Error retrieving all news: {str(e)}")
             raise RuntimeError(f"Failed to scroll documents: {e}")
+
+    async def retrieve_latest_news(self, limit: int = 50) -> list[dict[str, Any]]:
+        """
+        Retrieves the most recent news documents sorted by timestamp descending.
+        """
+        try:
+            # Use query_points with order_by for sorting by recency
+            response = self.vector_store.client.query_points(
+                collection_name="news_analysis_compiled",
+                limit=limit,
+                order_by=models.OrderBy(
+                    key="metadata.timestamp", direction=models.Direction.DESC
+                ),
+                with_payload=True,
+                with_vectors=False,
+            )
+
+            formatted_results = []
+            for point in response.points:
+                payload = point.payload
+                metadata = payload.get("metadata", {})
+                formatted_results.append(
+                    {
+                        "topic_id": metadata.get("topic_id"),
+                        "text_content": payload.get("page_content")
+                        or metadata.get("text_content"),
+                        "metadata": metadata,
+                    }
+                )
+            return formatted_results
+
+        except Exception as e:
+            logger.error(f"❌ Error retrieving latest news: {str(e)}")
+            raise RuntimeError(f"Failed to query latest documents: {e}")
 
     async def retrieve_ticker_insights(
         self, payload: QueryDocsRequest

@@ -21,26 +21,56 @@ class VectorisationService:
         self.vector_store = self.strategy.get_vector_store()
 
     async def _setup_indexing(
-        self, field_name: str, collection_name="news_analysis_compiled"
+        self,
+        field_name: str,
+        field_schema: models.PayloadSchemaType = models.PayloadSchemaType.KEYWORD,
+        collection_name: str = "news_analysis_compiled",
     ):
+        """
+        Ensures a payload index exists for the specified field with the given schema.
+        If the index exists but with a different schema, it will be recreated.
+        """
         try:
             client = self.vector_store.client
+            collection_info = client.get_collection(collection_name)
+            current_schema = collection_info.payload_schema.get(field_name)
+
+            if current_schema:
+                # current_schema.data_type should match field_schema
+                if current_schema.data_type == field_schema:
+                    logger.debug(f"✅ Index on {field_name} already exists with correct schema: {field_schema}")
+                    return
+                else:
+                    logger.info(f"🔄 Index on {field_name} has schema {current_schema.data_type}, expected {field_schema}. Recreating...")
+                    client.delete_payload_index(collection_name, field_name)
+
             client.create_payload_index(
                 collection_name=collection_name,
                 field_name=field_name,
-                field_schema=models.PayloadSchemaType.KEYWORD,
+                field_schema=field_schema,
             )
+            logger.info(f"✅ Created {field_schema} index on {field_name}")
         except Exception as e:
-            logger.warning(f"Index on {field_name} may already exist: {e}")
+            logger.warning(f"Could not manage index on {field_name}: {e}")
 
     async def ensure_indexes(self):
         """
         Idempotent: Checks and creates necessary indexes for efficient querying.
         """
-
+        logger.info("Ensuring Qdrant payload indexes...")
+        
+        # Keyword indexes for filtering
         await self._setup_indexing(field_name="metadata.tickers")
         await self._setup_indexing(field_name="metadata.tickers_metadata[].ticker")
         await self._setup_indexing(field_name="metadata.tickers_metadata[].event_type")
+
+        # Datetime index for sorting by recency
+        await self._setup_indexing(
+            field_name="metadata.timestamp",
+            field_schema=models.PayloadSchemaType.DATETIME,
+        )
+        
+        logger.info("✅ Qdrant indexing check complete.")
 
     async def get_sanitised_news_payload(self, processed_source: SourcePayload):
         fields = processed_source.fields
