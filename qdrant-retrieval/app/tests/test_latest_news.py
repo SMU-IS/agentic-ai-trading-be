@@ -40,9 +40,9 @@ async def test_retrieve_latest_news_success(mock_qdrant_strategy):
     service.vector_store.client.query_points.assert_called_once()
     args, kwargs = service.vector_store.client.query_points.call_args
     assert kwargs["limit"] == 50
-    assert isinstance(kwargs["order_by"], models.OrderBy)
-    assert kwargs["order_by"].key == "metadata.timestamp"
-    assert kwargs["order_by"].direction == models.Direction.DESC
+    assert isinstance(kwargs["query"], models.OrderBy)
+    assert kwargs["query"].key == "metadata.timestamp"
+    assert kwargs["query"].direction == models.Direction.DESC
 
 
 @pytest.mark.asyncio

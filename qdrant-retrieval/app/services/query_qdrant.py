@@ -61,11 +61,11 @@ class QueryQdrantService:
         Retrieves the most recent news documents sorted by timestamp descending.
         """
         try:
-            # Use query_points with order_by for sorting by recency
+            # Use query_points with OrderBy as the query parameter for sorting by recency
             response = self.vector_store.client.query_points(
                 collection_name="news_analysis_compiled",
                 limit=limit,
-                order_by=models.OrderBy(
+                query=models.OrderBy(
                     key="metadata.timestamp", direction=models.Direction.DESC
                 ),
                 with_payload=True,
