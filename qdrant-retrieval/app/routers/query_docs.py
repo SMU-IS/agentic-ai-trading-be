@@ -10,14 +10,16 @@ router = APIRouter(tags=["Query Documents"])
 # @router.get(APIPath.NEWS)
 # async def get_all_news(
 #     limit: int = Query(20, ge=1, le=100),
-#     offset: int = Query(0, ge=0, description="The number of documents to skip"),
+#     offset: str = Query(None, description="The offset ID for pagination"),
 #     service: QueryQdrantService = Depends(QueryQdrantService),
 # ):
 #     """
 #     Endpoint to fetch all news documents with pagination.
 #     """
 #     try:
-#         data = await service.retrieve_news(limit=limit, offset=offset, sort_by_recency=False)
+#         data = await service.retrieve_news(
+#             limit=limit, offset=offset, sort_by_recency=False
+#         )
 #         return {
 #             "status": "success",
 #             "count": len(data["results"]),
@@ -31,7 +33,7 @@ router = APIRouter(tags=["Query Documents"])
 @router.get(APIPath.NEWS)
 async def get_latest_news(
     limit: int = Query(50, ge=1, le=1000),
-    offset: int = Query(0, ge=0, description="The number of documents to skip"),
+    offset: str = Query(None, description="The offset ID for pagination"),
     service: QueryQdrantService = Depends(QueryQdrantService),
 ):
     """

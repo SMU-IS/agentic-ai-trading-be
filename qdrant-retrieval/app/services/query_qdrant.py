@@ -17,41 +17,38 @@ class QueryQdrantService:
         self.vector_store = self.strategy.get_vector_store()
 
     async def retrieve_news(
-        self, limit: int = 20, offset: int = 0, sort_by_recency: bool = True
+        self, limit: int = 20, offset: Any = None, sort_by_recency: bool = True
     ) -> dict[str, Any]:
         """
         Retrieves news documents from the collection with optional sorting and pagination.
 
         Args:
             limit (int): Number of documents to return.
-            offset (int): Number of documents to skip.
+            offset (Any): The offset from which to start scrolling.
             sort_by_recency (bool): Whether to sort by timestamp descending.
 
         Returns:
             dict: A dictionary containing the list of documents and the next offset.
         """
         try:
-            query = None
+            order_by = None
             if sort_by_recency:
-                query = {
-                    "order_by": {
-                        "key": "metadata.timestamp",
-                        "direction": "desc"
-                    }
-                }
+                order_by = models.OrderBy(
+                    key="metadata.timestamp", direction=models.Direction.DESC
+                )
 
-            response = self.vector_store.client.query_points(
+            records, next_offset = self.vector_store.client.scroll(
                 collection_name="news_analysis_compiled",
                 limit=limit,
                 offset=offset,
-                query=query,
+                order_by=order_by,
                 with_payload=True,
                 with_vectors=False,
             )
 
             formatted_results = []
-            for point in response.points:
-                payload = point.payload
+            for record in records:
+                payload = record.payload
                 metadata = payload.get("metadata", {})
                 formatted_results.append(
                     {
@@ -62,21 +59,18 @@ class QueryQdrantService:
                     }
                 )
 
-            # For numeric pagination, next offset is current + limit if we reached the limit
-            next_offset = offset + limit if len(formatted_results) == limit else None
-
             return {"results": formatted_results, "next_offset": next_offset}
 
         except Exception as e:
             logger.error(f"❌ Error retrieving news: {str(e)}")
-            raise RuntimeError(f"Failed to query news documents: {e}")
+            raise RuntimeError(f"Failed to scroll news documents: {e}")
 
-    async def retrieve_all_news(self, limit: int = 20, offset: int = 0) -> dict[str, Any]:
+    async def retrieve_all_news(self, limit: int = 20, offset: Any = None) -> dict[str, Any]:
         """Legacy wrapper for retrieve_news without sorting."""
         return await self.retrieve_news(limit=limit, offset=offset, sort_by_recency=False)
 
     async def retrieve_latest_news(
-        self, limit: int = 50, offset: int = 0
+        self, limit: int = 50, offset: Any = None
     ) -> list[dict[str, Any]]:
         """Legacy wrapper for retrieve_news with sorting."""
         data = await self.retrieve_news(limit=limit, offset=offset, sort_by_recency=True)
