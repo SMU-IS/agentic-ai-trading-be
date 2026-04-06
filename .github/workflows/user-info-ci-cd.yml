@@ -63,6 +63,8 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/user-info:${{ github.sha }}
+          build-args: |
+            TARGETARCH=arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
