@@ -51,7 +51,7 @@ async def get_general_news(
                     params["end_date"] = end_date
 
                 response = await client.get(base_url, params=params)
-            
+
             # 2. Use /query (POST) for ticker-specific or topic-specific searches
             else:
                 payload = {
@@ -70,17 +70,35 @@ async def get_general_news(
 
             response.raise_for_status()
             data = response.json()
-            results = data.get("results", [])
+            results = (
+                data.get("data", [])
+                if isinstance(data, dict)
+                else (data if isinstance(data, list) else [])
+            )
 
             if not results:
                 context = "No relevant news found for the request."
             else:
-                context = "\n\n".join(
-                    [
-                        f"Topic ID: {d.get('topic_id', 'N/A')}\nContent: {d.get('text_content', 'No content available')}"
-                        for d in results
-                    ]
-                )
+                formatted_news = []
+                for d in results:
+                    meta = d.get("metadata", {})
+                    headline = meta.get("headline") or d.get("headline", "News Update")
+                    content = (
+                        d.get("text_content")
+                        or meta.get("text_content")
+                        or "No content available"
+                    )
+                    source = meta.get("source_domain", "Unknown source")
+                    timestamp = meta.get("timestamp", "N/A")
+
+                    formatted_news.append(
+                        f"Headline: {headline}\n"
+                        f"Source: {source} ({timestamp})\n"
+                        f"Content: {content}"
+                    )
+
+                context = "\n\n---\n\n".join(formatted_news)
+
             return {"context": context, "results": results}
 
     except httpx.HTTPStatusError as exc:

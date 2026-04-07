@@ -13,8 +13,13 @@ from app.services.tools.trade_history import (
 async def test_get_general_news_general_market_uses_get():
     """Test that get_general_news uses GET /news when is_general_market is True."""
     mock_response = {
-        "results": [
-            {"topic_id": "topic_news", "text_content": "General market news"},
+        "status": "success",
+        "data": [
+            {
+                "topic_id": "topic_news", 
+                "text_content": "General market news content",
+                "metadata": {"headline": "Market Up", "source_domain": "bloomberg.com", "timestamp": "2026-04-07"}
+            },
         ]
     }
 
@@ -34,7 +39,8 @@ async def test_get_general_news_general_market_uses_get():
             "end_date": "2026-04-07T23:59:59"
         })
 
-        assert "General market" in result["context"]
+        assert "Market Up" in result["context"]
+        assert "bloomberg.com" in result["context"]
         
         # Verify the GET request was made
         args, kwargs = mock_client.get.call_args
@@ -48,8 +54,13 @@ async def test_get_general_news_general_market_uses_get():
 async def test_get_general_news_specific_topic_uses_post():
     """Test that get_general_news uses POST /query when is_general_market is False."""
     mock_response = {
-        "results": [
-            {"topic_id": "topic_google", "text_content": "Google news"},
+        "status": "success",
+        "data": [
+            {
+                "topic_id": "topic_google", 
+                "text_content": "Google news content",
+                "metadata": {"headline": "Google AI", "source_domain": "google.com"}
+            },
         ]
     }
 
@@ -70,7 +81,7 @@ async def test_get_general_news_specific_topic_uses_post():
             "end_date": "2026-04-07T23:59:59"
         })
 
-        assert "Google news" in result["context"]
+        assert "Google AI" in result["context"]
         
         # Verify the POST request was made
         args, kwargs = mock_client.post.call_args
@@ -83,8 +94,8 @@ async def test_get_general_news_specific_topic_uses_post():
 async def test_get_general_news_with_ticker_uses_post():
     """Test that get_general_news uses POST /query when tickers are provided."""
     mock_response = {
-        "results": [
-            {"topic_id": "topic_aapl", "text_content": "AAPL news"},
+        "data": [
+            {"topic_id": "topic_aapl", "text_content": "AAPL news", "metadata": {"headline": "Apple News"}}
         ]
     }
 
@@ -103,7 +114,7 @@ async def test_get_general_news_with_ticker_uses_post():
             "start_date": "2026-04-01T00:00:00"
         })
 
-        assert "AAPL news" in result["context"]
+        assert "Apple News" in result["context"]
         
         # Verify the POST request was made
         args, kwargs = mock_client.post.call_args
@@ -113,9 +124,9 @@ async def test_get_general_news_with_ticker_uses_post():
 
 
 @pytest.mark.asyncio
-async def test_get_general_news_with_none_tickers():
-    """Test that get_general_news handles tickers=None by defaulting to []."""
-    mock_response = {"results": []}
+async def test_get_general_news_with_missing_tickers():
+    """Test that get_general_news handles missing tickers by defaulting to []."""
+    mock_response = {"data": []}
 
     with patch("app.services.tools.general_news.httpx.AsyncClient") as mock_client_class:
         mock_client = mock_client_class.return_value.__aenter__.return_value
@@ -125,21 +136,19 @@ async def test_get_general_news_with_none_tickers():
         mock_client.post.return_value.json.return_value = mock_response
         mock_client.post.return_value.raise_for_status = MagicMock()
 
-        # Explicitly pass None for tickers - now allowed by schema
+        # Omit tickers from input, is_general_market defaults to False -> POST /query
         await get_general_news.ainvoke({
             "query": "some news",
-            "tickers": None,
-            "is_general_market": False
+            "start_date": "2026-04-07T00:00:00"
         })
         
-        # Verify it used POST /query (default for is_general_market=False)
         args, kwargs = mock_client.post.call_args
         assert "/query" in args[0]
 
 
 @pytest.mark.asyncio
 async def test_get_general_news_no_results():
-    mock_response = {"results": []}
+    mock_response = {"data": []}
 
     with patch("app.services.tools.general_news.httpx.AsyncClient") as mock_client_class:
         mock_client = mock_client_class.return_value.__aenter__.return_value
