@@ -57,11 +57,7 @@ async def get_general_news(
                 payload = {
                     "query": query,
                     "limit": 50,
-<<<<<<< HEAD
                     "tickers": tickers if tickers is not None else [],
-=======
-                    "tickers": tickers if tickers else [],
->>>>>>> 38226ca541298a4c55a718e7b29d647a2c710bfa
                 }
                 if start_date:
                     payload["start_date"] = start_date
