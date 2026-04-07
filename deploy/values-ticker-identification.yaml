@@ -3,7 +3,7 @@ replicaCount: 2
 resources:
   requests:
     cpu: "250m"
-    memory: "512Mi"
+    memory: "1Gi"
   limits:
     cpu: "500m"
     memory: "1Gi"
@@ -67,4 +67,3 @@ ingress:
     paths:
       - path: /api/v1/ticker-identification
         pathType: Prefix
-
