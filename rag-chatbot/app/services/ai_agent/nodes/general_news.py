@@ -32,9 +32,12 @@ async def general_news_node(state: AgentState, llm) -> dict[str, Any]:
         extraction_prompt = (
             f"Current date and time is {current_date_iso}. "
             "Extract search parameters for market news from the user query. "
-            "If the user mentions 'today', set start_date and end_date for today. "
-            "If the user mentions 'yesterday', set start_date and end_date for yesterday. "
-            "If the user does NOT mention a date or time period, leave start_date and end_date as null. "
+            "Instructions:\n"
+            "1. If the user mentions 'today', set start_date and end_date for today.\n"
+            "2. If the user mentions 'yesterday', set start_date and end_date for yesterday.\n"
+            "3. If the user mentions specific companies or topics (e.g., 'Apple', 'interest rates'), set 'is_general_market' to False.\n"
+            "4. If the user is asking about the overall/general market sentiment, set 'is_general_market' to True.\n"
+            "5. If the user does NOT mention a date or time period, leave start_date and end_date as null.\n"
             "Dates should be in ISO format (YYYY-MM-DDTHH:MM:SS)."
         )
 
@@ -58,13 +61,15 @@ async def general_news_node(state: AgentState, llm) -> dict[str, Any]:
             )
 
         logger.info(
-            f"Extracted parameters: query='{extracted_params.query}', tickers={extracted_params.tickers}, start_date='{start_date}', end_date='{end_date}'"
+            f"Extracted parameters: query='{extracted_params.query}', tickers={extracted_params.tickers}, "
+            f"is_general_market={extracted_params.is_general_market}, start_date='{start_date}', end_date='{end_date}'"
         )
 
         # 3. Fetch news using the parameters
         result = await get_general_news.ainvoke({
             "query": extracted_params.query,
             "tickers": extracted_params.tickers if extracted_params.tickers is not None else [],
+            "is_general_market": extracted_params.is_general_market,
             "start_date": start_date,
             "end_date": end_date,
         })

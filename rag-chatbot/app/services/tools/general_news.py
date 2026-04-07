@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import httpx
 from langchain_core.tools import tool
@@ -10,9 +10,10 @@ from app.schemas.chat import GeneralNews
 @tool(args_schema=GeneralNews)
 async def get_general_news(
     query: str,
-    tickers: List[str] = [],
-    start_date: str = None,
-    end_date: str = None,
+    tickers: Optional[List[str]] = [],
+    is_general_market: bool = False,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
 ):
     """
     Search and analyze real-time financial news, market sentiment, and sector trends.
@@ -27,6 +28,7 @@ async def get_general_news(
     Args:
         query (str): The search phrase. Focus on technical events (e.g., "earnings beat," "fed rate hike").
         tickers (List[str], optional): Stock symbols in uppercase (e.g. ["NVDA", "PLTR"]).
+        is_general_market (bool): True if asking about overall market news, False otherwise.
         start_date (str, optional): Start date for filtering news (e.g. '2026-04-01T00:00:00').
         end_date (str, optional): End date for filtering news (e.g. '2026-04-07T23:59:59').
 
@@ -39,8 +41,8 @@ async def get_general_news(
 
     try:
         async with httpx.AsyncClient() as client:
-            # 1. Use /news (GET) for general market queries (no specific tickers)
-            if not tickers:
+            # 1. Use /news (GET) only if explicitly flagged as a general market query
+            if is_general_market:
                 base_url = env_config.qdrant_retrieval_query_url.replace(
                     "/query", "/news"
                 )
@@ -50,12 +52,12 @@ async def get_general_news(
 
                 response = await client.get(base_url, params=params)
             
-            # 2. Use /query (POST) for ticker-specific or topic-specific searches (when tickers are present)
+            # 2. Use /query (POST) for ticker-specific or topic-specific searches
             else:
                 payload = {
                     "query": query,
                     "limit": 50,
-                    "tickers": tickers if tickers else [],
+                    "tickers": tickers if tickers is not None else [],
                 }
                 if start_date:
                     payload["start_date"] = start_date
