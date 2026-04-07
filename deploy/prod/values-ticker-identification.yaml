@@ -75,4 +75,3 @@ ingress:
     paths:
       - path: /api/v1/ticker-identification
         pathType: Prefix
-
