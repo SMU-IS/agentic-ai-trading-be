@@ -31,6 +31,7 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -93,18 +94,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-    deploy:
-      runs-on: ubuntu-latest
-      needs: [test, build]
-      # Trigger deployment on:
-      # 1. Any push to master (merges) - will wait for approval
-      # 2. Any push to dev (merges) - will deploy immediately
-      if: github.ref_name == 'master' || github.ref_name == 'dev'
-      environment:
-        name: ${{ github.ref_name == 'master' && 'production' || 'development' }}
-  
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test, build]
+    if: github.ref_name == 'master' || github.ref_name == 'dev'
+    environment:
+      name: ${{ github.ref_name == 'master' && 'production' || 'development' }}
     env:
-      # Release name should be unique. Base it on the image-name input.
       RELEASE_NAME: ${{ github.ref_name == 'dev' && format('{0}-dev', inputs.image-name) || inputs.image-name }}
       NAMESPACE: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
     steps:
@@ -122,7 +118,6 @@ jobs:
       - name: Deploy to EKS
         run: |
           # Determine the Secret Name to use in K8s
-          # Use k8s-secret-name if provided, otherwise default to image-name
           SECRET_NAME="${{ inputs.k8s-secret-name }}"
           if [ -z "$SECRET_NAME" ]; then
             SECRET_NAME="${{ inputs.image-name }}"
@@ -137,11 +132,7 @@ jobs:
           rm .env.tmp
 
           # Determine values files
-          # Base values (prod folder) come from the input
           VALUES_FLAGS="-f ${{ inputs.values-file }}"
-
-          # Dev override is in the same filename but in the 'dev' folder
-          # We swap 'prod/' for 'dev/' in the path
           DEV_VALUES_FILE=$(echo "${{ inputs.values-file }}" | sed 's/prod\//dev\//')
 
           if [[ "${{ github.ref_name }}" == "dev" ]] && [[ -f "$DEV_VALUES_FILE" ]]; then
