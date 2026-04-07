@@ -2,11 +2,11 @@ replicaCount: 2
 
 resources:
   requests:
-    cpu: "250m"
     memory: "512Mi"
+    cpu: "250m"
   limits:
-    cpu: "500m"
     memory: "1Gi"
+    cpu: "500m"
 
 autoscaling:
   enabled: true
@@ -15,32 +15,32 @@ autoscaling:
   targetCPUUtilizationPercentage: 70
 
 image:
-  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/ticker-identification-service
-  tag: 2e8ae96a866c7739fd6946de962122ab7a584d51
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/preprocessing-service
+  tag: v1
   pullPolicy: Always
 
 service:
   type: ClusterIP
-  port: 5010
-  targetPort: 5010
+  port: 5002
+  targetPort: 5002
 
 startupProbe:
   httpGet:
     path: /
-    port: 5010
+    port: 5002
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
     path: /
-    port: 5010
+    port: 5002
   initialDelaySeconds: 60
 
 readinessProbe:
   httpGet:
     path: /
-    port: 5010
+    port: 5002
   initialDelaySeconds: 30
 
 worker:
@@ -51,20 +51,21 @@ worker:
     minReplicas: 2
     maxReplicas: 5
     targetCPUUtilizationPercentage: 70
-  command: ["python", "-m", "app.services.ticker_identification_worker"]
+  command: ["python", "-m", "app.services.preprocessing_worker"]
 
-secretName: ticker-identification-service-secrets
+secretName: preprocessing-service-secrets
 
 ingress:
+  host: api.agentic-m.com
   enabled: true
   public:
     enabled: true
     paths:
-      - path: /api/v1/ticker-identification/healthcheck
+      - path: /api/v1/preprocessing/healthcheck
         pathType: Exact
   protected:
     enabled: true
     paths:
-      - path: /api/v1/ticker-identification
+      - path: /api/v1/preprocessing
         pathType: Prefix
 

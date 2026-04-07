@@ -48,6 +48,7 @@ readinessProbe:
 secretName: metrics-tracker-service-secrets
 
 ingress:
+  host: api.agentic-m.com
   enabled: true
   public:
     enabled: true
@@ -59,4 +60,3 @@ ingress:
   protected:
     enabled: false
     paths: []
-

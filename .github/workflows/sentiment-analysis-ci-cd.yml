@@ -3,11 +3,11 @@ name: Sentiment Analysis Service CI/CD Pipeline
 on:
   workflow_dispatch:
   push:
-    branches: ["master"]
-    paths: ["sentiment-analysis-service/**"]
+    branches: ["master", "dev"]
+    paths:
   pull_request:
-    branches: ["master"]
-    paths: ["sentiment-analysis-service/**"]
+    branches: ["dev"]
+    paths:
 
 jobs:
   sentiment-analysis-service-workflow:
@@ -16,6 +16,6 @@ jobs:
       working-directory: "sentiment-analysis-service"
       cluster-name: "agentic-m-cluster"
       image-name: "sentiment-analysis-service"
-      values-file: "deploy/values-sentiment-analysis.yaml"
+      values-file: "deploy/prod/values-sentiment-analysis.yaml"
       secret-key: "SENTIMENT_ANALYSIS_SECRETS"
     secrets: inherit

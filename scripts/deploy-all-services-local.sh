@@ -30,7 +30,7 @@ for SERVICE in "${SERVICES[@]}"; do
   echo "--------------------------------------------------"
   echo "📦 Deploying Service: $SERVICE..."
 
-  VALUES_FILE="deploy/values-$SERVICE.yaml"
+  VALUES_FILE="deploy/prod/values-$SERVICE.yaml"
 
   if [ -f "$VALUES_FILE" ]; then
     helm upgrade --install "$SERVICE" ./infra \

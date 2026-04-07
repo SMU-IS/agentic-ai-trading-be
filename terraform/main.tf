@@ -50,7 +50,7 @@ module "storage" {
   environment = var.environment
 }
 
-# Container Registry Module (ECR)
+# Containers Module (ECR)
 module "container_registry" {
   source      = "./modules/container_registry"
   services    = var.services

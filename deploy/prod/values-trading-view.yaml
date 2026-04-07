@@ -2,65 +2,62 @@ replicaCount: 2
 
 resources:
   requests:
-    cpu: "250m"
-    memory: "512Mi"
+    cpu: "200m"
+    memory: "256Mi"
   limits:
-    cpu: "500m"
-    memory: "1Gi"
+    cpu: "400m"
+    memory: "512Mi"
 
 autoscaling:
   enabled: true
   minReplicas: 2
-  maxReplicas: 5
-  targetCPUUtilizationPercentage: 70
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
 
 image:
-  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/news-aggregator-service
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/news-scraper-tradingview
   tag: v1
   pullPolicy: Always
 
 service:
   type: ClusterIP
-  port: 5008
-  targetPort: 5008
+  port: 5013
+  targetPort: 5013
 
 startupProbe:
   httpGet:
     path: /
-    port: 5008
+    port: 5013
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
     path: /
-    port: 5008
+    port: 5013
   initialDelaySeconds: 10
   periodSeconds: 20
 
 readinessProbe:
   httpGet:
     path: /
-    port: 5008
+    port: 5013
   initialDelaySeconds: 5
   periodSeconds: 10
 
-podAnnotations:
-  # prometheus.io/scrape: "true"
-  # prometheus.io/port: "5008"
-  # prometheus.io/path: "/metrics"
-
-secretName: news-aggregator-service-secrets
+secretName: news-scraper-trading-view-secrets
 
 ingress:
+  host: api.agentic-m.com
   enabled: true
   public:
     enabled: true
     paths:
-      - path: /api/v1/news-aggregator/healthcheck
+      - path: /api/v1/news-scraper-tradingview/healthcheck
         pathType: Exact
   protected:
     enabled: true
     paths:
-      - path: /api/v1/news-aggregator
+      - path: /api/v1/news-scraper-tradingview
         pathType: Prefix
+

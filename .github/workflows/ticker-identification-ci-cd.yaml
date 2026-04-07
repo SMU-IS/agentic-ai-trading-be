@@ -3,11 +3,11 @@ name: Ticker Identification Service CI/CD Pipeline
 on:
   workflow_dispatch:
   push:
-    branches: ["master"]
-    paths: ["ticker-identification-service/**"]
+    branches: ["master", "dev"]
+    paths:
   pull_request:
-    branches: ["master"]
-    paths: ["ticker-identification-service/**"]
+    branches: ["dev"]
+    paths:
 
 jobs:
   ticker-identification-service-workflow:
@@ -16,6 +16,6 @@ jobs:
       working-directory: "ticker-identification-service"
       cluster-name: "agentic-m-cluster"
       image-name: "ticker-identification-service"
-      values-file: "deploy/values-ticker-identification.yaml"
+      values-file: "deploy/prod/values-ticker-identification.yaml"
       secret-key: "TICKER_IDENTIFICATION_SECRETS"
     secrets: inherit
