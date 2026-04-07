@@ -39,12 +39,10 @@ async def general_news_node(state: AgentState, llm) -> dict[str, Any]:
         )
 
         structured_llm = llm.with_structured_output(GeneralNews)
-        extracted_params = await structured_llm.ainvoke(
-            [
-                SystemMessage(content=extraction_prompt),
-                *state["messages"][-3:],
-            ]
-        )
+        extracted_params = await structured_llm.ainvoke([
+            SystemMessage(content=extraction_prompt),
+            *state["messages"][-3:],
+        ])
 
         # 2. Handle defaults: If no date provided, default to yesterday
         start_date = extracted_params.start_date
@@ -64,14 +62,13 @@ async def general_news_node(state: AgentState, llm) -> dict[str, Any]:
         )
 
         # 3. Fetch news using the parameters
-        result = await get_general_news.ainvoke(
-            {
-                "query": extracted_params.query,
-                "tickers": extracted_params.tickers,
-                "start_date": start_date,
-                "end_date": end_date,
-            }
-        )
+        result = await get_general_news.ainvoke({
+            "query": extracted_params.query,
+            "tickers": extracted_params.tickers if extracted_params.tickers is not None else [],
+            "start_date": start_date,
+            "end_date": end_date,
+        })
+
         logger.info(f"General news retrieved for query: {extracted_params.query}")
 
         prompt = (
@@ -80,14 +77,11 @@ async def general_news_node(state: AgentState, llm) -> dict[str, Any]:
             "Focus on the most relevant details."
         )
 
-        response = await llm.ainvoke(
-            [
-                SystemMessage(content=prompt),
-                SystemMessage(content=json.dumps(result)),
-                *state["messages"][-3:],
-            ],
-            config={"tags": ["user_response"]},
-        )
+        response = await llm.ainvoke([
+            SystemMessage(content=prompt),
+            SystemMessage(content=json.dumps(result)),
+            *state["messages"][-3:],
+        ], config={"tags": ["user_response"]})
 
         return {
             "messages": [response],

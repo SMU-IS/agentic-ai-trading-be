@@ -10,7 +10,7 @@ from app.schemas.chat import GeneralNews
 @tool(args_schema=GeneralNews)
 async def get_general_news(
     query: str,
-    tickers: List[str] = None,
+    tickers: List[str] = [],
     start_date: str = None,
     end_date: str = None,
 ):

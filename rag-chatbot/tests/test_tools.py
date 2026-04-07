@@ -75,6 +75,28 @@ async def test_get_general_news_with_ticker_uses_post():
 
 
 @pytest.mark.asyncio
+async def test_get_general_news_with_missing_tickers():
+    """Test that get_general_news handles missing tickers by defaulting to []."""
+    mock_response = {"results": []}
+
+    with patch("httpx.AsyncClient.get") as mock_get:
+        mock_get.return_value = MagicMock(spec=httpx.Response)
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = mock_response
+        mock_get.return_value.raise_for_status = MagicMock()
+
+        # Omit tickers from input
+        await get_general_news.ainvoke({
+            "query": "market news",
+            "start_date": "2026-04-07T00:00:00"
+        })
+        
+        # Should not raise error and should have used GET /news
+        args, kwargs = mock_get.call_args
+        assert "/news" in args[0]
+
+
+@pytest.mark.asyncio
 async def test_get_general_news_only_query():
     """Test get_general_news with only the query provided (no tickers, no date)."""
     mock_response = {
