@@ -46,14 +46,17 @@ class QueryQdrantService:
 
             scroll_filter = None
             if start_date or end_date:
+                range_query = {}
+                if start_date:
+                    range_query["gte"] = start_date.isoformat()
+                if end_date:
+                    range_query["lte"] = end_date.isoformat()
+
                 scroll_filter = models.Filter(
                     must=[
                         models.FieldCondition(
                             key="metadata.timestamp",
-                            range=models.Range(
-                                gte=start_date.isoformat() if start_date else None,
-                                lte=end_date.isoformat() if end_date else None,
-                            ),
+                            range=models.Range(**range_query),
                         )
                     ]
                 )
@@ -109,25 +112,41 @@ class QueryQdrantService:
                 - query (str): The search text.
                 - limit (int): Max number of results.
                 - tickers (list[str]): List of tickers to filter by.
+                - start_date (datetime): Optional start date for filtering.
+                - end_date (datetime): Optional end date for filtering.
 
         Returns:
             list[dict[str, Any]]: List of documents with metadata and similarity score.
         """
 
-        filter_by_tickers = None
+        conditions = []
         if payload.tickers:
-            filter_by_tickers = models.Filter(
-                must=[
-                    models.FieldCondition(
-                        key="metadata.tickers",
-                        match=models.MatchAny(any=payload.tickers),
-                    )
-                ]
+            conditions.append(
+                models.FieldCondition(
+                    key="metadata.tickers",
+                    match=models.MatchAny(any=payload.tickers),
+                )
             )
+
+        if payload.start_date or payload.end_date:
+            range_query = {}
+            if payload.start_date:
+                range_query["gte"] = payload.start_date.isoformat()
+            if payload.end_date:
+                range_query["lte"] = payload.end_date.isoformat()
+
+            conditions.append(
+                models.FieldCondition(
+                    key="metadata.timestamp",
+                    range=models.Range(**range_query),
+                )
+            )
+
+        filter_condition = models.Filter(must=conditions) if conditions else None
 
         try:
             results = await self.vector_store.asimilarity_search_with_score(
-                query=payload.query, k=payload.limit, filter=filter_by_tickers
+                query=payload.query, k=payload.limit, filter=filter_condition
             )
 
             formatted_results = []

@@ -32,6 +32,29 @@ def test_search_news_success(mock_query_service):
     
     mock_query_service.retrieve_ticker_insights.assert_called_once()
 
+def test_search_news_with_date_filtering(mock_query_service):
+    payload = {
+        "tickers": ["AAPL"],
+        "query": "What happened on April 1st?",
+        "limit": 5,
+        "start_date": "2026-04-01T00:00:00",
+        "end_date": "2026-04-01T23:59:59"
+    }
+    
+    mock_query_service.retrieve_ticker_insights.return_value = [{"topic_id": "1", "text_content": "test insight"}]
+
+    response = client.post("/query", json=payload)
+    
+    assert response.status_code == 200
+    assert response.json()["status"] == "success"
+    
+    mock_query_service.retrieve_ticker_insights.assert_called_once()
+    actual_payload = mock_query_service.retrieve_ticker_insights.call_args[0][0]
+    
+    from datetime import datetime
+    assert actual_payload.start_date == datetime.fromisoformat("2026-04-01T00:00:00")
+    assert actual_payload.end_date == datetime.fromisoformat("2026-04-01T23:59:59")
+
 def test_search_news_no_results(mock_query_service):
     mock_query_service.retrieve_ticker_insights.return_value = []
     
