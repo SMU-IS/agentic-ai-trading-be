@@ -40,6 +40,40 @@ async def test_get_general_news_only_query():
 
 
 @pytest.mark.asyncio
+async def test_get_general_news_date_filtered():
+    """Test get_general_news with date filtering using GET /news."""
+    mock_response = {
+        "results": [
+            {"topic_id": "topic_news", "text_content": "Market was bullish today"},
+        ]
+    }
+
+    with patch("httpx.AsyncClient.get") as mock_get:
+        mock_get.return_value = MagicMock(spec=httpx.Response)
+        mock_get.return_value.status_code = 200
+        mock_get.return_value.json.return_value = mock_response
+        mock_get.return_value.raise_for_status = MagicMock()
+
+        # Call with start_date and end_date
+        result = await get_general_news.ainvoke({
+            "query": "how was the market today",
+            "start_date": "2026-04-07T00:00:00",
+            "end_date": "2026-04-07T23:59:59"
+        })
+
+        assert "bullish today" in result["context"]
+        
+        # Verify the GET request
+        args, kwargs = mock_get.call_args
+        url = args[0]
+        params = kwargs.get("params", {})
+        
+        assert "/news" in url
+        assert params["start_date"] == "2026-04-07T00:00:00"
+        assert params["end_date"] == "2026-04-07T23:59:59"
+
+
+@pytest.mark.asyncio
 async def test_get_general_news_success():
     mock_response = {
         "results": [
