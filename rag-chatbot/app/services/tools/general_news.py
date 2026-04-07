@@ -8,7 +8,12 @@ from app.schemas.chat import GeneralNews
 
 
 @tool(args_schema=GeneralNews)
-async def get_general_news(query: str, tickers: List[str] = None):
+async def get_general_news(
+    query: str,
+    tickers: List[str] = None,
+    start_date: str = None,
+    end_date: str = None,
+):
     """
     Search and analyze real-time financial news, market sentiment, and sector trends.
 
@@ -22,6 +27,8 @@ async def get_general_news(query: str, tickers: List[str] = None):
     Args:
         query (str): The search phrase. Focus on technical events (e.g., "earnings beat," "fed rate hike").
         tickers (List[str], optional): Stock symbols in uppercase (e.g. ["NVDA", "PLTR"]).
+        start_date (str, optional): Start date for filtering news (e.g. '2026-04-01T00:00:00').
+        end_date (str, optional): End date for filtering news (e.g. '2026-04-07T23:59:59').
 
     Returns:
         dict: {
@@ -30,23 +37,44 @@ async def get_general_news(query: str, tickers: List[str] = None):
         }
     """
 
-    payload = {
-        "query": query,
-        "limit": 50,
-        "tickers": tickers if tickers else [],
-    }
-
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.post(
-                env_config.qdrant_retrieval_query_url, json=payload
-            )
+            # If tickers are provided, use the existing /query (POST) endpoint
+            if tickers:
+                payload = {
+                    "query": query,
+                    "limit": 50,
+                    "tickers": tickers,
+                }
+                response = await client.post(
+                    env_config.qdrant_retrieval_query_url, json=payload
+                )
+            # If it's a date-based general market news request, use /news (GET)
+            elif start_date:
+                # Construct /news URL by replacing /query in the config
+                base_url = env_config.qdrant_retrieval_query_url.replace("/query", "/news")
+                params = {"start_date": start_date}
+                if end_date:
+                    params["end_date"] = end_date
+                
+                response = await client.get(base_url, params=params)
+            # Fallback to general query if neither tickers nor dates are specific
+            else:
+                payload = {
+                    "query": query,
+                    "limit": 50,
+                    "tickers": [],
+                }
+                response = await client.post(
+                    env_config.qdrant_retrieval_query_url, json=payload
+                )
+
             response.raise_for_status()
             data = response.json()
             results = data.get("results", [])
 
             if not results:
-                context = "No relevant news found for the requested tickers."
+                context = "No relevant news found for the request."
             else:
                 context = "\n\n".join(
                     [
