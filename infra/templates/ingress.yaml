@@ -15,7 +15,8 @@ metadata:
 spec:
   ingressClassName: kong
   rules:
-    - http:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
         paths:
           {{- range .Values.ingress.public.paths }}
           - path: {{ .path }}
@@ -45,7 +46,8 @@ metadata:
 spec:
   ingressClassName: kong
   rules:
-    - http:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
         paths:
           {{- range .Values.ingress.protected.paths }}
           - path: {{ .path }}

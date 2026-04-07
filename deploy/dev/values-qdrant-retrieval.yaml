@@ -1,0 +1,12 @@
+replicaCount: 1
+
+autoscaling:
+  enabled: false
+
+ingress:
+  host: api-dev.agentic-m.com
+
+worker:
+  replicaCount: 1
+  autoscaling:
+    enabled: false

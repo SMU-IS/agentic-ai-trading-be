@@ -3,12 +3,19 @@ name: Sentiment Analysis Service CI/CD Pipeline
 on:
   workflow_dispatch:
   push:
-    branches: ["master"]
-    paths: ["sentiment-analysis-service/**"]
+    branches: ["master", "dev"]
+    paths:
+      - "sentiment-analysis-service/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
   pull_request:
-    branches: ["master"]
-    paths: ["sentiment-analysis-service/**"]
-
+    branches: ["master", "dev"]
+    paths:
+      - "sentiment-analysis-service/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
 jobs:
   sentiment-analysis-service-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
@@ -16,6 +23,7 @@ jobs:
       working-directory: "sentiment-analysis-service"
       cluster-name: "agentic-m-cluster"
       image-name: "sentiment-analysis-service"
-      values-file: "deploy/values-sentiment-analysis.yaml"
+      values-file: "deploy/prod/values-sentiment-analysis.yaml"
       secret-key: "SENTIMENT_ANALYSIS_SECRETS"
+      k8s-secret-name: "sentiment-analysis"
     secrets: inherit

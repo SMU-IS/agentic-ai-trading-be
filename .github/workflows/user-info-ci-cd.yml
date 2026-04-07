@@ -3,13 +3,19 @@ name: User Info Service CI
 on:
   workflow_dispatch:
   push:
-    branches: ["master"]
+    branches: ["master", "dev"]
     paths:
       - "user-info/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
   pull_request:
-    branches: ["master"]
+    branches: ["master", "dev"]
     paths:
       - "user-info/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
 
 jobs:
   go-tests:
@@ -36,7 +42,12 @@ jobs:
     name: Continuous Deployment
     runs-on: ubuntu-latest
     needs: go-tests
-    if: true
+    if: github.ref_name == 'master' || github.ref_name == 'dev'
+    environment:
+      name: ${{ github.ref_name == 'master' && 'production' || 'development' }}
+    env:
+      TARGET_NAMESPACE: ${{ github.ref_name == 'master' && 'production' || 'development' }}
+      TARGET_RELEASE: ${{ github.ref_name == 'master' && 'user-info' || 'user-info-dev' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -71,18 +82,28 @@ jobs:
       - name: Update Kubeconfig
         run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
 
+      - name: Ensure Namespace Exists
+        run: kubectl create namespace ${{ env.TARGET_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Create K8s Secret
         run: |
           echo "${{ secrets.USER_INFO_SECRETS }}" > .env.tmp
           kubectl create secret generic user-info-secrets \
             --from-env-file=.env.tmp \
+            --namespace ${{ env.TARGET_NAMESPACE }} \
             --dry-run=client -o yaml | kubectl apply -f -
           rm .env.tmp
 
       - name: Deploy to AWS EKS
         run: |
-          helm upgrade --install user-info ./infra \
-            -f ./deploy/values-user-info.yaml \
+          VALUES_FLAGS="-f ./deploy/prod/values-user-info.yaml"
+          if [[ "${{ github.ref_name }}" == "dev" ]]; then
+            VALUES_FLAGS="$VALUES_FLAGS -f ./deploy/dev/values-user-info.yaml"
+          fi
+
+          helm upgrade --install ${{ env.TARGET_RELEASE }} ./infra \
+            --namespace ${{ env.TARGET_NAMESPACE }} \
+            $VALUES_FLAGS \
             --set image.tag=${{ github.sha }} \
             --set ingress.enabled=true \
             --atomic \

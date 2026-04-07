@@ -2,11 +2,11 @@ replicaCount: 2
 
 resources:
   requests:
-    memory: "512Mi"
     cpu: "250m"
+    memory: "512Mi"
   limits:
-    memory: "1Gi"
     cpu: "500m"
+    memory: "1Gi"
 
 autoscaling:
   enabled: true
@@ -15,32 +15,32 @@ autoscaling:
   targetCPUUtilizationPercentage: 70
 
 image:
-  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/preprocessing-service
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/event-identification-service
   tag: v1
   pullPolicy: Always
 
 service:
   type: ClusterIP
-  port: 5002
-  targetPort: 5002
+  port: 5011
+  targetPort: 5011
 
 startupProbe:
   httpGet:
     path: /
-    port: 5002
+    port: 5011
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
     path: /
-    port: 5002
+    port: 5011
   initialDelaySeconds: 60
 
 readinessProbe:
   httpGet:
     path: /
-    port: 5002
+    port: 5011
   initialDelaySeconds: 30
 
 worker:
@@ -51,20 +51,20 @@ worker:
     minReplicas: 2
     maxReplicas: 5
     targetCPUUtilizationPercentage: 70
-  command: ["python", "-m", "app.services.preprocessing_worker"]
+  command: ["python", "-m", "app.services.event_identification_worker"]
 
-secretName: preprocessing-service-secrets
+secretName: event-identification-service-secrets
 
 ingress:
+  host: api.agentic-m.com
   enabled: true
   public:
     enabled: true
     paths:
-      - path: /api/v1/preprocessing/healthcheck
+      - path: /api/v1/event-identification/healthcheck
         pathType: Exact
   protected:
     enabled: true
     paths:
-      - path: /api/v1/preprocessing
+      - path: /api/v1/event-identification
         pathType: Prefix
-

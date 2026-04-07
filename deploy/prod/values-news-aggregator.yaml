@@ -15,52 +15,53 @@ autoscaling:
   targetCPUUtilizationPercentage: 70
 
 image:
-  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/trading-agent-m
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/news-aggregator-service
   tag: v1
   pullPolicy: Always
 
 service:
   type: ClusterIP
-  port: 5006
-  targetPort: 5006
+  port: 5008
+  targetPort: 5008
 
 startupProbe:
   httpGet:
     path: /
-    port: 5006
+    port: 5008
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
     path: /
-    port: 5006
+    port: 5008
   initialDelaySeconds: 10
   periodSeconds: 20
 
 readinessProbe:
   httpGet:
     path: /
-    port: 5006
+    port: 5008
   initialDelaySeconds: 5
   periodSeconds: 10
 
 podAnnotations:
   # prometheus.io/scrape: "true"
-  # prometheus.io/port: "5006"
+  # prometheus.io/port: "5008"
   # prometheus.io/path: "/metrics"
 
-secretName: trading-agent-m-secrets
+secretName: news-aggregator-service-secrets
 
 ingress:
+  host: api.agentic-m.com
   enabled: true
   public:
     enabled: true
     paths:
-      - path: /api/v1/agent-m/healthcheck
+      - path: /api/v1/news-aggregator/healthcheck
         pathType: Exact
   protected:
     enabled: true
     paths:
-      - path: /api/v1/agent-m
+      - path: /api/v1/news-aggregator
         pathType: Prefix

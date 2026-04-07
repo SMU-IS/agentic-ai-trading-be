@@ -3,12 +3,19 @@ name: Preprocessing Service CI/CD Pipeline
 on:
   workflow_dispatch:
   push:
-    branches: ["master"]
-    paths: ["preprocessing-service/**"]
+    branches: ["master", "dev"]
+    paths:
+      - "preprocessing-service/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
   pull_request:
-    branches: ["master"]
-    paths: ["preprocessing-service/**"]
-
+    branches: ["master", "dev"]
+    paths:
+      - "preprocessing-service/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
 jobs:
   preprocessing-service-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
@@ -16,6 +23,6 @@ jobs:
       working-directory: "preprocessing-service"
       cluster-name: "agentic-m-cluster"
       image-name: "preprocessing-service"
-      values-file: "deploy/values-pre-processing.yaml"
+      values-file: "deploy/prod/values-pre-processing.yaml"
       secret-key: "PREPROCESSING_SERVICE_SECRETS"
     secrets: inherit

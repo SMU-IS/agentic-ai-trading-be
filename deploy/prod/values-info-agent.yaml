@@ -48,6 +48,7 @@ readinessProbe:
 secretName: info-agent-service-secrets
 
 ingress:
+  host: api.agentic-m.com
   enabled: true
   public:
     enabled: true

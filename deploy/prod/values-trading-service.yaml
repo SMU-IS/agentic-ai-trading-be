@@ -11,54 +11,47 @@ resources:
 autoscaling:
   enabled: true
   minReplicas: 2
-  maxReplicas: 4
+  maxReplicas: 5
   targetCPUUtilizationPercentage: 70
 
 image:
-  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/user-info
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/trading-service
   tag: v1
   pullPolicy: Always
 
-volumeMounts:
-  - name: rds-cert-volume
-    mountPath: /certs
-    readOnly: true
-
-volumes:
-  - name: rds-cert-volume
-    configMap:
-      name: rds-certs
-
 service:
   type: ClusterIP
-  port: 5005
-  targetPort: 5005
+  port: 5007
+  targetPort: 5007
 
 livenessProbe:
   httpGet:
     path: /
-    port: 5005
+    port: 5007
   initialDelaySeconds: 60
 readinessProbe:
   httpGet:
     path: /
-    port: 5005
+    port: 5007
   initialDelaySeconds: 30
 
-secretName: user-info-secrets
+podAnnotations:
+  # prometheus.io/scrape: "true"
+  # prometheus.io/port: "5007"
+  # prometheus.io/path: "/metrics"
+
+secretName: trading-service-secrets
 
 ingress:
+  host: api.agentic-m.com
   enabled: true
   public:
     enabled: true
     paths:
-      - path: /api/v1/auth
-        pathType: Prefix
-      - path: /api/v1/user/healthcheck
+      - path: /api/v1/trading/healthcheck
         pathType: Exact
   protected:
     enabled: true
     paths:
-      - path: /api/v1/user
+      - path: /api/v1/trading
         pathType: Prefix
-

@@ -15,52 +15,59 @@ autoscaling:
   targetCPUUtilizationPercentage: 70
 
 image:
-  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/rag-chatbot
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/qdrant-retrieval
   tag: v1
   pullPolicy: Always
 
 service:
   type: ClusterIP
-  port: 5001
-  targetPort: 5001
+  port: 5009
+  targetPort: 5009
 
 startupProbe:
   httpGet:
     path: /
-    port: 5001
+    port: 5009
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
     path: /
-    port: 5001
+    port: 5009
   initialDelaySeconds: 10
   periodSeconds: 20
 
 readinessProbe:
   httpGet:
     path: /
-    port: 5001
+    port: 5009
   initialDelaySeconds: 5
   periodSeconds: 10
 
-podAnnotations:
-  # prometheus.io/scrape: "true"
-  # prometheus.io/port: "5001"
-  # prometheus.io/path: "/metrics"
+worker:
+  enabled: true
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+  command: ["python", "-m", "app.services.qdrant_vectorisation_worker"]
 
-secretName: rag-chatbot-secrets
+secretName: qdrant-retrieval-secrets
 
 ingress:
+  host: api.agentic-m.com
   enabled: true
   public:
     enabled: true
     paths:
-      - path: /api/v1/rag/healthcheck
+      - path: /api/v1/qdrant/healthcheck
         pathType: Exact
   protected:
     enabled: true
     paths:
-      - path: /api/v1/rag
+      - path: /api/v1/qdrant
         pathType: Prefix
+
