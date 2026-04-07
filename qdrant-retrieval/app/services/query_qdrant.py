@@ -48,15 +48,15 @@ class QueryQdrantService:
             if start_date or end_date:
                 range_query = {}
                 if start_date:
-                    range_query["gte"] = start_date.isoformat()
+                    range_query["gte"] = start_date
                 if end_date:
-                    range_query["lte"] = end_date.isoformat()
+                    range_query["lte"] = end_date
 
                 scroll_filter = models.Filter(
                     must=[
                         models.FieldCondition(
                             key="metadata.timestamp",
-                            range=models.Range(**range_query),
+                            range=models.DatetimeRange(**range_query),
                         )
                     ]
                 )
@@ -131,14 +131,14 @@ class QueryQdrantService:
         if payload.start_date or payload.end_date:
             range_query = {}
             if payload.start_date:
-                range_query["gte"] = payload.start_date.isoformat()
+                range_query["gte"] = payload.start_date
             if payload.end_date:
-                range_query["lte"] = payload.end_date.isoformat()
+                range_query["lte"] = payload.end_date
 
             conditions.append(
                 models.FieldCondition(
                     key="metadata.timestamp",
-                    range=models.Range(**range_query),
+                    range=models.DatetimeRange(**range_query),
                 )
             )
 
