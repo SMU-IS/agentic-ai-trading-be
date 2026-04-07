@@ -2,6 +2,11 @@ name: Info Agent Service CI/CD Pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-approval:
+        description: "Bypass manual approval"
+        required: false
+        default: "false"
   push:
     branches: ["master", "dev"]
     paths:
@@ -23,6 +28,7 @@ jobs:
       working-directory: "info-agent-service"
       cluster-name: "agentic-m-cluster"
       image-name: "info-agent-service"
+      skip-approval: ${{ inputs.skip-approval || 'false' }}
       values-file: "deploy/prod/values-info-agent.yaml"
       secret-key: "INFO_AGENT_SECRETS"
     secrets: inherit

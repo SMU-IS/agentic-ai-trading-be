@@ -2,6 +2,11 @@ name: User Info Service CI
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-approval:
+        description: "Bypass manual approval"
+        required: false
+        default: "false"
   push:
     branches: ["master", "dev"]
     paths:
@@ -42,12 +47,12 @@ jobs:
     name: Continuous Deployment
     runs-on: ubuntu-latest
     needs: go-tests
-    if: github.ref_name == 'master' || github.ref_name == 'dev'
+    if: github.ref_name == 'master' || github.ref_name == 'dev' || inputs.skip-approval == 'true'
     environment:
-      name: ${{ github.ref_name == 'master' && 'production' || 'development' }}
+      name: ${{ (github.ref_name == 'master' && inputs.skip-approval != 'true') && 'production' || 'development' }}
     env:
-      TARGET_NAMESPACE: ${{ github.ref_name == 'master' && 'production' || 'development' }}
-      TARGET_RELEASE: ${{ github.ref_name == 'master' && 'user-info' || 'user-info-dev' }}
+      TARGET_NAMESPACE: ${{ (github.ref_name == 'master' || inputs.skip-approval == 'true') && 'production' || 'development' }}
+      TARGET_RELEASE: ${{ (github.ref_name == 'master' || inputs.skip-approval == 'true') && 'user-info' || 'user-info-dev' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

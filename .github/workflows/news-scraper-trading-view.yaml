@@ -2,6 +2,11 @@ name: News Scraper Trading View CI/CD Pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-approval:
+        description: "Bypass manual approval"
+        required: false
+        default: "false"
   push:
     branches: ["master", "dev"]
     paths:
@@ -24,6 +29,7 @@ jobs:
       working-directory: "news-scraper-tradingview"
       cluster-name: "agentic-m-cluster"
       image-name: "news-scraper-tradingview"
+      skip-approval: ${{ inputs.skip-approval || 'false' }}
       values-file: "deploy/prod/values-trading-view.yaml"
       secret-key: "NEWS_SCRAPER_TRADING_VIEW_SECRETS"
       k8s-secret-name: "news-scraper-trading-view"

@@ -2,6 +2,11 @@ name: Trading Service CI/CD Pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-approval:
+        description: "Bypass manual approval"
+        required: false
+        default: "false"
   push:
     branches: ["master", "dev"]
     paths:
@@ -23,6 +28,7 @@ jobs:
       working-directory: "trading-service"
       cluster-name: "agentic-m-cluster"
       image-name: "trading-service"
+      skip-approval: ${{ inputs.skip-approval || 'false' }}
       values-file: "deploy/prod/values-trading-service.yaml"
       secret-key: "TRADING_SERVICE_SECRETS"
     secrets: inherit

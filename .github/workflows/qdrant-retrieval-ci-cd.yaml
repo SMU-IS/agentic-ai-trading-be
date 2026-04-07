@@ -2,6 +2,11 @@ name: Qdrant Retrieval CI/CD Pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-approval:
+        description: "Bypass manual approval"
+        required: false
+        default: "false"
   push:
     branches: ["master", "dev"]
     paths:
@@ -23,6 +28,7 @@ jobs:
       working-directory: "qdrant-retrieval"
       cluster-name: "agentic-m-cluster"
       image-name: "qdrant-retrieval"
+      skip-approval: ${{ inputs.skip-approval || 'false' }}
       values-file: "deploy/prod/values-qdrant-retrieval.yaml"
       secret-key: "QDRANT_RETRIEVAL_SECRETS"
     secrets: inherit

@@ -2,6 +2,11 @@ name: Metrics Tracker Service CI/CD Pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-approval:
+        description: "Bypass manual approval"
+        required: false
+        default: "false"
   push:
     branches: ["master", "dev"]
     paths:
@@ -23,6 +28,7 @@ jobs:
       working-directory: "metrics-tracker"
       cluster-name: "agentic-m-cluster"
       image-name: "metrics-tracker-service"
+      skip-approval: ${{ inputs.skip-approval || 'false' }}
       values-file: "deploy/prod/values-metrics-tracker.yaml"
       secret-key: "METRICS_TRACKER_SECRETS"
     secrets: inherit

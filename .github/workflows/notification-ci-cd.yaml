@@ -2,6 +2,11 @@ name: Notification Alert CI/CD Pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-approval:
+        description: "Bypass manual approval"
+        required: false
+        default: "false"
   push:
     branches: ["master", "dev"]
     paths:
@@ -23,6 +28,7 @@ jobs:
       working-directory: "notification-alert"
       cluster-name: "agentic-m-cluster"
       image-name: "notification-alert"
+      skip-approval: ${{ inputs.skip-approval || 'false' }}
       values-file: "deploy/prod/values-notification-alert.yaml"
       secret-key: "NOTIFICATION_ALERT_SECRETS"
     secrets: inherit
