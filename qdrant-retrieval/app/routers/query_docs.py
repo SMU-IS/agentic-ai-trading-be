@@ -7,23 +7,63 @@ from app.services.query_qdrant import QueryQdrantService
 router = APIRouter(tags=["Query Documents"])
 
 
+# @router.get(APIPath.NEWS)
+# async def get_all_news(
+#     limit: int = Query(20, ge=1, le=100),
+#     offset: str = Query(None, description="The offset ID for pagination"),
+#     service: QueryQdrantService = Depends(QueryQdrantService),
+# ):
+#     """
+#     Endpoint to fetch all news documents with pagination.
+#     """
+#     try:
+#         data = await service.retrieve_news(
+#             limit=limit, offset=offset, sort_by_recency=False
+#         )
+#         return {
+#             "status": "success",
+#             "count": len(data["results"]),
+#             "next_offset": data["next_offset"],
+#             "data": data["results"],
+#         }
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get(APIPath.NEWS)
-async def get_all_news(
-    limit: int = Query(20, ge=1, le=100),
+async def get_latest_news(
+    limit: int = Query(50, ge=1, le=1000),
     offset: str = Query(None, description="The offset ID for pagination"),
+    start_date: str = Query(None, description="The start date for filtering (ISO format)"),
+    end_date: str = Query(None, description="The end date for filtering (ISO format)"),
     service: QueryQdrantService = Depends(QueryQdrantService),
 ):
     """
-    Endpoint to fetch all news documents with pagination.
+    Endpoint to fetch the most recent news documents with pagination and optional date filtering.
     """
     try:
-        data = await service.retrieve_all_news(limit=limit, offset=offset)
+        from datetime import datetime
+
+        start_dt = datetime.fromisoformat(start_date) if start_date else None
+        end_dt = datetime.fromisoformat(end_date) if end_date else None
+
+        data = await service.retrieve_news(
+            limit=limit,
+            offset=offset,
+            sort_by_recency=True,
+            start_date=start_dt,
+            end_date=end_dt,
+        )
         return {
             "status": "success",
             "count": len(data["results"]),
             "next_offset": data["next_offset"],
             "data": data["results"],
         }
+    except ValueError:
+        raise HTTPException(
+            status_code=400, detail="Invalid date format. Please use ISO 8601 format."
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

@@ -28,7 +28,7 @@ Step-by-step evaluation (reason explicitly):
    **SHORT**: High credibility + bearish/denial + dump setup  
    **NO TRADE**: Everything else (medium/low cred, unverified, passive)
 
-Output ONLY valid JSON:
+Output ONLY valid JSON. Do not include comments inside the JSON output:
 
 {
   "ticker": "{ticker}",
@@ -39,9 +39,9 @@ Output ONLY valid JSON:
   "trade_signal": "BUY|SHORT|NO_TRADE",
   "confidence": 1-10,
   "trade_rationale": "Why this signal (or no signal)",
-  "position_size_pct": 0.5|1|2,
-  "stop_loss_pct": 8|10|12,
-  "target_pct": 20|30|50
+  "position_size_pct": float,  // 0.5 if confidence<=4, 1.0 if confidence 5-7, 1.5 if confidence>=8
+  "stop_loss_pct": float,      // 3-5% for high confidence, 5-8% for medium, 8-10% for low — tighter stop = higher conviction
+  "target_pct": float          // minimum 2x stop_loss_pct. 8-15% for high confidence, 10-20% for medium, 8-12% for low
 }
 """
 

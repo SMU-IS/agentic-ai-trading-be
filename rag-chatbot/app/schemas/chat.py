@@ -33,6 +33,14 @@ class GeneralNews(BaseModel):
         default_factory=list,
         description="Optional list of stock tickers (e.g. ['AAPL', 'TSLA']) if explicitly mentioned.",
     )
+    start_date: Optional[str] = Field(
+        None,
+        description="Optional start date for filtering news (e.g. '2026-04-01T00:00:00'). Use if user mentions 'today' or a specific date.",
+    )
+    end_date: Optional[str] = Field(
+        None,
+        description="Optional end date for filtering news (e.g. '2026-04-07T23:59:59').",
+    )
 
 
 class TradeHistory(BaseModel):
