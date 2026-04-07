@@ -19,6 +19,8 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_SERVICE_CONTROL_KEY=${REDIS_SERVICE_CONTROL_KEY}
+      - REDIS_CONSUMER_GROUP=${REDIS_CONSUMER_GROUP}
+      - REDIS_CONSUMER_NAME=${REDIS_CONSUMER_NAME}
       - PORT=${PORT:-5008}
     command: uvicorn src.main:app --host 0.0.0.0 --port 5008
     restart: unless-stopped

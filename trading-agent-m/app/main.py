@@ -73,12 +73,13 @@ async def lifespan(app: FastAPI):
 
     # Start signal processing task
     async def process_signals():
-        async for signal in redis_service.listen_signal_stream(service_enabled):
+        async for signal, msg_id in redis_service.listen_signal_stream(service_enabled):
             try:
                 print(f"🚀 Processing signal: {signal.signal_id}")
                 await workflow.run(signal)
+                await redis_service.ack_signal(msg_id)
             except Exception as e:
-                print(f"❌ Workflow error for {signal.signal_id}: {e}")
+                print(f"❌ Workflow error for {signal.signal_id}: {e} — message stays in PEL for retry")
 
     poll_task = asyncio.create_task(poll_service_control())
     signal_task = asyncio.create_task(process_signals())
