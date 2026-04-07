@@ -74,7 +74,11 @@ async def general_news_node(state: AgentState, llm) -> dict[str, Any]:
             "end_date": end_date,
         })
 
+<<<<<<< HEAD
         logger.info(f"General news retrieved for query: {extracted_params.query}. Content preview: {str(result.get('context', ''))[:200]}...")
+=======
+        logger.info(f"General news retrieved for query: {extracted_params.query}")
+>>>>>>> 38226ca541298a4c55a718e7b29d647a2c710bfa
 
         prompt = (
             "You are a helpful trading assistant. "
