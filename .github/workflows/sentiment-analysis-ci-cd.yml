@@ -10,7 +10,7 @@ on:
       - "infra/**"
       - ".github/workflows/python-reusable-workflow.yaml"
   pull_request:
-    branches: ["dev"]
+    branches: ["master", "dev"]
     paths:
       - "sentiment-analysis-service/**"
       - "deploy/**"
