@@ -103,9 +103,9 @@ jobs:
     needs: [test, build]
     # Trigger deployment on any push to dev or master
     # Or if skip-approval is explicitly requested (from Global workflow)
+    # github.ref_name == 'dev' ||
     if: |
-      github.ref_name == 'master' || 
-      github.ref_name == 'dev' || 
+      github.ref_name == 'master' ||
       inputs.skip-approval == 'true'
     environment:
       # Use production environment for master branch to enforce manual approval
