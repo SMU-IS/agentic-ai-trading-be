@@ -1,15 +1,19 @@
-name: User Info Service CI
-
 on:
   workflow_dispatch:
   push:
     branches: ["master", "dev"]
     paths:
       - "user-info/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
   pull_request:
     branches: ["dev"]
     paths:
       - "user-info/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
 
 jobs:
   go-tests:
@@ -68,6 +72,39 @@ jobs:
           context: ./user-info
           file: ./user-info/Dockerfile
           platforms: linux/arm64
-  push:
-    branches: ["master", "dev"]
-    paths:
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/user-info:${{ github.sha }}
+          build-args: |
+            TARGETARCH=arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Update Kubeconfig
+        run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
+
+      - name: Ensure Namespace Exists
+        run: kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create K8s Secret
+        run: |
+          echo "${{ secrets.USER_INFO_SECRETS }}" > .env.tmp
+          kubectl create secret generic user-info-secrets \
+            --from-env-file=.env.tmp \
+            --namespace ${{ env.NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+          rm .env.tmp
+
+      - name: Deploy to AWS EKS
+        run: |
+          VALUES_FLAGS="-f ./deploy/prod/values-user-info.yaml"
+          if [[ "${{ github.ref_name }}" == "dev" ]]; then
+            VALUES_FLAGS="$VALUES_FLAGS -f ./deploy/dev/values-user-info.yaml"
+          fi
+
+          helm upgrade --install ${{ env.RELEASE_NAME }} ./infra \
+            --namespace ${{ env.NAMESPACE }} \
+            $VALUES_FLAGS \
+            --set image.tag=${{ github.sha }} \
+            --set ingress.enabled=true \
+            --atomic \
+            --cleanup-on-fail

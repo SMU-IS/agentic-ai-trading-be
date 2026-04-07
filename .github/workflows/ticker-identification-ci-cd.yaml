@@ -1,14 +1,19 @@
-name: Ticker Identification Service CI/CD Pipeline
-
 on:
   workflow_dispatch:
   push:
     branches: ["master", "dev"]
     paths:
+      - "ticker-identification-service/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
   pull_request:
     branches: ["dev"]
     paths:
-
+      - "ticker-identification-service/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
 jobs:
   ticker-identification-service-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml

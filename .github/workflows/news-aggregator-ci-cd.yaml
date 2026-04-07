@@ -1,14 +1,19 @@
-name: News Aggregator CI/CD Pipeline
-
 on:
   workflow_dispatch:
   push:
     branches: ["master", "dev"]
     paths:
+      - "news-aggregator-service/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
   pull_request:
     branches: ["dev"]
     paths:
-
+      - "news-aggregator-service/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
 jobs:
   news-aggregator-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml

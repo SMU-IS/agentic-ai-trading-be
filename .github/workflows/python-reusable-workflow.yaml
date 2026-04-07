@@ -126,8 +126,11 @@ jobs:
           rm .env.tmp
 
           # Determine values files
-          VALUES_FLAGS="-f deploy/prod/values-${{ inputs.image-name }}.yaml"
-          DEV_VALUES_FILE="deploy/dev/values-${{ inputs.image-name }}.yaml"
+          # Base values (prod folder) come from the input
+          VALUES_FLAGS="-f ${{ inputs.values-file }}"
+          
+          # Dev override is in the same filename but in the 'dev' folder
+          DEV_VALUES_FILE=$(echo "${{ inputs.values-file }}" | sed 's/prod\//dev\//')
           
           if [[ "${{ github.ref_name }}" == "dev" ]] && [[ -f "$DEV_VALUES_FILE" ]]; then
             VALUES_FLAGS="$VALUES_FLAGS -f $DEV_VALUES_FILE"
