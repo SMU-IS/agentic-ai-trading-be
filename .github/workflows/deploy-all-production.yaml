@@ -1,0 +1,47 @@
+name: "00 - GLOBAL - Deploy All Production"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  approve:
+    name: Global Production Approval
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Ready to Deploy
+        run: echo "Global approval received. Triggering all service deployments..."
+
+  trigger-deployments:
+    name: Trigger Service Workflows
+    needs: approve
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger All Workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SERVICES=(
+            "event-identification-ci-cd.yaml"
+            "info-agent-ci-cd.yaml"
+            "metrics-tracker-ci-cd.yaml"
+            "news-aggregator-ci-cd.yaml"
+            "news-scraper-ci-cd.yml"
+            "news-scraper-trading-view.yaml"
+            "notification-ci-cd.yaml"
+            "preprocessing-ci-cd.yaml"
+            "qdrant-retrieval-ci-cd.yaml"
+            "rag-chatbot-ci-cd.yaml"
+            "sentiment-analysis-ci-cd.yml"
+            "ticker-identification-ci-cd.yaml"
+            "trading-agent-m-ci-cd.yml"
+            "trading-service-ci.yaml"
+            "user-info-ci-cd.yml"
+          )
+
+          for WF in "${SERVICES[@]}"; do
+            echo "🚀 Triggering $WF..."
+            gh workflow run "$WF" --ref master
+          done
