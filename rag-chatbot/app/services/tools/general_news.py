@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import httpx
 from langchain_core.tools import tool
@@ -10,9 +10,10 @@ from app.schemas.chat import GeneralNews
 @tool(args_schema=GeneralNews)
 async def get_general_news(
     query: str,
-    tickers: List[str] = [],
-    start_date: str = None,
-    end_date: str = None,
+    tickers: Optional[List[str]] = [],
+    is_general_market: bool = False,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
 ):
     """
     Search and analyze real-time financial news, market sentiment, and sector trends.
@@ -27,6 +28,7 @@ async def get_general_news(
     Args:
         query (str): The search phrase. Focus on technical events (e.g., "earnings beat," "fed rate hike").
         tickers (List[str], optional): Stock symbols in uppercase (e.g. ["NVDA", "PLTR"]).
+        is_general_market (bool): True if asking about overall market news, False otherwise.
         start_date (str, optional): Start date for filtering news (e.g. '2026-04-01T00:00:00').
         end_date (str, optional): End date for filtering news (e.g. '2026-04-07T23:59:59').
 
@@ -39,8 +41,8 @@ async def get_general_news(
 
     try:
         async with httpx.AsyncClient() as client:
-            # 1. Use /news (GET) for general market queries (no specific tickers)
-            if not tickers:
+            # 1. Use /news (GET) only if explicitly flagged as a general market query
+            if is_general_market:
                 base_url = env_config.qdrant_retrieval_query_url.replace(
                     "/query", "/news"
                 )
@@ -49,13 +51,17 @@ async def get_general_news(
                     params["end_date"] = end_date
 
                 response = await client.get(base_url, params=params)
-            
-            # 2. Use /query (POST) for ticker-specific or topic-specific searches (when tickers are present)
+
+            # 2. Use /query (POST) for ticker-specific or topic-specific searches
             else:
                 payload = {
                     "query": query,
                     "limit": 50,
+<<<<<<< HEAD
+                    "tickers": tickers if tickers is not None else [],
+=======
                     "tickers": tickers if tickers else [],
+>>>>>>> 38226ca541298a4c55a718e7b29d647a2c710bfa
                 }
                 if start_date:
                     payload["start_date"] = start_date
@@ -68,17 +74,35 @@ async def get_general_news(
 
             response.raise_for_status()
             data = response.json()
-            results = data.get("results", [])
+            results = (
+                data.get("data", [])
+                if isinstance(data, dict)
+                else (data if isinstance(data, list) else [])
+            )
 
             if not results:
                 context = "No relevant news found for the request."
             else:
-                context = "\n\n".join(
-                    [
-                        f"Topic ID: {d.get('topic_id', 'N/A')}\nContent: {d.get('text_content', 'No content available')}"
-                        for d in results
-                    ]
-                )
+                formatted_news = []
+                for d in results:
+                    meta = d.get("metadata", {})
+                    headline = meta.get("headline") or d.get("headline", "News Update")
+                    content = (
+                        d.get("text_content")
+                        or meta.get("text_content")
+                        or "No content available"
+                    )
+                    source = meta.get("source_domain", "Unknown source")
+                    timestamp = meta.get("timestamp", "N/A")
+
+                    formatted_news.append(
+                        f"Headline: {headline}\n"
+                        f"Source: {source} ({timestamp})\n"
+                        f"Content: {content}"
+                    )
+
+                context = "\n\n---\n\n".join(formatted_news)
+
             return {"context": context, "results": results}
 
     except httpx.HTTPStatusError as exc:
