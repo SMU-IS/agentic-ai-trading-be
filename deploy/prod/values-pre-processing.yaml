@@ -2,10 +2,10 @@ replicaCount: 2
 
 resources:
   requests:
-    memory: "512Mi"
+    memory: "1Gi"
     cpu: "250m"
   limits:
-    memory: "1Gi"
+    memory: "2Gi"
     cpu: "500m"
 
 autoscaling:
@@ -52,6 +52,13 @@ worker:
     maxReplicas: 5
     targetCPUUtilizationPercentage: 70
   command: ["python", "-m", "app.services.preprocessing_worker"]
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "1Gi"
+    limits:
+      cpu: "500m"
+      memory: "2Gi"
 
 secretName: preprocessing-service-secrets
 
