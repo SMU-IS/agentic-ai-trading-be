@@ -1,4 +1,4 @@
-name: "00 - GLOBAL - Deploy All Production"
+name: Global - Deploy All Production
 
 on:
   workflow_dispatch:
