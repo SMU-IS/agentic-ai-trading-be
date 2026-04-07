@@ -1,3 +1,5 @@
+name: News Aggregator CI/CD Pipeline
+
 on:
   workflow_dispatch:
   push:

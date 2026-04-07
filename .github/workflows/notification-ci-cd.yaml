@@ -1,3 +1,5 @@
+name: Notification Alert CI/CD Pipeline
+
 on:
   workflow_dispatch:
   push:

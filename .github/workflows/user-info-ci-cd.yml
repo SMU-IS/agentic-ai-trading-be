@@ -1,3 +1,5 @@
+name: User Info Service CI
+
 on:
   workflow_dispatch:
   push:
