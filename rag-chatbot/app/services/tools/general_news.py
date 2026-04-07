@@ -39,32 +39,29 @@ async def get_general_news(
 
     try:
         async with httpx.AsyncClient() as client:
-            # If tickers are provided, use the existing /query (POST) endpoint
-            if tickers:
-                payload = {
-                    "query": query,
-                    "limit": 50,
-                    "tickers": tickers,
-                }
-                response = await client.post(
-                    env_config.qdrant_retrieval_query_url, json=payload
+            # 1. Use /news (GET) for general market queries (no specific tickers)
+            if not tickers:
+                base_url = env_config.qdrant_retrieval_query_url.replace(
+                    "/query", "/news"
                 )
-            # If it's a date-based general market news request, use /news (GET)
-            elif start_date:
-                # Construct /news URL by replacing /query in the config
-                base_url = env_config.qdrant_retrieval_query_url.replace("/query", "/news")
                 params = {"start_date": start_date}
                 if end_date:
                     params["end_date"] = end_date
-                
+
                 response = await client.get(base_url, params=params)
-            # Fallback to general query if neither tickers nor dates are specific
+            
+            # 2. Use /query (POST) for ticker-specific or topic-specific searches (when tickers are present)
             else:
                 payload = {
                     "query": query,
                     "limit": 50,
-                    "tickers": [],
+                    "tickers": tickers if tickers else [],
                 }
+                if start_date:
+                    payload["start_date"] = start_date
+                if end_date:
+                    payload["end_date"] = end_date
+
                 response = await client.post(
                     env_config.qdrant_retrieval_query_url, json=payload
                 )

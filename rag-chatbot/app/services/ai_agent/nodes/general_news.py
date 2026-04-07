@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import datetime, timedelta
 from typing import Any
 
 from langchain_core.messages import AIMessage, SystemMessage
@@ -21,33 +22,56 @@ async def general_news_node(state: AgentState, llm) -> dict[str, Any]:
     from app.services.tools.general_news import get_general_news
 
     msg_id = str(uuid.uuid4())
-    current_date = "2026-04-07"
+
+    # Get dynamic current date
+    now = datetime.now()
+    current_date_iso = now.strftime("%Y-%m-%dT%H:%M:%S")
 
     try:
         # 1. Extract structured parameters from the user query
         extraction_prompt = (
-            f"Current date is {current_date}. "
+            f"Current date and time is {current_date_iso}. "
             "Extract search parameters for market news from the user query. "
             "If the user mentions 'today', set start_date and end_date for today. "
             "If the user mentions 'yesterday', set start_date and end_date for yesterday. "
+            "If the user does NOT mention a date or time period, leave start_date and end_date as null. "
             "Dates should be in ISO format (YYYY-MM-DDTHH:MM:SS)."
         )
 
         structured_llm = llm.with_structured_output(GeneralNews)
-        extracted_params = await structured_llm.ainvoke([
-            SystemMessage(content=extraction_prompt),
-            *state["messages"][-3:],
-        ])
+        extracted_params = await structured_llm.ainvoke(
+            [
+                SystemMessage(content=extraction_prompt),
+                *state["messages"][-3:],
+            ]
+        )
 
-        logger.info(f"Extracted parameters: {extracted_params}")
+        # 2. Handle defaults: If no date provided, default to yesterday
+        start_date = extracted_params.start_date
+        end_date = extracted_params.end_date
 
-        # 2. Fetch news using the extracted parameters
-        result = await get_general_news.ainvoke({
-            "query": extracted_params.query,
-            "tickers": extracted_params.tickers,
-            "start_date": extracted_params.start_date,
-            "end_date": extracted_params.end_date,
-        })
+        if not start_date:
+            yesterday = now - timedelta(days=1)
+            yesterday_str = yesterday.strftime("%Y-%m-%d")
+            start_date = f"{yesterday_str}T00:00:00"
+            end_date = f"{yesterday_str}T23:59:59"
+            logger.info(
+                f"No date provided, defaulting to yesterday: {start_date} to {end_date}"
+            )
+
+        logger.info(
+            f"Extracted parameters: query='{extracted_params.query}', tickers={extracted_params.tickers}, start_date='{start_date}', end_date='{end_date}'"
+        )
+
+        # 3. Fetch news using the parameters
+        result = await get_general_news.ainvoke(
+            {
+                "query": extracted_params.query,
+                "tickers": extracted_params.tickers,
+                "start_date": start_date,
+                "end_date": end_date,
+            }
+        )
         logger.info(f"General news retrieved for query: {extracted_params.query}")
 
         prompt = (
@@ -56,11 +80,14 @@ async def general_news_node(state: AgentState, llm) -> dict[str, Any]:
             "Focus on the most relevant details."
         )
 
-        response = await llm.ainvoke([
-            SystemMessage(content=prompt),
-            SystemMessage(content=json.dumps(result)),
-            *state["messages"][-3:],
-        ], config={"tags": ["user_response"]})
+        response = await llm.ainvoke(
+            [
+                SystemMessage(content=prompt),
+                SystemMessage(content=json.dumps(result)),
+                *state["messages"][-3:],
+            ],
+            config={"tags": ["user_response"]},
+        )
 
         return {
             "messages": [response],
