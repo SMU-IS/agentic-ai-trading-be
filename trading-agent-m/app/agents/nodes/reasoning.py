@@ -323,7 +323,7 @@ def parse_llm_json(response_content: str) -> dict:
         return decision
     except json.JSONDecodeError as e:
         print(f"❌ Parse failed: {e} | Raw: {raw_json}...")
-        return fallback_decision()
+        raise
 
 
 def fallback_decision() -> TradingDecision:

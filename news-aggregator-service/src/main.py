@@ -122,17 +122,22 @@ async def stream_processor():
     """Background processor for Redis stream."""
     while True:  # Keep alive during app lifetime
         try:
-            async for article in redis_service.listen_news_stream(service_enabled):
-                await workflow.run(
-                    {
-                        "articles": [article.to_dict()],
-                        "qdrant_context": [],
-                        "topics": [],
-                        "triggered_topics": [],
-                        "analyses": [],
-                        "signals": [],
-                    }
-                )
+            async for tickers, msg_id in redis_service.listen_news_stream(service_enabled):
+                try:
+                    for article in tickers:
+                        await workflow.run(
+                            {
+                                "articles": [article.to_dict()],
+                                "qdrant_context": [],
+                                "topics": [],
+                                "triggered_topics": [],
+                                "analyses": [],
+                                "signals": [],
+                            }
+                        )
+                    await redis_service.ack_news(msg_id)
+                except Exception as e:
+                    print(f"❌ Workflow error: {e} — message stays in PEL for retry")
         except Exception as e:
             print(f"Stream error: {e}, reconnecting...")
             await asyncio.sleep(5)
