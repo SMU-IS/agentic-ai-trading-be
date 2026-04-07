@@ -25,4 +25,5 @@ jobs:
       image-name: "sentiment-analysis-service"
       values-file: "deploy/prod/values-sentiment-analysis.yaml"
       secret-key: "SENTIMENT_ANALYSIS_SECRETS"
+      k8s-secret-name: "sentiment-analysis"
     secrets: inherit
