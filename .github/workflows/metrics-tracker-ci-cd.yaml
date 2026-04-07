@@ -3,11 +3,11 @@ name: Metrics Tracker Service CI/CD Pipeline
 on:
   workflow_dispatch:
   push:
-    branches: ["master"]
-    paths: ["metrics-tracker/**"]
+    branches: ["master", "dev"]
+    paths:
   pull_request:
-    branches: ["master"]
-    paths: ["metrics-tracker/**"]
+    branches: ["dev"]
+    paths:
 
 jobs:
   metrics-tracker-workflow:
@@ -16,6 +16,6 @@ jobs:
       working-directory: "metrics-tracker"
       cluster-name: "agentic-m-cluster"
       image-name: "metrics-tracker-service"
-      values-file: "deploy/values-metrics-tracker.yaml"
+      values-file: "deploy/prod/values-metrics-tracker.yaml"
       secret-key: "METRICS_TRACKER_SECRETS"
     secrets: inherit

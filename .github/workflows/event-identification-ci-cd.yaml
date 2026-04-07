@@ -3,11 +3,11 @@ name: Event Identification Service CI/CD Pipeline
 on:
   workflow_dispatch:
   push:
-    branches: ["master"]
-    paths: ["event-identification-service/**"]
+    branches: ["master", "dev"]
+    paths:
   pull_request:
-    branches: ["master"]
-    paths: ["event-identification-service/**"]
+    branches: ["dev"]
+    paths:
 
 jobs:
   event-identification-workflow:
@@ -16,6 +16,6 @@ jobs:
       working-directory: "event-identification-service"
       cluster-name: "agentic-m-cluster"
       image-name: "event-identification-service"
-      values-file: "deploy/values-event-identification.yaml"
+      values-file: "deploy/prod/values-event-identification.yaml"
       secret-key: "EVENT_IDENTIFICATION_SECRETS"
     secrets: inherit

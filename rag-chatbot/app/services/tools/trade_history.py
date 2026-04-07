@@ -26,12 +26,12 @@ async def _get_order_details(order_id: str, user_id: str):
             logger.info(f"Order details fetched for order id {order_id}")
 
             return (
-                order_details.get("symbol", "Unknown"),
+                order_details.get("symbol") or "Unknown",
                 order_details.get("filled_avg_price") or 0.0,
-                order_details.get("side", "Unknown"),
-                order_details.get("risk_evaluation", "Unknown"),
-                order_details.get("risk_adjustments_made", "Unknown"),
-                order_details.get("trading_agent_reasonings", "Unknown"),
+                order_details.get("side") or "Unknown",
+                order_details.get("risk_evaluation") or "Unknown",
+                order_details.get("risk_adjustments_made") or "Unknown",
+                order_details.get("trading_agent_reasonings") or "No specific reasoning provided.",
             )
 
     except httpx.HTTPStatusError as exc:

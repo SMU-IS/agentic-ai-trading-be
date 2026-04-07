@@ -2,61 +2,66 @@ replicaCount: 2
 
 resources:
   requests:
-    cpu: "200m"
-    memory: "256Mi"
-  limits:
-    cpu: "400m"
+    cpu: "250m"
     memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
 
 autoscaling:
   enabled: true
   minReplicas: 2
-  maxReplicas: 4
-  targetCPUUtilizationPercentage: 80
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
 
 image:
-  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/news-scraper-tradingview
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/trading-agent-m
   tag: v1
   pullPolicy: Always
 
 service:
   type: ClusterIP
-  port: 5013
-  targetPort: 5013
+  port: 5006
+  targetPort: 5006
 
 startupProbe:
   httpGet:
     path: /
-    port: 5013
+    port: 5006
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
     path: /
-    port: 5013
+    port: 5006
   initialDelaySeconds: 10
   periodSeconds: 20
 
 readinessProbe:
   httpGet:
     path: /
-    port: 5013
+    port: 5006
   initialDelaySeconds: 5
   periodSeconds: 10
 
-secretName: news-scraper-trading-view-secrets
+podAnnotations:
+  # prometheus.io/scrape: "true"
+  # prometheus.io/port: "5006"
+  # prometheus.io/path: "/metrics"
+
+secretName: trading-agent-m-secrets
 
 ingress:
+  host: api.agentic-m.com
   enabled: true
   public:
     enabled: true
     paths:
-      - path: /api/v1/news-scraper-tradingview/healthcheck
+      - path: /api/v1/agent-m/healthcheck
         pathType: Exact
   protected:
     enabled: true
     paths:
-      - path: /api/v1/news-scraper-tradingview
+      - path: /api/v1/agent-m
         pathType: Prefix
-

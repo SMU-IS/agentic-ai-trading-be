@@ -70,11 +70,11 @@ async def get_general_news(
 
             response.raise_for_status()
             data = response.json()
-            results = (
-                data.get("data", [])
-                if isinstance(data, dict)
-                else (data if isinstance(data, list) else [])
-            )
+            
+            if isinstance(data, dict):
+                results = data.get("data") or data.get("results") or []
+            else:
+                results = data if isinstance(data, list) else []
 
             if not results:
                 context = "No relevant news found for the request."
@@ -90,6 +90,12 @@ async def get_general_news(
                     )
                     source = meta.get("source_domain", "Unknown source")
                     timestamp = meta.get("timestamp", "N/A")
+
+                    # Fallback for source if missing from metadata but in topic_id
+                    if source == "Unknown source" and "topic_id" in d:
+                        tid = d["topic_id"]
+                        if ":" in tid:
+                            source = tid.split(":")[0].replace("_", " ").title()
 
                     formatted_news.append(
                         f"Headline: {headline}\n"

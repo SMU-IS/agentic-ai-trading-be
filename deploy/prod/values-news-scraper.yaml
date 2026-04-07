@@ -2,11 +2,11 @@ replicaCount: 2
 
 resources:
   requests:
-    cpu: "100m"
     memory: "128Mi"
+    cpu: "50m"
   limits:
-    cpu: "200m"
     memory: "256Mi"
+    cpu: "100m"
 
 autoscaling:
   enabled: true
@@ -15,45 +15,47 @@ autoscaling:
   targetCPUUtilizationPercentage: 70
 
 image:
-  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/notification-alert
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/news-scraper
   tag: v1
   pullPolicy: Always
 
 service:
   type: ClusterIP
-  port: 5004
-  targetPort: 5004
+  port: 5003
+  targetPort: 5003
 
 startupProbe:
   httpGet:
     path: /
-    port: 5004
+    port: 5003
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
     path: /
-    port: 5004
-  initialDelaySeconds: 10
-  periodSeconds: 20
+    port: 5003
+  initialDelaySeconds: 60
 
 readinessProbe:
   httpGet:
     path: /
-    port: 5004
-  initialDelaySeconds: 5
-  periodSeconds: 10
+    port: 5003
+  initialDelaySeconds: 30
 
-secretName: notification-alert-secrets
+secretName: news-scraper-secrets
 
 ingress:
+  host: api.agentic-m.com
   enabled: true
   public:
     enabled: true
     paths:
-      - path: /api/v1/notification
-        pathType: Prefix
+      - path: /api/v1/news-scraper/healthcheck
+        pathType: Exact
   protected:
-    enabled: false
-    paths: []
+    enabled: true
+    paths:
+      - path: /api/v1/news-scraper
+        pathType: Prefix
+
