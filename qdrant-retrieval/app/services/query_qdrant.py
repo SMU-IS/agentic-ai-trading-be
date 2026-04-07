@@ -17,15 +17,22 @@ class QueryQdrantService:
         self.vector_store = self.strategy.get_vector_store()
 
     async def retrieve_news(
-        self, limit: int = 20, offset: Any = None, sort_by_recency: bool = True
+        self,
+        limit: int = 20,
+        offset: Any = None,
+        sort_by_recency: bool = True,
+        start_date: Any = None,
+        end_date: Any = None,
     ) -> dict[str, Any]:
         """
-        Retrieves news documents from the collection with optional sorting and pagination.
+        Retrieves news documents from the collection with optional sorting, filtering, and pagination.
 
         Args:
             limit (int): Number of documents to return.
             offset (Any): The offset from which to start scrolling.
             sort_by_recency (bool): Whether to sort by timestamp descending.
+            start_date (datetime): Optional start date for filtering.
+            end_date (datetime): Optional end date for filtering.
 
         Returns:
             dict: A dictionary containing the list of documents and the next offset.
@@ -37,11 +44,26 @@ class QueryQdrantService:
                     key="metadata.timestamp", direction=models.Direction.DESC
                 )
 
+            scroll_filter = None
+            if start_date or end_date:
+                scroll_filter = models.Filter(
+                    must=[
+                        models.FieldCondition(
+                            key="metadata.timestamp",
+                            range=models.Range(
+                                gte=start_date.isoformat() if start_date else None,
+                                lte=end_date.isoformat() if end_date else None,
+                            ),
+                        )
+                    ]
+                )
+
             records, next_offset = self.vector_store.client.scroll(
                 collection_name="news_analysis_compiled",
                 limit=limit,
                 offset=offset,
                 order_by=order_by,
+                scroll_filter=scroll_filter,
                 with_payload=True,
                 with_vectors=False,
             )

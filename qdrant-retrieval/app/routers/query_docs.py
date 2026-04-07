@@ -34,14 +34,25 @@ router = APIRouter(tags=["Query Documents"])
 async def get_latest_news(
     limit: int = Query(50, ge=1, le=1000),
     offset: str = Query(None, description="The offset ID for pagination"),
+    start_date: str = Query(None, description="The start date for filtering (ISO format)"),
+    end_date: str = Query(None, description="The end date for filtering (ISO format)"),
     service: QueryQdrantService = Depends(QueryQdrantService),
 ):
     """
-    Endpoint to fetch the most recent news documents with pagination.
+    Endpoint to fetch the most recent news documents with pagination and optional date filtering.
     """
     try:
+        from datetime import datetime
+
+        start_dt = datetime.fromisoformat(start_date) if start_date else None
+        end_dt = datetime.fromisoformat(end_date) if end_date else None
+
         data = await service.retrieve_news(
-            limit=limit, offset=offset, sort_by_recency=True
+            limit=limit,
+            offset=offset,
+            sort_by_recency=True,
+            start_date=start_dt,
+            end_date=end_dt,
         )
         return {
             "status": "success",
@@ -49,6 +60,10 @@ async def get_latest_news(
             "next_offset": data["next_offset"],
             "data": data["results"],
         }
+    except ValueError:
+        raise HTTPException(
+            status_code=400, detail="Invalid date format. Please use ISO 8601 format."
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
