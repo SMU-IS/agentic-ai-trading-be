@@ -3,6 +3,10 @@ name: Global - Deploy All Production
 on:
   workflow_dispatch:
 
+permissions:
+  actions: write
+  contents: read
+
 jobs:
   approve:
     name: Global Production Approval
@@ -43,5 +47,5 @@ jobs:
 
           for WF in "${SERVICES[@]}"; do
             echo "🚀 Triggering $WF..."
-            gh workflow run "$WF" --ref master
+            gh workflow run "$WF" --ref master -f skip-approval="true"
           done
