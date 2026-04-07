@@ -1,5 +1,5 @@
 import asyncio
-from typing import AsyncGenerator, List
+from typing import AsyncGenerator, List, Tuple
 
 import redis.asyncio as aioredis
 from src.config import settings
@@ -22,13 +22,27 @@ class RedisService:
         self.redis_news_stream = settings.redis_news_stream
         self.redis_signal_stream = settings.redis_signal_stream
         self.redis_aggregator_stream = settings.redis_aggregator_stream
+        self.redis_consumer_group = settings.redis_consumer_group
+        self.redis_consumer_name = settings.redis_consumer_name
 
         print(f"✅ Redis: {redis_con}")
         print(f"📡 Listening to Aggregator Stream: '{self.redis_aggregator_stream}'")
         print(f"📤 Signal Stream: '{self.redis_signal_stream}'")
         print(f"📤 News Stream: '{self.redis_news_stream}'")
-        
-        # Test stream exists
+
+        # Create consumer group if it doesn't exist
+        try:
+            await self.redis.xgroup_create(
+                self.redis_aggregator_stream, self.redis_consumer_group, id="$", mkstream=True
+            )
+            print(f"👥 Consumer group created: '{self.redis_consumer_group}'")
+        except Exception as e:
+            if "BUSYGROUP" in str(e):
+                print(f"👥 Consumer group already exists: '{self.redis_consumer_group}'")
+            else:
+                print(f"⚠️  Consumer group error: {e}")
+
+        # Log stream length
         try:
             length = await self.redis.xlen(self.redis_aggregator_stream)
             print(f"📊 Stream length: {length}")
@@ -42,44 +56,44 @@ class RedisService:
             return True
         return val.decode().lower() in ("1", "true", "yes")
 
-    async def listen_news_stream(self, enabled_event: asyncio.Event) -> AsyncGenerator[TickerSentiment, None]:
-        """✅ CORRECT aioredis xread syntax. Stops reading when enabled_event is cleared."""
+    async def listen_news_stream(self, enabled_event: asyncio.Event) -> AsyncGenerator[Tuple[List[TickerSentiment], bytes], None]:
+        """Yields (tickers, msg_id) per message. Caller must call ack_news(msg_id) on success."""
         while True:
             if not enabled_event.is_set():
                 await asyncio.sleep(1)
                 continue
 
             try:
-                messages = await self.redis.xread(
-                block=1000,
-                count=10,
-                streams={self.redis_aggregator_stream: "0"}
-            )
-                
+                messages = await self.redis.xreadgroup(
+                    self.redis_consumer_group,
+                    self.redis_consumer_name,
+                    streams={self.redis_aggregator_stream: ">"},
+                    count=10,
+                    block=1000,
+                )
+
                 if not messages:
                     continue
 
-                for stream, msgs in messages:
+                for _stream, msgs in messages:
                     for msg_id, fields in msgs:
-                        # Ack message - skip if error
-                        await self.redis.xdel(self.redis_aggregator_stream, msg_id)
                         decoded = {k.decode(): v.decode() for k, v in fields.items()}
                         print()
                         print("🚀🚀🚀🚀🚀")
                         print("📨 Ingesting News:", decoded)
                         tickers = self._extract_tickers_from_message(decoded)
-                        # print(f"   Extracted {tickers} tickers from message ID {msg_id}"   )
-                        
-                        
-                        # Run message
-                        for ticker_sentiment in tickers:
-                            yield ticker_sentiment
 
-                        
+                        yield tickers, msg_id
+
             except Exception as e:
                 print(f"❌ Stream error: {e}")
                 print(f"   Stream name: '{self.redis_aggregator_stream}'")
                 await asyncio.sleep(1)
+
+    async def ack_news(self, msg_id: bytes):
+        """Acknowledge and delete a processed news message from the stream."""
+        await self.redis.xack(self.redis_aggregator_stream, self.redis_consumer_group, msg_id)
+        await self.redis.xdel(self.redis_aggregator_stream, msg_id)
 
     def _extract_tickers_from_message(self, raw_data: dict) -> List[TickerSentiment]:
         tickers = []

@@ -33,6 +33,8 @@ class Settings(BaseSettings):
 
     # Service control
     redis_service_control_key: str = "services:news-aggregator-service"
+    redis_consumer_group: str = "news-aggregator-group"
+    redis_consumer_name: str = "news-aggregator"
 
 
 settings = Settings()

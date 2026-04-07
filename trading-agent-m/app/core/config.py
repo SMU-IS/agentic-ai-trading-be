@@ -22,6 +22,8 @@ class EnvConfig(BaseSettings):
     redis_service_control_key: str = os.getenv(
         "REDIS_SERVICE_CONTROL_KEY", "services:trading-agent-m"
     )
+    redis_consumer_group: str = os.getenv("REDIS_CONSUMER_GROUP", "trading-agent-m-group")
+    redis_consumer_name: str = os.getenv("REDIS_CONSUMER_NAME", "trading-agent-m")
 
     # Perplexity
     perplexity_api_key: str = os.getenv("PERPLEXITY_API_KEY")
