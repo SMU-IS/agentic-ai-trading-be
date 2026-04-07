@@ -5,10 +5,17 @@ on:
   push:
     branches: ["master", "dev"]
     paths:
+      - "metrics-tracker/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
   pull_request:
     branches: ["dev"]
     paths:
-
+      - "metrics-tracker/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
 jobs:
   metrics-tracker-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml

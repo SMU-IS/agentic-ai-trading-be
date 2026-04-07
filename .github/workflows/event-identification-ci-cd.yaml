@@ -5,10 +5,17 @@ on:
   push:
     branches: ["master", "dev"]
     paths:
+      - "event-identification-service/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
   pull_request:
     branches: ["dev"]
     paths:
-
+      - "event-identification-service/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
 jobs:
   event-identification-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml

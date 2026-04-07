@@ -5,10 +5,17 @@ on:
   push:
     branches: ["master", "dev"]
     paths:
+      - "rag-chatbot/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
   pull_request:
     branches: ["dev"]
     paths:
-
+      - "rag-chatbot/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
 jobs:
   rag-bot-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml

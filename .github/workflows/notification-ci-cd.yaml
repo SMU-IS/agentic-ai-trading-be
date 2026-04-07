@@ -1,14 +1,21 @@
-name: Notification Alert  CI/CD Pipeline
+name: Notification Alert CI/CD Pipeline
 
 on:
   workflow_dispatch:
   push:
     branches: ["master", "dev"]
     paths:
+      - "notification-alert/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
   pull_request:
     branches: ["dev"]
     paths:
-
+      - "notification-alert/**"
+      - "deploy/**"
+      - "infra/**"
+      - ".github/workflows/python-reusable-workflow.yaml"
 jobs:
   notification-alert-workflow:
     uses: ./.github/workflows/python-reusable-workflow.yaml
