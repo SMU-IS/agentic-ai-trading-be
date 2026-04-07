@@ -16,9 +16,10 @@ data "aws_route53_zone" "selected" {
 
 #  ACM Certificate
 data "aws_acm_certificate" "issued" {
-  domain   = "api.agentic-m.com"
-  statuses = ["ISSUED"]
-  provider = aws.us_east_1
+  domain      = "api.agentic-m.com"
+  statuses    = ["ISSUED"]
+  most_recent = true
+  provider    = aws.us_east_1
 }
 
 data "aws_cloudfront_cache_policy" "caching_disabled" {
