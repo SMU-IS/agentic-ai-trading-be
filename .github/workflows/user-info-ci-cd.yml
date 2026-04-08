@@ -82,7 +82,7 @@ jobs:
       - name: Deploy to AWS EKS
         run: |
           helm upgrade --install user-info ./infra \
-            -f ./deploy/values-user-info.yaml \
+            -f ./deploy/prod/values-user-info.yaml \
             --set image.tag=${{ github.sha }} \
             --set ingress.enabled=true \
             --atomic \

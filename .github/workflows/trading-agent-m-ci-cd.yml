@@ -16,6 +16,6 @@ jobs:
       working-directory: "trading-agent-m"
       cluster-name: "agentic-m-cluster"
       image-name: "trading-agent-m"
-      values-file: "deploy/values-trading-agent-m.yaml"
+      values-file: "deploy/prod/values-trading-agent-m.yaml"
       secret-key: "TRADING_AGENT_M_SECRETS"
     secrets: inherit

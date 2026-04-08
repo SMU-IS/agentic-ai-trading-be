@@ -16,6 +16,6 @@ jobs:
       working-directory: "event-identification-service"
       cluster-name: "agentic-m-cluster"
       image-name: "event-identification-service"
-      values-file: "deploy/values-event-identification.yaml"
+      values-file: "deploy/prod/values-event-identification.yaml"
       secret-key: "EVENT_IDENTIFICATION_SECRETS"
     secrets: inherit
