@@ -39,7 +39,7 @@ jobs:
         with:
           enable-cache: true
       - name: Run Tests
-        if: inputs.image-name == 'rag-chatbot'
+        if: inputs.image-name == 'rag-chatbot' || inputs.image-name == 'info-agent-service'
         run: |
           # Check if uv is the intended package manager
           if [ -f "uv.lock" ]; then
@@ -92,6 +92,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: [test, build]
+    if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
