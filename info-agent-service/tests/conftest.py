@@ -1,3 +1,14 @@
+"""
+conftest.py
+
+Injects mock environment variables at module load time, before pytest begins
+collecting and importing test modules.
+
+This prevents pydantic_settings from raising a ValidationError when EnvConfig()
+is instantiated at import time in app/core/config.py.
+"""
+
+import os
 from unittest.mock import MagicMock
 
 import pytest
@@ -36,3 +47,13 @@ def client(mock_info_agent_service):
         yield c
     # Clear overrides after test
     app.dependency_overrides.clear()
+
+
+os.environ.setdefault("LLM_PROVIDER", "gemini")
+os.environ.setdefault("LARGE_LANGUAGE_MODEL", "mock-model")
+os.environ.setdefault("GROQ_API_KEY", "api-key")
+os.environ.setdefault("NOMIC_API_KEY", "api-key")
+os.environ.setdefault("TEXT_EMBEDDING_MODEL", "mock-model")
+os.environ.setdefault("QDRANT_API_KEY", "mock-key")
+os.environ.setdefault("QDRANT_URL", "http://mock/query")
+os.environ.setdefault("QDRANT_COLLECTION_NAME", "mock")
