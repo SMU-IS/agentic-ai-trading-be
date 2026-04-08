@@ -107,3 +107,16 @@ config:
     headers:
       - x-user-id:$(headers['x-consumer-username'])
 plugin: request-transformer
+
+---
+# Welcome Message Plugin
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: welcome-message
+  namespace: default
+config:
+  status_code: 200
+  body: '{"message": "⚡ Agent M Production APIs"}'
+  content_type: application/json
+plugin: request-termination

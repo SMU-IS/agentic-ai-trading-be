@@ -255,7 +255,7 @@ resource "helm_release" "karpenter" {
           memory: 256Mi
         limits:
           cpu: 500m
-          memory: 512Mi
+          memory: 1Gi
     core:
       webhook:
         enabled: false

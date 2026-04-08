@@ -2,11 +2,11 @@ replicaCount: 2
 
 resources:
   requests:
-    cpu: "200m"
-    memory: "256Mi"
+    cpu: "50m"
+    memory: "64Mi"
   limits:
-    cpu: "400m"
-    memory: "512Mi"
+    cpu: "200m"
+    memory: "128Mi"
 
 autoscaling:
   enabled: true
@@ -61,4 +61,3 @@ ingress:
     paths:
       - path: /api/v1/user
         pathType: Prefix
-
