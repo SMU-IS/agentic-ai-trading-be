@@ -8,13 +8,13 @@ metadata:
 spec:
   ingressClassName: kong
   rules:
-  - host: api.agentic-m.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: rag-chatbot-infra
-            port:
-              number: 5001
+    - host: api.agentic-m.com
+      http:
+        paths:
+          - path: /
+            pathType: Exact
+            backend:
+              service:
+                name: rag-chatbot-infra
+                port:
+                  number: 5001
