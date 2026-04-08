@@ -39,7 +39,7 @@ jobs:
         with:
           enable-cache: true
       - name: Run Tests
-        if: inputs.image-name == 'rag-chatbot'
+        if: inputs.image-name == 'rag-chatbot' || inputs.image-name == 'info-agent-service'
         run: |
           # Check if uv is the intended package manager
           if [ -f "uv.lock" ]; then
