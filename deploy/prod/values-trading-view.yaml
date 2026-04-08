@@ -45,7 +45,7 @@ readinessProbe:
   initialDelaySeconds: 5
   periodSeconds: 10
 
-secretName: news-scraper-trading-view-secrets
+secretName: news-scraper-tradingview-secrets
 
 ingress:
   enabled: true

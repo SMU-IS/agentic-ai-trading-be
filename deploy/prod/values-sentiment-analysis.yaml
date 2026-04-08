@@ -53,7 +53,7 @@ worker:
     targetCPUUtilizationPercentage: 70
   command: ["python", "-m", "app.services.sentiment_analysis_worker"]
 
-secretName: sentiment-analysis-secrets
+secretName: sentiment-analysis-service-secrets
 
 ingress:
   enabled: true
