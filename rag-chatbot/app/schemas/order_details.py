@@ -6,7 +6,7 @@ class OrderDetailsResponse(BaseModel):
     ticker: str
     action: str
     entry_price: float
-    reasoning: str
+    reasoning: str | None = None
 
 
 class OrderSummary(BaseModel):

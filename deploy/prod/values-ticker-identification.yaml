@@ -1,0 +1,69 @@
+replicaCount: 2
+
+resources:
+  requests:
+    cpu: "100m"
+    memory: "1Gi"
+  limits:
+    cpu: "250m"
+    memory: "1.5Gi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/ticker-identification-service
+  tag: 2e8ae96a866c7739fd6946de962122ab7a584d51
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 5010
+  targetPort: 5010
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 5010
+  failureThreshold: 30
+  periodSeconds: 10
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 5010
+  initialDelaySeconds: 60
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 5010
+  initialDelaySeconds: 30
+
+worker:
+  enabled: true
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+  command: ["python", "-m", "app.services.ticker_identification_worker"]
+
+secretName: ticker-identification-service-secrets
+
+ingress:
+  enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/ticker-identification/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/ticker-identification
+        pathType: Prefix

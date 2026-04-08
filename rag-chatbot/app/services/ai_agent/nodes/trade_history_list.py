@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any
 
 from langchain_core.messages import AIMessage, SystemMessage
+from langchain_core.runnables import RunnableConfig
 
 from app.schemas.chat import TradeHistoryRange
 from app.services.ai_agent.state import AgentState
@@ -12,7 +13,9 @@ from app.utils.logger import setup_logging
 logger = setup_logging()
 
 
-async def trade_history_list_node(state: AgentState, llm) -> dict[str, Any]:
+async def trade_history_list_node(
+    state: AgentState, config: RunnableConfig, llm
+) -> dict[str, Any]:
     """
     Node to handle trade history list queries (e.g. "past 1 day").
 
@@ -49,15 +52,27 @@ async def trade_history_list_node(state: AgentState, llm) -> dict[str, Any]:
         from app.services.tools.trade_history_list import get_trade_history_list
 
         result = await get_trade_history_list.ainvoke(
-            {"after": date_range.after, "until": date_range.until}
+            {"after": date_range.after, "until": date_range.until}, config=config
         )
 
         logger.info(
             f"Trade history list retrieved for period: {date_range.after} to {date_range.until}"
         )
 
+        prompt = (
+            "You are a helpful trading assistant. "
+            "Take the raw list of trades and present them in a clear, formatted bulleted list. "
+            "Be concise."
+        )
+
+        response = await llm.ainvoke([
+            SystemMessage(content=prompt),
+            SystemMessage(content=json.dumps(result.model_dump())),
+            *state["messages"][-3:],
+        ], config={"tags": ["user_response"]})
+
         return {
-            "messages": [SystemMessage(content=json.dumps(result.dict()), id=msg_id)],
+            "messages": [response],
         }
 
     except Exception as e:

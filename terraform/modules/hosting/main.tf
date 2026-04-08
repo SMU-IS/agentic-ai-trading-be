@@ -15,10 +15,42 @@ data "aws_route53_zone" "selected" {
 }
 
 #  ACM Certificate
-data "aws_acm_certificate" "issued" {
-  domain   = "api.agentic-m.com"
-  statuses = ["ISSUED"]
-  provider = aws.us_east_1
+resource "aws_acm_certificate" "api_cert" {
+  domain_name               = "api.agentic-m.com"
+  subject_alternative_names = []
+  validation_method         = "DNS"
+  provider                  = aws.us_east_1
+
+  tags = {
+    Environment = var.environment
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route53_record" "cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.api_cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.selected.zone_id
+}
+
+resource "aws_acm_certificate_validation" "cert" {
+  certificate_arn         = aws_acm_certificate.api_cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
+  provider                = aws.us_east_1
 }
 
 data "aws_cloudfront_cache_policy" "caching_disabled" {
@@ -63,18 +95,18 @@ resource "aws_amplify_app" "trading_frontend" {
   }
 
   environment_variables = {
-    ENV                         = var.environment
-    NEXT_PUBLIC_BASE_API_URL    = var.base_api_url
-    NEXT_PUBLIC_CHAT_API_URL    = var.chat_api_url
-    NEXT_PUBLIC_FINNHUB_API_KEY = var.finnhub_api_key
-    NEXT_PUBLIC_LOGOKIT_API_KEY = var.logokit_api_key
-    NEXT_PUBLIC_NOTIF_API_URL   = var.notif_api_url
-    NEXT_PUBLIC_THREAD_API_URL  = var.thread_api_url
-    NEXT_PUBLIC_ENABLE_SIGN_UP  = var.enable_sign_up
-    NEXT_PUBLIC_SHOW_BANNER     = var.show_banner
-    NEXT_PUBLIC_BANNER_MESSAGE  = var.banner_message
+    ENV                                 = var.environment
+    NEXT_PUBLIC_BASE_API_URL            = var.base_api_url
+    NEXT_PUBLIC_CHAT_API_URL            = var.chat_api_url
+    NEXT_PUBLIC_FINNHUB_API_KEY         = var.finnhub_api_key
+    NEXT_PUBLIC_LOGOKIT_API_KEY         = var.logokit_api_key
+    NEXT_PUBLIC_NOTIF_API_URL           = var.notif_api_url
+    NEXT_PUBLIC_THREAD_API_URL          = var.thread_api_url
+    NEXT_PUBLIC_ENABLE_SIGN_UP          = var.enable_sign_up
+    NEXT_PUBLIC_SHOW_BANNER             = var.show_banner
+    NEXT_PUBLIC_BANNER_MESSAGE          = var.banner_message
+    NEXT_PUBLIC_SHOW_CLOUDWATCH_METRICS = var.show_cloudwatch_metrics
   }
-
 
   tags = {
     Environment = var.environment
@@ -108,6 +140,7 @@ resource "aws_cloudfront_distribution" "kong_api" {
   comment         = "CloudFront for Kong API ${var.environment}"
   price_class     = "PriceClass_100"
   aliases         = ["api.agentic-m.com"]
+  web_acl_id      = aws_wafv2_web_acl.api_waf.arn
 
   default_cache_behavior {
     allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
@@ -125,7 +158,7 @@ resource "aws_cloudfront_distribution" "kong_api" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = data.aws_acm_certificate.issued.arn
+    acm_certificate_arn      = aws_acm_certificate_validation.cert.certificate_arn
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }

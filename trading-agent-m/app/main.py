@@ -1,5 +1,6 @@
 import asyncio
 from contextlib import asynccontextmanager
+import httpx
 
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
@@ -41,29 +42,44 @@ async def lifespan(app: FastAPI):
     if initial_enabled:
         service_enabled.set()
 
-    # Poll Redis every SERVICE_POLL_INTERVAL seconds to sync start/stop flag
+    async def _is_market_open() -> bool:
+        """Check Alpaca /clock — handles holidays and early closes automatically."""
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                resp = await client.get(f"{env_config.trading_service_url}/clock")
+                return resp.json().get("is_open", False)
+        except Exception as e:
+            print(f"⚠️  Market clock check failed: {e}")
+            return False
+
+    # Poll every SERVICE_POLL_INTERVAL seconds.
+    # Both conditions must be True to run: Redis flag enabled AND market open.
     async def poll_service_control():
         while True:
             try:
-                enabled = await redis_service.get_service_enabled()
-                if enabled and not service_enabled.is_set():
+                market_open = await _is_market_open()
+                redis_enabled = await redis_service.get_service_enabled()
+                should_run = market_open and redis_enabled
+
+                if should_run and not service_enabled.is_set():
                     service_enabled.set()
-                    print(f"▶️  Service ENABLED  (key={env_config.redis_service_control_key})")
-                elif not enabled and service_enabled.is_set():
+                    print(f"▶️  Service ENABLED  — market_open={market_open} | redis_flag={redis_enabled}")
+                elif not should_run and service_enabled.is_set():
                     service_enabled.clear()
-                    print(f"⏸️  Service PAUSED   (key={env_config.redis_service_control_key})")
+                    print(f"⏸️  Service PAUSED   — market_open={market_open} | redis_flag={redis_enabled}")
             except Exception as e:
                 print(f"⚠️  Service control poll error: {e}")
             await asyncio.sleep(SERVICE_POLL_INTERVAL)
 
     # Start signal processing task
     async def process_signals():
-        async for signal in redis_service.listen_signal_stream(service_enabled):
+        async for signal, msg_id in redis_service.listen_signal_stream(service_enabled):
             try:
                 print(f"🚀 Processing signal: {signal.signal_id}")
                 await workflow.run(signal)
+                await redis_service.ack_signal(msg_id)
             except Exception as e:
-                print(f"❌ Workflow error for {signal.signal_id}: {e}")
+                print(f"❌ Workflow error for {signal.signal_id}: {e} — message stays in PEL for retry")
 
     poll_task = asyncio.create_task(poll_service_control())
     signal_task = asyncio.create_task(process_signals())

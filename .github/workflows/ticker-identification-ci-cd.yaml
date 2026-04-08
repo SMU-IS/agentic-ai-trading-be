@@ -16,7 +16,6 @@ jobs:
       working-directory: "ticker-identification-service"
       cluster-name: "agentic-m-cluster"
       image-name: "ticker-identification-service"
-      values-file: "deploy/values-ticker-identification.yaml"
-      ingress-path: "deploy/ingress.yaml"
+      values-file: "deploy/prod/values-ticker-identification.yaml"
       secret-key: "TICKER_IDENTIFICATION_SECRETS"
     secrets: inherit

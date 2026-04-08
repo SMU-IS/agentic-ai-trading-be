@@ -1,0 +1,21 @@
+name: Info Agent Service CI/CD Pipeline
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["master"]
+    paths: ["info-agent-service/**"]
+  pull_request:
+    branches: ["master"]
+    paths: ["info-agent-service/**"]
+
+jobs:
+  info-agent-workflow:
+    uses: ./.github/workflows/python-reusable-workflow.yaml
+    with:
+      working-directory: "info-agent-service"
+      cluster-name: "agentic-m-cluster"
+      image-name: "info-agent-service"
+      values-file: "deploy/prod/values-info-agent.yaml"
+      secret-key: "INFO_AGENT_SECRETS"
+    secrets: inherit

@@ -38,7 +38,7 @@ async def test_save_new_message_success(storage, mock_redis):
 
     assert msg_id == "1234567890-0"
     mock_redis.set.assert_called_once_with(
-        "ticker_dedup:post_001", "1", nx=True, ex=60 * 60 * 24
+        "ticker_dedup:post_001", "1", nx=True, ex=60 * 60 * 24 * 5
     )
     mock_redis.xadd.assert_called_once()
 
@@ -51,7 +51,6 @@ async def test_save_serializes_all_fields_as_json(storage, mock_redis):
 
     await storage.save({"id": "post_002", "score": 0.85, "tags": ["AAPL", "MSFT"]})
 
-    _, kwargs = mock_redis.xadd.call_args
     stream_data = mock_redis.xadd.call_args[0][1]
     assert stream_data["id"] == json.dumps("post_002")
     assert stream_data["score"] == json.dumps(0.85)
@@ -82,7 +81,7 @@ async def test_save_missing_id_proceeds_with_none_key(storage, mock_redis):
     # Code does NOT return None — it continues with post_id=None
     assert msg_id == "1234567890-0"
     mock_redis.set.assert_called_once_with(
-        "ticker_dedup:None", "1", nx=True, ex=60 * 60 * 24
+        "ticker_dedup:None", "1", nx=True, ex=60 * 60 * 24 * 5
     )
 
 
@@ -258,6 +257,16 @@ async def test_delete_no_ids_returns_zero(storage, mock_redis):
 
     assert result == 0
     mock_redis.xdel.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_delete_xdel_raises_returns_zero(storage, mock_redis):
+    """xdel raises an exception → returns 0 without propagating."""
+    mock_redis.xdel.side_effect = Exception("connection lost")
+
+    result = await storage.delete("msg_id_1")
+
+    assert result == 0
 
 
 # ─── claim_pending() ──────────────────────────────────────────────────────────

@@ -1,0 +1,56 @@
+replicaCount: 2
+
+resources:
+  requests:
+    cpu: "200m"
+    memory: "256Mi"
+  limits:
+    cpu: "200m"
+    memory: "256Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/trading-service
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 5007
+  targetPort: 5007
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 5007
+  initialDelaySeconds: 60
+readinessProbe:
+  httpGet:
+    path: /
+    port: 5007
+  initialDelaySeconds: 30
+
+podAnnotations:
+  # prometheus.io/scrape: "true"
+  # prometheus.io/port: "5007"
+  # prometheus.io/path: "/metrics"
+
+secretName: trading-service-secrets
+
+ingress:
+  enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/trading/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/trading
+        pathType: Prefix

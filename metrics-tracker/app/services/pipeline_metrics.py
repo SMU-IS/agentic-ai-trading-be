@@ -58,7 +58,7 @@ async def compute_pipeline_metrics():
 
     cursor = 0
     while True:
-        cursor, keys = await redis_client.scan(cursor, match="post_timestamps:*", count=100)
+        cursor, keys = await redis_client.scan(cursor, match="post_timestamps:*", count=500)
 
         if keys:
             pipe = redis_client.pipeline()
@@ -67,50 +67,62 @@ async def compute_pipeline_metrics():
             results = await pipe.execute()
 
             for key, data in zip(keys, results):
-                # Extract source from key: post_timestamps:{source}:{post_id}
-                source = key.split(":")[1]  # e.g. "reddit", "tradingview_ideas", "tradingview_minds"
+                # Parse timestamps once for efficiency
+                parsed = {k: _parse_dt(v) for k, v in data.items()}
 
+                # Extract source safely
+                parts = key.split(":")
+                source = parts[1] if len(parts) > 1 else "unknown"
+                
                 # ── Pipeline funnel (24h window on scraped_timestamp) ──────
-                scraped = _parse_dt(data.get("scraped_timestamp"))
+                scraped = parsed.get("scraped_timestamp")
                 if scraped and scraped >= pipeline_cutoff:
                     counts["scraped"] += 1
-                    if data.get("preproc_timestamp"):
+                    if parsed.get("preproc_timestamp"):
                         counts["preprocessed"] += 1
-                    if data.get("ticker_timestamp"):
+                    if parsed.get("ticker_timestamp"):
                         counts["ticker_identified"] += 1
-                    if data.get("event_timestamp"):
+                    if parsed.get("event_timestamp"):
                         counts["event_identified"] += 1
-                    if data.get("sentiment_timestamp"):
+                    if parsed.get("sentiment_timestamp"):
                         counts["sentiment_completed"] += 1
-                    if data.get("qdrant_timestamp"):
-                        counts["vectorised"] += 1
+                    if parsed.get("qdrant_timestamp"):
+                        counts["vectorised"] += 1   
 
-                for field, val in data.items():
-                    if field.startswith("signal_timestamp"):
-                        signal_time = _parse_dt(val)
-                        if signal_time:
-                            if signal_time >= pipeline_cutoff:
-                                counts["signal_generated"] += 1
-                            if signal_time >= service_cutoff:
-                                svc_counts["signal"] += 1
+                signal_times = [
+                    parsed.get(f) for f in parsed
+                    if f.startswith("signal_timestamp") and parsed.get(f)
+                ]
 
-                    elif field.startswith("order_timestamp"):
-                        order_time = _parse_dt(val)
-                        if order_time:
-                            if order_time >= pipeline_cutoff and scraped:
-                                counts["order_placed"] += 1
-                                e2e_latencies.append((order_time - scraped).total_seconds())
-                            if order_time >= service_cutoff:
-                                svc_counts["order"] += 1
+                order_times = [
+                    parsed.get(f) for f in parsed
+                    if f.startswith("order_timestamp") and parsed.get(f)
+                ]
 
+                signal_time = min(signal_times) if signal_times else None
+                order_time = min(order_times) if order_times else None
+
+                if signal_time:
+                    if signal_time >= pipeline_cutoff:
+                        counts["signal_generated"] += 1
+                    if signal_time >= service_cutoff:
+                        svc_counts["signal"] += 1
+
+                if order_time:
+                    if order_time >= pipeline_cutoff and scraped and order_time >= scraped:
+                        counts["order_placed"] += 1
+                        e2e_latencies.append(abs((order_time - scraped).total_seconds()))
+                    if order_time >= service_cutoff:
+                        svc_counts["order"] += 1
+                        
                 # ── Per-service metrics (1h window on each end timestamp) ──
 
                 # Scrapers — count by source, latency = scraped_timestamp - posted_timestamp
                 if scraped and scraped >= service_cutoff:
                     svc_counts[f"scraper:{source}"] += 1
-                    posted = _parse_dt(data.get("posted_timestamp"))
-                    if posted:
-                        svc_latencies[f"scraper:{source}"].append((scraped - posted).total_seconds())
+                    posted = parsed.get("posted_timestamp")
+                    if posted and scraped >= posted:
+                        svc_latencies[f"scraper:{source}"].append(abs((scraped - posted).total_seconds()))
 
                 # Pipeline services
                 stages = [
@@ -121,12 +133,12 @@ async def compute_pipeline_metrics():
                     ("vectorisation", "qdrant_timestamp_start",     "qdrant_timestamp"),
                 ]
                 for svc, start_key, end_key in stages:
-                    end = _parse_dt(data.get(end_key))
+                    end = parsed.get(end_key)
                     if end and end >= service_cutoff:
                         svc_counts[svc] += 1
-                        start = _parse_dt(data.get(start_key))
-                        if start:
-                            svc_latencies[svc].append((end - start).total_seconds())
+                        start = parsed.get(start_key)
+                        if start and end >= start:
+                            svc_latencies[svc].append(abs((end - start).total_seconds()))
 
                 # gap_latencies: prev_end → curr_end
                 gap_stages = [
@@ -137,18 +149,18 @@ async def compute_pipeline_metrics():
                     ("to_vectorisation", "sentiment_timestamp", "qdrant_timestamp"),
                 ]
                 for label, prev_key, curr_key in gap_stages:
-                    prev = _parse_dt(data.get(prev_key))
-                    curr = _parse_dt(data.get(curr_key))
-                    if prev and curr and curr >= service_cutoff:
-                        gap_latencies[label].append((curr - prev).total_seconds())
+                    prev = parsed.get(prev_key)
+                    curr = parsed.get(curr_key)
+                    if prev and curr and curr >= prev and curr >= service_cutoff:
+                        gap_latencies[label].append(abs((curr - prev).total_seconds()))
 
-                aggregator_end = _parse_dt(data.get("aggregator_timestamp"))
-                signal_time    = next((_parse_dt(v) for f, v in data.items() if f.startswith("signal_timestamp")), None)
-                order_time     = next((_parse_dt(v) for f, v in data.items() if f.startswith("order_timestamp")), None)
-                if aggregator_end and signal_time and signal_time >= service_cutoff:
-                    gap_latencies["to_signal"].append((signal_time - aggregator_end).total_seconds())
-                if signal_time and order_time and order_time >= service_cutoff:
-                    gap_latencies["to_order"].append((order_time - signal_time).total_seconds())
+                aggregator_end = parsed.get("aggregator_timestamp")
+
+                if aggregator_end and signal_time and signal_time >= aggregator_end and signal_time >= service_cutoff:
+                    gap_latencies["to_signal"].append(abs((signal_time - aggregator_end).total_seconds()))
+
+                if signal_time and order_time and order_time >= signal_time and order_time >= service_cutoff:
+                    gap_latencies["to_order"].append(abs((order_time - signal_time).total_seconds()))
 
         if cursor == 0:
             break
@@ -165,11 +177,16 @@ async def compute_pipeline_metrics():
     if tv_keys:
         tv_latencies = [l for k in tv_keys for l in svc_latencies[k]]
         scrapers["scraper:tradingview"] = {
-            **{f"{k[len('scraper:tradingview_'):]}_processed": scrapers[k]["processed"] for k in tv_keys},
-            "avg_latency_s": _avg(tv_latencies),
+            "minds_processed": scrapers.get("scraper:tradingview_minds", {}).get("processed", 0),
+            "ideas_processed": scrapers.get("scraper:tradingview_ideas", {}).get("processed", 0),
+            "avg_latency_s":   _avg(tv_latencies),
         }
         for k in tv_keys:
             del scrapers[k]
+
+    # Always include reddit and tradingview with defaults if missing
+    scrapers.setdefault("scraper:reddit",      {"processed": 0, "avg_latency_s": None})
+    scrapers.setdefault("scraper:tradingview", {"minds_processed": 0, "ideas_processed": 0, "avg_latency_s": None})
 
     funnel_snapshot = {
         "computed_at":      now.isoformat(),
@@ -179,8 +196,8 @@ async def compute_pipeline_metrics():
         "signal_generated": counts["signal_generated"],
         "order_placed":     counts["order_placed"],
         "removed": {
-            "no_ticker": counts["scraped"]           - counts["ticker_identified"],
-            "no_event":  counts["ticker_identified"] - counts["vectorised"],
+            "no_ticker": max(0, counts["scraped"] - counts["ticker_identified"]),
+            "no_event":  max(0, counts["ticker_identified"] - counts["vectorised"]),
         },
         "avg_e2e_latency_s": _avg(e2e_latencies),
     }

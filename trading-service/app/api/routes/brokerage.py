@@ -81,6 +81,31 @@ class UserRequest(BaseModel):
 
 router = APIRouter()
 
+
+@router.get("/debug/whoami")
+def debug_whoami(
+    x_user_id: str = Header(default=None),
+    authorization: str = Header(default=None)
+):
+    """Debug endpoint — returns the identity state received by the service."""
+    extracted_uid = x_user_id
+    
+    if not extracted_uid and authorization and authorization.startswith("Bearer "):
+        try:
+            token = authorization.replace("Bearer ", "")
+            payload = jwt.decode(token, options={"verify_signature": False})
+            extracted_uid = payload.get("sub")
+        except Exception:
+            pass
+
+    return {
+        "x_user_id_header": x_user_id,
+        "auth_header_found": authorization is not None,
+        "final_extracted_user_id": extracted_uid,
+        "source": "header" if x_user_id else ("jwt-token" if extracted_uid else "missing"),
+    }
+
+
 # ── In-memory TTL cache for /orders/all ───────────────────────────────────────
 _orders_cache: Dict[Tuple[str, int], Tuple[float, List]] = {}
 _CACHE_TTL = 30  # seconds
@@ -113,12 +138,31 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+import jwt
+
 # Dependency to get a broker instance (can be singleton or factory)
 def get_broker(
-    x_user_id: str = Header(default="agent-A"),
+    x_user_id: str = Header(default=None),
+    authorization: str = Header(default=None),
 ) -> AlpacaBrokerClient:
+    """Gets the broker client, extracting user_id from X-User-Id or JWT if needed."""
+    
+    # 1. If X-User-Id is missing, extract 'sub' from the JWT Bearer token
+    if not x_user_id and authorization and authorization.startswith("Bearer "):
+        try:
+            token = authorization.replace("Bearer ", "")
+            # We skip verification because Kong already validated the signature
+            payload = jwt.decode(token, options={"verify_signature": False})
+            x_user_id = payload.get("sub")
+        except Exception as e:
+            logger.warning(f"Failed to decode JWT for user identification: {e}")
+
+    # 2. Final fallback to default user
+    if not x_user_id:
+        x_user_id = "agent-A"
+
     try:
-        print("fetching for user", x_user_id)
+        print(f"Fetching broker for user: {x_user_id}")
         api_key, api_secret, paper = services.trading_db._load_user_account_from_mongo(
             x_user_id
         )
@@ -135,6 +179,15 @@ def get_broker(
 @router.get("/")
 def health() -> Dict[str, str]:
     return {"status": "Alpacca service is healthy"}
+
+
+@router.get("/clock")
+def get_market_clock(broker: AlpacaBrokerClient = Depends(get_broker)):
+    """Returns Alpaca market clock — is_open, next_open, next_close."""
+    try:
+        return broker.get_clock()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ---------- Debugging / info ----------

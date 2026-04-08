@@ -16,7 +16,6 @@ jobs:
       working-directory: "news-scraper"
       cluster-name: "agentic-m-cluster"
       image-name: "news-scraper"
-      values-file: "deploy/values-news-scraper.yaml"
-      ingress-path: "deploy/ingress.yaml"
+      values-file: "deploy/prod/values-news-scraper.yaml"
       secret-key: "NEWS_SCRAPER_SECRETS"
     secrets: inherit

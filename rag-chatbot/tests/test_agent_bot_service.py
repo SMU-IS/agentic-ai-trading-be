@@ -8,12 +8,15 @@ from app.services.agent_bot_service import AgentBotService
 @pytest.fixture
 def mock_dependencies():
     with (
-        patch("app.services.agent_bot_service.RedisService") as mock_redis,
+        patch("app.services.agent_bot_service.get_redis_service") as mock_get_redis,
         patch("app.services.agent_bot_service.S3ConfigService") as mock_s3,
         patch("app.services.agent_bot_service.ChatWorkflow") as mock_chat_workflow,
     ):
+        mock_redis_instance = MagicMock()
+        mock_get_redis.return_value = mock_redis_instance
+
         yield {
-            "redis": mock_redis.return_value,
+            "redis": mock_redis_instance,
             "s3": mock_s3.return_value,
             "ChatWorkflow": mock_chat_workflow,
         }

@@ -193,3 +193,9 @@ class RiskProfile(str, Enum):
 
 class UpdateRiskProfileRequest(BaseModel):
     risk_profile: RiskProfile
+
+class UpdateAgentSettingsRequest(BaseModel):
+    risk_profile:        Optional[RiskProfile] = None
+    reddit_enabled:      Optional[bool]        = None
+    tradingview_enabled: Optional[bool]        = None
+    reddit_forums:       Optional[List[str]]   = None

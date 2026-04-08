@@ -7,7 +7,7 @@ from app.workers.sentiment_to_aggregator import SentimentAggregator
 from app.workers.sentiment_to_notification import SentimentBridge
 from app.workers.stream_consumer import StreamConsumer
 
-app = FastAPI()
+app = FastAPI(root_path="/api/v1/notification")
 
 app.include_router(notification_router)
 

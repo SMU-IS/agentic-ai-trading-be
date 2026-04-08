@@ -1,6 +1,6 @@
 # =============================================================================
 # networking         - VPC, subnets, NAT gateways (none - public nodes for cost)
-# compute            - EKS cluster with Karpenter (spot instances, t4g.small system, t4g.micro apps)
+# compute            - EKS cluster with Karpenter (on-demand instances, t4g.small system, t4g.micro apps)
 # databases          - RDS (db.t4g.micro - smallest available Graviton)
 # storage            - S3 buckets, CloudFront CDN
 # container_registry - ECR repositories
@@ -18,7 +18,7 @@ module "networking" {
   environment     = var.environment
 }
 
-# Compute Module (EKS with Karpenter - Public Spot Instances)
+# Compute Module (EKS with Karpenter - Public On-Demand Instances)
 module "compute" {
   source       = "./modules/compute"
   cluster_name = var.cluster_name
@@ -66,19 +66,20 @@ module "hosting" {
     aws.us_east_1 = aws.us_east_1
   }
 
-  cluster_name         = var.cluster_name
-  amplify_repository   = var.amplify_repository
-  amplify_access_token = var.amplify_access_token
-  environment          = var.environment
-  base_api_url         = var.base_api_url
-  chat_api_url         = var.chat_api_url
-  finnhub_api_key      = var.finnhub_api_key
-  logokit_api_key      = var.logokit_api_key
-  notif_api_url        = var.notif_api_url
-  thread_api_url       = var.thread_api_url
-  enable_sign_up       = var.enable_sign_up
-  show_banner          = var.show_banner
-  banner_message       = var.banner_message
+  cluster_name            = var.cluster_name
+  amplify_repository      = var.amplify_repository
+  amplify_access_token    = var.amplify_access_token
+  environment             = var.environment
+  base_api_url            = var.base_api_url
+  chat_api_url            = var.chat_api_url
+  finnhub_api_key         = var.finnhub_api_key
+  logokit_api_key         = var.logokit_api_key
+  notif_api_url           = var.notif_api_url
+  thread_api_url          = var.thread_api_url
+  enable_sign_up          = var.enable_sign_up
+  show_banner             = var.show_banner
+  banner_message          = var.banner_message
+  show_cloudwatch_metrics = var.show_cloudwatch_metrics
 }
 
 # =============================================================================
@@ -89,53 +90,6 @@ module "hosting" {
 resource "time_sleep" "wait_for_cluster" {
   depends_on      = [module.compute]
   create_duration = "60s"
-}
-
-# Fetch cluster details dynamically to ensure the most up-to-date endpoint
-data "aws_eks_cluster" "cluster" {
-  name = module.compute.cluster_name
-  # Ensure we wait for the cluster to be ready before fetching data
-  depends_on = [module.compute]
-}
-
-# Kubernetes Provider
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", module.compute.cluster_name]
-  }
-}
-
-# Helm Provider
-provider "helm" {
-  kubernetes {
-    host                   = data.aws_eks_cluster.cluster.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      args        = ["eks", "get-token", "--cluster-name", module.compute.cluster_name]
-    }
-  }
-}
-
-# Kubectl Provider - Robust handling for CRDs
-provider "kubectl" {
-  apply_retry_count      = 5
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
-  load_config_file       = false
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", module.compute.cluster_name]
-  }
 }
 
 # =============================================================================
@@ -184,17 +138,6 @@ resource "time_sleep" "wait_for_lb_webhook" {
 # =============================================================================
 
 # Kong Declarative Configuration (DB-less mode)
-resource "kubernetes_config_map" "kong_config" {
-  metadata {
-    name      = "kong-declarative-config"
-    namespace = "default"
-  }
-
-  data = {
-    "kong.yml" = file("${path.module}/../kong.yml")
-  }
-}
-
 resource "kubernetes_config_map" "rds_certs" {
   metadata {
     name      = "rds-certs"
@@ -203,6 +146,26 @@ resource "kubernetes_config_map" "rds_certs" {
 
   data = {
     "global-bundle.pem" = file("${path.module}/../certs/global-bundle.pem")
+  }
+}
+
+# Dynamic JWT Secret for Kong
+resource "kubernetes_secret" "jwt_secret" {
+  metadata {
+    name      = "agentic-ai-jwt-secret"
+    namespace = "default"
+    labels = {
+      "konghq.com/credential" = "jwt"
+    }
+  }
+
+  type = "Opaque"
+
+  data = {
+    kongCredType = "jwt"
+    key          = "agentic-ai-user-service" # This MUST match the 'iss' claim in your JWT
+    algorithm    = "HS256"
+    secret       = var.jwt_secret
   }
 }
 
@@ -219,8 +182,7 @@ resource "helm_release" "kong" {
   depends_on = [
     module.compute,
     time_sleep.wait_for_cluster,
-    time_sleep.wait_for_lb_webhook,
-    kubernetes_config_map.kong_config
+    time_sleep.wait_for_lb_webhook
   ]
 
   values = [
@@ -232,11 +194,11 @@ resource "helm_release" "kong" {
 
     env:
       database: "off"
-      declarative_config: "/usr/local/kong/declarative/kong.yml"
 
-    extraConfigMaps:
-      - name: kong-declarative-config
-        mountPath: /usr/local/kong/declarative/
+    status:
+      enabled: true
+      http:
+        enabled: true
 
     proxy:
       annotations:
@@ -293,7 +255,7 @@ resource "helm_release" "karpenter" {
           memory: 256Mi
         limits:
           cpu: 500m
-          memory: 512Mi
+          memory: 1Gi
     core:
       webhook:
         enabled: false
@@ -360,10 +322,10 @@ resource "kubectl_manifest" "karpenter_node_pool" {
             name  = "default"
           }
           requirements = [
-            { key = "karpenter.sh/capacity-type", operator = "In", values = ["spot"] },
+            { key = "karpenter.sh/capacity-type", operator = "In", values = ["spot", "on-demand"] },
             { key = "kubernetes.io/arch", operator = "In", values = ["arm64"] },
             { key = "karpenter.k8s.aws/instance-family", operator = "In", values = ["t4g", "c7g", "m7g", "r7g"] },
-            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["micro", "small", "medium", "large", "xlarge"] }
+            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["medium", "large", "xlarge"] }
           ]
         }
       }
@@ -380,3 +342,50 @@ resource "kubectl_manifest" "karpenter_node_pool" {
 
   depends_on = [helm_release.karpenter]
 }
+
+# =============================================================================
+# Logging and Observability - Fluent Bit
+# =============================================================================
+
+# resource "kubernetes_namespace" "logging" {
+#   metadata {
+#     name = "logging"
+#   }
+# }
+
+# # AWS For Fluent Bit Helm Release
+# resource "helm_release" "fluent_bit" {
+#   name       = "fluent-bit"
+#   repository = "https://aws.github.io/eks-charts"
+#   chart      = "aws-for-fluent-bit"
+#   version    = "0.1.34" # Stabilized version
+#   namespace  = kubernetes_namespace.logging.metadata[0].name
+
+#   # Ensure the cluster is ready before deploying
+#   depends_on = [
+#     module.compute,
+#     time_sleep.wait_for_cluster
+#   ]
+
+#   values = [
+#     <<-EOT
+#     serviceAccount:
+#       create: true
+#       name: fluent-bit
+#       annotations:
+#         eks.amazonaws.com/role-arn: ${module.fluent_bit_irsa_role.iam_role_arn}
+#     cloudWatch:
+#       enabled: true
+#       region: ${var.aws_region}
+#       logGroupName: /aws/eks/${var.cluster_name}/logs
+#       autoCreateGroup: true
+#       logStreamPrefix: "fluent-bit-"
+#     firehose:
+#       enabled: false
+#     kinesis:
+#       enabled: false
+#     elasticsearch:
+#       enabled: false
+#     EOT
+#   ]
+# }

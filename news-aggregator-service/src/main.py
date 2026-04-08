@@ -8,7 +8,6 @@ from src.config import settings
 from src.services.redis_service import RedisService
 from src.workflows.main_workflow import setup_workflow
 
-
 SERVICE_POLL_INTERVAL = 10  # seconds
 
 SERVICE_POLL_INTERVAL = 10  # seconds
@@ -31,8 +30,16 @@ async def lifespan(app_: FastAPI):
     print(f"🔑 Qdrant URL: {settings.news_analysis_qdrant_url}")
     print(f"🔑 Trading URL: {settings.aggregator_base_url}")
     print(f"🔑 LLM Provider: {settings.llm_provider}")
-    print(f"🔑 Perplexity API Key: {settings.pplx_api_key[:4]}..." if settings.pplx_api_key else "None")
-    print(f"🔑 Groq API Key: {settings.groq_api_key[:4]}..." if settings.groq_api_key else "None")
+    print(
+        f"🔑 Perplexity API Key: {settings.pplx_api_key[:4]}..."
+        if settings.pplx_api_key
+        else "None"
+    )
+    print(
+        f"🔑 Groq API Key: {settings.groq_api_key[:4]}..."
+        if settings.groq_api_key
+        else "None"
+    )
     print(f"🔑 Model: {settings.model}")
 
     print("🔑 Redis config:")
@@ -48,7 +55,9 @@ async def lifespan(app_: FastAPI):
     # Seed initial state
     initial_enabled = await redis_service.get_service_enabled()
     status_str = "▶️  ENABLED" if initial_enabled else "⏸️  PAUSED"
-    print(f"🔑 Service control key: {settings.redis_service_control_key} → {status_str}")
+    print(
+        f"🔑 Service control key: {settings.redis_service_control_key} → {status_str}"
+    )
     if initial_enabled:
         service_enabled.set()
 
@@ -59,10 +68,14 @@ async def lifespan(app_: FastAPI):
                 enabled = await redis_service.get_service_enabled()
                 if enabled and not service_enabled.is_set():
                     service_enabled.set()
-                    print(f"▶️  Service ENABLED  (key={settings.redis_service_control_key})")
+                    print(
+                        f"▶️  Service ENABLED  (key={settings.redis_service_control_key})"
+                    )
                 elif not enabled and service_enabled.is_set():
                     service_enabled.clear()
-                    print(f"⏸️  Service PAUSED   (key={settings.redis_service_control_key})")
+                    print(
+                        f"⏸️  Service PAUSED   (key={settings.redis_service_control_key})"
+                    )
             except Exception as e:
                 print(f"⚠️  Service control poll error: {e}")
             await asyncio.sleep(SERVICE_POLL_INTERVAL)
@@ -109,17 +122,22 @@ async def stream_processor():
     """Background processor for Redis stream."""
     while True:  # Keep alive during app lifetime
         try:
-            async for article in redis_service.listen_news_stream(service_enabled):
-                await workflow.run(
-                    {
-                        "articles": [article.to_dict()],
-                        "qdrant_context": [],
-                        "topics": [],
-                        "triggered_topics": [],
-                        "analyses": [],
-                        "signals": [],
-                    }
-                )
+            async for tickers, msg_id in redis_service.listen_news_stream(service_enabled):
+                try:
+                    for article in tickers:
+                        await workflow.run(
+                            {
+                                "articles": [article.to_dict()],
+                                "qdrant_context": [],
+                                "topics": [],
+                                "triggered_topics": [],
+                                "analyses": [],
+                                "signals": [],
+                            }
+                        )
+                    await redis_service.ack_news(msg_id)
+                except Exception as e:
+                    print(f"❌ Workflow error: {e} — message stays in PEL for retry")
         except Exception as e:
             print(f"Stream error: {e}, reconnecting...")
             await asyncio.sleep(5)

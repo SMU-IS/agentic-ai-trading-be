@@ -57,7 +57,8 @@ variable "services" {
     "trading-service",
     "user-info",
     "news-scraper-tradingview",
-    "metrics-tracker-service"
+    "metrics-tracker-service",
+    "info-agent-service"
   ]
 }
 
@@ -121,6 +122,13 @@ variable "thread_api_url" {
   type      = string
   sensitive = true
 }
+
+variable "jwt_secret" {
+  type        = string
+  description = "Secret used for signing and verifying JWTs"
+  sensitive   = true
+}
+
 variable "enable_sign_up" {
   type      = bool
   sensitive = true
@@ -133,6 +141,11 @@ variable "show_banner" {
 
 variable "banner_message" {
   type      = string
+  sensitive = true
+}
+
+variable "show_cloudwatch_metrics" {
+  type      = bool
   sensitive = true
 }
 

@@ -16,7 +16,6 @@ jobs:
       working-directory: "rag-chatbot"
       cluster-name: "agentic-m-cluster"
       image-name: "rag-chatbot"
-      values-file: "deploy/values-chatbot.yaml"
-      ingress-path: "deploy/ingress.yaml"
+      values-file: "deploy/prod/values-chatbot.yaml"
       secret-key: "RAG_CHATBOT_SECRETS"
     secrets: inherit

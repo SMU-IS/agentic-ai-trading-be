@@ -156,11 +156,11 @@ PRICE ACTION SUMMARY:
 - Current: ${safe_format(self.current_price, '.3f')}
 - Candle: {self.candle_type.upper()} (body {safe_format(self.body_size, '.1f')}%, {safe_format(self.body_pct, '.0%')} range)
 - Range: ${safe_format(self.low, '.3f')} - ${safe_format(self.high, '.3f')} (ATR14: ${safe_format(self.atr14, '.3f')})
-- Volume: {safe_format(self.vol_ratio, '.1f')}x average
+- Volume: vol_ratio={safe_format(self.vol_ratio, '.2f')} ({safe_format(self.vol_ratio, '.1f')}x 20-day avg) — {'HIGH' if self.vol_ratio and self.vol_ratio > 1.0 else 'AVERAGE' if self.vol_ratio and self.vol_ratio >= 0.3 else 'LOW'}
 """
         
         # Technical summary
-        rsi_status = "OVERSOLD" if self.rsi and self.rsi < 40 else "OVERBOUGHT" if self.rsi and self.rsi > 60 else "NEUTRAL"
+        rsi_status = "OVERSOLD" if self.rsi and self.rsi < 30 else "OVERBOUGHT" if self.rsi and self.rsi > 75 else "NEUTRAL"
         tech_context = f"""
 TECHNICAL INDICATORS:
 RSI: {safe_format(self.rsi, '.0f')} ({rsi_status})
@@ -257,10 +257,11 @@ class MarketData:
     
     def to_prompt(self) -> str:
         """Full market data prompt for LLM"""
-        return f"""{self.yahoo.to_prompt()}
-{self.alpaca.to_prompt()}
+        return self.yahoo.to_prompt()
+#         return f"""{self.yahoo.to_prompt()}
+# {self.alpaca.to_prompt()}
 
-Use this fresh market data to inform your trading decision."""
+# Use this fresh market data to inform your trading decision."""
 
 
 class TradeAction(str, Enum):
@@ -432,3 +433,9 @@ class ProfileParams:
 
     # Volume penalty
     low_vol_qty_mult:   float   # 1.0 = no reduction
+
+    # Risk score threshold — trades below this score are BLOCKED, not just REVIEW
+    min_risk_score:     float   # e.g. 0.72 = block if score < 0.72
+
+    # RR ceiling — TP is pulled in if RR exceeds this to keep targets realistic
+    max_rr:             float   # e.g. 3.0 = never allow RR above 3:1

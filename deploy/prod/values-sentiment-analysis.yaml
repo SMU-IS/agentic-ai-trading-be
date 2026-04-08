@@ -1,0 +1,70 @@
+replicaCount: 2
+
+resources:
+  requests:
+    cpu: "50m"
+    memory: "64Mi"
+  limits:
+    cpu: "100m"
+    memory: "128Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/sentiment-analysis-service
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 5012
+  targetPort: 5012
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 5012
+  failureThreshold: 30
+  periodSeconds: 10
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 5012
+  initialDelaySeconds: 60
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 5012
+  initialDelaySeconds: 30
+
+worker:
+  enabled: true
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+  command: ["python", "-m", "app.services.sentiment_analysis_worker"]
+
+secretName: sentiment-analysis-service-secrets
+
+ingress:
+  enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/sentiment-analysis/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/sentiment-analysis
+        pathType: Prefix
+

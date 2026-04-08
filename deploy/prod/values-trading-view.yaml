@@ -1,0 +1,62 @@
+replicaCount: 2
+
+resources:
+  requests:
+    cpu: "50m"
+    memory: "128Mi"
+  limits:
+    cpu: "100m"
+    memory: "256Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+
+image:
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/news-scraper-tradingview
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 5013
+  targetPort: 5013
+
+startupProbe:
+  httpGet:
+    path: /
+    port: 5013
+  failureThreshold: 30
+  periodSeconds: 10
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 5013
+  initialDelaySeconds: 10
+  periodSeconds: 20
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 5013
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+secretName: news-scraper-tradingview-secrets
+
+ingress:
+  enabled: true
+  public:
+    enabled: true
+    paths:
+      - path: /api/v1/news-scraper-tradingview/healthcheck
+        pathType: Exact
+  protected:
+    enabled: true
+    paths:
+      - path: /api/v1/news-scraper-tradingview
+        pathType: Prefix
+

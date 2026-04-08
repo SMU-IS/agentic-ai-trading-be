@@ -1,0 +1,84 @@
+{
+  "_id": {
+    "$oid": "69cbe90636eb726682d67f4b"
+  },
+  "order_id": "fa627dda-917f-4fa1-960e-87dd6742dd67",
+  "symbol": "SOFI",
+  "action": "BUY",
+  "confidence": 0.75,
+  "reasonings": "Muddy Waters fraud allegations from March 17 released but market reaction muted with stock stabilizing post-initial drop rather than continued breakdown; SoFi CEO bought $500k shares signaling confidence, company denies claims as inaccurate and threatens legal action, Mizuho analyst notes report misunderstands loan sale and discount rate facts[1][2]. Technicals: broke $15 support on March 30 per query but recent sources as of March 23-25 show stabilization and outperformance vs peers, no parabolic downside confirming overreaction fade opportunity into support around $15[1][2][3]. Volatility regime suitable for 2-5 day swing as news shock absorbed without institutional panic volume implied by shrug-off. Entry at 15.10 near current levels for mean reversion; SL at 16.20 (12% above entry above recent highs); TP at 18.50 (50% above entry toward prior resistance), risk 1.10 to reward 2.40 based on post-news range.",
+  "market_data": {
+    "alpaca": {
+      "latest_quote": {
+        "symbol": "SOFI",
+        "bid_price": 15.45,
+        "bid_size": 500,
+        "ask_price": 15.46,
+        "ask_size": 3400,
+        "timestamp": "2026-03-31T15:32:15.607883+00:00",
+        "conditions": [
+          "R"
+        ],
+        "tape": "C"
+      },
+      "latest_trade": {
+        "symbol": "SOFI",
+        "price": 15.455,
+        "size": 310,
+        "exchange": "V",
+        "conditions": [
+          "@"
+        ],
+        "timestamp": "2026-03-31T15:31:38.880544+00:00",
+        "id": "2451",
+        "tape": "C"
+      },
+      "spread": 0.010000000000001563
+    },
+    "yahoo": {
+      "current_price": 15.4501,
+      "open": 15.430000305175781,
+      "high": 15.680000305175781,
+      "low": 15.3100004196167,
+      "close": 15.45009994506836,
+      "adj_close": 15.45009994506836,
+      "volume": 17888994,
+      "candle_type": "neutral",
+      "body_size": 0.13,
+      "body_pct": 0.054,
+      "upper_wick": 0.23,
+      "lower_wick": 0.12,
+      "rsi": 14.19,
+      "vol_ratio": 0.27,
+      "atr14": 0.781,
+      "sma20": 17.309505128860472,
+      "sma50": 19.731802043914794,
+      "sma200": 23.804650506973267,
+      "golden_cross": false,
+      "death_cross": false,
+      "high_3d": 15.69,
+      "low_3d": 14.935,
+      "is_penny": false,
+      "support": 14.935,
+      "resistance": 20.01,
+      "period_summary": "Mar 31, 2025 - Mar 31, 2026 (252 trading days)",
+      "macd": -1.2106,
+      "macd_signal": -1.1411,
+      "macd_histogram": -0.0696,
+      "macd_bullish": false,
+      "macd_bearish": false,
+      "bb_upper": 19.782,
+      "bb_middle": 17.31,
+      "bb_lower": 14.837,
+      "bb_width": 0.286,
+      "bb_position": 0.124,
+      "bb_squeeze": false,
+      "bb_upper_break": false,
+      "bb_lower_break": false
+    },
+    "timestamp": 1996.676
+  },
+  "signal_id": "69cbe8fe36eb726682d67f4a",
+  "user_id": "agent-A",
+  "profile": "aggressive"
+}

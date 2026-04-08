@@ -70,6 +70,11 @@ async def lifespan(app: FastAPI):
         "investing",
         "options",
         "stockmarket",
+        "stocks_picks",
+        "shortsqueeze",
+        "ValueInvesting",
+        "pennystocks",
+        "stockstobuytoday"
     ]
     app.state.storage = storage
     app.state.redis_client = redis_client
@@ -88,6 +93,7 @@ app = FastAPI(
     title="News Scraper Service",
     description="Scraps Reddit for news and stores in Redis",
     lifespan=lifespan,
+    root_path="/api/v1/news-scraper",
 )
 
 app.include_router(scraper_router)

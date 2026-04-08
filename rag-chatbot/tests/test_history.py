@@ -63,7 +63,8 @@ async def test_llm_chat_node_uses_history():
 
     assert len(sent_messages) == 4  # System + 3 from history
     assert isinstance(sent_messages[0], SystemMessage)
-    assert sent_messages[0].content == system_prompt
+    assert system_prompt in sent_messages[0].content
+    assert "ADDITIONAL INSTRUCTIONS" in sent_messages[0].content
     assert sent_messages[1].content == "My name is Joshua"
     assert sent_messages[2].content == "Hello Joshua!"
     assert sent_messages[3].content == "What is my name?"

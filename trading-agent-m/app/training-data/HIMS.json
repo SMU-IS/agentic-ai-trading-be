@@ -1,0 +1,84 @@
+{
+  "_id": {
+    "$oid": "69c2d1d9c3b2ef7637f4e6c5"
+  },
+  "order_id": "220e15c9-f531-4125-ac5a-1322e8a6b7f4",
+  "symbol": "HIMS",
+  "action": "SELL",
+  "confidence": 0.85,
+  "reasonings": "Strong catalyst from GLP-1 deal with Novo Nordisk and legal resolution drove 50% surge in early March 2026 with 2.5x volume and breakout above $26.03 resistance[1], but recent price action shows sharp reversal and overreaction: Mar 11 high $27.54, Mar 12 close $23.84 (-7.88%), Mar 18 close $23.15 (-7.33%) on elevated volume 34M+ shares[1]. Current $22.02 reflects STRONG_BEARISH candle (8.1% body drop to $21.70 low), 0.6x average volume signaling exhaustion, RSI 50 neutral, price 63% into BB upper $28.454 but below SMA50 $23.150 and key resistance $27.540[market data]. Euphoric spike into resistance post-news creates fade opportunity as momentum fades (MACD histogram +0.7585 but price below SMA20 $19.829? wait data shows recent highs above), support $21.700 and $13.740 for downside. Entry at current $22.02, SL above SMA50 $23.150 at $23.80 (1.8x ATR $0.010-based ~$1.78 risk), TP at 3D range low $20.50 for asymmetric reward into support.",
+  "market_data": {
+    "alpaca": {
+      "latest_quote": {
+        "symbol": "HIMS",
+        "bid_price": 21.31,
+        "bid_size": 400,
+        "ask_price": 21.34,
+        "ask_size": 400,
+        "timestamp": "2026-03-24T18:02:56.856759+00:00",
+        "conditions": [
+          "R"
+        ],
+        "tape": "A"
+      },
+      "latest_trade": {
+        "symbol": "HIMS",
+        "price": 21.32,
+        "size": 300,
+        "exchange": "V",
+        "conditions": [
+          " "
+        ],
+        "timestamp": "2026-03-24T18:02:59.582407+00:00",
+        "id": "52983796610147",
+        "tape": "A"
+      },
+      "spread": 0.030000000000001137
+    },
+    "yahoo": {
+      "current_price": 21.33,
+      "open": 22.209999084472656,
+      "high": 22.299999237060547,
+      "low": 21.090099334716797,
+      "close": 21.329999923706055,
+      "adj_close": 21.329999923706055,
+      "volume": 15125762,
+      "candle_type": "strong_bearish",
+      "body_size": 3.962,
+      "body_pct": 0.727,
+      "upper_wick": 0.09,
+      "lower_wick": 0.24,
+      "rsi": 61.86,
+      "vol_ratio": 0.32,
+      "atr14": 2.493,
+      "sma20": 20.47049984931946,
+      "sma50": 22.714799995422364,
+      "sma200": 41.07924989700317,
+      "golden_cross": false,
+      "death_cross": false,
+      "high_3d": 24.25,
+      "low_3d": 21.09,
+      "is_penny": false,
+      "support": 13.74,
+      "resistance": 27.54,
+      "period_summary": "Mar 24, 2025 - Mar 24, 2026 (252 trading days)",
+      "macd": 0.5424,
+      "macd_signal": 0.1961,
+      "macd_histogram": 0.3464,
+      "macd_bullish": false,
+      "macd_bearish": false,
+      "bb_upper": 28.634,
+      "bb_middle": 20.47,
+      "bb_lower": 12.307,
+      "bb_width": 0.798,
+      "bb_position": 0.553,
+      "bb_squeeze": false,
+      "bb_upper_break": false,
+      "bb_lower_break": false
+    },
+    "timestamp": 1936379.218
+  },
+  "signal_id": "69bfa9e8891e3b1d3592247d",
+  "user_id": "00a0f1fb-72a1-44d4-b3d9-016f294704ff",
+  "profile": "aggressive"
+}

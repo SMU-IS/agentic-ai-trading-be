@@ -23,9 +23,9 @@ class DeepAnalysis(BaseModel):
     trade_signal: TradeSignal = Field(..., description="BUY|SHORT|NO_TRADE")
     confidence: int = Field(..., description="1-10 scale")
     trade_rationale: str = Field(..., description="Why this signal")
-    position_size_pct: float = Field(..., description="0.5|1|2")
-    stop_loss_pct: float = Field(..., description="8|10|12")
-    target_pct: float = Field(..., description="20|30|50")
+    position_size_pct: float = Field(..., description="0.5 if confidence<=4, 1.0 if confidence 5-7, 1.5 if confidence>=8")
+    stop_loss_pct: float = Field(..., description="3-5% high confidence, 5-8% medium, 8-10% low")
+    target_pct: float = Field(..., description="minimum 2x stop_loss_pct; 8-15% high, 10-20% medium, 8-12% low")
     news_id: Optional[str] = Field(
         default=None,
         description="reddit post id"
@@ -52,9 +52,9 @@ class DeepAnalysis(BaseModel):
 
 class Signal(BaseModel):
     ticker: str = Field(..., description="Stock ticker")
-    position_size_pct: float = Field(..., description="0.5|1|2")
-    stop_loss_pct: float = Field(..., description="8|10|12")
-    target_pct: float = Field(..., description="20|30|50")
+    position_size_pct: float = Field(..., description="0.5 if confidence<=4, 1.0 if confidence 5-7, 1.5 if confidence>=8")
+    stop_loss_pct: float = Field(..., description="3-5% high confidence, 5-8% medium, 8-10% low")
+    target_pct: float = Field(..., description="minimum 2x stop_loss_pct; 8-15% high, 10-20% medium, 8-12% low")
     trade_rationale: str = Field(..., description="Why this signal")
 
 class SentimentLabel(str, Enum):

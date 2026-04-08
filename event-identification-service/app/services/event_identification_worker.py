@@ -43,7 +43,7 @@ RECOVER_BATCH_SIZE = 10
 MIN_IDLE_MS = 30000
 CLEANUP_INTERVAL = 300
 
-POST_TIMESTAMP = "post_timestamps"
+POST_TIMESTAMP = env_config.post_timestamp_key
 
 # ==========================================================
 # RATE LIMITING
@@ -157,8 +157,10 @@ async def setup_consumer_group():
 
 
 async def finalize_message(msg_id: str):
-    await ticker_stream.acknowledge(CONSUMER_GROUP, msg_id)
-    await ticker_stream.delete(msg_id)
+    async with redis_client.pipeline(transaction=False) as pipe:
+        await pipe.xack(TICKER_STREAM_NAME, CONSUMER_GROUP, msg_id)
+        await pipe.xdel(TICKER_STREAM_NAME, msg_id)
+        await pipe.execute()
 
 
 # ==========================================================
@@ -242,6 +244,12 @@ async def process_message(
     if await is_duplicate(post_id):
         logger.info(f"⚠️ Duplicate post {post_id} — skipping")
         await redis_client.incr(DUP_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+    existing_end = await redis_client.hget(f"{POST_TIMESTAMP}:{post_id}", "event_timestamp")
+    if existing_end:
+        logger.info(f"⚠️ Post {post_id} already processed (event_timestamp exists) — finalizing only")
         await finalize_message(msg_id)
         return
 
@@ -381,6 +389,7 @@ async def send_heartbeat():
 # ==========================================================
 async def worker_loop(event_service: EventIdentifierService):
     last_cleanup = 0
+    last_recovery = 0
 
     heartbeat_task = asyncio.create_task(send_heartbeat())
     persist_task = asyncio.create_task(persist_event_list_to_bucket())
@@ -397,6 +406,10 @@ async def worker_loop(event_service: EventIdentifierService):
             if now - last_cleanup > CLEANUP_INTERVAL:
                 await cleanup_dead_consumers()
                 last_cleanup = now
+
+            if now - last_recovery > CLEANUP_INTERVAL:
+                asyncio.create_task(recover_pending_messages(event_service))
+                last_recovery = now
 
             entries = await ticker_stream.read_group(
                 group_name=CONSUMER_GROUP,

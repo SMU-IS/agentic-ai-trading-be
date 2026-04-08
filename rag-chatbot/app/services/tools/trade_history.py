@@ -1,4 +1,5 @@
 import httpx
+from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
 
 from app.core.config import env_config
@@ -9,26 +10,28 @@ from app.utils.logger import setup_logging
 logger = setup_logging()
 
 
-async def _get_order_details(order_id: str):
+async def _get_order_details(order_id: str, user_id: str):
     if not order_id:
         logger.error("No order_id provided for trade history query.")
         raise ValueError("No order_id provided for trade history query.")
 
     alpacca_broker_api = f"{env_config.order_details_query_url}/{order_id}"
+    headers = {"x-user-id": user_id, "Content-Type": "application/json"}
+
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.get(alpacca_broker_api)
+            response = await client.get(alpacca_broker_api, headers=headers)
             response.raise_for_status()
             order_details = response.json()
             logger.info(f"Order details fetched for order id {order_id}")
 
             return (
-                order_details.get("symbol", "Unknown"),
+                order_details.get("symbol") or "Unknown",
                 order_details.get("filled_avg_price") or 0.0,
-                order_details.get("side", "Unknown"),
-                order_details.get("risk_evaluation", "Unknown"),
-                order_details.get("risk_adjustments_made", "Unknown"),
-                order_details.get("trading_agent_reasonings", "Unknown"),
+                order_details.get("side") or "Unknown",
+                order_details.get("risk_evaluation") or "Unknown",
+                order_details.get("risk_adjustments_made") or "Unknown",
+                order_details.get("trading_agent_reasonings") or "No specific reasoning provided.",
             )
 
     except httpx.HTTPStatusError as exc:
@@ -51,7 +54,9 @@ async def _get_order_details(order_id: str):
 
 
 @tool(args_schema=TradeHistory)
-async def get_trade_history_details(order_id: str) -> OrderDetailsResponse:
+async def get_trade_history_details(
+    order_id: str, config: RunnableConfig
+) -> OrderDetailsResponse:
     """
     Retrieve deep-dive technical details and trade reasoning for a specific past transaction.
 
@@ -74,6 +79,7 @@ async def get_trade_history_details(order_id: str) -> OrderDetailsResponse:
     """
 
     logger.info(f"Analysing trade history order details for order id {order_id}")
+    user_id = config.get("metadata", {}).get("user_id", "unknown-user")
 
     try:
         (
@@ -83,7 +89,7 @@ async def get_trade_history_details(order_id: str) -> OrderDetailsResponse:
             _,
             _,
             trading_agent_reasoning,
-        ) = await _get_order_details(order_id)
+        ) = await _get_order_details(order_id, user_id)
     except Exception as e:
         logger.error(f"Failed to fetch order details for {order_id}: {e}")
         raise Exception(

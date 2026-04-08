@@ -16,7 +16,6 @@ jobs:
       working-directory: "sentiment-analysis-service"
       cluster-name: "agentic-m-cluster"
       image-name: "sentiment-analysis-service"
-      values-file: "deploy/values-sentiment-analysis.yaml"
-      ingress-path: "deploy/ingress.yaml"
+      values-file: "deploy/prod/values-sentiment-analysis.yaml"
       secret-key: "SENTIMENT_ANALYSIS_SECRETS"
     secrets: inherit

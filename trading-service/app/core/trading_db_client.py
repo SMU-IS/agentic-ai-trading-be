@@ -66,6 +66,7 @@ class MongoDBClient:
                 "suggested_qty": doc.get("risk_evaluation", {}).get("suggested_qty"),
                 "reasonings":    doc.get("reasonings"),
                 "profile":       doc.get("profile"),
+                "timestamp":    doc["_id"].generation_time.isoformat() if doc.get("_id") else None,
             }
             for doc in cursor
         ]
@@ -157,9 +158,9 @@ class MongoDBClient:
         
     # User -> alpaca keys
     def _load_user_account_from_mongo(self, user_id) -> tuple[str, str, str]:
-        doc = self.accounts.find_one({"user_id": user_id})
+        doc = self.accounts.find_one({"user_id": user_id, "is_active": True})
         if not doc:
-            raise RuntimeError(f"No Alpaca credentials found for user_id={self.user_id}")
+            raise RuntimeError(f"No active Alpaca credentials found for user_id={self.user_id}")
 
         api_key = doc["alpaca_api_key"]
         api_secret = doc["alpaca_api_secret"]
@@ -171,9 +172,9 @@ class MongoDBClient:
     
     # Alpaca token specific
     def get_trading_account_risk_profile(self, user_id) -> Dict[str, Any]:
-        doc = self.accounts.find_one({"user_id": user_id})
+        doc = self.accounts.find_one({"user_id": user_id, "is_active": True})
         if not doc:
-            raise RuntimeError(f"No account found for user_id={user_id}")
+            raise RuntimeError(f"No active account found for user_id={user_id}")
         risk_profile = doc.get("risk_profile")
         if not risk_profile:
             raise RuntimeError(f"No risk profile found for user_id={user_id}")
@@ -192,9 +193,45 @@ class MongoDBClient:
         
         return {"user_id": user_id, "risk_profile": risk_profile.value}
         
+    def get_alias_name(self, user_id: str) -> Optional[str]:
+        doc = self.accounts.find_one({"user_id": user_id, "is_active": True}, {"alias_name": 1})
+        return doc.get("alias_name") if doc else None
+
+    def update_agent_settings(self, user_id: str, updates: dict) -> Dict[str, Any]:
+        doc = self.accounts.find_one({"user_id": user_id, "is_active": True})
+        if not doc:
+            raise RuntimeError(f"No active account found for user_id={user_id}")
+
+        fields = {}
+        if "risk_profile" in updates and updates["risk_profile"] is not None:
+            fields["risk_profile"] = updates.pop("risk_profile")
+        for k, v in updates.items():
+            if v is not None:
+                fields[f"agent_setting.{k}"] = v
+
+        if fields:
+            self.accounts.update_one({"user_id": user_id}, {"$set": fields})
+        return self.get_agent_settings(user_id)
+
+    def get_agent_settings(self, user_id: str) -> Dict[str, Any]:
+        doc = self.accounts.find_one(
+            {"user_id": user_id, "is_active": True},
+            {"risk_profile": 1, "agent_setting": 1}
+        )
+        if not doc:
+            raise RuntimeError(f"No active account found for user_id={user_id}")
+        settings = doc.get("agent_setting") or {}
+        return {
+            "user_id":              user_id,
+            "risk_profile":         doc.get("risk_profile"),
+            "reddit_enabled":       settings.get("reddit_enabled", False),
+            "tradingview_enabled":  settings.get("tradingview_enabled", False),
+            "reddit_forums":        settings.get("reddit_forums", []),
+        }
+
     # For trading-agent to run trades
     def get_all_trading_accounts(self) -> list[dict]:
-        docs = self.accounts.find()
+        docs = self.accounts.find({"is_active": True})
         accounts = []
         for doc in docs:
             accounts.append({
@@ -205,11 +242,11 @@ class MongoDBClient:
                 "risk_profile": doc.get("risk_profile"),
             })
         if not accounts:
-            raise RuntimeError("No trading accounts found")
+            raise RuntimeError("No active trading accounts found")
         return accounts
-    
+
     def get_trading_account_by_risk_profile(self, risk_profile: RiskProfile) -> Dict[str, Any]:
-        docs = self.accounts.find({"risk_profile": risk_profile.value})
+        docs = self.accounts.find({"risk_profile": risk_profile.value, "is_active": True})
         accounts = []
         for doc in docs:
             accounts.append({

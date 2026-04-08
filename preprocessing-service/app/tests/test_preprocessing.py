@@ -98,57 +98,35 @@ def test_preprocess_post_full(service):
         "metadata": {"subreddit": "wallstreetbets", "category": ""},
     }
 
-    correct = {
-        "id": "reddit:1rintl1",
-        "content_type": "post",
-        "native_id": "1rintl1",
-        "source": "reddit_batch",
-        "author": "NojaQu",
-        "url": "https://i.redd.it/4w98jvn7jlmg1.jpeg",
-        "timestamps": "2026-03-02T16:55:48+08:00",
-        "links": [
-            "https://www.apple.com/apple-events",
-            "www.techcrunch.com/apple-iphone-15",
-        ],
-        "images": [
-            "https://images.apple.com/iphone15.jpg",
-            "https://i.redd.it/4w98jvn7jlmg1.jpeg",
-        ],
-        "content": {
-            "raw_title": "Ａpple announces new iPhone 15 release & pre-order starts soon 🍏",
-            "raw_body": "Ａpple's event showcased the iPhone 15 lineup.\n\nEvent stream: https://www.apple.com/apple-events\nTech review images: ![iPhone15](https://images.apple.com/iphone15.jpg)\nBlog coverage: www.techcrunch.com/apple-iphone-15\nSummary: <b>Improved battery life</b>, new camera features, iOS 18 included.\nEmoji reaction: 😍👍",
-            "clean_title": "Apple announces new iPhone 15 release & pre-order starts soon :green_apple:",
-            "clean_body": "Apple's event showcased the iPhone 15 lineup. Event stream: https://www.apple.com/apple-events Tech review images: iPhone15: https://images.apple.com/iphone15.jpg Blog coverage: www.techcrunch.com/apple-iphone-15 Summary: Improved battery life, new camera features, iOS 18 included. Emoji reaction: :smiling_face_with_heart-eyes::thumbs_up:",
-            "clean_combined_withurl": "Apple announces new iPhone 15 release & pre-order starts soon 🍏. Apple announces new iPhone 15 release & pre-order starts soon :green_apple:. Apple's event showcased the iPhone 15 lineup. Event stream: Tech review images: iPhone15: Blog coverage: Summary: Improved battery life, new camera features, iOS 18 included. Emoji reaction: 😍👍",
-            "clean_combined_withouturl": "Apple announces new iPhone 15 release & pre-order starts soon :green_apple:. Apple announces new iPhone 15 release & pre-order starts soon :green_apple:. Apple's event showcased the iPhone 15 lineup. Event stream: https://www.apple.com/apple-events Tech review images: iPhone15: https://images.apple.com/iphone15.jpg Blog coverage: www.techcrunch.com/apple-iphone-15 Summary: Improved battery life, new camera features, iOS 18 included. Emoji reaction: :smiling_face_with_heart-eyes::thumbs_up:",
-        },
-        "engagement": {"total_comments": 10, "score": 45, "upvote_ratio": 0.83},
-        "metadata": {"subreddit": "wallstreetbets", "category": ""},
-    }
-
     result = service.preprocess_post(dummy_post)
 
-    # Title cleaned
-    assert (
-        result["content"]["clean_title"]
-        == "Apple announces new iPhone 15 release & pre-order starts soon 🍏"
-    )
+    # Title cleaned — fullwidth "Ａ" normalized, emoji preserved
+    assert result["content"]["clean_title"] == "Apple announces new iPhone 15 release & pre-order starts soon 🍏"
 
-    # URLs
+    # Links extracted (non-image URLs only)
     assert "https://www.apple.com/apple-events" in result["links"]
+    assert "www.techcrunch.com/apple-iphone-15" in result["links"]
 
-    # Images
+    # Images extracted
     assert "https://images.apple.com/iphone15.jpg" in result["images"]
+    assert "https://i.redd.it/4w98jvn7jlmg1.jpeg" in result["images"]
 
-    # Images removed in clean body
-    assert "https://example.com" not in result["content"]["clean_combined_withouturl"]
+    # Image URLs not in links
+    assert "https://images.apple.com/iphone15.jpg" not in result["links"]
 
     # Combined fields exist
     assert "clean_combined_withurl" in result["content"]
     assert "clean_combined_withouturl" in result["content"]
 
-    # Emoji converted in combined_withouturl
+    # withurl keeps URLs
+    assert "https://www.apple.com/apple-events" in result["content"]["clean_combined_withurl"]
+
+    # withouturl removes URLs
+    assert "https://www.apple.com/apple-events" not in result["content"]["clean_combined_withouturl"]
+
+    # Emoji demojized only in withouturl
     assert ":green_apple:" in result["content"]["clean_combined_withouturl"]
+    assert "🍏" in result["content"]["clean_combined_withurl"]
 
 
 def test_image_extraction(service):
@@ -177,8 +155,56 @@ def test_link_extraction(service):
     assert "http://test.com" in result["links"]
 
 
+def test_image_not_in_links(service):
+    post = {
+        "content": {
+            "title": "",
+            "body": "See https://example.com/photo.jpg and https://example.com/page",
+        },
+        "url": "",
+    }
+
+    result = service.preprocess_post(post)
+
+    assert "https://example.com/photo.jpg" in result["images"]
+    assert "https://example.com/photo.jpg" not in result["links"]
+    assert "https://example.com/page" in result["links"]
+
+
+def test_withurl_keeps_urls_withouturl_removes(service):
+    post = {
+        "content": {
+            "title": "Breaking news",
+            "body": "Read more at https://example.com/article",
+        },
+        "url": "",
+    }
+
+    result = service.preprocess_post(post)
+
+    assert "https://example.com/article" in result["content"]["clean_combined_withurl"]
+    assert "https://example.com/article" not in result["content"]["clean_combined_withouturl"]
+
+
+def test_emoji_demojized_only_in_withouturl(service):
+    post = {
+        "content": {
+            "title": "Stock up 🚀",
+            "body": "Huge gains today 💰",
+        },
+        "url": "",
+    }
+
+    result = service.preprocess_post(post)
+
+    assert ":rocket:" in result["content"]["clean_combined_withouturl"]
+    assert ":money_bag:" in result["content"]["clean_combined_withouturl"]
+    assert "🚀" in result["content"]["clean_combined_withurl"]
+    assert "💰" in result["content"]["clean_combined_withurl"]
+
+
 def test_empty_post(service):
     post = {}
 
     result = service.preprocess_post(post)
-    assert result == None
+    assert result is None

@@ -13,6 +13,7 @@ class RedditStreamService:
 
         self.sg_tz = timezone(timedelta(hours=8))
 
+
     def should_stop(self, stop_event):
         if stop_event and stop_event.is_set():
             return True
@@ -29,32 +30,39 @@ class RedditStreamService:
         logger.info("[*] Reddit stream service started")
         subreddit_str = "+".join(base_subreddits)
         subreddit = self.reddit_client.subreddit(subreddit_str) 
+        max_delay_seconds = 3600
+        POST_TIMESTAMP = "post_timestamps"        
               
-        while True:
-
-            if self.should_stop(stop_event):
-                logger.info("🛑 Stream scraper stopped")
-                return
+        try:
+            logger.info(f"[*] Streaming subreddits: {base_subreddits}")
             
-            try:
-                # stream_version = self.redis.get("stream_version")
-
-                logger.info(f"[*] Streaming subreddits: {base_subreddits}")
+            for post in subreddit.stream.submissions(skip_existing=True):
+                if self.should_stop(stop_event):
+                    logger.info("🛑 Stream stopping immediately...")
+                    return
                 
-                for post in subreddit.stream.submissions(skip_existing=True):
-                    if self.should_stop(stop_event):
-                        logger.info("🛑 Stream stopping immediately...")
-                        return
-                    
-                    # if self.redis.get("stream_version") != stream_version:
-                    #     print("[*] Stream version changed → rebuilding stream")
-                    #     break
+                now_ts = datetime.now(timezone.utc).timestamp()   
+                post_ts = post.created_utc 
+                post_age = now_ts - post_ts
 
-                    self.handle_post(post)
+                if post_age > max_delay_seconds:
+                    logger.info(f"⏩ Skipping old post {post.id} ({post_age/3600:.2f}h old)")
+                    continue
+                
+                post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
 
-            except prawcore.exceptions.PrawcoreException:
-                logger.exception("Reddit API error")
-                time.sleep(5)
+                if self.redis.exists(post_key):
+                    logger.info(f"Skipping existing post {post.id}")
+                    continue                
+                # if self.redis.get("stream_version") != stream_version:
+                #     print("[*] Stream version changed → rebuilding stream")
+                #     break
+
+                self.handle_post(post)
+
+        except prawcore.exceptions.PrawcoreException:
+            logger.exception("Reddit API error")
+            time.sleep(5)
 
     def handle_post(self, post):
         POST_TIMESTAMP = "post_timestamps"
@@ -67,7 +75,7 @@ class RedditStreamService:
                 "native_id": post.id,
                 "source": "reddit_stream",
                 "author": str(post.author),
-                "url": post.url,
+                "url": f"https://www.reddit.com{post.permalink}",
                 "timestamps": post_time.isoformat(),
                 "content":{
                     "title": post.title,
@@ -84,6 +92,7 @@ class RedditStreamService:
                 }
             }
 
+
             self.storage.save(row)
             logger.info(f"Flushed r/{post.subreddit} posts to Redis.")
 
@@ -91,14 +100,15 @@ class RedditStreamService:
             sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
 
             post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
-            self.redis.hset(
-                post_key,
-                mapping={
-                    "scraped_timestamp": sg_now,
-                    "posted_timestamp":  post_time.isoformat(),
-                }
-            )
-            self.redis.expire(post_key, 345600)  # 4 days
+            if not self.redis.exists(post_key):
+                self.redis.hset(
+                    post_key,
+                    mapping={
+                        "scraped_timestamp": sg_now,
+                        "posted_timestamp":  post_time.isoformat(),
+                    }
+                )
+                self.redis.expire(post_key, 345600)  # 4 days
             logger.info(f"⏱️ Post {post.id}: Timestamped at Scraping Stage")
 
             post_id = row["native_id"]

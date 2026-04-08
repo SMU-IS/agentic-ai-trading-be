@@ -68,3 +68,9 @@ variable "banner_message" {
   type        = string
   default     = ""
 }
+
+variable "show_cloudwatch_metrics" {
+  description = "Flag to toggle CloudWatch metrics display"
+  type        = bool
+  default     = false
+}

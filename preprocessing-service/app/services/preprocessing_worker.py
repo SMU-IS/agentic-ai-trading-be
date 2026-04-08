@@ -31,7 +31,7 @@ RECOVER_BATCH_SIZE = 10
 MIN_IDLE_MS = 15000
 CLEANUP_INTERVAL = 300
 
-POST_TIMESTAMP = "post_timestamps"
+POST_TIMESTAMP = env_config.post_timestamp_key
 REMOVED_POSTS_COUNTER = "preprocessing:removed_posts_count"
 DUP_POSTS_COUNTER = "preprocessing:duplicate_posts_count"
 
@@ -69,8 +69,10 @@ async def setup_consumer_group():
 
 
 async def finalize_message(msg_id: str):
-    await source_stream.acknowledge(CONSUMER_GROUP, msg_id)
-    await source_stream.delete(msg_id)
+    async with redis_client.pipeline(transaction=False) as pipe:
+        await pipe.xack(STREAM_NAME, CONSUMER_GROUP, msg_id)
+        await pipe.xdel(STREAM_NAME, msg_id)
+        await pipe.execute()
 
 
 # ==========================================================
@@ -124,6 +126,12 @@ async def process_message(msg_id: str, data: dict):
     if await is_duplicate(post_id):
         logger.info(f"⚠️ Duplicate post {post_id} — skipping")
         await redis_client.incr(DUP_POSTS_COUNTER)
+        await finalize_message(msg_id)
+        return
+
+    existing_end = await redis_client.hget(f"{POST_TIMESTAMP}:{post_id}", "preproc_timestamp")
+    if existing_end:
+        logger.info(f"⚠️ Post {post_id} already processed (preproc_timestamp exists) — finalizing only")
         await finalize_message(msg_id)
         return
 
@@ -219,6 +227,7 @@ async def cleanup_dead_consumers():
 # ==========================================================
 async def worker_loop():
     last_cleanup = 0
+    last_recovery = 0
 
     heartbeat_task = asyncio.create_task(send_heartbeat())
 
@@ -233,6 +242,10 @@ async def worker_loop():
             if now - last_cleanup > CLEANUP_INTERVAL:
                 await cleanup_dead_consumers()
                 last_cleanup = now
+
+            if now - last_recovery > CLEANUP_INTERVAL:
+                asyncio.create_task(recover_pending_messages())
+                last_recovery = now
 
             entries = await source_stream.read_group(
                 group_name=CONSUMER_GROUP,
