@@ -71,3 +71,9 @@ class SentimentBridge:
                         notification_data,
                     )
                     print("🔁 News event:", notification_data)
+
+
+if __name__ == "__main__":
+    import asyncio
+    worker = SentimentBridge()
+    asyncio.run(worker.async_start())

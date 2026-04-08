@@ -97,6 +97,7 @@ async def test_process_message_duplicate_skipped(mock_redis, mock_svc, mock_stre
 async def test_process_message_success_saves_to_stream(mock_redis, mock_svc, mock_stream):
     """Valid new post → analysed and saved to sentiment stream."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
 
@@ -131,6 +132,7 @@ async def test_process_message_success_saves_to_stream(mock_redis, mock_svc, moc
 async def test_process_message_analysis_failed_reasoning_skips_save(mock_redis, mock_svc, mock_stream):
     """'Analysis failed' in reasoning → skip save, increment removed counter."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
 
@@ -163,6 +165,7 @@ async def test_process_message_analysis_failed_reasoning_skips_save(mock_redis, 
 async def test_process_message_null_result_skips_save(mock_redis, mock_svc, mock_stream):
     """analyse() returns None → skip save, increment removed counter."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
     mock_svc.analyse = AsyncMock(return_value=None)
@@ -266,6 +269,7 @@ async def test_recover_pending_processes_claimed(mock_event_stream, mock_redis, 
         ("msg_1", {"data": json.dumps({"id": "p1"})}),
     ])
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
 
