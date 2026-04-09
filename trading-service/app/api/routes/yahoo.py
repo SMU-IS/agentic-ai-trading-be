@@ -7,8 +7,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.yahoo_client import get_yahoo_client, YahooClient
 from app.api.schemas import SignalResponse, QuotesResponse, HistoryResponse, LatestInfoResponse
-from app.api.routes.brokerage import get_broker
-from app.core.broker_client import AlpacaBrokerClient
 
 router = APIRouter()
 
@@ -20,7 +18,6 @@ def get_client() -> YahooClient:
 async def analyze_signals(
     symbol: str = Query(..., alias="symbol", description="Single ticker symbol (e.g. NVDA)"),
     client: YahooClient = Depends(get_client),
-    broker: AlpacaBrokerClient = Depends(get_broker),
 ) -> SignalResponse:
     try:
         data: SignalResponse = client.process_trading_data(symbol)
