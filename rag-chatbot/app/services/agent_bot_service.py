@@ -86,19 +86,33 @@ class AgentBotService:
             )
         return self._agent_graph
 
-    async def _generate_title(self, query: str) -> str:
+    async def _generate_title(self, session_id: str, query: str) -> str:
         """
-        Generate a concise title for the conversation using the LLM.
+        Generate a concise title for the conversation by summarizing
+        the full conversation history.
 
         Args:
-            query (str): The initial query to base the title on.
+            session_id (str): The session ID to fetch history for.
+            query (str): The latest user query.
 
         Returns:
-            str: A generated title (6-8 words max).
+            str: A generated title (max 6 words).
         """
+        history = await self.get_chat_history(session_id)
 
-        prompt = f"""Generate a concise title (max 6 words) for this query:
-"{query}"
+        # Build a conversation string for the LLM
+        lines = [
+            f"{'User' if msg['type'] == 'human' else 'Assistant'}: {msg['content']}"
+            for msg in history
+        ]
+        lines.append(f"User: {query}")
+        conversation_context = "\n".join(lines)
+
+        prompt = f"""Based on the following conversation history, generate a concise title (max 6 words).
+The title should reflect the main subject being discussed.
+
+Conversation:
+{conversation_context}
 
 Title:"""
 
@@ -114,7 +128,7 @@ Title:"""
         self, query: str, order_id: str | None, user_id: str, session_id: str
     ):
         context_query = f"Regarding Order Id {order_id}: {query}" if order_id else query
-        title = await self._generate_title(context_query)
+        title = await self._generate_title(session_id, context_query)
 
         config = {
             "configurable": {"thread_id": session_id},
