@@ -50,3 +50,14 @@ async def get_history(
         return ChatHistoryResponse(history=formatted_history)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/history/{session_id}")
+async def clear_history(
+    session_id: str, service: InfoAgentService = Depends(get_info_agent_service)
+):
+    try:
+        service.clear_session_history(session_id)
+        return {"status": "success", "message": f"History for {session_id} cleared"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

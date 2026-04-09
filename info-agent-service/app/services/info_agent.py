@@ -1,10 +1,9 @@
-import time
 from operator import itemgetter
 from typing import Any, AsyncGenerator, Dict
 
+from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.chat_history import (
     BaseChatMessageHistory,
-    InMemoryChatMessageHistory,
 )
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnablePassthrough
@@ -24,10 +23,6 @@ from app.utils.logger import setup_logging
 console = Console(force_terminal=True)
 logger = setup_logging()
 
-# In-memory store for session histories with access timestamps
-# Format: { session_id: {"history": InMemoryChatMessageHistory, "last_accessed": timestamp} }
-store: Dict[str, Dict[str, Any]] = {}
-
 
 class InfoAgentService:
     def __init__(self, k=5):
@@ -36,6 +31,12 @@ class InfoAgentService:
         self.vector_store = self._get_vector_store()
         self.retriever = self.vector_store.as_retriever(search_kwargs={"k": k})
         self.chain = self._build_chain()
+        self.redis_url = self._get_redis_url()
+
+    def _get_redis_url(self) -> str:
+        if settings.redis_password:
+            return f"redis://:{settings.redis_password}@{settings.redis_host}:{settings.redis_port}"
+        return f"redis://{settings.redis_host}:{settings.redis_port}"
 
     def _get_llm(self):
         return ChatGroq(
@@ -109,28 +110,16 @@ class InfoAgentService:
         return chain
 
     def get_session_history(self, session_id: str) -> BaseChatMessageHistory:
-        current_time = time.time()
+        return RedisChatMessageHistory(
+            session_id=session_id,
+            url=self.redis_url,
+            ttl=settings.redis_history_ttl,
+        )
 
-        # Cleanup logic: Remove sessions older than 1 hour (3600 seconds)
-        expired_sessions = [
-            sid
-            for sid, data in store.items()
-            if current_time - data["last_accessed"] > 3600
-        ]
-        if expired_sessions:
-            logger.info(f"Cleaning up {len(expired_sessions)} expired chat sessions.")
-            for sid in expired_sessions:
-                del store[sid]
-
-        if session_id not in store:
-            store[session_id] = {
-                "history": InMemoryChatMessageHistory(),
-                "last_accessed": current_time,
-            }
-        else:
-            store[session_id]["last_accessed"] = current_time
-
-        return store[session_id]["history"]
+    def clear_session_history(self, session_id: str):
+        history = self.get_session_history(session_id)
+        history.clear()
+        logger.info(f"Cleared chat history for session: {session_id}")
 
     async def ainvoke(
         self, question: str, session_id: str
