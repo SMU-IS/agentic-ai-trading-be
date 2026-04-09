@@ -169,6 +169,32 @@ resource "kubernetes_secret" "jwt_secret" {
   }
 }
 
+# Rate Limiting Redis Secret for Kong
+resource "kubernetes_secret" "kong_rate_limit_redis" {
+  metadata {
+    name      = "kong-rate-limit-redis"
+    namespace = "default"
+  }
+
+  type = "Opaque"
+
+  data = {
+    config = jsonencode({
+      second         = 1
+      minute         = 100
+      limit_by       = "ip"
+      policy         = "redis"
+      fault_tolerant = true
+      redis = {
+        host     = var.kong_redis_host
+        port     = var.kong_redis_port
+        password = var.kong_redis_password
+        timeout  = 500
+      }
+    })
+  }
+}
+
 # Kong Gateway Helm Release
 resource "helm_release" "kong" {
   namespace  = "default"
@@ -194,6 +220,9 @@ resource "helm_release" "kong" {
 
     env:
       database: "off"
+      real_ip_header: "X-Forwarded-For"
+      real_ip_recursive: "on"
+      trusted_proxies: "10.0.0.0/16, 0.0.0.0/0, ::/0"
 
     status:
       enabled: true

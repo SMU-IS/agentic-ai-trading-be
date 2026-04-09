@@ -49,6 +49,8 @@ secretName: info-agent-service-secrets
 
 ingress:
   enabled: true
+  annotations:
+    konghq.com/plugins: "global-cors, rate-limit"
   public:
     enabled: true
     paths:

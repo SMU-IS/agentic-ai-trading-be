@@ -120,3 +120,16 @@ config:
   body: '{"message": "⚡ Agent M Production APIs"}'
   content_type: application/json
 plugin: request-termination
+
+---
+# Rate Limiting Plugin Configuration
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: rate-limit
+  namespace: default
+configFrom:
+  secretKeyRef:
+    name: kong-rate-limit-redis
+    key: config
+plugin: rate-limiting
