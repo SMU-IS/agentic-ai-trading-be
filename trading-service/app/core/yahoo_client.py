@@ -167,7 +167,7 @@ class YahooClient:
             return 1.0  # fallback: treat session as complete, use raw volume
 
     # Fundamentals
-    def process_trading_data(self, ticker: str, clock: dict = None) -> SignalResponse:
+    def process_trading_data(self, ticker: str) -> SignalResponse:
         """Process 1y daily data for all trading signals."""
         data = yf.download(
             tickers=ticker,
@@ -290,6 +290,8 @@ class YahooClient:
         # RSI (14)
         df["RSI"] = self.calculate_rsi(df["Close"], 14)
 
+        # Volume (20-day avg of previous completed sessions — today excluded from its own baseline)
+        df["vol_avg20"] = df["Volume"].shift(1).rolling(20).mean()
         # Volume (20-day avg of previous completed sessions — today excluded from its own baseline)
         df["vol_avg20"] = df["Volume"].shift(1).rolling(20).mean()
         df["vol_ratio"] = df["Volume"] / df["vol_avg20"]
