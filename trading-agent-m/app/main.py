@@ -36,10 +36,12 @@ async def lifespan(app: FastAPI):
     workflow = TradingWorkflow(llm_client=llm, redis_service=redis_service)
 
     # Seed initial state before starting tasks
+    initial_market_open = await _is_market_open()
     initial_enabled = await redis_service.get_service_enabled()
-    status_str = "▶️  ENABLED" if initial_enabled else "⏸️  PAUSED"
-    print(f"🔑 Service control key: {env_config.redis_service_control_key} → {status_str}")
-    if initial_enabled:
+    should_run = initial_market_open and initial_enabled
+    status_str = "▶️  ENABLED" if should_run else "⏸️  PAUSED"
+    print(f"🔑 Service control key: {env_config.redis_service_control_key} → {status_str} (market_open={initial_market_open} | redis_flag={initial_enabled})")
+    if should_run:
         service_enabled.set()
 
     async def _is_market_open() -> bool:
