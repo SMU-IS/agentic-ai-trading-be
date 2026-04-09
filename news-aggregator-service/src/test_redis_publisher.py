@@ -27,6 +27,7 @@ async def publish_test_news():
         "event_type": "NEWS_UPDATE",
         "id": "reddit:1r2a9xx",
         "ticker": "AVAV",
+        "source": "Reddit",
         "event_type_meta": "regulatory_approval",
         "sentiment_score": 0.9,  # 🔥 HIGH SENTIMENT
         "sentiment_confidence": 0.9142,
