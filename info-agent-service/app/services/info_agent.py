@@ -1,5 +1,5 @@
 from operator import itemgetter
-from typing import Any, AsyncGenerator
+from typing import Any, AsyncGenerator, Dict
 
 from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.chat_history import (
