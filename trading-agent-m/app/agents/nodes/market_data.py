@@ -60,7 +60,7 @@ async def fetch_alpaca_data(ticker: str) -> Dict[str, Any]:
             )
         except Exception as e:
             print(f"   [❌ Alpaca API] {e}")
-            return {"error": str(e)}
+            raise
 
 
 async def fetch_yahoo_technical(ticker: str) -> YahooTechnicalData:
@@ -73,13 +73,14 @@ async def fetch_yahoo_technical(ticker: str) -> YahooTechnicalData:
                 }
             )
             if resp.status_code != 200:
-                return {"error": "Yahoo unavailable"}
+                raise RuntimeError(f"Yahoo unavailable (status {resp.status_code})")
 
             data = resp.json()
             tech = YahooTechnicalData.from_dict(data)
             return tech
         except Exception as e:
-            return {"error": str(e)}
+            print(f"   [❌ Yahoo API] {e}")
+            raise
 
 async def test():
     """Async comprehensive test for YahooTechnicalData pipeline."""

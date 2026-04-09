@@ -23,8 +23,7 @@ async def analyze_signals(
     broker: AlpacaBrokerClient = Depends(get_broker),
 ) -> SignalResponse:
     try:
-        clock = broker.get_clock()
-        data: SignalResponse = client.process_trading_data(symbol, clock=clock)
+        data: SignalResponse = client.process_trading_data(symbol)
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

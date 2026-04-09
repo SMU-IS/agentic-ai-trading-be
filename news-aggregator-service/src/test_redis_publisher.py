@@ -39,17 +39,30 @@ async def publish_test_news():
     #     "event_type": "NEWS_UPDATE",
     #     "id": "reddit:1r2a9xx",
     #     "ticker": "NFLX",
+    #     "source": "reddit:wallstreetbets",
     #     "event_type_meta": "EARNINGS_BEAT",
     #     "sentiment_score": 0.9,  # 🔥 HIGH SENTIMENT
     #     "sentiment_confidence": 0.9142,
     #     "event_description": "Netflix Q4 2026 earnings CRUSH expectations: +22M subscribers, $11.8B revenue, 35% ad-tier growth, NFLX shares +12% after-hours",
     #     "sentiment_reasoning": "Netflix delivered monster Q4 results with record subscriber growth (22M vs 15M expected), revenue beat ($11.8B vs $11.2B), and advertising revenue exploding 35% YoY. Management raised 2027 guidance, announced $18B buyback, and confirmed live sports expansion (NFL games, boxing PPVs). Analysts upgrading targets to $1600+. Clear BUY signal with massive momentum."
     # }
+    
+    test_articles = {
+        "id": "tradingview_minds:brGWS3LnRtKvR2Op-DDB4w",
+        "ticker": "MSFT",
+        "source": "tradingview:minds",
+        "event_type_meta": "INVESTOR_OPINION",
+        "sentiment_score": "0.90",
+        "sentiment_confidence": "0.5",
+        "event_description": "$MSFT It feels like it will go up from here. I know trading isn't about feelings, but still....",
+        "sentiment_reasoning": "Retail investor expressing mild bullish sentiment on MSFT based on intuition rather than fundamentals. Low credibility signal.",
+    }
 
     # test_articles = {
     #     "stream_event_type": "NEWS_UPDATE",
     #     "id": "reddit:1r0tftt",
     #     "ticker": "IBRX",
+    #     "source": "reddit:wallstreetbets",
     #     "ticker_event_type": "REGULATORY_APPROVAL",
     #     "sentiment_score": 0.85,
     #     "sentiment_confidence": 0.6145,
@@ -57,8 +70,14 @@ async def publish_test_news():
     #     "sentiment_reasoning": "The article highlights a significant price surge for IBRX driven by positive regulatory news (Saudi SFDA approval) and promising clinical trial developments, indicating strong bullish sentiment."
     # }
     
+    
     from src.config import settings
     redis_listener_stream = settings.redis_aggregator_stream
+
+    digested_key = "digested:MSFT:INVESTOR_OPINION"
+    deleted = await redis.redis.delete(digested_key)
+    print(f"🗑️  Cleared digested key: {digested_key} ({'deleted' if deleted else 'not found'})")
+
     print(f"📤 Publishing test news to {redis_listener_stream}...")
 
     await redis.redis.xadd(redis_listener_stream, test_articles)
