@@ -1,4 +1,4 @@
-name: User Info Service CI
+name: User Info Service CI/CD Pipeline
 
 on:
   workflow_dispatch:
@@ -32,11 +32,10 @@ jobs:
       - name: Run Unit Tests
         run: go test -v ./...
 
-  deploy:
-    name: Continuous Deployment
+  build:
+    name: Continuous Integration - Build
     runs-on: ubuntu-latest
     needs: go-tests
-    if: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -63,8 +62,26 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/user-info:${{ github.sha }}
+          build-args: |
+            TARGETARCH=arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    name: Continuous Deployment
+    runs-on: ubuntu-latest
+    needs: [go-tests, build]
+    if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
       - name: Update Kubeconfig
         run: aws eks update-kubeconfig --region us-east-1 --name agentic-m-cluster
@@ -80,7 +97,7 @@ jobs:
       - name: Deploy to AWS EKS
         run: |
           helm upgrade --install user-info ./infra \
-            -f ./deploy/values-user-info.yaml \
+            -f ./deploy/prod/values-user-info.yaml \
             --set image.tag=${{ github.sha }} \
             --set ingress.enabled=true \
             --atomic \

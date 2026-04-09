@@ -2,10 +2,10 @@ from typing import Any
 
 from qdrant_client import models
 
-from app.core.logger import logger
-from app.providers.vector.registry import get_vector_strategy
 from app.core.config import env_config
 from app.core.constant import StorageProviders
+from app.core.logger import logger
+from app.providers.vector.registry import get_vector_strategy
 from app.schemas.query_docs_payload import QueryDocsRequest
 
 
@@ -16,24 +16,57 @@ class QueryQdrantService:
         )
         self.vector_store = self.strategy.get_vector_store()
 
-    async def retrieve_all_news(
-        self, limit: int = 20, offset: Any = None
+    async def retrieve_news(
+        self,
+        limit: int = 20,
+        offset: Any = None,
+        sort_by_recency: bool = True,
+        start_date: Any = None,
+        end_date: Any = None,
     ) -> dict[str, Any]:
         """
-        Retrieves a page of documents from the collection without any filters.
+        Retrieves news documents from the collection with optional sorting, filtering, and pagination.
 
         Args:
             limit (int): Number of documents to return.
-            offset (Any): The ID from which to start scrolling (for pagination).
+            offset (Any): The offset from which to start scrolling.
+            sort_by_recency (bool): Whether to sort by timestamp descending.
+            start_date (datetime): Optional start date for filtering.
+            end_date (datetime): Optional end date for filtering.
 
         Returns:
             dict: A dictionary containing the list of documents and the next offset.
         """
         try:
+            order_by = None
+            if sort_by_recency:
+                order_by = models.OrderBy(
+                    key="metadata.timestamp", direction=models.Direction.DESC
+                )
+
+            scroll_filter = None
+            if start_date or end_date:
+                range_query = {}
+                if start_date:
+                    range_query["gte"] = start_date
+                if end_date:
+                    range_query["lte"] = end_date
+
+                scroll_filter = models.Filter(
+                    must=[
+                        models.FieldCondition(
+                            key="metadata.timestamp",
+                            range=models.DatetimeRange(**range_query),
+                        )
+                    ]
+                )
+
             records, next_offset = self.vector_store.client.scroll(
                 collection_name="news_analysis_compiled",
                 limit=limit,
                 offset=offset,
+                order_by=order_by,
+                scroll_filter=scroll_filter,
                 with_payload=True,
                 with_vectors=False,
             )
@@ -50,11 +83,23 @@ class QueryQdrantService:
                         "metadata": metadata,
                     }
                 )
+
             return {"results": formatted_results, "next_offset": next_offset}
 
         except Exception as e:
-            logger.error(f"❌ Error retrieving all news: {str(e)}")
-            raise RuntimeError(f"Failed to scroll documents: {e}")
+            logger.error(f"❌ Error retrieving news: {str(e)}")
+            raise RuntimeError(f"Failed to scroll news documents: {e}")
+
+    async def retrieve_all_news(self, limit: int = 20, offset: Any = None) -> dict[str, Any]:
+        """Legacy wrapper for retrieve_news without sorting."""
+        return await self.retrieve_news(limit=limit, offset=offset, sort_by_recency=False)
+
+    async def retrieve_latest_news(
+        self, limit: int = 50, offset: Any = None
+    ) -> list[dict[str, Any]]:
+        """Legacy wrapper for retrieve_news with sorting."""
+        data = await self.retrieve_news(limit=limit, offset=offset, sort_by_recency=True)
+        return data["results"]
 
     async def retrieve_ticker_insights(
         self, payload: QueryDocsRequest
@@ -67,25 +112,41 @@ class QueryQdrantService:
                 - query (str): The search text.
                 - limit (int): Max number of results.
                 - tickers (list[str]): List of tickers to filter by.
+                - start_date (datetime): Optional start date for filtering.
+                - end_date (datetime): Optional end date for filtering.
 
         Returns:
             list[dict[str, Any]]: List of documents with metadata and similarity score.
         """
 
-        filter_by_tickers = None
+        conditions = []
         if payload.tickers:
-            filter_by_tickers = models.Filter(
-                must=[
-                    models.FieldCondition(
-                        key="metadata.tickers",
-                        match=models.MatchAny(any=payload.tickers),
-                    )
-                ]
+            conditions.append(
+                models.FieldCondition(
+                    key="metadata.tickers",
+                    match=models.MatchAny(any=payload.tickers),
+                )
             )
+
+        if payload.start_date or payload.end_date:
+            range_query = {}
+            if payload.start_date:
+                range_query["gte"] = payload.start_date
+            if payload.end_date:
+                range_query["lte"] = payload.end_date
+
+            conditions.append(
+                models.FieldCondition(
+                    key="metadata.timestamp",
+                    range=models.DatetimeRange(**range_query),
+                )
+            )
+
+        filter_condition = models.Filter(must=conditions) if conditions else None
 
         try:
             results = await self.vector_store.asimilarity_search_with_score(
-                query=payload.query, k=payload.limit, filter=filter_by_tickers
+                query=payload.query, k=payload.limit, filter=filter_condition
             )
 
             formatted_results = []

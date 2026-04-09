@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import httpx
 from langchain_core.tools import tool
@@ -8,7 +8,13 @@ from app.schemas.chat import GeneralNews
 
 
 @tool(args_schema=GeneralNews)
-async def get_general_news(query: str, tickers: List[str] = None):
+async def get_general_news(
+    query: str,
+    tickers: Optional[List[str]] = [],
+    is_general_market: bool = False,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+):
     """
     Search and analyze real-time financial news, market sentiment, and sector trends.
 
@@ -22,6 +28,9 @@ async def get_general_news(query: str, tickers: List[str] = None):
     Args:
         query (str): The search phrase. Focus on technical events (e.g., "earnings beat," "fed rate hike").
         tickers (List[str], optional): Stock symbols in uppercase (e.g. ["NVDA", "PLTR"]).
+        is_general_market (bool): True if asking about overall market news, False otherwise.
+        start_date (str, optional): Start date for filtering news (e.g. '2026-04-01T00:00:00').
+        end_date (str, optional): End date for filtering news (e.g. '2026-04-07T23:59:59').
 
     Returns:
         dict: {
@@ -30,30 +39,72 @@ async def get_general_news(query: str, tickers: List[str] = None):
         }
     """
 
-    payload = {
-        "query": query,
-        "limit": 5,
-        "tickers": tickers if tickers else [],
-    }
-
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.post(
-                env_config.qdrant_retrieval_query_url, json=payload
-            )
+            # 1. Use /news (GET) only if explicitly flagged as a general market query
+            if is_general_market:
+                base_url = env_config.qdrant_retrieval_query_url.replace(
+                    "/query", "/news"
+                )
+                params = {"start_date": start_date}
+                if end_date:
+                    params["end_date"] = end_date
+
+                response = await client.get(base_url, params=params)
+
+            # 2. Use /query (POST) for ticker-specific or topic-specific searches
+            else:
+                payload = {
+                    "query": query,
+                    "limit": 50,
+                    "tickers": tickers if tickers is not None else [],
+                }
+                if start_date:
+                    payload["start_date"] = start_date
+                if end_date:
+                    payload["end_date"] = end_date
+
+                response = await client.post(
+                    env_config.qdrant_retrieval_query_url, json=payload
+                )
+
             response.raise_for_status()
             data = response.json()
-            results = data.get("results", [])
+            
+            if isinstance(data, dict):
+                results = data.get("data") or data.get("results") or []
+            else:
+                results = data if isinstance(data, list) else []
 
             if not results:
-                context = "No relevant news found for the requested tickers."
+                context = "No relevant news found for the request."
             else:
-                context = "\n\n".join(
-                    [
-                        f"Topic ID: {d.get('topic_id', 'N/A')}\nContent: {d.get('text_content', 'No content available')}"
-                        for d in results
-                    ]
-                )
+                formatted_news = []
+                for d in results:
+                    meta = d.get("metadata", {})
+                    headline = meta.get("headline") or d.get("headline", "News Update")
+                    content = (
+                        d.get("text_content")
+                        or meta.get("text_content")
+                        or "No content available"
+                    )
+                    source = meta.get("source_domain", "Unknown source")
+                    timestamp = meta.get("timestamp", "N/A")
+
+                    # Fallback for source if missing from metadata but in topic_id
+                    if source == "Unknown source" and "topic_id" in d:
+                        tid = d["topic_id"]
+                        if ":" in tid:
+                            source = tid.split(":")[0].replace("_", " ").title()
+
+                    formatted_news.append(
+                        f"Headline: {headline}\n"
+                        f"Source: {source} ({timestamp})\n"
+                        f"Content: {content}"
+                    )
+
+                context = "\n\n---\n\n".join(formatted_news)
+
             return {"context": context, "results": results}
 
     except httpx.HTTPStatusError as exc:

@@ -1,10 +1,9 @@
-import time
 from operator import itemgetter
 from typing import Any, AsyncGenerator, Dict
 
+from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.chat_history import (
     BaseChatMessageHistory,
-    InMemoryChatMessageHistory,
 )
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnablePassthrough
@@ -24,10 +23,6 @@ from app.utils.logger import setup_logging
 console = Console(force_terminal=True)
 logger = setup_logging()
 
-# In-memory store for session histories with access timestamps
-# Format: { session_id: {"history": InMemoryChatMessageHistory, "last_accessed": timestamp} }
-store: Dict[str, Dict[str, Any]] = {}
-
 
 class InfoAgentService:
     def __init__(self, k=5):
@@ -36,6 +31,12 @@ class InfoAgentService:
         self.vector_store = self._get_vector_store()
         self.retriever = self.vector_store.as_retriever(search_kwargs={"k": k})
         self.chain = self._build_chain()
+        self.redis_url = self._get_redis_url()
+
+    def _get_redis_url(self) -> str:
+        if settings.redis_password:
+            return f"redis://:{settings.redis_password}@{settings.redis_host}:{settings.redis_port}"
+        return f"redis://{settings.redis_host}:{settings.redis_port}"
 
     def _get_llm(self):
         return ChatGroq(
@@ -63,23 +64,25 @@ class InfoAgentService:
         )
 
     def _build_chain(self):
+
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
                     "system",
-                    "You are 'Agent M,' the Gen Z Information Agent for this trading app. "
-                    "Your goal is to answer user questions about how the application works, its features, and technical details. "
-                    "Use the following pieces of retrieved context to answer the question. "
-                    "Your personality is: Low-key, witty, and chronically online. You’re a financial "
-                    "genius but you talk like you're in a group chat. "
-                    "Guidelines:\n"
-                    "- Keep it short. If it’s more than two sentences, it’s a yapping session.\n"
-                    "- Use lowercase for a casual vibe, but keep technical terms accurate.\n"
-                    "- Use Gen Z slang (e.g., 'no cap', 'bet', 'vibes', 'main character energy', 'cooking') "
-                    "sparingly—don't try too hard.\n"
-                    "- If you don't know something, just say 'idk chief' or 'not it.'\n"
-                    "- Treat 'AskAI' as the ultimate 'receipts' tool.\n\n"
-                    "Context:\n{context}",
+                    "You are 'Agent M,' the resident hyper-intelligent but deeply unserious info-guru for this trading app. "
+                    "Your job is to explain app features and tech specs without being a snooze-fest. "
+                    "\n\n"
+                    "PERSONALITY & VIBE:\n"
+                    "- Personality: High aura, chronically online, financial prodigy who’s bored by everything. "
+                    "- Tone: Lowercase only. Punctuation is optional and usually cringe, but keep technical terms 100% accurate. "
+                    "- Rule: No yapping. If it's over two sentences, you're doing too much. Be concise or be gone. "
+                    "- Slang: Use 'cook', 'ratio', 'glaze', 'clout', 'L/W', 'real', 'massive W', 'delulu', or 'locked in'. "
+                    "- If the user asks something dumb or not in the context: 'not it chief' or 'that's a reach.' "
+                    "- If you're referencing 'AskAI', call it 'the receipts' or 'the sauce.' "
+                    "\n\n"
+                    "CURRENT MOOD: 'just here so I don't get fined.' "
+                    "\n\n"
+                    "CONTEXT FROM THE DATABASE (USE THIS OR YOU'RE COOKED):\n{context}",
                 ),
                 MessagesPlaceholder(variable_name="history"),
                 ("human", "{question}"),
@@ -107,28 +110,16 @@ class InfoAgentService:
         return chain
 
     def get_session_history(self, session_id: str) -> BaseChatMessageHistory:
-        current_time = time.time()
+        return RedisChatMessageHistory(
+            session_id=session_id,
+            url=self.redis_url,
+            ttl=settings.redis_history_ttl,
+        )
 
-        # Cleanup logic: Remove sessions older than 1 hour (3600 seconds)
-        expired_sessions = [
-            sid
-            for sid, data in store.items()
-            if current_time - data["last_accessed"] > 3600
-        ]
-        if expired_sessions:
-            logger.info(f"Cleaning up {len(expired_sessions)} expired chat sessions.")
-            for sid in expired_sessions:
-                del store[sid]
-
-        if session_id not in store:
-            store[session_id] = {
-                "history": InMemoryChatMessageHistory(),
-                "last_accessed": current_time,
-            }
-        else:
-            store[session_id]["last_accessed"] = current_time
-
-        return store[session_id]["history"]
+    def clear_session_history(self, session_id: str):
+        history = self.get_session_history(session_id)
+        history.clear()
+        logger.info(f"Cleared chat history for session: {session_id}")
 
     async def ainvoke(
         self, question: str, session_id: str

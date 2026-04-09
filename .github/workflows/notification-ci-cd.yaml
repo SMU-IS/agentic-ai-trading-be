@@ -16,6 +16,6 @@ jobs:
       working-directory: "notification-alert"
       cluster-name: "agentic-m-cluster"
       image-name: "notification-alert"
-      values-file: "deploy/values-notification-alert.yaml"
+      values-file: "deploy/prod/values-notification-alert.yaml"
       secret-key: "NOTIFICATION_ALERT_SECRETS"
     secrets: inherit

@@ -44,16 +44,27 @@ async def test_ensure_indexes(mock_strategy):
     service = VectorisationService()
     
     mock_client = MagicMock()
+    # Mock collection info to avoid recreating indexes if they exist
+    mock_collection_info = MagicMock()
+    mock_collection_info.payload_schema = {}
+    mock_client.get_collection.return_value = mock_collection_info
+    
     service.vector_store.client = mock_client
     
     await service.ensure_indexes()
     
-    assert mock_client.create_payload_index.call_count == 3
+    assert mock_client.create_payload_index.call_count == 4
     
+    models = pytest.importorskip("qdrant_client.models")
     mock_client.create_payload_index.assert_any_call(
         collection_name="news_analysis_compiled",
         field_name="metadata.tickers",
-        field_schema=pytest.importorskip("qdrant_client.models").PayloadSchemaType.KEYWORD
+        field_schema=models.PayloadSchemaType.KEYWORD
+    )
+    mock_client.create_payload_index.assert_any_call(
+        collection_name="news_analysis_compiled",
+        field_name="metadata.timestamp",
+        field_schema=models.PayloadSchemaType.DATETIME
     )
 
 @pytest.mark.asyncio

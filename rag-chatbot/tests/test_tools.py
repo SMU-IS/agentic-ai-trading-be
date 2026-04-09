@@ -10,66 +10,155 @@ from app.services.tools.trade_history import (
 
 
 @pytest.mark.asyncio
-async def test_get_general_news_only_query():
-    """Test get_general_news with only the query provided."""
+async def test_get_general_news_general_market_uses_get():
+    """Test that get_general_news uses GET /news when is_general_market is True."""
     mock_response = {
-        "results": [
-            {"topic_id": "topic_1", "text_content": "Market News: Stock market update"},
+        "status": "success",
+        "data": [
+            {
+                "topic_id": "topic_news", 
+                "text_content": "General market news content",
+                "metadata": {"headline": "Market Up", "source_domain": "bloomberg.com", "timestamp": "2026-04-07"}
+            },
         ]
     }
 
-    with patch("httpx.AsyncClient.post") as mock_post:
-        mock_post.return_value = MagicMock(spec=httpx.Response)
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.json.return_value = mock_response
-        mock_post.return_value.raise_for_status = MagicMock()
+    with patch("app.services.tools.general_news.httpx.AsyncClient") as mock_client_class:
+        mock_client = mock_client_class.return_value.__aenter__.return_value
+        mock_client.get = AsyncMock()
+        mock_client.get.return_value = MagicMock(spec=httpx.Response)
+        mock_client.get.return_value.status_code = 200
+        mock_client.get.return_value.json.return_value = mock_response
+        mock_client.get.return_value.raise_for_status = MagicMock()
 
-        # Call with only query
-        result = await get_general_news.ainvoke({"query": "What is the market doing?"})
+        # Call with is_general_market=True
+        result = await get_general_news.ainvoke({
+            "query": "how is the market today",
+            "is_general_market": True,
+            "start_date": "2026-04-07T00:00:00",
+            "end_date": "2026-04-07T23:59:59"
+        })
 
-        assert "Market News" in result["context"]
-        assert "topic_1" in result["context"]
-        assert len(result["results"]) == 1
+        assert "Market Up" in result["context"]
+        assert "bloomberg.com" in result["context"]
         
-        # Verify the payload sent to the mock post
-        args, kwargs = mock_post.call_args
-        sent_payload = kwargs.get("json", {})
-        assert sent_payload["query"] == "What is the market doing?"
-        assert sent_payload["tickers"] == []  # Should default to empty list
+        # Verify the GET request was made
+        args, kwargs = mock_client.get.call_args
+        url = args[0]
+        params = kwargs.get("params", {})
+        assert "/news" in url
+        assert params["start_date"] == "2026-04-07T00:00:00"
 
 
 @pytest.mark.asyncio
-async def test_get_general_news_success():
+async def test_get_general_news_specific_topic_uses_post():
+    """Test that get_general_news uses POST /query when is_general_market is False."""
     mock_response = {
-        "results": [
-            {"topic_id": "topic_1", "text_content": "News 1 Content"},
-            {"topic_id": "topic_2", "text_content": "News 2 Content"},
+        "status": "success",
+        "data": [
+            {
+                "topic_id": "topic_google", 
+                "text_content": "Google news content",
+                "metadata": {"headline": "Google AI", "source_domain": "google.com"}
+            },
         ]
     }
 
-    with patch("httpx.AsyncClient.post") as mock_post:
-        mock_post.return_value = MagicMock(spec=httpx.Response)
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.json.return_value = mock_response
-        mock_post.return_value.raise_for_status = MagicMock()
+    with patch("app.services.tools.general_news.httpx.AsyncClient") as mock_client_class:
+        mock_client = mock_client_class.return_value.__aenter__.return_value
+        mock_client.post = AsyncMock()
+        mock_client.post.return_value = MagicMock(spec=httpx.Response)
+        mock_client.post.return_value.status_code = 200
+        mock_client.post.return_value.json.return_value = mock_response
+        mock_client.post.return_value.raise_for_status = MagicMock()
 
-        result = await get_general_news.ainvoke({"query": "test", "tickers": ["AAPL"]})
+        # Call with is_general_market=False
+        result = await get_general_news.ainvoke({
+            "query": "Tell me about Google",
+            "is_general_market": False,
+            "tickers": [],
+            "start_date": "2026-04-01T00:00:00",
+            "end_date": "2026-04-07T23:59:59"
+        })
 
-        assert "News 1" in result["context"]
-        assert "topic_1" in result["context"]
-        assert len(result["results"]) == 2
+        assert "Google AI" in result["context"]
+        
+        # Verify the POST request was made
+        args, kwargs = mock_client.post.call_args
+        payload = kwargs.get("json", {})
+        assert payload["query"] == "Tell me about Google"
+        assert "/query" in args[0]
+
+
+@pytest.mark.asyncio
+async def test_get_general_news_with_ticker_uses_post():
+    """Test that get_general_news uses POST /query when tickers are provided."""
+    mock_response = {
+        "data": [
+            {"topic_id": "topic_aapl", "text_content": "AAPL news", "metadata": {"headline": "Apple News"}}
+        ]
+    }
+
+    with patch("app.services.tools.general_news.httpx.AsyncClient") as mock_client_class:
+        mock_client = mock_client_class.return_value.__aenter__.return_value
+        mock_client.post = AsyncMock()
+        mock_client.post.return_value = MagicMock(spec=httpx.Response)
+        mock_client.post.return_value.status_code = 200
+        mock_client.post.return_value.json.return_value = mock_response
+        mock_client.post.return_value.raise_for_status = MagicMock()
+
+        # Call with tickers (is_general_market defaults to False)
+        result = await get_general_news.ainvoke({
+            "query": "AAPL news",
+            "tickers": ["AAPL"],
+            "start_date": "2026-04-01T00:00:00"
+        })
+
+        assert "Apple News" in result["context"]
+        
+        # Verify the POST request was made
+        args, kwargs = mock_client.post.call_args
+        payload = kwargs.get("json", {})
+        assert payload["tickers"] == ["AAPL"]
+        assert "/query" in args[0]
+
+
+@pytest.mark.asyncio
+async def test_get_general_news_with_missing_tickers():
+    """Test that get_general_news handles missing tickers by defaulting to []."""
+    mock_response = {"data": []}
+
+    with patch("app.services.tools.general_news.httpx.AsyncClient") as mock_client_class:
+        mock_client = mock_client_class.return_value.__aenter__.return_value
+        mock_client.post = AsyncMock()
+        mock_client.post.return_value = MagicMock(spec=httpx.Response)
+        mock_client.post.return_value.status_code = 200
+        mock_client.post.return_value.json.return_value = mock_response
+        mock_client.post.return_value.raise_for_status = MagicMock()
+
+        # Omit tickers from input, is_general_market defaults to False -> POST /query
+        await get_general_news.ainvoke({
+            "query": "some news",
+            "start_date": "2026-04-07T00:00:00"
+        })
+        
+        args, kwargs = mock_client.post.call_args
+        assert "/query" in args[0]
 
 
 @pytest.mark.asyncio
 async def test_get_general_news_no_results():
-    mock_response = {"results": []}
+    mock_response = {"data": []}
 
-    with patch("httpx.AsyncClient.post") as mock_post:
-        mock_post.return_value = MagicMock(spec=httpx.Response)
-        mock_post.return_value.status_code = 200
-        mock_post.return_value.json.return_value = mock_response
+    with patch("app.services.tools.general_news.httpx.AsyncClient") as mock_client_class:
+        mock_client = mock_client_class.return_value.__aenter__.return_value
+        mock_client.post = AsyncMock()
+        mock_client.post.return_value = MagicMock(spec=httpx.Response)
+        mock_client.post.return_value.status_code = 200
+        mock_client.post.return_value.json.return_value = mock_response
+        mock_client.post.return_value.raise_for_status = MagicMock()
 
-        result = await get_general_news.ainvoke({"query": "test", "tickers": ["AAPL"]})
+        result = await get_general_news.ainvoke({"query": "test", "tickers": [], "is_general_market": False})
 
         assert "No relevant news found" in result["context"]
         assert result["results"] == []

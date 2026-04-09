@@ -138,17 +138,6 @@ resource "time_sleep" "wait_for_lb_webhook" {
 # =============================================================================
 
 # Kong Declarative Configuration (DB-less mode)
-resource "kubernetes_config_map" "kong_config" {
-  metadata {
-    name      = "kong-declarative-config"
-    namespace = "default"
-  }
-
-  data = {
-    "kong.yml" = file("${path.module}/../kong.yml")
-  }
-}
-
 resource "kubernetes_config_map" "rds_certs" {
   metadata {
     name      = "rds-certs"
@@ -180,6 +169,32 @@ resource "kubernetes_secret" "jwt_secret" {
   }
 }
 
+# Rate Limiting Redis Secret for Kong
+resource "kubernetes_secret" "kong_rate_limit_redis" {
+  metadata {
+    name      = "kong-rate-limit-redis"
+    namespace = "default"
+  }
+
+  type = "Opaque"
+
+  data = {
+    config = jsonencode({
+      second         = 1
+      minute         = 100
+      limit_by       = "ip"
+      policy         = "redis"
+      fault_tolerant = true
+      redis = {
+        host     = var.kong_redis_host
+        port     = var.kong_redis_port
+        password = var.kong_redis_password
+        timeout  = 500
+      }
+    })
+  }
+}
+
 # Kong Gateway Helm Release
 resource "helm_release" "kong" {
   namespace  = "default"
@@ -193,8 +208,7 @@ resource "helm_release" "kong" {
   depends_on = [
     module.compute,
     time_sleep.wait_for_cluster,
-    time_sleep.wait_for_lb_webhook,
-    kubernetes_config_map.kong_config
+    time_sleep.wait_for_lb_webhook
   ]
 
   values = [
@@ -206,11 +220,9 @@ resource "helm_release" "kong" {
 
     env:
       database: "off"
-      declarative_config: "/usr/local/kong/declarative/kong.yml"
-
-    extraConfigMaps:
-      - name: kong-declarative-config
-        mountPath: /usr/local/kong/declarative/
+      real_ip_header: "X-Forwarded-For"
+      real_ip_recursive: "on"
+      trusted_proxies: "10.0.0.0/16, 0.0.0.0/0, ::/0"
 
     status:
       enabled: true
@@ -272,7 +284,7 @@ resource "helm_release" "karpenter" {
           memory: 256Mi
         limits:
           cpu: 500m
-          memory: 512Mi
+          memory: 1Gi
     core:
       webhook:
         enabled: false
@@ -339,10 +351,10 @@ resource "kubectl_manifest" "karpenter_node_pool" {
             name  = "default"
           }
           requirements = [
-            { key = "karpenter.sh/capacity-type", operator = "In", values = ["on-demand"] },
+            { key = "karpenter.sh/capacity-type", operator = "In", values = ["spot", "on-demand"] },
             { key = "kubernetes.io/arch", operator = "In", values = ["arm64"] },
             { key = "karpenter.k8s.aws/instance-family", operator = "In", values = ["t4g", "c7g", "m7g", "r7g"] },
-            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["micro", "small", "medium", "large", "xlarge"] }
+            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["medium", "large", "xlarge"] }
           ]
         }
       }

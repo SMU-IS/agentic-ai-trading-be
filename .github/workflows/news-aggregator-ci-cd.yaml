@@ -16,6 +16,6 @@ jobs:
       working-directory: "news-aggregator-service"
       cluster-name: "agentic-m-cluster"
       image-name: "news-aggregator-service"
-      values-file: "deploy/values-news-aggregator.yaml"
+      values-file: "deploy/prod/values-news-aggregator.yaml"
       secret-key: "NEWS_AGGREGATOR_SECRETS"
     secrets: inherit

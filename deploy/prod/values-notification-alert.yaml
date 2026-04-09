@@ -1,48 +1,59 @@
-replicaCount: 1
+replicaCount: 2
+
+resources:
+  requests:
+    cpu: "50m"
+    memory: "64Mi"
+  limits:
+    cpu: "100m"
+    memory: "128Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 70
 
 image:
-  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/metrics-tracker-service
+  repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/notification-alert
   tag: v1
   pullPolicy: Always
 
 service:
   type: ClusterIP
-  port: 5014
-  targetPort: 5014
+  port: 5004
+  targetPort: 5004
 
 startupProbe:
   httpGet:
     path: /
-    port: 5014
+    port: 5004
   failureThreshold: 30
   periodSeconds: 10
 
 livenessProbe:
   httpGet:
     path: /
-    port: 5014
+    port: 5004
   initialDelaySeconds: 10
   periodSeconds: 20
 
 readinessProbe:
   httpGet:
     path: /
-    port: 5014
+    port: 5004
   initialDelaySeconds: 5
   periodSeconds: 10
 
-secretName: metrics-tracker-service-secrets
+secretName: notification-alert-secrets
 
 ingress:
   enabled: true
   public:
     enabled: true
     paths:
-      - path: /api/v1/metrics/healthcheck
-        pathType: Exact
-      - path: /api/v1/metrics
+      - path: /api/v1/notification
         pathType: Prefix
   protected:
     enabled: false
     paths: []
-

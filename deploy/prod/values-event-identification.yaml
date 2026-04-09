@@ -1,12 +1,18 @@
-replicaCount: 1
+replicaCount: 2
 
 resources:
   requests:
-    memory: "512Mi"
-    cpu: "250m"
+    cpu: "50m"
+    memory: "128Mi"
   limits:
-    memory: "1Gi"
-    cpu: "500m"
+    cpu: "200m"
+    memory: "256Mi"
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
 
 image:
   repository: 182138814885.dkr.ecr.us-east-1.amazonaws.com/event-identification-service
@@ -39,6 +45,12 @@ readinessProbe:
 
 worker:
   enabled: true
+  replicaCount: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
   command: ["python", "-m", "app.services.event_identification_worker"]
 
 secretName: event-identification-service-secrets
@@ -55,4 +67,3 @@ ingress:
     paths:
       - path: /api/v1/event-identification
         pathType: Prefix
-

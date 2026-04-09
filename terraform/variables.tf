@@ -149,6 +149,23 @@ variable "show_cloudwatch_metrics" {
   sensitive = true
 }
 
+variable "kong_redis_host" {
+  description = "Redis host for Kong rate-limiting"
+  type        = string
+}
+
+variable "kong_redis_port" {
+  description = "Redis port for Kong rate-limiting"
+  type        = number
+  default     = 6379
+}
+
+variable "kong_redis_password" {
+  description = "Redis password for Kong rate-limiting"
+  type        = string
+  sensitive   = true
+}
+
 # =============================================================================
 # Terraform State Backend Configuration
 # =============================================================================

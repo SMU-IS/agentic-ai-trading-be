@@ -29,9 +29,21 @@ class GeneralNews(BaseModel):
         ...,
         description="The specific topic, question, or search string to look for in the news. e.g 'What is the latest news on Apple?'",
     )
-    tickers: list[str] = Field(
+    tickers: Optional[list[str]] = Field(
         default_factory=list,
         description="Optional list of stock tickers (e.g. ['AAPL', 'TSLA']) if explicitly mentioned.",
+    )
+    is_general_market: bool = Field(
+        default=False,
+        description="True if the user is asking about the overall market sentiment/news, False if asking about specific companies or topics.",
+    )
+    start_date: Optional[str] = Field(
+        None,
+        description="Optional start date for filtering news (e.g. '2026-04-01T00:00:00'). Use if user mentions 'today' or a specific date.",
+    )
+    end_date: Optional[str] = Field(
+        None,
+        description="Optional end date for filtering news (e.g. '2026-04-07T23:59:59').",
     )
 
 

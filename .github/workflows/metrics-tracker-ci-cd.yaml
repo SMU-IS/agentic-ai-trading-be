@@ -16,6 +16,6 @@ jobs:
       working-directory: "metrics-tracker"
       cluster-name: "agentic-m-cluster"
       image-name: "metrics-tracker-service"
-      values-file: "deploy/values-metrics-tracker.yaml"
+      values-file: "deploy/prod/values-metrics-tracker.yaml"
       secret-key: "METRICS_TRACKER_SECRETS"
     secrets: inherit
