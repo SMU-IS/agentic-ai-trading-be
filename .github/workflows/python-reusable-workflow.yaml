@@ -58,6 +58,14 @@ jobs:
             echo "❓No recognized dependency file found. Running pytest with system python..."
             pytest --cov=. --cov-report=html --cov-fail-under=80 -v
           fi
+      - name: Run Integration Tests
+        # Only run if the service is qdrant-retrieval
+        if: inputs.image-name == 'qdrant-retrieval'
+        run: |
+          echo "🧪 Running Integration Tests for Qdrant Retrieval..."
+          # Credentials are assumed to be in the environment/state from previous steps
+          # We explicitly point to the .env.test for stream name overrides
+          ENV_FILE=.env.test uv run pytest app/tests/test_pipeline_integration.py -v -s -m integration
       - name: Upload Coverage Report
         if: failure()
         uses: actions/upload-artifact@v4

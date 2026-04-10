@@ -69,4 +69,3 @@ ingress:
     paths:
       - path: /api/v1/qdrant
         pathType: Prefix
-
