@@ -2,9 +2,9 @@ import os
 from datetime import datetime
 from typing import cast
 
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import HumanMessage, RemoveMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
-from langgraph.graph import START, StateGraph
+from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from app.services.graph.state import AgentState
@@ -21,11 +21,42 @@ class ChatWorkflow:
         self.checkpointer = checkpointer
         self.graph = self._build()
 
-    async def _call_model(self, state: AgentState, config: RunnableConfig):
+    async def _summarize_conversation(self, state: AgentState):
         """
-        Agent Node: Calls the LLM with the current message history.
+        Summarizes the conversation if it exceeds a certain length to stay within context limits.
         """
         messages = state["messages"]
+        summary = state.get("summary", "")
+
+        if len(messages) < 20:
+            return {"summary": summary}
+
+        logger.info(f"Summarizing conversation history ({len(messages)} messages)")
+
+        if summary:
+            summary_message = (
+                f"This is a summary of the conversation to date: {summary}\n\n"
+                "Extend the summary by taking into account the new messages above:"
+            )
+        else:
+            summary_message = "Create a summary of the conversation above:"
+
+        response = await self.llm.ainvoke(
+            messages + [HumanMessage(content=summary_message)]
+        )
+
+        # Keep the last 6 messages to maintain immediate context/tool results
+        keep_count = 6
+        delete_messages = [RemoveMessage(id=m.id) for m in messages[:-keep_count]]
+
+        return {"summary": response.content, "messages": delete_messages}
+
+    async def _call_model(self, state: AgentState, config: RunnableConfig):
+        """
+        Agent Node: Calls the LLM with the current message history and summary.
+        """
+        messages = state["messages"]
+        summary = state.get("summary", "")
 
         # Inject dynamic context
         metadata = config.get("metadata", {})
@@ -34,6 +65,8 @@ class ChatWorkflow:
         current_date = datetime.now().strftime("%A, %B %d, %Y")
 
         context_lines = [f"- Today's Date: {current_date}", f"- User ID: {user_id}"]
+        if summary:
+            context_lines.append(f"- Previous Conversation Summary: {summary}")
         if order_id:
             context_lines.append(f"- Active Order Context: {order_id}")
 
@@ -56,10 +89,12 @@ class ChatWorkflow:
 
         # 2. Add Nodes
         workflow.add_node("agent", self._call_model)
+        workflow.add_node("summarize", self._summarize_conversation)
         workflow.add_node("tools", ToolNode(self.tools))
 
         # 3. Set Entry Point
-        workflow.add_edge(START, "agent")
+        workflow.add_edge(START, "summarize")
+        workflow.add_edge("summarize", "agent")
 
         # 4. Add Conditional Edges (The Cycle)
         workflow.add_conditional_edges(
@@ -67,8 +102,8 @@ class ChatWorkflow:
             tools_condition,
         )
 
-        # 5. Add edge from tools back to agent
-        workflow.add_edge("tools", "agent")
+        # 5. Add edge from tools back to summarize
+        workflow.add_edge("tools", "summarize")
 
         return workflow.compile(checkpointer=self.checkpointer)
 
