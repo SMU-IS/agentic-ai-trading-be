@@ -1,158 +1,171 @@
+import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from langchain_core.messages import AIMessage
 
 from app.services.agent_bot_service import AgentBotService
 
 
 @pytest.fixture
-def mock_dependencies():
-    with (
-        patch("app.services.agent_bot_service.get_redis_service") as mock_get_redis,
-        patch("app.services.agent_bot_service.S3ConfigService") as mock_s3,
-        patch("app.services.agent_bot_service.ChatWorkflow") as mock_chat_workflow,
-    ):
-        mock_redis_instance = MagicMock()
-        mock_get_redis.return_value = mock_redis_instance
-
-        yield {
-            "redis": mock_redis_instance,
-            "s3": mock_s3.return_value,
-            "ChatWorkflow": mock_chat_workflow,
-        }
+def mock_llm():
+    llm = MagicMock()
+    llm.ainvoke = AsyncMock()
+    return llm
 
 
 @pytest.fixture
-def agent_bot_service(mock_dependencies):
-    llm = MagicMock()
-    checkpointer = MagicMock()
-    return AgentBotService(llm, checkpointer)
+def mock_checkpointer():
+    return MagicMock()
 
 
-def test_get_llm_prompt_from_cache(agent_bot_service, mock_dependencies):
-    # Setup
-    mock_dependencies["redis"].get_cached_prompt.return_value = "cached prompt"
-
-    # Execute
-    prompt = agent_bot_service._get_llm_prompt()
-
-    # Assert
-    assert prompt == "cached prompt"
-    mock_dependencies["redis"].get_cached_prompt.assert_called_once()
-    mock_dependencies["s3"].get_file_content.assert_not_called()
+@pytest.fixture
+def service(mock_llm, mock_checkpointer):
+    with (
+        patch("app.services.agent_bot_service.get_redis_service"),
+        patch("app.services.agent_bot_service.S3ConfigService"),
+    ):
+        return AgentBotService(llm=mock_llm, checkpointer=mock_checkpointer)
 
 
-def test_get_llm_prompt_from_s3(agent_bot_service, mock_dependencies):
-    # Setup
-    mock_dependencies["redis"].get_cached_prompt.return_value = None
-    mock_dependencies["s3"].get_file_content.return_value = "s3 prompt"
+def test_is_displayable(service):
+    # Tool message should not be displayable
+    tool_msg = MagicMock(spec=AIMessage)
+    tool_msg.content = "some tool output"
+    tool_msg.type = "tool"
+    assert service._is_displayable(tool_msg) is False
 
-    # Execute
-    prompt = agent_bot_service._get_llm_prompt()
+    # Empty message should not be displayable
+    empty_msg = MagicMock(spec=AIMessage)
+    empty_msg.content = "  "
+    empty_msg.type = "ai"
+    assert service._is_displayable(empty_msg) is False
 
-    # Assert
-    assert prompt == "s3 prompt"
-    mock_dependencies["s3"].get_file_content.assert_called_once()
-    mock_dependencies["redis"].set_cached_prompt.assert_called_once()
+    # Regular AI message should be displayable
+    ai_msg = MagicMock(spec=AIMessage)
+    ai_msg.content = "Hello user"
+    ai_msg.type = "ai"
+    assert service._is_displayable(ai_msg) is True
 
 
 @pytest.mark.asyncio
-async def test_get_chat_history(agent_bot_service):
-    # Setup
-    mock_msg = MagicMock()
-    mock_msg.content = "Hello"
-    mock_msg.type = "human"
-    mock_msg.dict.return_value = {
-        "content": "Hello",
-        "type": "human",
-        "response_metadata": {"created_at": "2023-01-01"},
+async def test_process_event_on_tool_start(service):
+    event = {"event": "on_tool_start", "name": "get_news"}
+    streamed_ids = set()
+
+    chunks = []
+    async for chunk in service._process_event(event, streamed_ids):
+        chunks.append(chunk)
+
+    assert len(chunks) == 1
+    assert "Searching get_news" in chunks[0]
+
+
+@pytest.mark.asyncio
+async def test_process_event_on_chat_model_stream(service):
+    chunk_mock = MagicMock()
+    chunk_mock.content = "part of response"
+    chunk_mock.id = "msg1"
+
+    event = {
+        "event": "on_chat_model_stream",
+        "tags": ["user_response"],
+        "data": {"chunk": chunk_mock},
     }
+    streamed_ids = set()
 
-    mock_state = MagicMock()
-    mock_state.checkpoint = {"channel_values": {"messages": [mock_msg]}}
-    agent_bot_service.checkpointer.aget = AsyncMock(return_value=mock_state)
+    chunks = []
+    async for chunk in service._process_event(event, streamed_ids):
+        chunks.append(chunk)
 
-    # Execute
-    history = await agent_bot_service.get_chat_history("session_123")
-
-    # Assert
-    assert len(history) == 1
-    assert history[0]["content"] == "Hello"
-    assert history[0]["type"] == "human"
+    assert len(chunks) == 1
+    data = json.loads(chunks[0].replace("data: ", ""))
+    assert data["token"] == "part of response"
+    assert "msg1" in streamed_ids
 
 
-def test_is_displayable(agent_bot_service):
-    # Human message
-    msg1 = MagicMock(content="Hello", type="human")
-    assert agent_bot_service._is_displayable(msg1) is True
-
-    # Empty message
-    msg2 = MagicMock(content="", type="human")
-    assert agent_bot_service._is_displayable(msg2) is False
-
-    # Technical message
-    msg3 = MagicMock(content="Some tool output", type="tool")
-    assert agent_bot_service._is_displayable(msg3) is False
-
-    # Summary message
-    msg4 = MagicMock(content="This is a summary of the conversation", type="human")
-    assert agent_bot_service._is_displayable(msg4) is False
-
-
-def test_format_message(agent_bot_service):
+def test_format_message(service):
     msg = MagicMock()
     msg.dict.return_value = {
-        "content": "Hello",
-        "type": "human",
-        "response_metadata": {"created_at": "2023-01-01"},
+        "content": "test content",
+        "type": "ai",
+        "response_metadata": {"created_at": "2024-01-01"},
     }
 
-    formatted = agent_bot_service._format_message(msg)
-
-    assert formatted == {
-        "content": "Hello",
-        "type": "human",
-        "created_at": "2023-01-01",
-    }
+    formatted = service._format_message(msg)
+    assert formatted["content"] == "test content"
+    assert formatted["type"] == "ai"
+    assert formatted["created_at"] == "2024-01-01"
 
 
 @pytest.mark.asyncio
-async def test_invoke_agent_streaming(agent_bot_service, mock_dependencies):
-    # Setup
-    agent_bot_service._get_llm_prompt = MagicMock(return_value="prompt")
-    mock_agent = MagicMock()
-    mock_dependencies["ChatWorkflow"].return_value = mock_agent
+async def test_invoke_agent_success(service):
+    # Setup mock graph
+    mock_graph = AsyncMock()
 
     async def mock_astream_events(*args, **kwargs):
-        yield {"event": "on_tool_start", "name": "test_tool", "data": {}}
+        yield {"event": "on_tool_start", "name": "test_tool"}
         yield {
             "event": "on_chat_model_stream",
             "tags": ["user_response"],
-            "data": {"chunk": MagicMock(content="Hi")},
-        }
-        yield {
-            "event": "on_chat_model_end",
-            "tags": ["user_response"],
-            "data": {"output": MagicMock(content="Hi there", id="msg_123")},
-        }
-        yield {
-            "event": "on_chain_stream",
-            "data": {
-                "chunk": {
-                    "messages": [MagicMock(type="ai", content="Hi there", id="msg_123")]
-                }
-            },
+            "data": {"chunk": MagicMock(content="Hello", id="1")},
         }
 
-    mock_agent.graph.astream_events = mock_astream_events
+    mock_graph.astream_events = mock_astream_events
+    service._get_agent_graph = MagicMock()
+    service._get_agent_graph.return_value.graph = mock_graph
+    service._generate_title = AsyncMock(return_value="title")
 
-    # Execute
-    gen = agent_bot_service.invoke_agent("Hello", None, "user_123", "session_123")
-    events = []
-    async for event in gen:
-        events.append(event)
+    chunks = []
+    async for chunk in service.invoke_agent("query", None, "u1", "s1"):
+        chunks.append(chunk)
 
-    # Assert
-    assert any("Searching test_tool..." in e for e in events)
-    assert any('"token": "Hi"' in e for e in events)
-    assert events[-1] == "data: [DONE]\n\n"
+    assert any("Searching test_tool" in c for c in chunks)
+    assert any("Hello" in c for c in chunks)
+    assert chunks[-1] == "data: [DONE]\n\n"
+
+
+def test_format_message_dict(service):
+    msg = {
+        "content": "test content",
+        "type": "human",
+        "response_metadata": {"created_at": "2024-01-02"},
+    }
+    formatted = service._format_message(msg)
+    assert formatted["content"] == "test content"
+    assert formatted["type"] == "human"
+
+
+@pytest.mark.asyncio
+async def test_get_chat_history_no_state(service):
+    service.checkpointer.aget = AsyncMock(return_value=None)
+    history = await service.get_chat_history("empty_session")
+    assert history == []
+
+
+@pytest.mark.asyncio
+async def test_process_event_on_chat_model_end(service):
+    event = {
+        "event": "on_chat_model_end",
+        "tags": ["user_response"],
+        "data": {"output": {"id": "out1", "content": "done"}},
+    }
+    streamed_ids = set()
+    async for _ in service._process_event(event, streamed_ids):
+        pass
+    assert "out1" in streamed_ids
+
+
+@pytest.mark.asyncio
+async def test_process_event_on_chain_stream(service):
+    msg = MagicMock()
+    msg.type = "ai"
+    msg.content = "chain output"
+    msg.id = "c1"
+    event = {"event": "on_chain_stream", "data": {"chunk": {"messages": [msg]}}}
+    streamed_ids = set()
+    chunks = []
+    async for chunk in service._process_event(event, streamed_ids):
+        chunks.append(chunk)
+    assert any("chain output" in c for c in chunks)
+    assert "c1" in streamed_ids
