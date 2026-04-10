@@ -13,6 +13,8 @@ class AgentState(TypedDict):
     Attributes:
         messages: List of messages in the conversation.
                   Uses add_messages to append new messages to the history.
+        summary: A summary of the conversation to date to handle context length.
     """
 
     messages: Annotated[list[BaseMessage], add_messages]
+    summary: str
