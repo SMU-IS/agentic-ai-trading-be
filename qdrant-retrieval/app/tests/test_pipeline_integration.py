@@ -105,16 +105,32 @@ def _require_env_test():
 @pytest.fixture(scope="session")
 def pipeline_services():
     """Start all 6 pipeline services as subprocesses with ENV_FILE=.env.test."""
-    # Strip vars injected by conftest into os.environ so each service's .env.test wins
-    CONFTEST_KEYS = {
-        "QDRANT_URL", "QDRANT_API_KEY", "STORAGE_PROVIDER",
-        "LLM_PROVIDER", "GEMINI_API_KEY", "NOMIC_API_KEY", "OLLAMA_BASE_URL",
-        "REDIS_HOST", "REDIS_PORT", "REDIS_PASSWORD",
-        "SENTIMENT_STREAM", "AGGREGATOR_STREAM",
-        "POSTGRES_HOST", "POSTGRES_USER", "POSTGRES_PASSWORD", "POSTGRES_PORT",
-        "POSTGRES_DB", "TEXT_EMBEDDING_MODEL",
+    # Strip only conftest dummy values (localhost/test placeholders) so each
+    # service's .env.test wins. Real CI secrets (from GitHub) are preserved.
+    CONFTEST_DUMMIES = {
+        "QDRANT_URL": "http://localhost:6333",
+        "QDRANT_API_KEY": "test-qdrant-key",
+        "STORAGE_PROVIDER": "qdrant_nomic",
+        "LLM_PROVIDER": "nomic",
+        "GEMINI_API_KEY": "test-gemini-key",
+        "NOMIC_API_KEY": "test-nomic-key",
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": "6379",
+        "REDIS_PASSWORD": "",
+        "SENTIMENT_STREAM": "test_sentiment_stream",
+        "AGGREGATOR_STREAM": "test_aggregator_stream",
+        "POSTGRES_HOST": "localhost",
+        "POSTGRES_USER": "test",
+        "POSTGRES_PASSWORD": "test",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DB": "test",
+        "TEXT_EMBEDDING_MODEL": "nomic-embed-text-v1.5",
     }
-    base_env = {k: v for k, v in os.environ.items() if k not in CONFTEST_KEYS}
+    base_env = {
+        k: v for k, v in os.environ.items()
+        if k not in CONFTEST_DUMMIES or v != CONFTEST_DUMMIES[k]
+    }
     env = {**base_env, "ENV_FILE": ".env.test"}
     processes = []
 
