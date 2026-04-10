@@ -81,8 +81,14 @@ class ChatWorkflow:
         if order_id:
             context_lines.append(f"- Active Order Context: {order_id}")
 
+        context_block = "\n".join(context_lines)
+
         dynamic_system_prompt = (
-            f"{self.system_prompt}\n\nCurrent Context:\n" + "\n".join(context_lines)
+            f"{self.system_prompt}\n\n"
+            f"### CURRENT SESSION CONTEXT\n{context_block}\n\n"
+            "### CRITICAL RESPONSE RULES\n"
+            "- If you need to use a tool, output ONLY the JSON. No conversational filler.\n"
+            "- If providing a text answer, be concise and refer to the context above."
         )
 
         llm_with_tools = self.llm.bind_tools(self.tools)
