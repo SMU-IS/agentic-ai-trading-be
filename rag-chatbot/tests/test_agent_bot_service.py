@@ -96,3 +96,76 @@ def test_format_message(service):
     assert formatted["content"] == "test content"
     assert formatted["type"] == "ai"
     assert formatted["created_at"] == "2024-01-01"
+
+
+@pytest.mark.asyncio
+async def test_invoke_agent_success(service):
+    # Setup mock graph
+    mock_graph = AsyncMock()
+
+    async def mock_astream_events(*args, **kwargs):
+        yield {"event": "on_tool_start", "name": "test_tool"}
+        yield {
+            "event": "on_chat_model_stream",
+            "tags": ["user_response"],
+            "data": {"chunk": MagicMock(content="Hello", id="1")},
+        }
+
+    mock_graph.astream_events = mock_astream_events
+    service._get_agent_graph = MagicMock()
+    service._get_agent_graph.return_value.graph = mock_graph
+    service._generate_title = AsyncMock(return_value="title")
+
+    chunks = []
+    async for chunk in service.invoke_agent("query", None, "u1", "s1"):
+        chunks.append(chunk)
+
+    assert any("Searching test_tool" in c for c in chunks)
+    assert any("Hello" in c for c in chunks)
+    assert chunks[-1] == "data: [DONE]\n\n"
+
+
+def test_format_message_dict(service):
+    msg = {
+        "content": "test content",
+        "type": "human",
+        "response_metadata": {"created_at": "2024-01-02"},
+    }
+    formatted = service._format_message(msg)
+    assert formatted["content"] == "test content"
+    assert formatted["type"] == "human"
+
+
+@pytest.mark.asyncio
+async def test_get_chat_history_no_state(service):
+    service.checkpointer.aget = AsyncMock(return_value=None)
+    history = await service.get_chat_history("empty_session")
+    assert history == []
+
+
+@pytest.mark.asyncio
+async def test_process_event_on_chat_model_end(service):
+    event = {
+        "event": "on_chat_model_end",
+        "tags": ["user_response"],
+        "data": {"output": {"id": "out1", "content": "done"}},
+    }
+    streamed_ids = set()
+    async for _ in service._process_event(event, streamed_ids):
+        pass
+    assert "out1" in streamed_ids
+
+
+@pytest.mark.asyncio
+async def test_process_event_on_chain_stream(service):
+    msg = MagicMock()
+    msg.type = "ai"
+    msg.content = "chain output"
+    msg.id = "c1"
+    event = {"event": "on_chain_stream", "data": {"chunk": {"messages": [msg]}}}
+    streamed_ids = set()
+    chunks = []
+    async for chunk in service._process_event(event, streamed_ids):
+        chunks.append(chunk)
+    assert any("chain output" in c for c in chunks)
+    assert "c1" in streamed_ids

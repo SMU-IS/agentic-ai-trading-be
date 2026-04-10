@@ -14,7 +14,7 @@ resource "aws_ecr_repository" "services" {
   }
 }
 
-# Lifecycle policy to keep only the last 5 images to save storage cost
+# Lifecycle policy to keep only the last 50 images to save storage cost
 resource "aws_ecr_lifecycle_policy" "services" {
   for_each   = aws_ecr_repository.services
   repository = each.value.name
@@ -23,11 +23,11 @@ resource "aws_ecr_lifecycle_policy" "services" {
     rules = [
       {
         rulePriority = 1
-        description  = "Keep last 5 images"
+        description  = "Keep last 50 images"
         selection = {
           tagStatus   = "any"
           countType   = "imageCountMoreThan"
-          countNumber = 5
+          countNumber = 50
         }
         action = {
           type = "expire"

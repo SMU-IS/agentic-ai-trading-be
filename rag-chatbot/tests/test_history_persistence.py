@@ -38,10 +38,9 @@ async def test_get_chat_history_with_checkpoint_tuple(agent_bot_service):
 
 
 @pytest.mark.asyncio
-async def test_invoke_agent_preserves_initial_state_variables(agent_bot_service):
+async def test_invoke_agent_initial_state(agent_bot_service):
     """
-    Test that invoke_agent does not overwrite 'variables' in the initial state,
-    allowing LangGraph to merge them with existing state.
+    Test that invoke_agent initializes the graph with the correct simplified state.
     """
     # Setup
     agent_bot_service._get_llm_prompt = MagicMock(return_value="prompt")
@@ -50,7 +49,7 @@ async def test_invoke_agent_preserves_initial_state_variables(agent_bot_service)
     mock_graph_wrapper = MagicMock()
     mock_graph = MagicMock()
 
-    # Mock astream_events to be an async iterator AND an AsyncMock
+    # Mock astream_events to be an async iterator
     async def empty_iterator(*args, **kwargs):
         if False:
             yield None
@@ -70,10 +69,13 @@ async def test_invoke_agent_preserves_initial_state_variables(agent_bot_service)
         # Capture the initial state passed to astream_events
         args, kwargs = mock_astream.call_args
         initial_state = args[0]
+        config = kwargs.get("config", {})
 
-        # Assert 'variables' is NOT in the initial_state dict (letting LangGraph keep existing ones)
-        # and check that other expected keys ARE there
-        assert "variables" not in initial_state
+        # Assert state only contains messages
         assert "messages" in initial_state
-        assert initial_state["query"] == "Hello"
-        assert initial_state["metadata"]["user_id"] == "user_123"
+        assert len(initial_state) == 1
+        assert initial_state["messages"][0].content == "Hello"
+
+        # Assert metadata contains user_id and title
+        assert config["metadata"]["user_id"] == "user_123"
+        assert config["metadata"]["title"] == "title"
