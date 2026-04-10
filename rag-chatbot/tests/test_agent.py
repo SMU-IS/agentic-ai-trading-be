@@ -60,8 +60,8 @@ async def test_summarize_conversation_no_trigger(agent_graph):
 async def test_summarize_conversation_trigger(agent_graph, mock_llm):
     mock_llm.ainvoke = AsyncMock(return_value=AIMessage(content="New Summary"))
 
-    # Create 25 messages to trigger summarization
-    messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(25)]
+    # Create 15 messages to trigger summarization (threshold is 12)
+    messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(15)]
     state: AgentState = {
         "messages": messages,
         "summary": "Old Summary",
@@ -71,8 +71,8 @@ async def test_summarize_conversation_trigger(agent_graph, mock_llm):
 
     assert result["summary"] == "New Summary"
     assert "messages" in result
-    # We kept 6 messages, so we should have removed 25 - 6 = 19 messages
-    assert len(result["messages"]) == 19
+    # We kept 4 messages, so we should have removed 15 - 4 = 11 messages
+    assert len(result["messages"]) == 11
     from langchain_core.messages import RemoveMessage
 
     assert isinstance(result["messages"][0], RemoveMessage)

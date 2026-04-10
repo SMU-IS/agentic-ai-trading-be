@@ -28,7 +28,7 @@ class ChatWorkflow:
         messages = state["messages"]
         summary = state.get("summary", "")
 
-        if len(messages) < 20:
+        if len(messages) < 12:
             return {"summary": summary}
 
         logger.info(f"Summarizing conversation history ({len(messages)} messages)")
@@ -41,15 +41,26 @@ class ChatWorkflow:
         else:
             summary_message = "Create a summary of the conversation above:"
 
-        response = await self.llm.ainvoke(
-            messages + [HumanMessage(content=summary_message)]
-        )
+        try:
+            response = await self.llm.ainvoke(
+                messages + [HumanMessage(content=summary_message)]
+            )
+            new_summary = response.content
+        except Exception as e:
+            logger.error(f"Summarization failed: {e}")
+            # If summarization fails, we might be over context even for the summary call.
+            # In this case, we just have to drop messages to recover.
+            new_summary = summary + " (Summarization failed, some history lost)"
 
-        # Keep the last 6 messages to maintain immediate context/tool results
-        keep_count = 6
-        delete_messages = [RemoveMessage(id=m.id) for m in messages[:-keep_count]]
+        # Keep only the last 4 messages to be very conservative with context
+        keep_count = 4
+        delete_messages = [
+            RemoveMessage(id=m.id)
+            for m in messages[:-keep_count]
+            if hasattr(m, "id") and m.id
+        ]
 
-        return {"summary": response.content, "messages": delete_messages}
+        return {"summary": new_summary, "messages": delete_messages}
 
     async def _call_model(self, state: AgentState, config: RunnableConfig):
         """
