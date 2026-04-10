@@ -58,11 +58,6 @@ jobs:
             echo "❓No recognized dependency file found. Running pytest with system python..."
             pytest --cov=. --cov-report=html --cov-fail-under=80 -v
           fi
-      - name: Create Test Env File
-        # Only run if the service is qdrant-retrieval
-        if: inputs.image-name == 'qdrant-retrieval'
-        run: |
-          echo "${{ secrets.QDRANT_RETRIEVAL_SECRETS }}" > .env.test
       - name: Run Integration Tests
         # Only run if the service is qdrant-retrieval
         if: inputs.image-name == 'qdrant-retrieval'
