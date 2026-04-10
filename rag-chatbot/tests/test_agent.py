@@ -83,5 +83,8 @@ def test_workflow_structure(agent_graph):
     nodes = agent_graph.graph.get_graph().nodes
     assert "agent" in nodes
     assert "tools" in nodes
+<<<<<<< HEAD
     assert "summarize" in nodes
+=======
+>>>>>>> ce2ad00f39614fffd69b2ed8278317716a2a6ebc
     assert "__start__" in nodes
