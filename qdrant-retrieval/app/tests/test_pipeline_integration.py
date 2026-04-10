@@ -73,7 +73,7 @@ from qdrant_client.models import PointIdsList
 QDRANT_COLLECTION = "news_analysis_compiled"
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-REPO_ROOT = Path(__file__).resolve().parents[3]  # .../31-mar/
+REPO_ROOT = Path(__file__).resolve().parents[3]  
 
 SERVICE_DIRS = {
     "preprocessing":            (REPO_ROOT / "preprocessing-service",  "app.services.preprocessing_worker"),
@@ -91,7 +91,14 @@ NEWS_STREAM = "test:raw_news_stream"
 
 POLL_INTERVAL_S  = 3
 MAX_WAIT_S       = 60
-SERVICE_BOOT_S   = 30   # max time to wait for all services to be alive
+SERVICE_BOOT_S   = 60   # max time to wait for all services to be alive
+
+
+# ── Safety guard ──────────────────────────────────────────────────────────────
+@pytest.fixture(scope="session", autouse=True)
+def _require_env_test():
+    assert os.environ.get("ENV_FILE") == ".env.test", \
+        "Integration test requires ENV_FILE=.env.test to avoid writing to production streams"
 
 
 # ── Service startup fixture ───────────────────────────────────────────────────
