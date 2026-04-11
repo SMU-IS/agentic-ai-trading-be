@@ -186,7 +186,7 @@ class AgentBotService:
         self, event: dict, streamed_ids: Set[Any]
     ) -> AsyncGenerator[str, None]:
         data = event.get("data", {})
-        if "chunk" in data and "messages" in data["chunk"]:
+        if "chunk" in data and "messages" in data["chunk"] and data["chunk"]["messages"]:
             last_msg = data["chunk"]["messages"][-1]
             if last_msg.type == "ai" and last_msg.content:
                 msg_id = getattr(last_msg, "id", None)
