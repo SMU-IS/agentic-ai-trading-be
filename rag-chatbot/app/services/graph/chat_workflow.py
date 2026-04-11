@@ -62,26 +62,32 @@ class ChatWorkflow:
             summary_message = (
                 f"This is a summary of the conversation to date: {summary}\n\n"
                 "Extend the summary by taking into account the new messages above.\n"
-                "STRICT RULE: Output ONLY the summary text. DO NOT attempt to call any tools or functions."
+                "CRITICAL: You MUST explicitly record which tools were successfully called and what their key results were. "
+                "This ensures the agent knows these actions are already COMPLETE and does not repeat them."
+                "\nSTRICT RULE: Output ONLY the summary text. DO NOT attempt to call any tools or functions."
             )
         else:
             summary_message = (
                 "Create a concise summary of the conversation above.\n"
-                "STRICT RULE: Output ONLY the summary text. DO NOT attempt to call any tools or functions."
+                "CRITICAL: You MUST explicitly record which tools were called and what their key findings were. "
+                "This ensures the agent knows exactly which data has already been retrieved."
+                "\nSTRICT RULE: Output ONLY the summary text. DO NOT attempt to call any tools or functions."
             )
 
         MAX_MSG_CHARS_FOR_SUMMARIZER = 2000
 
         try:
+            # Clean and truncate messages for summarization
             clean_messages = []
             for m in messages:
                 content = getattr(m, "content", "")
 
                 # If content is empty but tool_calls exist, provide a placeholder for summarizer
                 if not content and hasattr(m, "tool_calls") and m.tool_calls:
-                    content = f"[AI called tools: {', '.join([tc.get('name', 'unknown') for tc in m.tool_calls])}]"
+                    content = f"[AI executed action: {', '.join([tc.get('name', 'unknown') for tc in m.tool_calls])}]"
 
                 if content:
+                    # Truncate content for the summarizer's safety
                     truncated_content = content
                     if len(content) > MAX_MSG_CHARS_FOR_SUMMARIZER:
                         truncated_content = (
@@ -110,6 +116,7 @@ class ChatWorkflow:
             logger.error(f"Summarization failed: {e}")
             new_summary = summary + " (Summarization failed, some history lost)"
 
+        # Keep only the last 6 messages to preserve more context
         keep_count = 6
         delete_messages = [
             RemoveMessage(id=m.id)
@@ -134,34 +141,40 @@ class ChatWorkflow:
 
         context_lines = [f"- Today's Date: {current_date}", f"- User ID: {user_id}"]
         if summary:
-            context_lines.append(f"- Previous Conversation Summary: {summary}")
+            context_lines.append(f"- COMPLETED ACTIONS & SUMMARY: {summary}")
         if order_id:
             context_lines.append(f"- Active Order Context: {order_id}")
 
         context_block = "\n".join(context_lines)
 
-        # LOOP DETECTION: Check if we are repeating the same failing tool call
+        # LOOP PREVENTION: Warn the agent if it's about to repeat its most recent action
         loop_prevention_msg = ""
         if len(messages) >= 2:
-            last_msg = messages[-1] # ToolMessage
-            prev_msg = messages[-2] # AIMessage with tool call
-            if last_msg.type == "tool" and prev_msg.type == "ai" and hasattr(prev_msg, "tool_calls") and prev_msg.tool_calls:
-                # If the tool returned an error and it's the same tool as before
-                if "Error" in str(last_msg.content):
-                    loop_prevention_msg = (
-                        "\n\n### LOOP PREVENTION\n"
-                        "WARNING: Your previous tool call returned an error. "
-                        "DO NOT call the same tool with the same parameters again. "
-                        "If you cannot resolve the request, explain the error to the user concisely."
-                    )
+            last_msg = messages[-1]  # ToolMessage
+            prev_msg = messages[-2]  # AIMessage with tool call
+            if (
+                last_msg.type == "tool"
+                and prev_msg.type == "ai"
+                and hasattr(prev_msg, "tool_calls")
+                and prev_msg.tool_calls
+            ):
+                tool_name = prev_msg.tool_calls[0]["name"]
+                # We inject a specific instruction telling it the tool call just finished
+                loop_prevention_msg = (
+                    f"\n\n### SYSTEM ADVISORY\n"
+                    f"You just executed '{tool_name}' and received the data provided in the ToolMessage. "
+                    "Analyze this data and provide your final response to the user. "
+                    f"DO NOT call '{tool_name}' again with the same parameters. Move to the next step or conclude."
+                )
 
         dynamic_system_prompt = (
             f"{self.system_prompt}\n\n"
             f"### CURRENT SESSION CONTEXT\n{context_block}"
             f"{loop_prevention_msg}\n\n"
             "### RESPONSE GUIDELINES\n"
-            "- If the user's request requires a tool, call the appropriate tool immediately.\n"
-            "- Be concise and professional in your responses."
+            "- If you have already received data from a tool, analyze it and answer the user directly.\n"
+            "- Avoid repeating tool calls that have already been executed in the conversation summary above.\n"
+            "- Be concise and professional."
         )
 
         model = (
