@@ -53,10 +53,14 @@ class ChatWorkflow:
         if summary:
             summary_message = (
                 f"This is a summary of the conversation to date: {summary}\n\n"
-                "Extend the summary by taking into account the new messages above:"
+                "Extend the summary by taking into account the new messages above.\n"
+                "STRICT RULE: Output ONLY the summary text. DO NOT attempt to call any tools or functions."
             )
         else:
-            summary_message = "Create a summary of the conversation above:"
+            summary_message = (
+                "Create a concise summary of the conversation above.\n"
+                "STRICT RULE: Output ONLY the summary text. DO NOT attempt to call any tools or functions."
+            )
 
         try:
             response = await self.llm.ainvoke(
