@@ -129,8 +129,8 @@ async def test_get_trade_history_details_failure():
         result = await get_trade_history_details.ainvoke(
             {"order_id": "order123"}, config=config
         )
-        assert "Error: Unable to retrieve trade history for order_id 'order123'" in result
-        assert "API Error" in result
+        assert "is not a valid Order ID" in result
+        assert "To self-correct" in result
 
 
 @pytest.mark.asyncio
