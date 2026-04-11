@@ -47,7 +47,7 @@ class GroqStrategy(LLMStrategy):
         return ChatGroq(
             model=env_config.large_language_model,
             api_key=SecretStr(env_config.llm_api_key),
-            temperature=env_config.temperature,
+            temperature=0,
             max_tokens=env_config.max_completion_tokens,
             streaming=True,
             max_retries=2,

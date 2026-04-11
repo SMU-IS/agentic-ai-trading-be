@@ -46,7 +46,7 @@ def _parse_order_details(data: dict) -> OrderDetailsResponse:
 @tool(args_schema=TradeHistory)
 async def get_trade_history_details(
     order_id: str, config: RunnableConfig
-):
+) -> OrderDetailsResponse:
     """
     Retrieve deep-dive technical details and trade reasoning for a specific past transaction.
 
@@ -65,9 +65,14 @@ async def get_trade_history_details(
 
     except Exception as e:
         logger.error(f"Failed to fetch order details for {order_id}: {e}")
-        # This message is designed to trigger the LLM to self-correct
-        return (
-            f"Error: '{order_id}' is not a valid Order ID. "
-            "To self-correct, you MUST call 'get_trade_history_list' first to retrieve the actual Order IDs for the user, "
-            "then use one of those IDs to call this tool again. Do not ask the user for the ID if you haven't checked the list yet."
+        # Return a valid response object with the error in the reasoning field
+        return OrderDetailsResponse(
+            ticker="Error",
+            action="Error",
+            entry_price=0.0,
+            reasoning=(
+                f"Error: '{order_id}' is not a valid Order ID. "
+                "To self-correct, you MUST call 'get_trade_history_list' first to retrieve the actual Order IDs for the user, "
+                "then use one of those IDs to call this tool again. Do not ask the user for the ID if you haven't checked the list yet."
+            )
         )
