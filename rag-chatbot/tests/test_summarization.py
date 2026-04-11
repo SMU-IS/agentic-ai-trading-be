@@ -105,6 +105,54 @@ async def test_call_model_windowing(mock_llm):
     # Since llm_with_tools was set during __init__, it's mock_llm.bind_tools.return_value
     mock_bound = mock_llm.bind_tools.return_value
     sent_messages = mock_bound.ainvoke.call_args[0][0]
-    assert len(sent_messages) == 7 # 1 System + 6 Human
+    # 1 System + 6 windowed = 7
+    assert len(sent_messages) == 7
     assert sent_messages[1].content == "msg 14"
     assert sent_messages[-1].content == "msg 19"
+
+@pytest.mark.asyncio
+async def test_call_model_windowing_safe_boundary(mock_llm):
+    """
+    Test that _call_model expands the window to avoid starting with a ToolMessage.
+    """
+    from langchain_core.messages import ToolMessage
+    workflow = ChatWorkflow(llm=mock_llm, tools=[], system_prompt="test")
+    
+    # 0-13: Some messages
+    # 14: Human
+    # 15: AI (tool call)
+    # 16: Tool result
+    # 17: AI (response)
+    # 18: Human (new query)
+    # 19: AI (tool call)
+    # 20: Tool result
+    messages = [HumanMessage(content=f"msg {i}", id=f"id_{i}") for i in range(15)]
+    messages.append(AIMessage(content="", tool_calls=[{"name": "t", "args": {}, "id": "t1"}], id="ai_tool"))
+    messages.append(ToolMessage(content="result", tool_call_id="t1", id="tool_res"))
+    messages.append(AIMessage(content="Final", id="ai_final"))
+    messages.append(HumanMessage(content="Next", id="human_next"))
+    messages.append(AIMessage(content="", tool_calls=[{"name": "t2", "args": {}, "id": "t2"}], id="ai_tool2"))
+    messages.append(ToolMessage(content="result2", tool_call_id="t2", id="tool_res2"))
+    
+    # Total messages: 15 + 6 = 21
+    # messages[-6] would be id="ai_tool" (index 15)
+    # But if it were index 16 (ToolMessage), it should expand.
+    
+    state = AgentState(
+        messages=messages,
+        summary="Context Summary",
+        last_summarized_id="id_10"
+    )
+    
+    config = {"configurable": {"thread_id": "test"}, "metadata": {"user_id": "user123"}}
+    
+    await workflow._call_model(state, config)
+    
+    mock_bound = mock_llm.bind_tools.return_value
+    sent_messages = mock_bound.ainvoke.call_args[0][0]
+    
+    # The last 6 messages are: ai_tool, tool_res, ai_final, human_next, ai_tool2, tool_res2
+    # This window is actually "safe" because it starts with an AIMessage (though with tool_calls)
+    # Our logic: starts with AI with tool_calls -> expand back.
+    # So it should expand to messages[14] (Human "Next")
+    assert sent_messages[1].content == "msg 14"

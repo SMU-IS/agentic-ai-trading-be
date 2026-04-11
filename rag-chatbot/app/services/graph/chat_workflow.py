@@ -147,10 +147,22 @@ class ChatWorkflow:
         summary = state.get("summary", "")
 
         # Truncate messages for the LLM context if we have a summary
-        # We always keep at least the last 6 messages
+        # We start with the last 6 messages and expand backwards if we are in the middle of a tool call
         KEEP_COUNT = 6
         if summary and len(messages) > KEEP_COUNT:
-            messages_to_send = messages[-KEEP_COUNT:]
+            start_idx = len(messages) - KEEP_COUNT
+            
+            # CRITICAL: An AIMessage with tool_calls must be followed by its ToolMessages.
+            # If our window starts with a ToolMessage, we MUST include the preceding AIMessage.
+            # Similarly, if it starts with an AIMessage that is part of a tool interaction, 
+            # we should try to start at a cleaner boundary (like a HumanMessage).
+            while start_idx > 0 and (
+                messages[start_idx].type == "tool" or 
+                (messages[start_idx].type == "ai" and hasattr(messages[start_idx], "tool_calls") and messages[start_idx].tool_calls)
+            ):
+                start_idx -= 1
+            
+            messages_to_send = messages[start_idx:]
         else:
             messages_to_send = messages
 
