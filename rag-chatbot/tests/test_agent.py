@@ -51,9 +51,9 @@ async def test_call_model(agent_graph, mock_llm):
     
     system_msg = sent_msgs[0]
     assert "Test Prompt" in system_msg.content
+    assert "### CURRENT CONTEXT" in system_msg.content
     assert "test-user" in system_msg.content
     assert "Previous summary" in system_msg.content
-    assert "### RESPONSE GUIDELINES" in system_msg.content
 
 
 @pytest.mark.asyncio

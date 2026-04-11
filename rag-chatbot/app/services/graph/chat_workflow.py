@@ -175,8 +175,9 @@ class ChatWorkflow:
             # This helps the LLM understand the current "active" user request.
             temp_idx = start_idx
             found_human = False
-            # Look back up to 4 more messages for a HumanMessage
-            for i in range(temp_idx, max(-1, temp_idx - 4), -1):
+            # Look back up to 10 more messages for a HumanMessage
+            # We want to make sure we don't orphan a chain of tool calls
+            for i in range(temp_idx, max(-1, temp_idx - 10), -1):
                 if messages[i].type == "human":
                     start_idx = i
                     found_human = True
@@ -220,14 +221,14 @@ class ChatWorkflow:
                     f"DO NOT call '{tool_name}' again with the same parameters. Move to the next step or conclude."
                 )
 
+        # DYNAMIC SYSTEM PROMPT: Simple and direct context injection to give LLM maximum control
         dynamic_system_prompt = (
             f"{self.system_prompt}\n\n"
-            f"### CURRENT SESSION CONTEXT\n{context_block}"
-            f"{loop_prevention_msg}\n\n"
-            "### RESPONSE GUIDELINES\n"
-            "- If you have already received data from a tool, analyze it and answer the user directly.\n"
-            "- Avoid repeating tool calls that have already been executed in the conversation summary above.\n"
-            "- Be concise and professional."
+            f"### CURRENT CONTEXT\n"
+            f"- Today's Date: {current_date}\n"
+            f"- User ID: {user_id}\n"
+            f"{context_block}\n"
+            f"{loop_prevention_msg}"
         )
 
         model = (
