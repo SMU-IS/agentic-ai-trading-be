@@ -50,7 +50,7 @@ def _transform_to_order_summaries(
 @tool(args_schema=TradeHistoryRange)
 async def get_trade_history_list(
     after: str, until: str, config: RunnableConfig
-) -> TradeHistoryListResponse:
+):
     """
     Retrieve a list of trades executed within a specific date range.
 
@@ -80,9 +80,13 @@ async def get_trade_history_list(
 
         orders = _transform_to_order_summaries(raw_orders)
         return TradeHistoryListResponse(
-            orders=orders, total_count=total_count, truncated=truncated, message=message
+            orders=orders, 
+            total_count=total_count, 
+            truncated=truncated,
+            message=message
         )
 
     except Exception as e:
         logger.error(f"Failed to fetch trade history list: {e}")
-        raise Exception(f"Unable to retrieve trade history: {str(e)}")
+        return f"Error: Unable to retrieve trade history from {after} to {until}. Reason: {str(e)}"
+

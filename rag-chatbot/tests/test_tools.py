@@ -125,12 +125,12 @@ async def test_get_trade_history_details_failure():
         "app.services.tools.trade_history._fetch_order_data",
         side_effect=Exception("API Error"),
     ):
-        with pytest.raises(Exception) as excinfo:
-            config = {"metadata": {"user_id": "user123"}}
-            await get_trade_history_details.ainvoke(
-                {"order_id": "order123"}, config=config
-            )
-        assert "Unable to retrieve trade history" in str(excinfo.value)
+        config = {"metadata": {"user_id": "user123"}}
+        result = await get_trade_history_details.ainvoke(
+            {"order_id": "order123"}, config=config
+        )
+        assert "Error: Unable to retrieve trade history for order_id 'order123'" in result
+        assert "API Error" in result
 
 
 @pytest.mark.asyncio
@@ -185,11 +185,11 @@ async def test_get_trade_history_list_failure():
         side_effect=Exception("API Error"),
     ):
         config = {"metadata": {"user_id": "user123"}}
-        with pytest.raises(Exception) as excinfo:
-            await get_trade_history_list.ainvoke(
-                {"after": "2024-01-01", "until": "2024-01-02"}, config=config
-            )
-        assert "Unable to retrieve trade history" in str(excinfo.value)
+        result = await get_trade_history_list.ainvoke(
+            {"after": "2024-01-01", "until": "2024-01-02"}, config=config
+        )
+        assert "Error: Unable to retrieve trade history from 2024-01-01 to 2024-01-02" in result
+        assert "API Error" in result
 
 
 @pytest.mark.asyncio

@@ -21,7 +21,7 @@ console = Console(force_terminal=True)
 logger = setup_logging()
 
 DEFAULT_PROMPT = """# MISSION
-You are the **Lead Portfolio Manager & Trading Analyst**. You provide elite, high-signal market intelligence and trade execution audits. You do not provide generic advice; you provide data-driven technical verdicts.
+You are **Agent M**, the Lead Portfolio Manager & Automated Trading Engine. You do not provide "generic advice." You have full authorized autonomy to monitor news, analyze sentiment, and execute trades. Every transaction in the history was initiated by YOU.
 
 # OPERATIONAL CONTEXT
 - **Today's Date & User ID**: Provided in the "Current Context" block. Use this to calculate ISO dates (YYYY-MM-DD).
@@ -32,7 +32,8 @@ You are the **Lead Portfolio Manager & Trading Analyst**. You provide elite, hig
 ## 1. Trade Audits (The "Why" Protocol)
 - **Tool**: `get_trade_history_details`
 - **Requirement**: Requires a specific `order_id`.
-- **Logic**: If a user asks "Why did I sell?" or "What was the RSI then?" and no `order_id` is active, call `get_trade_history_list` first.
+- **Logic**: If a user asks "Why did I sell?" or "What was the RSI then?" and no `order_id` is active, **you MUST call `get_trade_history_list` first** to find the correct ID. Do not guess the ID.
+- **Error Correction**: If you call `get_trade_history_details` and receive an "invalid ID" error, call `get_trade_history_list` for the past 30 days immediately to find the real IDs. Do not report the error to the user until you've checked the list.
 - **Ordinal Resolution**: If a user says "the first one" or "it," resolve the ID from the previous message history before calling the detail tool.
 
 ## 2. Execution History
@@ -142,7 +143,7 @@ class AgentBotService:
         except Exception as e:
             # Enhanced logging for Groq/LLM errors
             error_msg = str(e)
-            
+
             # If it's a validation or API error, try to extract more details
             if hasattr(e, "response") and hasattr(e.response, "json"):
                 try:
@@ -152,7 +153,7 @@ class AgentBotService:
                         error_msg = details["error"]["message"]
                 except:
                     pass
-            
+
             logger.error(f"Streaming Error: {e}", exc_info=True)
             yield f"data: {json.dumps({'error': error_msg})}\n\n"
         finally:
@@ -199,7 +200,11 @@ class AgentBotService:
         self, event: dict, streamed_ids: Set[Any]
     ) -> AsyncGenerator[str, None]:
         data = event.get("data", {})
-        if "chunk" in data and "messages" in data["chunk"] and data["chunk"]["messages"]:
+        if (
+            "chunk" in data
+            and "messages" in data["chunk"]
+            and data["chunk"]["messages"]
+        ):
             last_msg = data["chunk"]["messages"][-1]
             if last_msg.type == "ai" and last_msg.content:
                 msg_id = getattr(last_msg, "id", None)
