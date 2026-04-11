@@ -132,8 +132,14 @@ class ChatWorkflow:
             "- Be concise and professional in your responses."
         )
 
-        # Use the pre-bound LLM with tools
-        response = await self.llm_with_tools.ainvoke(
+        # Safety: Ensure tools are bound. In some environments/versions, 
+        # RunnableBinding might lose its tools if not handled carefully.
+        model = self.llm_with_tools
+        if not hasattr(model, "kwargs") or "tools" not in model.kwargs:
+             # Fallback: Re-bind tools if they somehow got dropped
+             model = self.llm.bind_tools(self.tools)
+
+        response = await model.ainvoke(
             [SystemMessage(content=dynamic_system_prompt)] + messages,
             config={"tags": ["user_response"]},
         )
