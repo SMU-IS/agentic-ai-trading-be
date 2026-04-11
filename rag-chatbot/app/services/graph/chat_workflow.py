@@ -140,9 +140,25 @@ class ChatWorkflow:
 
         context_block = "\n".join(context_lines)
 
+        # LOOP DETECTION: Check if we are repeating the same failing tool call
+        loop_prevention_msg = ""
+        if len(messages) >= 2:
+            last_msg = messages[-1] # ToolMessage
+            prev_msg = messages[-2] # AIMessage with tool call
+            if last_msg.type == "tool" and prev_msg.type == "ai" and hasattr(prev_msg, "tool_calls") and prev_msg.tool_calls:
+                # If the tool returned an error and it's the same tool as before
+                if "Error" in str(last_msg.content):
+                    loop_prevention_msg = (
+                        "\n\n### LOOP PREVENTION\n"
+                        "WARNING: Your previous tool call returned an error. "
+                        "DO NOT call the same tool with the same parameters again. "
+                        "If you cannot resolve the request, explain the error to the user concisely."
+                    )
+
         dynamic_system_prompt = (
             f"{self.system_prompt}\n\n"
-            f"### CURRENT SESSION CONTEXT\n{context_block}\n\n"
+            f"### CURRENT SESSION CONTEXT\n{context_block}"
+            f"{loop_prevention_msg}\n\n"
             "### RESPONSE GUIDELINES\n"
             "- If the user's request requires a tool, call the appropriate tool immediately.\n"
             "- Be concise and professional in your responses."

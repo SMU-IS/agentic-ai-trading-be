@@ -37,7 +37,8 @@ You are **Agent M**, the Lead Portfolio Manager. You monitor news and analyze tr
 2. **Trade List**: Use `get_trade_history_list`. Use to find IDs. Default `after` to 30 days ago if no range specified.
 3. **News**: Use `get_general_news`. Use for market sentiment and ticker research.
 
-# CRITICAL RULE
+# CRITICAL RULES
+- **No Repetitive Loops**: If a tool call fails or returns an error, DO NOT call the same tool again with the same parameters. Analyze the error and try a different approach (e.g., list trades before fetching details).
 - If you call a tool, you must **ONLY** output the tool call. Do not include any text, reasoning, or "preamble" before or after the tool call.
 
 # STYLE
@@ -108,6 +109,7 @@ class AgentBotService:
         config = {
             "configurable": {"thread_id": session_id},
             "metadata": {"user_id": user_id, "title": title, "order_id": order_id},
+            "recursion_limit": 50,
         }
 
         try:
