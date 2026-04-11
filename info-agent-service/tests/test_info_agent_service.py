@@ -51,7 +51,12 @@ async def test_ainvoke_success():
         mock_instance = MockHistory.return_value
 
         async def mock_astream_events(*args, **kwargs):
-            yield {"event": "on_retriever_start"}
+            # Test retriever end to verify documents formatting
+            mock_doc = MagicMock()
+            mock_doc.metadata = {"source": "test.md"}
+            mock_doc.page_content = "retrieved content"
+            yield {"event": "on_retriever_end", "data": {"output": [mock_doc]}}
+
             yield {
                 "event": "on_chat_model_stream",
                 "data": {"chunk": MagicMock(content="hello")},
@@ -67,13 +72,11 @@ async def test_ainvoke_success():
 
         assert len(events) == 2
 
-        # Check first event (retriever start thought)
-        expected_thought = (
-            "<thought>Agent M: Searching the knowledge base for receipts...</thought>"
-        )
-        expected_first = f"data: {json.dumps({'token': expected_thought, 'reasoning_content': expected_thought, 'status': 'searching'})}\n\n"
+        # Check first event (retriever end thought)
+        expected_thought = "<thought>Agent M: Retrieved the following sauce from the knowledge base:\n\n--- Source: test.md ---\nretrieved content</thought>"
+        expected_first = f"data: {json.dumps({'reasoning_content': expected_thought})}\n\n"
         assert events[0] == expected_first
 
         # Check second event (token stream)
-        expected_second = f"data: {json.dumps({'token': 'hello', 'content': 'hello', 'text': 'hello'})}\n\n"
+        expected_second = f"data: {json.dumps({'token': 'hello'})}\n\n"
         assert events[1] == expected_second

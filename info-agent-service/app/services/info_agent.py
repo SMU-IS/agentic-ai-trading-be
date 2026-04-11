@@ -150,17 +150,7 @@ class InfoAgentService:
     ) -> AsyncGenerator[str, None]:
         kind = event["event"]
 
-        if kind == "on_retriever_start":
-            thought_msg = "<thought>Agent M: Searching the knowledge base for receipts...</thought>"
-            data = json.dumps(
-                {
-                    "token": thought_msg,
-                    "reasoning_content": thought_msg,
-                    "status": "searching",
-                }
-            )
-            yield f"data: {data}\n\n"
-        elif kind == "on_retriever_end":
+        if kind == "on_retriever_end":
             documents = event.get("data", {}).get("output", [])
             if documents:
                 # Format the retrieved chunks for the "Thinking Process" accordion
@@ -169,55 +159,36 @@ class InfoAgentService:
                     for doc in documents
                 )
                 thought_msg = f"<thought>Agent M: Retrieved the following sauce from the knowledge base:\n\n{chunks_text}</thought>"
-                data = json.dumps(
-                    {
-                        "token": thought_msg,
-                        "reasoning_content": thought_msg,
-                        "status": "completed",
-                    }
-                )
+                # Use reasoning_content for thoughts to avoid doubling up in the main token stream
+                data = json.dumps({"reasoning_content": thought_msg})
                 yield f"data: {data}\n\n"
+
         elif kind == "on_tool_start":
             tool_name = event.get("name")
             inputs = event.get("data", {}).get("input")
-            # Wrap in <thought> for the frontend's MarkdownRenderer
             thought_msg = f"<thought>Agent M: Accessing {tool_name} with parameters: {json.dumps(inputs)}</thought>"
-            data = json.dumps(
-                {
-                    "token": thought_msg,
-                    "reasoning_content": thought_msg,
-                    "status": "searching",
-                    "tool_name": tool_name,
-                    "inputs": inputs,
-                }
-            )
+            data = json.dumps({"reasoning_content": thought_msg})
             yield f"data: {data}\n\n"
+
         elif kind == "on_tool_end":
             tool_name = event.get("name")
             output = event.get("data", {}).get("output")
-            # Handle LangChain message objects or raw outputs
             output_content = (
                 getattr(output, "content", str(output))
                 if not isinstance(output, str)
                 else output
             )
-            # Wrap result in <thought> as well
-            result_msg = f"<thought>Agent M: {tool_name} returned data. Analysis starting...</thought>"
-            data = json.dumps(
-                {
-                    "token": result_msg,
-                    "reasoning_content": result_msg,
-                    "status": "completed",
-                    "tool_name": tool_name,
-                    "output": output_content,
-                }
-            )
+            thought_msg = f"<thought>Agent M: {tool_name} returned data. Analysis starting...</thought>"
+            data = json.dumps({"reasoning_content": thought_msg})
             yield f"data: {data}\n\n"
+
         elif kind == "on_chat_model_stream":
             async for chunk in self._handle_token_stream(event, streamed_ids):
                 yield chunk
+
         elif kind == "on_chat_model_end":
             self._handle_model_end(event, streamed_ids)
+
         elif kind == "on_chain_stream":
             async for chunk in self._handle_chain_stream(event, streamed_ids):
                 yield chunk
@@ -228,14 +199,8 @@ class InfoAgentService:
         chunk = event["data"].get("chunk")
         if chunk and hasattr(chunk, "content"):
             if chunk.content:
-                # Provide token, content, and text for frontend flexibility
-                data = json.dumps(
-                    {
-                        "token": chunk.content,
-                        "content": chunk.content,
-                        "text": chunk.content,
-                    }
-                )
+                # Use 'token' as the primary field for the main response stream
+                data = json.dumps({"token": chunk.content})
                 yield f"data: {data}\n\n"
 
     def _handle_model_end(self, event: dict, streamed_ids: Set[Any]):
