@@ -7,10 +7,9 @@ from langchain_core.messages import (
     HumanMessage,
     RemoveMessage,
     SystemMessage,
-    ToolMessage,
 )
 from langchain_core.runnables import RunnableConfig
-from langgraph.graph import END, START, StateGraph
+from langgraph.graph import START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from app.services.graph.state import AgentState
@@ -77,6 +76,11 @@ class ChatWorkflow:
             clean_messages = []
             for m in messages:
                 content = getattr(m, "content", "")
+
+                # If content is empty but tool_calls exist, provide a placeholder for summarizer
+                if not content and hasattr(m, "tool_calls") and m.tool_calls:
+                    content = f"[AI called tools: {', '.join([tc.get('name', 'unknown') for tc in m.tool_calls])}]"
+
                 if content:
                     truncated_content = content
                     if len(content) > MAX_MSG_CHARS_FOR_SUMMARIZER:
