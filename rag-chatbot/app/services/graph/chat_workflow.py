@@ -2,7 +2,13 @@ import os
 from datetime import datetime
 from typing import cast
 
-from langchain_core.messages import HumanMessage, RemoveMessage, SystemMessage, AIMessage
+from langchain_core.messages import (
+    AIMessage,
+    HumanMessage,
+    RemoveMessage,
+    SystemMessage,
+    ToolMessage,
+)
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -19,11 +25,10 @@ class ChatWorkflow:
         self.tools = tools
         self.system_prompt = system_prompt
         self.checkpointer = checkpointer
-        
-        # Pre-bind tools to prevent redundant processing and potential API validation conflicts
-        # during dynamic binding inside nodes.
+
+        # Pre-bind tools once to avoid redundant processing and API validation conflicts
         self.llm_with_tools = self.llm.bind_tools(self.tools)
-        
+
         self.graph = self._build()
 
     async def _summarize_conversation(self, state: AgentState):
@@ -35,7 +40,7 @@ class ChatWorkflow:
 
         # Thresholds for summarization
         MESSAGE_COUNT_THRESHOLD = 12
-        CHARACTER_LIMIT_THRESHOLD = 4000 # Rough proxy for tokens
+        CHARACTER_LIMIT_THRESHOLD = 4000
 
         total_chars = sum(
             len(m.content)
@@ -66,21 +71,29 @@ class ChatWorkflow:
                 "STRICT RULE: Output ONLY the summary text. DO NOT attempt to call any tools or functions."
             )
 
+        MAX_MSG_CHARS_FOR_SUMMARIZER = 2000
+
         try:
-            # Clean messages for summarization to avoid tool-call validation errors in Groq/Gemini.
-            # We convert everything to simple Human/AI messages without tool_calls.
             clean_messages = []
             for m in messages:
                 content = getattr(m, "content", "")
                 if content:
+                    truncated_content = content
+                    if len(content) > MAX_MSG_CHARS_FOR_SUMMARIZER:
+                        truncated_content = (
+                            content[:MAX_MSG_CHARS_FOR_SUMMARIZER]
+                            + "... [Content Truncated for Summarizer]"
+                        )
+
                     if m.type == "human":
-                        clean_messages.append(HumanMessage(content=content))
+                        clean_messages.append(HumanMessage(content=truncated_content))
                     elif m.type == "ai":
-                        clean_messages.append(AIMessage(content=content))
+                        clean_messages.append(AIMessage(content=truncated_content))
                     elif m.type == "tool":
-                        # Convert tool output to something the summarizer can use as context
-                        clean_messages.append(HumanMessage(content=f"Tool output: {content}"))
-                
+                        clean_messages.append(
+                            HumanMessage(content=f"Tool output: {truncated_content}")
+                        )
+
             if not clean_messages:
                 return {"summary": summary}
 
@@ -93,7 +106,6 @@ class ChatWorkflow:
             logger.error(f"Summarization failed: {e}")
             new_summary = summary + " (Summarization failed, some history lost)"
 
-        # Keep only the last 6 messages to preserve more context
         keep_count = 6
         delete_messages = [
             RemoveMessage(id=m.id)
@@ -132,12 +144,11 @@ class ChatWorkflow:
             "- Be concise and professional in your responses."
         )
 
-        # Safety: Ensure tools are bound. In some environments/versions, 
-        # RunnableBinding might lose its tools if not handled carefully.
-        model = self.llm_with_tools
-        if not hasattr(model, "kwargs") or "tools" not in model.kwargs:
-             # Fallback: Re-bind tools if they somehow got dropped
-             model = self.llm.bind_tools(self.tools)
+        model = (
+            self.llm_with_tools
+            if self.llm_with_tools
+            else self.llm.bind_tools(self.tools)
+        )
 
         response = await model.ainvoke(
             [SystemMessage(content=dynamic_system_prompt)] + messages,
@@ -146,9 +157,11 @@ class ChatWorkflow:
 
         # Log metadata for debugging
         if response.response_metadata:
-             logger.debug(f"LLM Response Metadata: {response.response_metadata}")
-             if "failed_generation" in response.response_metadata:
-                 logger.error(f"LLM Failed Generation: {response.response_metadata['failed_generation']}")
+            logger.debug(f"LLM Response Metadata: {response.response_metadata}")
+            if "failed_generation" in response.response_metadata:
+                logger.error(
+                    f"LLM Failed Generation: {response.response_metadata['failed_generation']}"
+                )
 
         return {"messages": [response]}
 
@@ -197,6 +210,7 @@ class ChatWorkflow:
 
 if __name__ == "__main__":
     from unittest.mock import MagicMock
+
     mock_llm = MagicMock()
     graph = ChatWorkflow(llm=mock_llm, tools=[], system_prompt="")
     graph.export_graph()
