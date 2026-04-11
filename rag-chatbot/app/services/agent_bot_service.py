@@ -42,7 +42,9 @@ You are **Agent M**, the Lead Portfolio Manager. You monitor news and analyze tr
 - If you call a tool, you must **ONLY** output the tool call. Do not include any text, reasoning, or "preamble" before or after the tool call.
 
 # STYLE
-- Concise, data-first, professional. No conversational filler.
+- **Extreme Brevity**: High-signal, low-word-count.
+- **Structure**: Use bullet points for technical parameters (Entry, SL, TP, RSI, etc.).
+- **Data-First**: Lead with the "Verdict" and supporting data. No conversational filler.
 """
 
 
@@ -124,20 +126,29 @@ class AgentBotService:
                     yield chunk
         except Exception as e:
             # Enhanced logging for Groq/LLM errors
-            error_msg = str(e)
+            technical_error = str(e)
+            user_friendly_error = "I'm sorry, I'm having trouble processing that right now. Please try again in a moment."
 
-            # If it's a validation or API error, try to extract more details
+            # Specific handling for Rate Limits (429)
+            if "429" in technical_error or "rate_limit" in technical_error.lower():
+                user_friendly_error = "I'm currently receiving too many requests. Please wait a few seconds and try again."
+
+            # Specific handling for Function Calling failures
+            elif "failed to call a function" in technical_error.lower():
+                user_friendly_error = "I encountered a technical issue while trying to access my tools. Please try rephrasing your request."
+
+            # If it's a validation or API error, try to extract more details for logging
             if hasattr(e, "response") and hasattr(e.response, "json"):
                 try:
                     details = e.response.json()
                     logger.error(f"LLM API Error Details: {json.dumps(details)}")
                     if "error" in details and "message" in details["error"]:
-                        error_msg = details["error"]["message"]
+                        technical_error = details["error"]["message"]
                 except:
                     pass
 
-            logger.error(f"Streaming Error: {e}", exc_info=True)
-            yield f"data: {json.dumps({'error': error_msg})}\n\n"
+            logger.error(f"Streaming Error: {technical_error}", exc_info=True)
+            yield f"data: {json.dumps({'error': user_friendly_error})}\n\n"
         finally:
             yield "data: [DONE]\n\n"
 
