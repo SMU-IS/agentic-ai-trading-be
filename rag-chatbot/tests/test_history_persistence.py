@@ -71,10 +71,10 @@ async def test_invoke_agent_initial_state(agent_bot_service):
         initial_state = args[0]
         config = kwargs.get("config", {})
 
-        # Assert state contains messages and summary
+        # Assert state contains messages (summary is NOT reset here to preserve it across turns)
         assert "messages" in initial_state
-        assert "summary" in initial_state
-        assert len(initial_state) == 2
+        assert "summary" not in initial_state
+        assert len(initial_state) == 1
         assert initial_state["messages"][0].content == "Hello"
 
         # Assert metadata contains user_id and title
