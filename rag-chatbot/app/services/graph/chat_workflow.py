@@ -194,7 +194,7 @@ class ChatWorkflow:
         order_id = metadata.get("order_id")
         current_date = datetime.now().strftime("%A, %B %d, %Y")
 
-        context_lines = []
+        context_lines = [f"- Today's Date: {current_date}", f"- User ID: {user_id}"]
         if summary:
             context_lines.append(f"- COMPLETED ACTIONS & SUMMARY: {summary}")
         if order_id:
@@ -225,8 +225,6 @@ class ChatWorkflow:
         dynamic_system_prompt = (
             f"{self.system_prompt}\n\n"
             f"### CURRENT SESSION INFO\n"
-            f"- Today's Date: {current_date}\n"
-            f"- User ID: {user_id}\n"
             f"{context_block}\n"
             f"{loop_prevention_msg}\n\n"
             "STRICT RULE: If you choose to call a tool, output ONLY the tool call. NO PREAMBLE, NO ACKNOWLEDGMENT."
