@@ -57,6 +57,7 @@ def _make_event_service(result=None, neweventcount=0):
 async def test_process_message_success(mock_redis, mock_update, mock_event_stream, mock_finalize):
     """Happy path: decodes → not dup → event found → saves → finalizes."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
     mock_event_stream.save = AsyncMock()
@@ -109,6 +110,7 @@ async def test_process_message_duplicate_skipped(mock_redis, mock_finalize):
 async def test_process_message_event_service_returns_none(mock_redis, mock_finalize):
     """analyse_event returns None → increments removed counter, finalizes."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
 
@@ -125,6 +127,7 @@ async def test_process_message_event_service_returns_none(mock_redis, mock_final
 async def test_process_message_no_event_type_filtered(mock_redis, mock_finalize):
     """ticker_metadata has entry with no event_type → filtered, post removed."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
 
@@ -149,6 +152,7 @@ async def test_process_message_no_event_type_filtered(mock_redis, mock_finalize)
 async def test_process_message_timestamps_written(mock_redis, mock_update, mock_event_stream, _mock_finalize):
     """Both start and end timestamps written for a successful post."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
     mock_event_stream.save = AsyncMock()
@@ -176,6 +180,7 @@ async def test_process_message_timestamps_written(mock_redis, mock_update, mock_
 async def test_process_message_cancelled_error_reraises(mock_redis, mock_update, mock_event_stream, _mock_finalize):
     """CancelledError from event_stream.save → re-raised."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
     mock_event_stream.save = AsyncMock(side_effect=asyncio.CancelledError)

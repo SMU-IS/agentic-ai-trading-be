@@ -58,6 +58,7 @@ vendor/
 *.env
 .env.*
 !*.env.sample
+!*.env.test
 secrets/
 credentials/
 *.key

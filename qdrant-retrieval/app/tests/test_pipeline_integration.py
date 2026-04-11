@@ -1,7 +1,7 @@
 """
 Full Pipeline Integration Test
 ================================
-Verifies end-to-end flow: news stream → preprocessing → ticker → event → sentiment → vectorisation → aggregator stream.
+Verifies end-to-end flow: news stream → preprocessing → ticker → event → sentiment → vectorisation → aggregator stream → news aggregator stream + news notif stream.
 
 Requirements:
 - Cloud Redis, Qdrant, and LLM APIs accessible from local machine
@@ -9,28 +9,28 @@ Requirements:
 
 Env test variables required:
 Preproc:
-NEWS_STREAM=test:news_stream
-PREPROC_STREAM=test:preproc_stream
+NEWS_STREAM=test:raw_news_stream
+PREPROC_STREAM=test:preproc_redis_stream
 POST_TIMESTAMP_KEY=test:post_timestamps
 
 Ticker:
-PREPROC_STREAM=test:preproc_stream
-TICKER_STREAM=test:ticker_stream
+PREPROC_STREAM=test:preproc_redis_stream
+TICKER_STREAM=test:ticker_redis_stream
 POST_TIMESTAMP_KEY=test:post_timestamps
 
 Event:
-TICKER_STREAM=test:ticker_stream
-EVENT_STREAM=test:event_stream
+EVENT_STREAM=test:event_redis_stream
+TICKER_STREAM=test:ticker_redis_stream
 POST_TIMESTAMP_KEY=test:post_timestamps
 
 Sentiment:
-EVENT_STREAM=test:event_stream
-SENTIMENT_STREAM=test:sentiment_stream
+EVENT_STREAM=test:event_redis_stream
+SENTIMENT_STREAM=test:sentiment_redis_stream
 POST_TIMESTAMP_KEY=test:post_timestamps
 
 Qdrant:
-SENTIMENT_STREAM=test:sentiment_stream
-AGGREGATOR_STREAM=test:aggregator_stream
+SENTIMENT_STREAM=test:sentiment_redis_stream
+AGGREGATOR_STREAM=test:aggregator_redis_stream
 POST_TIMESTAMP_KEY=test:post_timestamps
 POSTGRES_HOST=localhost
 POSTGRES_USER=test
@@ -38,6 +38,16 @@ POSTGRES_PASSWORD=test
 POSTGRES_PORT=5432
 POSTGRES_DB=test
 POSTGRES_SSL_MODE=require
+
+notification-alert:
+REDIS_NOTIFICATION_STREAM=test:news_notification_stream
+REDIS_SENTIMENT_STREAM=test:aggregator_redis_stream
+REDIS_ANALYSIS_STREAM=test:aggregator_analysis_stream
+REDIS_AGGREGATOR_STREAM=test:news_aggregator_stream
+REDIS_TRADE_STREAM=test:trade_notification_stream
+POST_TIMESTAMP_KEY=test:post_timestamps
+BASE_API=http://localhost:1234
+JWT_TOKEN=test-token
 
 Run:
     cd qdrant-retrieval
@@ -59,34 +69,69 @@ import redis.asyncio as aioredis
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointIdsList
 
-from app.core.config import env_config
 
 QDRANT_COLLECTION = "news_analysis_compiled"
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-REPO_ROOT = Path(__file__).resolve().parents[3]  # .../31-mar/
+REPO_ROOT = Path(__file__).resolve().parents[3]  
 
 SERVICE_DIRS = {
-    "preprocessing":   (REPO_ROOT / "preprocessing-service",  "app.services.preprocessing_worker"),
-    "ticker":          (REPO_ROOT / "ticker-identification-service", "app.services.ticker_identification_worker"),
-    "event":           (REPO_ROOT / "event-identification-service", "app.services.event_identification_worker"),
-    "sentiment":       (REPO_ROOT / "sentiment-analysis-service", "app.services.sentiment_analysis_worker"),
-    "vectorisation":   (REPO_ROOT / "qdrant-retrieval", "app.services.qdrant_vectorisation_worker"),
+    "preprocessing":            (REPO_ROOT / "preprocessing-service",  "app.services.preprocessing_worker"),
+    "ticker":                   (REPO_ROOT / "ticker-identification-service", "app.services.ticker_identification_worker"),
+    "event":                    (REPO_ROOT / "event-identification-service", "app.services.event_identification_worker"),
+    "sentiment":                (REPO_ROOT / "sentiment-analysis-service", "app.services.sentiment_analysis_worker"),
+    "vectorisation":            (REPO_ROOT / "qdrant-retrieval", "app.services.qdrant_vectorisation_worker"),
+    "sentiment_to_aggregator":  (REPO_ROOT / "notification-alert", "app.workers.sentiment_to_aggregator"),
+    "sentiment_to_notification":(REPO_ROOT / "notification-alert", "app.workers.sentiment_to_notification"),
 }
 
-NEWS_STREAM      = os.environ.get("NEWS_STREAM", "test:news_stream")
-AGGREGATOR_STREAM = env_config.redis_aggregator_stream
+NOTIF_AGGREGATOR_STREAM  = "test:news_aggregator_stream"
+NOTIF_NOTIFICATION_STREAM = "test:news_notification_stream"
+NEWS_STREAM = "test:raw_news_stream"
 
 POLL_INTERVAL_S  = 3
-MAX_WAIT_S       = 120
+MAX_WAIT_S       = 60
 SERVICE_BOOT_S   = 60   # max time to wait for all services to be alive
+
+
+# ── Safety guard ──────────────────────────────────────────────────────────────
+@pytest.fixture(scope="session", autouse=True)
+def _require_env_test():
+    assert os.environ.get("ENV_FILE") == ".env.test", \
+        "Integration test requires ENV_FILE=.env.test to avoid writing to production streams"
 
 
 # ── Service startup fixture ───────────────────────────────────────────────────
 @pytest.fixture(scope="session")
 def pipeline_services():
-    """Start all 5 pipeline services as subprocesses with ENV_FILE=.env.test."""
-    env = {**os.environ, "ENV_FILE": ".env.test"}
+    """Start all 6 pipeline services as subprocesses with ENV_FILE=.env.test."""
+    # Strip only conftest dummy values (localhost/test placeholders) so each
+    # service's .env.test wins. Real CI secrets (from GitHub) are preserved.
+    CONFTEST_DUMMIES = {
+        "QDRANT_URL": "http://localhost:6333",
+        "QDRANT_API_KEY": "test-qdrant-key",
+        "STORAGE_PROVIDER": "qdrant_nomic",
+        "LLM_PROVIDER": "nomic",
+        "GEMINI_API_KEY": "test-gemini-key",
+        "NOMIC_API_KEY": "test-nomic-key",
+        "OLLAMA_BASE_URL": "http://localhost:11434",
+        "REDIS_HOST": "localhost",
+        "REDIS_PORT": "6379",
+        "REDIS_PASSWORD": "",
+        "SENTIMENT_STREAM": "test_sentiment_stream",
+        "AGGREGATOR_STREAM": "test_aggregator_stream",
+        "POSTGRES_HOST": "localhost",
+        "POSTGRES_USER": "test",
+        "POSTGRES_PASSWORD": "test",
+        "POSTGRES_PORT": "5432",
+        "POSTGRES_DB": "test",
+        "TEXT_EMBEDDING_MODEL": "nomic-embed-text-v1.5",
+    }
+    base_env = {
+        k: v for k, v in os.environ.items()
+        if k not in CONFTEST_DUMMIES or v != CONFTEST_DUMMIES[k]
+    }
+    env = {**base_env, "ENV_FILE": ".env.test"}
     processes = []
 
     for name, (service_dir, module) in SERVICE_DIRS.items():
@@ -122,12 +167,29 @@ def pipeline_services():
 
 
 # ── Redis fixture ─────────────────────────────────────────────────────────────
+def _load_env_file(path: Path) -> dict:
+    """Parse key=value pairs from an env file, ignoring comments."""
+    result = {}
+    if path.exists():
+        for line in path.read_text().splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                result[k.strip()] = v.strip()
+    return result
+
+# Load .env (credentials) first, then .env.test (test stream overrides) on top
+_qdrant_dir = REPO_ROOT / "qdrant-retrieval"
+_TEST_ENV = {**_load_env_file(_qdrant_dir / ".env"), **_load_env_file(_qdrant_dir / ".env.test")}
+
+AGGREGATOR_STREAM = _TEST_ENV.get("AGGREGATOR_STREAM", "test:aggregator_redis_stream")
+
 @pytest_asyncio.fixture
 async def r():
     client = aioredis.Redis(
-        host=env_config.redis_host,
-        port=env_config.redis_port,
-        password=env_config.redis_password,
+        host=_TEST_ENV["REDIS_HOST"],
+        port=int(_TEST_ENV["REDIS_PORT"]),
+        password=_TEST_ENV["REDIS_PASSWORD"],
         decode_responses=True,
     )
     yield client
@@ -150,8 +212,6 @@ async def test_full_pipeline(pipeline_services, r: aioredis.Redis):
         "author": "integration_test",
         "url": "https://www.reddit.com/r/stocks/comments/integration_test",
         "timestamps": "2026-03-31T10:00:00+00:00",
-        "scraped_timestamp": "2026-03-31T10:00:00+08:00",
-        "posted_timestamp": "2026-03-31T09:55:00+08:00",
         "content": {
             "title": "AAPL reports record Q1 earnings, beats estimates by 15%",
             "body": (
@@ -207,7 +267,7 @@ async def test_full_pipeline(pipeline_services, r: aioredis.Redis):
             if post_id in str(entry_data.get("id", "")).strip('"'):
                 found          = entry_data
                 found_entry_id = entry_id
-                print(f"✅ Found in aggregator stream after {elapsed}s")
+                print(f"✅ Found in test aggregator_redis_stream stream after {elapsed}s")
                 break
 
         if found:
@@ -230,6 +290,55 @@ async def test_full_pipeline(pipeline_services, r: aioredis.Redis):
 
     print(f"✅ Tickers identified: {list(ticker_metadata.keys())}")
 
+    # ── 4b. Poll news_aggregator_stream (sentiment_to_aggregator output) ──────
+    found_aggregator = None
+    for attempt in range(MAX_WAIT_S // POLL_INTERVAL_S):
+        await asyncio.sleep(POLL_INTERVAL_S)
+        elapsed = (attempt + 1) * POLL_INTERVAL_S
+        entries = await r.xrange(NOTIF_AGGREGATOR_STREAM, "-", "+")
+        for entry_id, fields in entries:
+            if post_id in str(fields.get("id", "")):
+                found_aggregator = fields
+                print(f"✅ Found in test news_aggregator_stream after {elapsed}s")
+                break
+        if found_aggregator:
+            break
+
+    assert found_aggregator is not None, (
+        f"Post {post_id} did not reach news_aggregator_stream within {MAX_WAIT_S}s. "
+        "sentiment_to_aggregator worker may have failed."
+    )
+    assert found_aggregator.get("ticker"),                       "Missing ticker in news_aggregator_stream entry"
+    assert found_aggregator.get("event_type") == "NEWS_UPDATE", "event_type should be NEWS_UPDATE"
+    assert found_aggregator.get("event_type_meta"),              "Missing event_type_meta in news_aggregator_stream entry"
+    assert found_aggregator.get("sentiment_score") is not None, "Missing sentiment_score in news_aggregator_stream entry"
+
+    # ── 4c. Poll news_notification_stream (sentiment_to_notification output) ──
+    found_notification = None
+    for attempt in range(MAX_WAIT_S // POLL_INTERVAL_S):
+        await asyncio.sleep(POLL_INTERVAL_S)
+        elapsed = (attempt + 1) * POLL_INTERVAL_S
+        entries = await r.xrange(NOTIF_NOTIFICATION_STREAM, "-", "+")
+        for entry_id, fields in entries:
+            if post_id in str(fields.get("id", "")):
+                found_notification = fields
+                print(f"✅ Found in test news_notification_stream after {elapsed}s")
+                break
+        if found_notification:
+            break
+
+    assert found_notification is not None, (
+        f"Post {post_id} did not reach news_notification_stream within {MAX_WAIT_S}s. "
+        "sentiment_to_notification worker may have failed."
+    )
+    assert found_notification.get("headline"), "Missing headline in news_notification_stream entry"
+    assert found_notification.get("tickers"),  "Missing tickers in news_notification_stream entry"
+    tickers_list = json.loads(found_notification["tickers"])
+    assert len(tickers_list) > 0,               "Empty tickers list in news_notification_stream entry"
+    assert tickers_list[0].get("symbol"),        "Missing symbol in tickers list"
+    assert tickers_list[0].get("event_type"),    "Missing event_type in tickers list"
+    assert tickers_list[0].get("sentiment_label"), "Missing sentiment_label in tickers list"
+
     # ── Verify post_timestamp entries for all stages ───────────
     ts_key = f"test:post_timestamps:{post_id}"
     timestamps = await r.hgetall(ts_key)
@@ -245,6 +354,7 @@ async def test_full_pipeline(pipeline_services, r: aioredis.Redis):
         "sentiment_timestamp",
         "qdrant_timestamp_start",
         "qdrant_timestamp",
+        "aggregator_timestamp",
     ]
     missing_ts = [f for f in expected_timestamp_fields if f not in timestamps]
     assert not missing_ts, f"Missing timestamp fields — stages may have failed: {missing_ts}"
@@ -255,6 +365,17 @@ async def test_full_pipeline(pipeline_services, r: aioredis.Redis):
     # ── 5. Cleanup ────────────────────────────────────────────
     if found_entry_id:
         await r.xdel(AGGREGATOR_STREAM, found_entry_id)
+
+    # Clean up downstream stream entries
+    agg_entries = await r.xrange(NOTIF_AGGREGATOR_STREAM, "-", "+")
+    for entry_id, fields in agg_entries:
+        if post_id in str(fields.get("id", "")):
+            await r.xdel(NOTIF_AGGREGATOR_STREAM, entry_id)
+
+    notif_entries = await r.xrange(NOTIF_NOTIFICATION_STREAM, "-", "+")
+    for entry_id, fields in notif_entries:
+        if post_id in str(fields.get("id", "")):
+            await r.xdel(NOTIF_NOTIFICATION_STREAM, entry_id)
 
     dedup_keys = [
         f"preproc_dedup:{post_id}",
@@ -271,8 +392,8 @@ async def test_full_pipeline(pipeline_services, r: aioredis.Redis):
     try:
         point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, post_id))
         qdrant = QdrantClient(
-            url=env_config.qdrant_url,
-            api_key=env_config.qdrant_api_key,
+            url=_TEST_ENV["QDRANT_URL"],
+            api_key=_TEST_ENV["QDRANT_API_KEY"],
         )
         qdrant.delete(
             collection_name=QDRANT_COLLECTION,
