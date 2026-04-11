@@ -70,13 +70,19 @@ async def test_ainvoke_success():
         async for event in service.ainvoke("hi", "session_1"):
             events.append(event)
 
-        assert len(events) == 2
+        assert len(events) == 4
 
-        # Check first event (retriever end thought)
-        expected_thought = "<thought>Agent M: Retrieved the following sauce from the knowledge base:\n\n--- Source: test.md ---\nretrieved content</thought>"
-        expected_first = f"data: {json.dumps({'reasoning_content': expected_thought})}\n\n"
-        assert events[0] == expected_first
+        # 1. Thought block header
+        h = "<thought>Agent M: Retrieved the following sauce from the knowledge base:"
+        assert events[0] == f"data: {json.dumps({'token': h, 'content': h, 'text': h, 'reasoning_content': h})}\n\n"
 
-        # Check second event (token stream)
-        expected_second = f"data: {json.dumps({'token': 'hello'})}\n\n"
-        assert events[1] == expected_second
+        # 2. Document chunk
+        c = "\n\n--- Source: test.md ---\nretrieved content"
+        assert events[1] == f"data: {json.dumps({'token': c, 'content': c, 'text': c, 'reasoning_content': c})}\n\n"
+
+        # 3. Thought block footer
+        f = "</thought>"
+        assert events[2] == f"data: {json.dumps({'token': f, 'content': f, 'text': f, 'reasoning_content': f})}\n\n"
+
+        # 4. Final LLM token
+        assert events[3] == f"data: {json.dumps({'token': 'hello', 'content': 'hello', 'text': 'hello'})}\n\n"
