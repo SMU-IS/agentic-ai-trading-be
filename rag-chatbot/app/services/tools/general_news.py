@@ -19,7 +19,9 @@ async def _fetch_news_from_api(
 
     if is_general_market:
         base_url = env_config.qdrant_retrieval_query_url.replace("/query", "/news")
-        params = {"start_date": start_date}
+        params = {}
+        if start_date:
+            params["start_date"] = start_date
         if end_date:
             params["end_date"] = end_date
         response = await client.get(base_url, params=params)

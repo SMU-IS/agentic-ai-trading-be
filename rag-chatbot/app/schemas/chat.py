@@ -45,11 +45,11 @@ class GeneralNews(BaseModel):
     )
     start_date: Optional[str] = Field(
         None,
-        description="Optional start date for filtering news (e.g. '2026-04-01T00:00:00'). Use if user mentions 'today' or a specific date.",
+        description="Optional start date for filtering news (e.g. '2026-04-01T00:00:00'). Use if user mentions 'today', 'yesterday', 'last night', or any relative time. Always calculate the exact ISO timestamp based on 'Today's Date' in the context.",
     )
     end_date: Optional[str] = Field(
         None,
-        description="Optional end date for filtering news (e.g. '2026-04-07T23:59:59').",
+        description="Optional end date for filtering news (e.g. '2026-04-07T23:59:59'). Always calculate the exact ISO timestamp based on 'Today's Date' in the context.",
     )
 
 
