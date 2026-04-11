@@ -27,7 +27,7 @@ def test_get_latest_news_success(mock_query_service):
     
     mock_query_service.retrieve_news = AsyncMock(return_value=mock_data)
     
-    response = client.get("/news/latest?limit=10&offset=prev_offset_id")
+    response = client.get("/news?limit=10&offset=prev_offset_id")
     
     assert response.status_code == 200
     json_response = response.json()
@@ -36,12 +36,12 @@ def test_get_latest_news_success(mock_query_service):
     assert json_response["next_offset"] == "next_offset_id"
     assert json_response["data"][0]["topic_id"] == "topic_latest_123"
     
-    mock_query_service.retrieve_news.assert_called_once_with(limit=10, offset="prev_offset_id", sort_by_recency=True)
+    mock_query_service.retrieve_news.assert_called_once_with(limit=10, offset="prev_offset_id", sort_by_recency=True, start_date=None, end_date=None)
 
 def test_get_latest_news_error(mock_query_service):
     mock_query_service.retrieve_news.side_effect = Exception("Internal error")
 
-    response = client.get("/news/latest")
+    response = client.get("/news")
     
     assert response.status_code == 500
     assert "Internal error" in response.json()["detail"]
