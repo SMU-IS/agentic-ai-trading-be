@@ -26,12 +26,20 @@ async def _fetch_order_data(order_id: str, user_id: str) -> dict:
 
 def _parse_order_details(data: dict) -> OrderDetailsResponse:
     """Helper to parse API response into OrderDetailsResponse."""
+    reasoning = (
+        data.get("trading_agent_reasonings") or "No specific reasoning provided."
+    )
+
+    # Truncate reasoning if it's too long
+    MAX_REASONING_LENGTH = 1500
+    if len(reasoning) > MAX_REASONING_LENGTH:
+        reasoning = reasoning[:MAX_REASONING_LENGTH] + "... [Truncated for brevity]"
+
     return OrderDetailsResponse(
         ticker=data.get("symbol") or "Unknown",
         action=data.get("side") or "Unknown",
         entry_price=data.get("filled_avg_price") or 0.0,
-        reasoning=data.get("trading_agent_reasonings")
-        or "No specific reasoning provided.",
+        reasoning=reasoning,
     )
 
 

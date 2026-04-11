@@ -131,7 +131,7 @@ class AgentBotService:
 
         try:
             graph = self._get_agent_graph().graph
-            initial_state = {"messages": [HumanMessage(content=query)], "summary": ""}
+            initial_state = {"messages": [HumanMessage(content=query)]}
             streamed_ids = set()
 
             async for event in graph.astream_events(

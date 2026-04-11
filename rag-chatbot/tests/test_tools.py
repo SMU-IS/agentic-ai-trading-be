@@ -95,6 +95,31 @@ async def test_get_trade_history_details_success():
 
 
 @pytest.mark.asyncio
+async def test_get_trade_history_details_truncation():
+    # Long reasoning (more than 1500 chars)
+    long_reasoning = "X" * 2000
+    mock_raw_data = {
+        "symbol": "AAPL",
+        "filled_avg_price": 150.0,
+        "side": "buy",
+        "trading_agent_reasonings": long_reasoning,
+    }
+
+    with patch(
+        "app.services.tools.trade_history._fetch_order_data", new_callable=AsyncMock
+    ) as mock_fetch:
+        mock_fetch.return_value = mock_raw_data
+
+        config = {"metadata": {"user_id": "user123"}}
+        result = await get_trade_history_details.ainvoke(
+            {"order_id": "order123"}, config=config
+        )
+
+        assert len(result.reasoning) < 2000
+        assert "[Truncated for brevity]" in result.reasoning
+
+
+@pytest.mark.asyncio
 async def test_get_trade_history_details_failure():
     with patch(
         "app.services.tools.trade_history._fetch_order_data",
@@ -165,6 +190,25 @@ async def test_get_trade_history_list_failure():
                 {"after": "2024-01-01", "until": "2024-01-02"}, config=config
             )
         assert "Unable to retrieve trade history" in str(excinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_get_trade_history_list_truncation():
+    # Create 25 mock orders (more than the MAX_TRADES limit of 20)
+    mock_raw = [{"id": str(i), "symbol": "AAPL"} for i in range(25)]
+    with patch(
+        "app.services.tools.trade_history_list._fetch_raw_trade_history",
+        new_callable=AsyncMock,
+    ) as mock_fetch:
+        mock_fetch.return_value = mock_raw
+        config = {"metadata": {"user_id": "user123"}}
+        result = await get_trade_history_list.ainvoke(
+            {"after": "2024-01-01", "until": "2024-01-02"}, config=config
+        )
+        assert len(result.orders) == 20
+        assert result.total_count == 25
+        assert result.truncated is True
+        assert "Showing the first 20 of 25 total trades" in result.message
 
 
 @pytest.mark.asyncio

@@ -65,11 +65,23 @@ async def get_trade_history_list(
 
     logger.info(f"Fetching trade history list from {after} to {until}")
     user_id = config.get("metadata", {}).get("user_id", "unknown-user")
+    MAX_TRADES = 20
 
     try:
         raw_orders = await _fetch_raw_trade_history(after, until, user_id)
+        total_count = len(raw_orders)
+
+        truncated = False
+        message = None
+        if total_count > MAX_TRADES:
+            raw_orders = raw_orders[:MAX_TRADES]
+            truncated = True
+            message = f"Showing the first {MAX_TRADES} of {total_count} total trades. If the user wants to see more, ask them for a more specific date range."
+
         orders = _transform_to_order_summaries(raw_orders)
-        return TradeHistoryListResponse(orders=orders)
+        return TradeHistoryListResponse(
+            orders=orders, total_count=total_count, truncated=truncated, message=message
+        )
 
     except Exception as e:
         logger.error(f"Failed to fetch trade history list: {e}")

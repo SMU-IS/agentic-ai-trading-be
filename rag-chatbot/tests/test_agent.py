@@ -71,11 +71,33 @@ async def test_summarize_conversation_trigger(agent_graph, mock_llm):
 
     assert result["summary"] == "New Summary"
     assert "messages" in result
-    # We kept 4 messages, so we should have removed 15 - 4 = 11 messages
-    assert len(result["messages"]) == 11
+    # We kept 6 messages, so we should have removed 15 - 6 = 9 messages
+    assert len(result["messages"]) == 9
     from langchain_core.messages import RemoveMessage
 
     assert isinstance(result["messages"][0], RemoveMessage)
+
+
+@pytest.mark.asyncio
+async def test_summarize_conversation_trigger_by_length(agent_graph, mock_llm):
+    mock_llm.ainvoke = AsyncMock(return_value=AIMessage(content="New Summary"))
+
+    # Create 10 messages but one is very large (total > 6000 chars)
+    # We need more than 6 total messages to see removal
+    messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(9)]
+    messages.append(HumanMessage(content="X" * 7000, id="large"))
+
+    state: AgentState = {
+        "messages": messages,
+        "summary": "Old Summary",
+    }
+
+    result = await agent_graph._summarize_conversation(state)
+
+    assert result["summary"] == "New Summary"
+    assert "messages" in result
+    # We kept 6 messages, so we removed 10 - 6 = 4 messages
+    assert len(result["messages"]) == 4
 
 
 def test_workflow_structure(agent_graph):

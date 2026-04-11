@@ -28,10 +28,26 @@ class ChatWorkflow:
         messages = state["messages"]
         summary = state.get("summary", "")
 
-        if len(messages) < 12:
+        # Thresholds for summarization
+        MESSAGE_COUNT_THRESHOLD = 12
+        CHARACTER_LIMIT_THRESHOLD = 6000  # Rough proxy for tokens
+
+        total_chars = sum(
+            len(m.content)
+            if hasattr(m, "content") and isinstance(m.content, str)
+            else 0
+            for m in messages
+        )
+
+        if (
+            len(messages) < MESSAGE_COUNT_THRESHOLD
+            and total_chars < CHARACTER_LIMIT_THRESHOLD
+        ):
             return {"summary": summary}
 
-        logger.info(f"Summarizing conversation history ({len(messages)} messages)")
+        logger.info(
+            f"Summarizing conversation history ({len(messages)} messages, {total_chars} chars)"
+        )
 
         if summary:
             summary_message = (
@@ -52,8 +68,8 @@ class ChatWorkflow:
             # In this case, we just have to drop messages to recover.
             new_summary = summary + " (Summarization failed, some history lost)"
 
-        # Keep only the last 4 messages to be very conservative with context
-        keep_count = 4
+        keep_count = 6
+
         delete_messages = [
             RemoveMessage(id=m.id)
             for m in messages[:-keep_count]
