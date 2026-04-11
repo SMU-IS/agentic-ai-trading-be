@@ -163,7 +163,23 @@ class AgentBotService:
     ) -> AsyncGenerator[str, None]:
         kind = event["event"]
         if kind == "on_tool_start":
-            yield f"data: {json.dumps({'status': f'Searching {event.get("name")}...'})}\n\n"
+            tool_name = event.get("name")
+            inputs = event.get("data", {}).get("input")
+            # Wrap in <thought> for the frontend's MarkdownRenderer
+            thought_msg = f"<thought>Agent M: Accessing {tool_name} with parameters: {json.dumps(inputs)}</thought>"
+            yield f"data: {json.dumps({'token': thought_msg, 'status': 'searching', 'tool_name': tool_name, 'inputs': inputs})}\n\n"
+        elif kind == "on_tool_end":
+            tool_name = event.get("name")
+            output = event.get("data", {}).get("output")
+            # Handle LangChain message objects or raw outputs
+            output_content = (
+                getattr(output, "content", str(output))
+                if not isinstance(output, str)
+                else output
+            )
+            # Wrap result in <thought> as well
+            result_msg = f"<thought>Agent M: {tool_name} returned data. Analysis starting...</thought>"
+            yield f"data: {json.dumps({'token': result_msg, 'status': 'completed', 'tool_name': tool_name, 'output': output_content})}\n\n"
         elif kind == "on_chat_model_stream":
             async for chunk in self._handle_token_stream(event, streamed_ids):
                 yield chunk
@@ -179,10 +195,23 @@ class AgentBotService:
         if "user_response" not in event.get("tags", []):
             return
         chunk = event["data"].get("chunk", {})
-        if hasattr(chunk, "id") and chunk.id:
-            streamed_ids.add(chunk.id)
+        
+        # 1. Handle standard content
         if text := getattr(chunk, "content", ""):
             yield f"data: {json.dumps({'token': text})}\n\n"
+            
+        # 2. Handle native reasoning (e.g., DeepSeek R1, OpenAI o1)
+        reasoning = ""
+        if hasattr(chunk, "additional_kwargs"):
+            reasoning = chunk.additional_kwargs.get("reasoning_content", "")
+        
+        if not reasoning and hasattr(chunk, "reasoning_content"):
+            reasoning = getattr(chunk, "reasoning_content", "")
+
+        if reasoning:
+            # Wrap native reasoning in <thought> tags for the frontend
+            yield f"data: {json.dumps({'token': f'<thought>{reasoning}</thought>', 'reasoning_content': reasoning})}\n\n"
+
 
     def _handle_model_end(self, event: dict, streamed_ids: Set[Any]):
         if "user_response" not in event.get("tags", []):

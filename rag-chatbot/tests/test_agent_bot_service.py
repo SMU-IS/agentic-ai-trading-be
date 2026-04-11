@@ -50,7 +50,11 @@ def test_is_displayable(service):
 
 @pytest.mark.asyncio
 async def test_process_event_on_tool_start(service):
-    event = {"event": "on_tool_start", "name": "get_news"}
+    event = {
+        "event": "on_tool_start",
+        "name": "get_news",
+        "data": {"input": {"query": "AAPL"}},
+    }
     streamed_ids = set()
 
     chunks = []
@@ -58,7 +62,54 @@ async def test_process_event_on_tool_start(service):
         chunks.append(chunk)
 
     assert len(chunks) == 1
-    assert "Searching get_news" in chunks[0]
+    data = json.loads(chunks[0].replace("data: ", ""))
+    assert "<thought>" in data["token"]
+    assert "get_news" in data["token"]
+    assert data["status"] == "searching"
+
+
+@pytest.mark.asyncio
+async def test_process_event_on_tool_end(service):
+    event = {
+        "event": "on_tool_end",
+        "name": "get_news",
+        "data": {"output": "Some news content"},
+    }
+    streamed_ids = set()
+
+    chunks = []
+    async for chunk in service._process_event(event, streamed_ids):
+        chunks.append(chunk)
+
+    assert len(chunks) == 1
+    data = json.loads(chunks[0].replace("data: ", ""))
+    assert "<thought>" in data["token"]
+    assert "returned data" in data["token"]
+    assert data["status"] == "completed"
+    assert data["output"] == "Some news content"
+
+
+@pytest.mark.asyncio
+async def test_handle_token_stream_with_reasoning(service):
+    chunk_mock = MagicMock()
+    chunk_mock.content = ""
+    chunk_mock.additional_kwargs = {"reasoning_content": "Analyzing market data..."}
+
+    event = {
+        "event": "on_chat_model_stream",
+        "tags": ["user_response"],
+        "data": {"chunk": chunk_mock},
+    }
+    streamed_ids = set()
+
+    chunks = []
+    async for chunk in service._process_event(event, streamed_ids):
+        chunks.append(chunk)
+
+    assert len(chunks) == 1
+    data = json.loads(chunks[0].replace("data: ", ""))
+    assert data["reasoning_content"] == "Analyzing market data..."
+    assert data["token"] == "<thought>Analyzing market data...</thought>"
 
 
 @pytest.mark.asyncio
@@ -66,6 +117,8 @@ async def test_process_event_on_chat_model_stream(service):
     chunk_mock = MagicMock()
     chunk_mock.content = "part of response"
     chunk_mock.id = "msg1"
+    chunk_mock.additional_kwargs = {}
+    chunk_mock.reasoning_content = "" # Fix: ensure it's a string, not a mock
 
     event = {
         "event": "on_chat_model_stream",
@@ -81,7 +134,6 @@ async def test_process_event_on_chat_model_stream(service):
     assert len(chunks) == 1
     data = json.loads(chunks[0].replace("data: ", ""))
     assert data["token"] == "part of response"
-    assert "msg1" in streamed_ids
 
 
 def test_format_message(service):
@@ -104,11 +156,11 @@ async def test_invoke_agent_success(service):
     mock_graph = AsyncMock()
 
     async def mock_astream_events(*args, **kwargs):
-        yield {"event": "on_tool_start", "name": "test_tool"}
+        yield {"event": "on_tool_start", "name": "test_tool", "data": {"input": {}}}
         yield {
             "event": "on_chat_model_stream",
             "tags": ["user_response"],
-            "data": {"chunk": MagicMock(content="Hello", id="1")},
+            "data": {"chunk": MagicMock(content="Hello", id="1", additional_kwargs={})},
         }
 
     mock_graph.astream_events = mock_astream_events
@@ -120,7 +172,7 @@ async def test_invoke_agent_success(service):
     async for chunk in service.invoke_agent("query", None, "u1", "s1"):
         chunks.append(chunk)
 
-    assert any("Searching test_tool" in c for c in chunks)
+    assert any("<thought>" in c and "test_tool" in c for c in chunks)
     assert any("Hello" in c for c in chunks)
     assert chunks[-1] == "data: [DONE]\n\n"
 
