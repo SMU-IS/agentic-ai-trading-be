@@ -43,6 +43,7 @@ async def test_call_model(agent_graph, mock_llm):
     assert "Test Prompt" in system_msg.content
     assert "test-user" in system_msg.content
     assert "Previous summary" in system_msg.content
+    assert "### RESPONSE GUIDELINES" in system_msg.content
 
 
 @pytest.mark.asyncio
