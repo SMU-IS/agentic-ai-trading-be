@@ -63,8 +63,14 @@ jobs:
         if: inputs.image-name == 'qdrant-retrieval'
         run: |
           echo "🧪 Running Integration Tests for Qdrant Retrieval..."
-          # Credentials are assumed to be in the environment/state from previous steps
-          # We explicitly point to the .env.test for stream name overrides
+          # Write each service's combined secret as its .env so pydantic-settings
+          # picks up real credentials. .env.test then overrides stream names on top.
+          echo "${{ secrets.QDRANT_RETRIEVAL_SECRETS }}" > .env
+          echo "${{ secrets.PREPROCESSING_SERVICE_SECRETS }}" > ../preprocessing-service/.env
+          echo "${{ secrets.TICKER_IDENTIFICATION_SECRETS }}" > ../ticker-identification-service/.env
+          echo "${{ secrets.EVENT_IDENTIFICATION_SECRETS }}" > ../event-identification-service/.env
+          echo "${{ secrets.SENTIMENT_ANALYSIS_SECRETS }}" > ../sentiment-analysis-service/.env
+          echo "${{ secrets.NOTIFICATION_ALERT_SECRETS }}" > ../notification-alert/.env
           ENV_FILE=.env.test uv run pytest app/tests/test_pipeline_integration.py -v -s -m integration
       - name: Upload Coverage Report
         if: failure()
