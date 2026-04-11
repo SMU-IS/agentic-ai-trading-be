@@ -159,8 +159,8 @@ class ChatWorkflow:
         summary = state.get("summary", "")
 
         # Truncate messages for the LLM context if we have a summary
-        # We start with the last 6 messages and expand backwards if we are in the middle of a tool call
-        KEEP_COUNT = 6
+        # We start with the last 10 messages and expand backwards if we are in the middle of a tool call
+        KEEP_COUNT = 10
         if summary and len(messages) > KEEP_COUNT:
             start_idx = len(messages) - KEEP_COUNT
             

@@ -41,12 +41,12 @@ async def test_call_model(agent_graph, mock_llm):
     assert len(result["messages"]) == 1
     assert result["messages"][0].content == "Hello!"
 
-    # Verify BOUND LLM was called with windowed messages (last 6)
+    # Verify BOUND LLM was called with windowed messages (last 10)
     args, _ = mock_bound.ainvoke.call_args
     sent_msgs = args[0]
-    # 1 SystemMessage + 6 windowed messages = 7
-    assert len(sent_msgs) == 7
-    assert sent_msgs[1].content == "msg 4"
+    # 1 SystemMessage + 10 windowed messages = 11
+    assert len(sent_msgs) == 11
+    assert sent_msgs[1].content == "msg 0"
     assert sent_msgs[-1].content == "msg 9"
     
     system_msg = sent_msgs[0]
@@ -109,6 +109,30 @@ async def test_summarize_conversation_trigger_by_length(agent_graph, mock_llm):
     assert "messages" not in result
     # It should have summarized up to index 3 (10 - 6 - 1 = 3)
     assert result["last_summarized_id"] == "3"
+
+
+@pytest.mark.asyncio
+async def test_call_model_no_tool_on_summary(agent_graph, mock_llm):
+    """
+    Verify that the AI can answer from context (summary) without calling tools.
+    """
+    mock_bound = mock_llm.bind_tools.return_value
+    # Mock a direct textual response (no tool calls)
+    mock_bound.ainvoke = AsyncMock(return_value=AIMessage(content="Here is your TLDR: The trade was a buy.", response_metadata={}))
+
+    state: AgentState = {
+        "messages": [HumanMessage(content="tldr?")],
+        "summary": "The trade for MBAI was a buy at $1.67 due to a merger catalyst.",
+    }
+
+    config = {"metadata": {"user_id": "test-user"}}
+
+    result = await agent_graph._call_model(state, config)
+
+    assert result["messages"][0].content == "Here is your TLDR: The trade was a buy."
+    
+    # Verify no tool calls were attempted in this textual response
+    assert not hasattr(result["messages"][0], "tool_calls") or not result["messages"][0].tool_calls
 
 
 def test_workflow_structure(agent_graph):
