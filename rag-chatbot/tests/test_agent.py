@@ -27,8 +27,10 @@ async def test_call_model(agent_graph, mock_llm):
     mock_bound = mock_llm.bind_tools.return_value
     mock_bound.ainvoke = AsyncMock(return_value=AIMessage(content="Hello!", response_metadata={}))
 
+    # Create 10 messages
+    messages = [HumanMessage(content=f"msg {i}") for i in range(10)]
     state: AgentState = {
-        "messages": [HumanMessage(content="Hi")],
+        "messages": messages,
         "summary": "Previous summary",
     }
 
@@ -39,9 +41,15 @@ async def test_call_model(agent_graph, mock_llm):
     assert len(result["messages"]) == 1
     assert result["messages"][0].content == "Hello!"
 
-    # Verify BOUND LLM was called with dynamic system prompt including summary
+    # Verify BOUND LLM was called with windowed messages (last 6)
     args, _ = mock_bound.ainvoke.call_args
-    system_msg = args[0][0]
+    sent_msgs = args[0]
+    # 1 SystemMessage + 6 windowed messages = 7
+    assert len(sent_msgs) == 7
+    assert sent_msgs[1].content == "msg 4"
+    assert sent_msgs[-1].content == "msg 9"
+    
+    system_msg = sent_msgs[0]
     assert "Test Prompt" in system_msg.content
     assert "test-user" in system_msg.content
     assert "Previous summary" in system_msg.content
@@ -68,17 +76,16 @@ async def test_summarize_conversation_trigger(agent_graph, mock_llm):
     state: AgentState = {
         "messages": messages,
         "summary": "Old Summary",
+        "last_summarized_id": None
     }
 
     result = await agent_graph._summarize_conversation(state)
 
     assert result["summary"] == "New Summary"
-    assert "messages" in result
-    # We kept 6 messages, so we should have removed 15 - 6 = 9 messages
-    assert len(result["messages"]) == 9
-    from langchain_core.messages import RemoveMessage
-
-    assert isinstance(result["messages"][0], RemoveMessage)
+    # Incremental summarization doesn't delete messages anymore
+    assert "messages" not in result
+    # It should have summarized up to index 8 (15 - 6 - 1 = 8)
+    assert result["last_summarized_id"] == "8"
 
 
 @pytest.mark.asyncio
@@ -86,20 +93,20 @@ async def test_summarize_conversation_trigger_by_length(agent_graph, mock_llm):
     mock_llm.ainvoke = AsyncMock(return_value=AIMessage(content="New Summary"))
 
     # Create 10 messages but one is very large (total > 4000 chars)
-    # We need more than 6 total messages to see removal
     messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(9)]
     messages.append(HumanMessage(content="X" * 5000, id="large"))
 
     state: AgentState = {
         "messages": messages,
         "summary": "Old Summary",
+        "last_summarized_id": None
     }
     result = await agent_graph._summarize_conversation(state)
 
     assert result["summary"] == "New Summary"
-    assert "messages" in result
-    # We kept 6 messages, so we removed 10 - 6 = 4 messages
-    assert len(result["messages"]) == 4
+    assert "messages" not in result
+    # It should have summarized up to index 3 (10 - 6 - 1 = 3)
+    assert result["last_summarized_id"] == "3"
 
 
 def test_workflow_structure(agent_graph):
