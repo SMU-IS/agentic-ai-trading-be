@@ -156,12 +156,12 @@ class InfoAgentService:
                 # Start the thought block
                 header = "<thought>Agent M: Retrieved the following sauce from the knowledge base:"
                 yield f"data: {json.dumps({'token': header, 'content': header, 'text': header, 'reasoning_content': header})}\n\n"
-                
+
                 for doc in documents:
-                    source = doc.metadata.get('source', 'unknown')
-                    chunk = f"\n\n--- Source: {source} ---\n{doc.page_content}"
-                    yield f"data: {json.dumps({'token': chunk, 'content': chunk, 'text': chunk, 'reasoning_content': chunk})}\n\n"
-                
+                    source = doc.metadata.get("source", "unknown")
+                    chunk = f"\n\n Source: {source} \n{doc.page_content}"
+                    yield f"data: {json.dumps({'token': chunk})}\n\n"
+
                 # Close the thought block
                 footer = "</thought>"
                 yield f"data: {json.dumps({'token': footer, 'content': footer, 'text': footer, 'reasoning_content': footer})}\n\n"
@@ -170,25 +170,33 @@ class InfoAgentService:
             tool_name = event.get("name")
             inputs = event.get("data", {}).get("input")
             thought_msg = f"<thought>Agent M: Accessing {tool_name} with parameters: {json.dumps(inputs)}</thought>"
-            data = json.dumps({
-                "token": thought_msg,
-                "content": thought_msg,
-                "text": thought_msg,
-                "reasoning_content": thought_msg
-            })
+            data = json.dumps(
+                {
+                    "token": thought_msg,
+                    "content": thought_msg,
+                    "text": thought_msg,
+                    "reasoning_content": thought_msg,
+                }
+            )
             yield f"data: {data}\n\n"
 
         elif kind == "on_tool_end":
             tool_name = event.get("name")
             output = event.get("data", {}).get("output")
-            output_content = getattr(output, "content", str(output)) if not isinstance(output, str) else output
+            output_content = (
+                getattr(output, "content", str(output))
+                if not isinstance(output, str)
+                else output
+            )
             thought_msg = f"<thought>Agent M: {tool_name} returned data. Analysis starting...</thought>"
-            data = json.dumps({
-                "token": thought_msg,
-                "content": thought_msg,
-                "text": thought_msg,
-                "reasoning_content": thought_msg
-            })
+            data = json.dumps(
+                {
+                    "token": thought_msg,
+                    "content": thought_msg,
+                    "text": thought_msg,
+                    "reasoning_content": thought_msg,
+                }
+            )
             yield f"data: {data}\n\n"
 
         elif kind == "on_chat_model_stream":
@@ -208,11 +216,13 @@ class InfoAgentService:
         chunk = event["data"].get("chunk")
         if chunk and hasattr(chunk, "content"):
             if chunk.content:
-                data = json.dumps({
-                    "token": chunk.content,
-                    "content": chunk.content,
-                    "text": chunk.content
-                })
+                data = json.dumps(
+                    {
+                        "token": chunk.content,
+                        "content": chunk.content,
+                        "text": chunk.content,
+                    }
+                )
                 yield f"data: {data}\n\n"
 
     def _handle_model_end(self, event: dict, streamed_ids: Set[Any]):

@@ -77,8 +77,8 @@ async def test_ainvoke_success():
         assert events[0] == f"data: {json.dumps({'token': h, 'content': h, 'text': h, 'reasoning_content': h})}\n\n"
 
         # 2. Document chunk
-        c = "\n\n--- Source: test.md ---\nretrieved content"
-        assert events[1] == f"data: {json.dumps({'token': c, 'content': c, 'text': c, 'reasoning_content': c})}\n\n"
+        c = "\n\n Source: test.md \nretrieved content"
+        assert events[1] == f"data: {json.dumps({'token': c})}\n\n"
 
         # 3. Thought block footer
         f = "</thought>"
