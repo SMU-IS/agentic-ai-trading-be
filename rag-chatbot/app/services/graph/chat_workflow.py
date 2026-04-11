@@ -33,11 +33,14 @@ class ChatWorkflow:
     async def _summarize_conversation(self, state: AgentState):
         """
         Summarizes the conversation if it exceeds a certain length to stay within context limits.
+        Instead of deleting messages (which removes history from UI), it updates the summary
+        for context and tracks progress using last_summarized_id.
         """
         messages = state["messages"]
         summary = state.get("summary", "")
+        last_summarized_id = state.get("last_summarized_id")
 
-        # Thresholds for summarization
+        # Thresholds for triggering summarization
         MESSAGE_COUNT_THRESHOLD = 12
         CHARACTER_LIMIT_THRESHOLD = 4000
 
@@ -48,30 +51,46 @@ class ChatWorkflow:
             for m in messages
         )
 
+        # We keep the last 6 messages as active context
+        KEEP_COUNT = 6
+        
         if (
-            len(messages) < MESSAGE_COUNT_THRESHOLD
+            len(messages) <= MESSAGE_COUNT_THRESHOLD
             and total_chars < CHARACTER_LIMIT_THRESHOLD
         ):
             return {"summary": summary}
 
+        # Identify messages to summarize: everything after last_summarized_id up to messages[-KEEP_COUNT]
+        # First, find the starting index
+        start_idx = 0
+        if last_summarized_id:
+            for i, m in enumerate(messages):
+                if getattr(m, "id", None) == last_summarized_id:
+                    start_idx = i + 1
+                    break
+        
+        # Messages to add to summary
+        to_summarize = messages[start_idx : -KEEP_COUNT]
+        
+        if not to_summarize:
+            return {"summary": summary}
+
         logger.info(
-            f"Summarizing conversation history ({len(messages)} messages, {total_chars} chars)"
+            f"Summarizing {len(to_summarize)} new messages into context"
         )
 
         if summary:
             summary_message = (
                 f"This is a summary of the conversation to date: {summary}\n\n"
-                "Extend the summary by taking into account the new messages above.\n"
-                "CRITICAL: You MUST explicitly record which tools were successfully called and what their key results were. "
-                "This ensures the agent knows these actions are already COMPLETE and does not repeat them."
-                "\nSTRICT RULE: Output ONLY the summary text. DO NOT attempt to call any tools or functions."
+                "Extend the summary by taking into account the NEW messages above.\n"
+                "CRITICAL: Record which tools were called and what their key results were."
+                "\nSTRICT RULE: Output ONLY the summary text."
             )
         else:
             summary_message = (
                 "Create a concise summary of the conversation above.\n"
-                "CRITICAL: You MUST explicitly record which tools were called and what their key findings were. "
-                "This ensures the agent knows exactly which data has already been retrieved."
-                "\nSTRICT RULE: Output ONLY the summary text. DO NOT attempt to call any tools or functions."
+                "CRITICAL: Record which tools were called and what their key findings were."
+                "\nSTRICT RULE: Output ONLY the summary text."
             )
 
         MAX_MSG_CHARS_FOR_SUMMARIZER = 2000
@@ -79,20 +98,18 @@ class ChatWorkflow:
         try:
             # Clean and truncate messages for summarization
             clean_messages = []
-            for m in messages:
+            for m in to_summarize:
                 content = getattr(m, "content", "")
 
-                # If content is empty but tool_calls exist, provide a placeholder for summarizer
                 if not content and hasattr(m, "tool_calls") and m.tool_calls:
                     content = f"[AI executed action: {', '.join([tc.get('name', 'unknown') for tc in m.tool_calls])}]"
 
                 if content:
-                    # Truncate content for the summarizer's safety
                     truncated_content = content
                     if len(content) > MAX_MSG_CHARS_FOR_SUMMARIZER:
                         truncated_content = (
                             content[:MAX_MSG_CHARS_FOR_SUMMARIZER]
-                            + "... [Content Truncated for Summarizer]"
+                            + "... [Truncated]"
                         )
 
                     if m.type == "human":
@@ -107,31 +124,35 @@ class ChatWorkflow:
             if not clean_messages:
                 return {"summary": summary}
 
-            # Use the base (non-tool-bound) LLM for summarization
             response = await self.llm.ainvoke(
                 clean_messages + [HumanMessage(content=summary_message)]
             )
             new_summary = response.content
+            
+            # Update the last summarized ID to the last message we just summarized
+            new_last_id = getattr(to_summarize[-1], "id", last_summarized_id)
+            
+            return {"summary": new_summary, "last_summarized_id": new_last_id}
+
         except Exception as e:
             logger.error(f"Summarization failed: {e}")
-            new_summary = summary + " (Summarization failed, some history lost)"
-
-        # Keep only the last 6 messages to preserve more context
-        keep_count = 6
-        delete_messages = [
-            RemoveMessage(id=m.id)
-            for m in messages[:-keep_count]
-            if hasattr(m, "id") and m.id
-        ]
-
-        return {"summary": new_summary, "messages": delete_messages}
+            return {"summary": summary}
 
     async def _call_model(self, state: AgentState, config: RunnableConfig):
         """
         Agent Node: Calls the LLM with the current message history and summary.
+        Uses a sliding window for messages to stay within context limits while preserving full history in state.
         """
         messages = state["messages"]
         summary = state.get("summary", "")
+
+        # Truncate messages for the LLM context if we have a summary
+        # We always keep at least the last 6 messages
+        KEEP_COUNT = 6
+        if summary and len(messages) > KEEP_COUNT:
+            messages_to_send = messages[-KEEP_COUNT:]
+        else:
+            messages_to_send = messages
 
         # Inject dynamic context
         metadata = config.get("metadata", {})
@@ -159,7 +180,6 @@ class ChatWorkflow:
                 and prev_msg.tool_calls
             ):
                 tool_name = prev_msg.tool_calls[0]["name"]
-                # We inject a specific instruction telling it the tool call just finished
                 loop_prevention_msg = (
                     f"\n\n### SYSTEM ADVISORY\n"
                     f"You just executed '{tool_name}' and received the data provided in the ToolMessage. "
@@ -184,7 +204,7 @@ class ChatWorkflow:
         )
 
         response = await model.ainvoke(
-            [SystemMessage(content=dynamic_system_prompt)] + messages,
+            [SystemMessage(content=dynamic_system_prompt)] + messages_to_send,
             config={"tags": ["user_response"]},
         )
 

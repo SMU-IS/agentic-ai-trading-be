@@ -14,7 +14,9 @@ class AgentState(TypedDict):
         messages: List of messages in the conversation.
                   Uses add_messages to append new messages to the history.
         summary: A summary of the conversation to date to handle context length.
+        last_summarized_id: ID of the last message that was included in the summary.
     """
 
     messages: Annotated[list[BaseMessage], add_messages]
     summary: str
+    last_summarized_id: str | None
