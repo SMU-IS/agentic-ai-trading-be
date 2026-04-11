@@ -10,8 +10,9 @@ from app.services.graph.state import AgentState
 @pytest.fixture
 def mock_llm():
     llm = MagicMock()
-    # Mock bind_tools to return itself (or another mock)
-    llm.bind_tools.return_value = llm
+    # Mock bind_tools to return a specific mock for bound tools
+    mock_bound = MagicMock()
+    llm.bind_tools.return_value = mock_bound
     return llm
 
 
@@ -22,8 +23,9 @@ def agent_graph(mock_llm):
 
 @pytest.mark.asyncio
 async def test_call_model(agent_graph, mock_llm):
-    # Setup mock response
-    mock_llm.ainvoke = AsyncMock(return_value=AIMessage(content="Hello!"))
+    # Setup mock response for the BOUND llm
+    mock_bound = mock_llm.bind_tools.return_value
+    mock_bound.ainvoke = AsyncMock(return_value=AIMessage(content="Hello!", response_metadata={}))
 
     state: AgentState = {
         "messages": [HumanMessage(content="Hi")],
@@ -37,8 +39,8 @@ async def test_call_model(agent_graph, mock_llm):
     assert len(result["messages"]) == 1
     assert result["messages"][0].content == "Hello!"
 
-    # Verify LLM was called with dynamic system prompt including summary
-    args, _ = mock_llm.ainvoke.call_args
+    # Verify BOUND LLM was called with dynamic system prompt including summary
+    args, _ = mock_bound.ainvoke.call_args
     system_msg = args[0][0]
     assert "Test Prompt" in system_msg.content
     assert "test-user" in system_msg.content

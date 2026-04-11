@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from typing import cast
 
-from langchain_core.messages import HumanMessage, RemoveMessage, SystemMessage
+from langchain_core.messages import HumanMessage, RemoveMessage, SystemMessage, AIMessage
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -19,6 +19,11 @@ class ChatWorkflow:
         self.tools = tools
         self.system_prompt = system_prompt
         self.checkpointer = checkpointer
+        
+        # Pre-bind tools to prevent redundant processing and potential API validation conflicts
+        # during dynamic binding inside nodes.
+        self.llm_with_tools = self.llm.bind_tools(self.tools)
+        
         self.graph = self._build()
 
     async def _summarize_conversation(self, state: AgentState):
@@ -31,7 +36,6 @@ class ChatWorkflow:
         # Thresholds for summarization
         MESSAGE_COUNT_THRESHOLD = 12
         CHARACTER_LIMIT_THRESHOLD = 4000 # Rough proxy for tokens
-
 
         total_chars = sum(
             len(m.content)
@@ -63,18 +67,34 @@ class ChatWorkflow:
             )
 
         try:
+            # Clean messages for summarization to avoid tool-call validation errors in Groq/Gemini.
+            # We convert everything to simple Human/AI messages without tool_calls.
+            clean_messages = []
+            for m in messages:
+                content = getattr(m, "content", "")
+                if content:
+                    if m.type == "human":
+                        clean_messages.append(HumanMessage(content=content))
+                    elif m.type == "ai":
+                        clean_messages.append(AIMessage(content=content))
+                    elif m.type == "tool":
+                        # Convert tool output to something the summarizer can use as context
+                        clean_messages.append(HumanMessage(content=f"Tool output: {content}"))
+                
+            if not clean_messages:
+                return {"summary": summary}
+
+            # Use the base (non-tool-bound) LLM for summarization
             response = await self.llm.ainvoke(
-                messages + [HumanMessage(content=summary_message)]
+                clean_messages + [HumanMessage(content=summary_message)]
             )
             new_summary = response.content
         except Exception as e:
             logger.error(f"Summarization failed: {e}")
-            # If summarization fails, we might be over context even for the summary call.
-            # In this case, we just have to drop messages to recover.
             new_summary = summary + " (Summarization failed, some history lost)"
 
+        # Keep only the last 6 messages to preserve more context
         keep_count = 6
-
         delete_messages = [
             RemoveMessage(id=m.id)
             for m in messages[:-keep_count]
@@ -112,14 +132,13 @@ class ChatWorkflow:
             "- Be concise and professional in your responses."
         )
 
-        llm_with_tools = self.llm.bind_tools(self.tools)
-
-        response = await llm_with_tools.ainvoke(
+        # Use the pre-bound LLM with tools
+        response = await self.llm_with_tools.ainvoke(
             [SystemMessage(content=dynamic_system_prompt)] + messages,
             config={"tags": ["user_response"]},
         )
 
-        # Log metadata for debugging if generation issues occur
+        # Log metadata for debugging
         if response.response_metadata:
              logger.debug(f"LLM Response Metadata: {response.response_metadata}")
              if "failed_generation" in response.response_metadata:
@@ -128,25 +147,20 @@ class ChatWorkflow:
         return {"messages": [response]}
 
     def _build(self):
-        # 1. Create the Graph
         workflow = StateGraph(AgentState)
 
-        # 2. Add Nodes
         workflow.add_node("agent", self._call_model)
         workflow.add_node("summarize", self._summarize_conversation)
         workflow.add_node("tools", ToolNode(self.tools))
 
-        # 3. Set Entry Point
         workflow.add_edge(START, "summarize")
         workflow.add_edge("summarize", "agent")
 
-        # 4. Add Conditional Edges (The Cycle)
         workflow.add_conditional_edges(
             "agent",
             tools_condition,
         )
 
-        # 5. Add edge from tools back to summarize
         workflow.add_edge("tools", "summarize")
 
         return workflow.compile(checkpointer=self.checkpointer)
@@ -176,9 +190,7 @@ class ChatWorkflow:
 
 
 if __name__ == "__main__":
-    # For testing export
     from unittest.mock import MagicMock
-
     mock_llm = MagicMock()
     graph = ChatWorkflow(llm=mock_llm, tools=[], system_prompt="")
     graph.export_graph()
