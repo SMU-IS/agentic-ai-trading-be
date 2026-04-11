@@ -1,5 +1,6 @@
+import json
 from operator import itemgetter
-from typing import Any, AsyncGenerator, Dict
+from typing import Any, AsyncGenerator, Set
 
 from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.chat_history import (
@@ -123,7 +124,7 @@ class InfoAgentService:
 
     async def ainvoke(
         self, question: str, session_id: str
-    ) -> AsyncGenerator[Dict[str, Any], None]:
+    ) -> AsyncGenerator[str, None]:
         config = {"configurable": {"session_id": session_id}}
 
         chain_with_history = RunnableWithMessageHistory(
@@ -134,30 +135,124 @@ class InfoAgentService:
         )
 
         logger.info(f"Invoking info agent with question: {question[:50]}...")
+        streamed_ids: Set[Any] = set()
 
         async for event in chain_with_history.astream_events(
             {"question": question},
             config=config,
             version="v2",
         ):
-            kind = event["event"]
+            async for chunk in self._process_event(event, streamed_ids):
+                yield chunk
 
-            if kind == "on_retriever_start":
-                yield {"status": "Searching knowledge base..."}
+    async def _process_event(
+        self, event: dict, streamed_ids: Set[Any]
+    ) -> AsyncGenerator[str, None]:
+        kind = event["event"]
 
-            elif kind == "on_chat_model_stream":
-                chunk = event["data"].get("chunk")
-                if chunk and hasattr(chunk, "content"):
-                    if chunk.content:
-                        yield {"token": chunk.content}
+        if kind == "on_retriever_start":
+            thought_msg = "<thought>Agent M: Searching the knowledge base for receipts...</thought>"
+            data = json.dumps(
+                {
+                    "token": thought_msg,
+                    "reasoning_content": thought_msg,
+                    "status": "searching",
+                }
+            )
+            yield f"data: {data}\n\n"
+        elif kind == "on_retriever_end":
+            documents = event.get("data", {}).get("output", [])
+            if documents:
+                # Format the retrieved chunks for the "Thinking Process" accordion
+                chunks_text = "\n\n".join(
+                    f"--- Source: {doc.metadata.get('source', 'unknown')} ---\n{doc.page_content}"
+                    for doc in documents
+                )
+                thought_msg = f"<thought>Agent M: Retrieved the following sauce from the knowledge base:\n\n{chunks_text}</thought>"
+                data = json.dumps(
+                    {
+                        "token": thought_msg,
+                        "reasoning_content": thought_msg,
+                        "status": "completed",
+                    }
+                )
+                yield f"data: {data}\n\n"
+        elif kind == "on_tool_start":
+            tool_name = event.get("name")
+            inputs = event.get("data", {}).get("input")
+            # Wrap in <thought> for the frontend's MarkdownRenderer
+            thought_msg = f"<thought>Agent M: Accessing {tool_name} with parameters: {json.dumps(inputs)}</thought>"
+            data = json.dumps(
+                {
+                    "token": thought_msg,
+                    "reasoning_content": thought_msg,
+                    "status": "searching",
+                    "tool_name": tool_name,
+                    "inputs": inputs,
+                }
+            )
+            yield f"data: {data}\n\n"
+        elif kind == "on_tool_end":
+            tool_name = event.get("name")
+            output = event.get("data", {}).get("output")
+            # Handle LangChain message objects or raw outputs
+            output_content = (
+                getattr(output, "content", str(output))
+                if not isinstance(output, str)
+                else output
+            )
+            # Wrap result in <thought> as well
+            result_msg = f"<thought>Agent M: {tool_name} returned data. Analysis starting...</thought>"
+            data = json.dumps(
+                {
+                    "token": result_msg,
+                    "reasoning_content": result_msg,
+                    "status": "completed",
+                    "tool_name": tool_name,
+                    "output": output_content,
+                }
+            )
+            yield f"data: {data}\n\n"
+        elif kind == "on_chat_model_stream":
+            async for chunk in self._handle_token_stream(event, streamed_ids):
+                yield chunk
+        elif kind == "on_chat_model_end":
+            self._handle_model_end(event, streamed_ids)
+        elif kind == "on_chain_stream":
+            async for chunk in self._handle_chain_stream(event, streamed_ids):
+                yield chunk
 
-            elif kind == "on_chat_model_end":
-                output = event["data"].get("output")
-                if output:
-                    console.print(
-                        Panel(
-                            Pretty(output),
-                            title="Thinking...",
-                            border_style="green",
-                        )
-                    )
+    async def _handle_token_stream(
+        self, event: dict, streamed_ids: Set[Any]
+    ) -> AsyncGenerator[str, None]:
+        chunk = event["data"].get("chunk")
+        if chunk and hasattr(chunk, "content"):
+            if chunk.content:
+                # Provide token, content, and text for frontend flexibility
+                data = json.dumps(
+                    {
+                        "token": chunk.content,
+                        "content": chunk.content,
+                        "text": chunk.content,
+                    }
+                )
+                yield f"data: {data}\n\n"
+
+    def _handle_model_end(self, event: dict, streamed_ids: Set[Any]):
+        output = event["data"].get("output")
+        if output:
+            console.print(
+                Panel(
+                    Pretty(output),
+                    title="Thinking...",
+                    border_style="green",
+                )
+            )
+
+    async def _handle_chain_stream(
+        self, event: dict, streamed_ids: Set[Any]
+    ) -> AsyncGenerator[str, None]:
+        # Implementation for chain stream if needed
+        # For now, we don't yield anything special here unless specific chain logic is added
+        if False:  # Placeholder for future logic
+            yield ""

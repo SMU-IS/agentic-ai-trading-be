@@ -1,3 +1,4 @@
+import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -65,5 +66,14 @@ async def test_ainvoke_success():
             events.append(event)
 
         assert len(events) == 2
-        assert events[0] == {"status": "Searching knowledge base..."}
-        assert events[1] == {"token": "hello"}
+
+        # Check first event (retriever start thought)
+        expected_thought = (
+            "<thought>Agent M: Searching the knowledge base for receipts...</thought>"
+        )
+        expected_first = f"data: {json.dumps({'token': expected_thought, 'reasoning_content': expected_thought, 'status': 'searching'})}\n\n"
+        assert events[0] == expected_first
+
+        # Check second event (token stream)
+        expected_second = f"data: {json.dumps({'token': 'hello', 'content': 'hello', 'text': 'hello'})}\n\n"
+        assert events[1] == expected_second

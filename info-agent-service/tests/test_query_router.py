@@ -7,8 +7,8 @@ def test_query_endpoint(client, mock_info_agent_service):
 
     # Define a custom mock ainvoke to yield values
     async def mock_ainvoke(question, session_id):
-        yield {"status": "Searching knowledge base..."}
-        yield {"token": "trading is easy"}
+        yield f"data: {json.dumps({'status': 'Searching knowledge base...'})}\n\n"
+        yield f"data: {json.dumps({'token': 'trading is easy'})}\n\n"
 
     mock_info_agent_service.ainvoke = mock_ainvoke
 
