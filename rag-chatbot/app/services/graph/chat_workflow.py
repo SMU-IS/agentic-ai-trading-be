@@ -102,9 +102,9 @@ class ChatWorkflow:
         dynamic_system_prompt = (
             f"{self.system_prompt}\n\n"
             f"### CURRENT SESSION CONTEXT\n{context_block}\n\n"
-            "### CRITICAL RESPONSE RULES\n"
-            "- If you need to use a tool, output ONLY the JSON. No conversational filler.\n"
-            "- If providing a text answer, be concise and refer to the context above."
+            "### RESPONSE GUIDELINES\n"
+            "- If the user's request requires a tool, call the appropriate tool immediately.\n"
+            "- Be concise and professional in your responses."
         )
 
         llm_with_tools = self.llm.bind_tools(self.tools)
