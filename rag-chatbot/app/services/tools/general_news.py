@@ -113,7 +113,14 @@ async def get_general_news(
                 client, query, tickers or [], is_general_market, start_date, end_date
             )
             context = _format_news_results(results)
-            return {"context": context, "results": results}
+            # Only return the context and a small slice of results metadata to keep token count low
+            return {
+                "context": context, 
+                "results": [
+                    {"headline": r.get("metadata", {}).get("headline"), "source": r.get("metadata", {}).get("source_domain")} 
+                    for r in results[:5]
+                ]
+            }
 
     except httpx.HTTPStatusError as exc:
         return {"context": f"API Error: {exc.response.status_code}", "results": []}

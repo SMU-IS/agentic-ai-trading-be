@@ -60,8 +60,7 @@ class ChatWorkflow:
         ):
             return {"summary": summary}
 
-        # Identify messages to summarize: everything after last_summarized_id up to messages[-KEEP_COUNT]
-        # First, find the starting index
+        # Identifying messages to summarize: everything after last_summarized_id up to messages[-KEEP_COUNT]
         start_idx = 0
         if last_summarized_id:
             for i, m in enumerate(messages):
@@ -72,7 +71,9 @@ class ChatWorkflow:
         # Messages to add to summary
         to_summarize = messages[start_idx : -KEEP_COUNT]
         
-        if not to_summarize:
+        # Optimization: Only summarize if we have a significant batch (e.g. 3+ messages)
+        # OR if we are hitting high character counts overall
+        if not to_summarize or (len(to_summarize) < 3 and total_chars < CHARACTER_LIMIT_THRESHOLD):
             return {"summary": summary}
 
         logger.info(
@@ -80,12 +81,23 @@ class ChatWorkflow:
         )
 
         if summary:
-            summary_message = (
-                f"This is a summary of the conversation to date: {summary}\n\n"
-                "Extend the summary by taking into account the NEW messages above.\n"
-                "CRITICAL: Record which tools were called and what their key results were."
-                "\nSTRICT RULE: Output ONLY the summary text."
-            )
+            # If the existing summary is already massive, we need to compress it rather than extend it.
+            # 10,000 chars is roughly 2,500 tokens.
+            if len(summary) > 10000:
+                summary_message = (
+                    f"This is a summary of the conversation to date: {summary}\n\n"
+                    "The current summary is very long. Create a NEW, more condensed summary "
+                    "that includes all key tool results and decisions from both the old summary "
+                    "and these NEW messages above."
+                    "\nSTRICT RULE: Output ONLY the summary text."
+                )
+            else:
+                summary_message = (
+                    f"This is a summary of the conversation to date: {summary}\n\n"
+                    "Extend the summary by taking into account the NEW messages above.\n"
+                    "CRITICAL: Record which tools were called and what their key results were."
+                    "\nSTRICT RULE: Output ONLY the summary text."
+                )
         else:
             summary_message = (
                 "Create a concise summary of the conversation above.\n"

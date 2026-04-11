@@ -20,8 +20,8 @@ async def test_summarize_no_delete(mock_llm):
     """
     workflow = ChatWorkflow(llm=mock_llm, tools=[], system_prompt="test")
     
-    # Create 15 messages (above threshold of 12)
-    messages = [HumanMessage(content=f"msg {i}", id=f"id_{i}") for i in range(15)]
+    # Create 20 messages (above threshold of 12 and optimized batch of 3+)
+    messages = [HumanMessage(content=f"msg {i}", id=f"id_{i}") for i in range(20)]
     
     state = AgentState(
         messages=messages,
@@ -40,9 +40,9 @@ async def test_summarize_no_delete(mock_llm):
     assert result["summary"] == "New Summary"
     assert "last_summarized_id" in result
     # It should have summarized everything except the last 6 messages
-    # to_summarize = messages[0 : -6] -> messages[0:9]
-    # last_summarized_id should be messages[8].id
-    assert result["last_summarized_id"] == "id_8"
+    # to_summarize = messages[0 : -6] -> messages[0:14]
+    # last_summarized_id should be messages[13].id
+    assert result["last_summarized_id"] == "id_13"
     
     # CRITICAL: Ensure no RemoveMessage in result["messages"] (it shouldn't even have "messages" key now)
     assert "messages" not in result

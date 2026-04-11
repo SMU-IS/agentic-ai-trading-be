@@ -71,8 +71,8 @@ async def test_summarize_conversation_no_trigger(agent_graph):
 async def test_summarize_conversation_trigger(agent_graph, mock_llm):
     mock_llm.ainvoke = AsyncMock(return_value=AIMessage(content="New Summary"))
 
-    # Create 15 messages to trigger summarization (threshold is 12)
-    messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(15)]
+    # Create 20 messages to trigger summarization
+    messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(20)]
     state: AgentState = {
         "messages": messages,
         "summary": "Old Summary",
@@ -84,8 +84,8 @@ async def test_summarize_conversation_trigger(agent_graph, mock_llm):
     assert result["summary"] == "New Summary"
     # Incremental summarization doesn't delete messages anymore
     assert "messages" not in result
-    # It should have summarized up to index 8 (15 - 6 - 1 = 8)
-    assert result["last_summarized_id"] == "8"
+    # It should have summarized up to index 13 (20 - 6 - 1 = 13)
+    assert result["last_summarized_id"] == "13"
 
 
 @pytest.mark.asyncio

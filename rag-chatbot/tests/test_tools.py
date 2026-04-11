@@ -269,8 +269,7 @@ async def test_get_general_news_truncation():
         assert result["context"].count("Headline:") == 5
         # Check content is truncated
         assert "[Truncated for brevity]" in result["context"]
-        assert len(result["results"]) == 10 # Raw results should still have all 10
-
+        assert len(result["results"]) == 5 # Raw results are now also limited to 5 to save tokens
 
 @pytest.mark.asyncio
 async def test_get_general_news_http_error():
