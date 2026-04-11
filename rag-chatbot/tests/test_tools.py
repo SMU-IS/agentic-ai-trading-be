@@ -214,6 +214,31 @@ async def test_get_trade_history_list_truncation():
 
 
 @pytest.mark.asyncio
+async def test_get_trade_history_list_with_ticker():
+    # Mock data with different symbols
+    mock_raw = [
+        {"id": "1", "symbol": "AAPL"},
+        {"id": "2", "symbol": "GOOGL"},
+        {"id": "3", "symbol": "AAPL"},
+    ]
+    with patch(
+        "app.services.tools.trade_history_list._fetch_raw_trade_history",
+        new_callable=AsyncMock,
+    ) as mock_fetch:
+        mock_fetch.return_value = mock_raw
+        config = {"metadata": {"user_id": "user123"}}
+        
+        # Search for AAPL only
+        result = await get_trade_history_list.ainvoke(
+            {"after": "2024-01-01", "until": "2024-01-02", "ticker": "AAPL"}, 
+            config=config
+        )
+        assert len(result.orders) == 2
+        assert all(o.symbol == "AAPL" for o in result.orders)
+        assert result.total_count == 2
+
+
+@pytest.mark.asyncio
 async def test_fetch_news_from_api_ticker_query():
     mock_response = [{"metadata": {"headline": "Ticker news"}}]
     mock_resp = MagicMock(spec=httpx.Response)

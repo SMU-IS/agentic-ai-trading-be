@@ -58,7 +58,7 @@ def _format_news_results(results: List[Dict[str, Any]]) -> str:
     for d in results:
         meta = d.get("metadata", {})
         headline = meta.get("headline") or d.get("headline", "News Update")
-        
+
         # Truncate content for each article
         content = (
             d.get("text_content") or meta.get("text_content") or "No content available"
@@ -95,16 +95,9 @@ async def get_general_news(
     Search and analyze real-time financial news, market sentiment, and sector trends.
 
     CRITICAL USAGE RULES:
-    1. Use ONLY for market-related research.
-    2. DO NOT use for meta-questions about conversation history or greetings.
+    1. Use ONLY for market-related research and external news.
+    2. DO NOT use this to check if you (the agent) have traded a stock. Use 'get_trade_history_list' for history.
     3. Pass specific tickers in 'tickers' for better accuracy.
-
-    Args:
-        query (str): The search phrase. Focus on technical events.
-        tickers (List[str], optional): Stock symbols in uppercase (e.g. ["NVDA"]).
-        is_general_market (bool): True if asking about overall market news.
-        start_date (str, optional): Start date for filtering (ISO format).
-        end_date (str, optional): End date for filtering (ISO format).
     """
 
     try:
@@ -115,11 +108,14 @@ async def get_general_news(
             context = _format_news_results(results)
             # Only return the context and a small slice of results metadata to keep token count low
             return {
-                "context": context, 
+                "context": context,
                 "results": [
-                    {"headline": r.get("metadata", {}).get("headline"), "source": r.get("metadata", {}).get("source_domain")} 
+                    {
+                        "headline": r.get("metadata", {}).get("headline"),
+                        "source": r.get("metadata", {}).get("source_domain"),
+                    }
                     for r in results[:5]
-                ]
+                ],
             }
 
     except httpx.HTTPStatusError as exc:

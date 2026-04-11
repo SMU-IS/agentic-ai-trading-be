@@ -49,26 +49,38 @@ def _transform_to_order_summaries(
 
 @tool(args_schema=TradeHistoryRange)
 async def get_trade_history_list(
-    after: str, until: str, config: RunnableConfig
+    after: str, until: str, config: RunnableConfig, ticker: str | None = None
 ) -> TradeHistoryListResponse:
     """
-    Retrieve a list of trades executed within a specific date range.
+    Retrieve a list of past trades/orders executed by the agent.
 
     Use this tool ONLY when:
-    - The user asks to see their trade history or list of orders for a period of time.
-    - Examples: "Show me the trades for the past 1 day", "List my orders from last week".
+    - The user asks about THEIR trades, orders, or transactions (e.g. "Did you buy Google?").
+    - The user wants a list of trades within a date range.
+    - DO NOT use this for general market news or stock price information.
 
     Args:
         after (str): Start date in YYYY-MM-DD format.
         until (str): End date in YYYY-MM-DD format.
+        ticker (str, optional): A specific stock symbol to filter by (e.g. 'GOOGL').
     """
 
-    logger.info(f"Fetching trade history list from {after} to {until}")
+    logger.info(
+        f"Fetching trade history list from {after} to {until} (Ticker: {ticker})"
+    )
     user_id = config.get("metadata", {}).get("user_id", "unknown-user")
     MAX_TRADES = 20
 
     try:
         raw_orders = await _fetch_raw_trade_history(after, until, user_id)
+
+        # Post-filter by ticker if provided
+        if ticker:
+            ticker_upper = ticker.upper()
+            raw_orders = [
+                o for o in raw_orders if o.get("symbol", "").upper() == ticker_upper
+            ]
+
         total_count = len(raw_orders)
 
         truncated = False
@@ -80,10 +92,7 @@ async def get_trade_history_list(
 
         orders = _transform_to_order_summaries(raw_orders)
         return TradeHistoryListResponse(
-            orders=orders, 
-            total_count=total_count, 
-            truncated=truncated,
-            message=message
+            orders=orders, total_count=total_count, truncated=truncated, message=message
         )
 
     except Exception as e:
@@ -91,5 +100,5 @@ async def get_trade_history_list(
         return TradeHistoryListResponse(
             orders=[],
             total_count=0,
-            message=f"Error: Unable to retrieve trade history from {after} to {until}. Reason: {str(e)}"
+            message=f"Error: Unable to retrieve trade history from {after} to {until}. Reason: {str(e)}",
         )
