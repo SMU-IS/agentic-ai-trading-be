@@ -51,9 +51,11 @@ async def test_call_model(agent_graph, mock_llm):
     
     system_msg = sent_msgs[0]
     assert "Test Prompt" in system_msg.content
-    assert "### CURRENT CONTEXT" in system_msg.content
-    assert "test-user" in system_msg.content
+    assert "### CURRENT SESSION INFO" in system_msg.content
+    assert "Today's Date:" in system_msg.content
+    assert "User ID: test-user" in system_msg.content
     assert "Previous summary" in system_msg.content
+    assert "STRICT RULE" in system_msg.content
 
 
 @pytest.mark.asyncio
@@ -115,3 +117,14 @@ def test_workflow_structure(agent_graph):
     assert "agent" in nodes
     assert "tools" in nodes
     assert "summarize" in nodes
+    
+    # Verify edges (simplified check of graph structure)
+    edges = agent_graph.graph.get_graph().edges
+    # Convert edges to a list of (source, target) tuples for easier checking
+    edge_pairs = [(e.source, e.target) for e in edges]
+    
+    # Check for direct tools -> agent edge
+    assert ("tools", "agent") in edge_pairs
+    # Check for start -> summarize -> agent path
+    assert ("__start__", "summarize") in edge_pairs
+    assert ("summarize", "agent") in edge_pairs

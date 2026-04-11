@@ -194,7 +194,7 @@ class ChatWorkflow:
         order_id = metadata.get("order_id")
         current_date = datetime.now().strftime("%A, %B %d, %Y")
 
-        context_lines = [f"- Today's Date: {current_date}", f"- User ID: {user_id}"]
+        context_lines = []
         if summary:
             context_lines.append(f"- COMPLETED ACTIONS & SUMMARY: {summary}")
         if order_id:
@@ -221,14 +221,15 @@ class ChatWorkflow:
                     f"DO NOT call '{tool_name}' again with the same parameters. Move to the next step or conclude."
                 )
 
-        # DYNAMIC SYSTEM PROMPT: Simple and direct context injection to give LLM maximum control
+        # DYNAMIC SYSTEM PROMPT: Clean, single block to give LLM maximum control
         dynamic_system_prompt = (
             f"{self.system_prompt}\n\n"
-            f"### CURRENT CONTEXT\n"
+            f"### CURRENT SESSION INFO\n"
             f"- Today's Date: {current_date}\n"
             f"- User ID: {user_id}\n"
             f"{context_block}\n"
-            f"{loop_prevention_msg}"
+            f"{loop_prevention_msg}\n\n"
+            "STRICT RULE: If you choose to call a tool, output ONLY the tool call. NO PREAMBLE, NO ACKNOWLEDGMENT."
         )
 
         model = (
@@ -267,7 +268,9 @@ class ChatWorkflow:
             tools_condition,
         )
 
-        workflow.add_edge("tools", "summarize")
+        # Optimization: Tool calls should return directly to the agent
+        # Summarization is handled once per user request via the START -> summarize path
+        workflow.add_edge("tools", "agent")
 
         return workflow.compile(checkpointer=self.checkpointer)
 
