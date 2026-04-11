@@ -50,6 +50,7 @@ class GroqStrategy(LLMStrategy):
             temperature=env_config.temperature,
             max_tokens=env_config.max_completion_tokens,
             streaming=True,
+            max_retries=2,
         )
 
 

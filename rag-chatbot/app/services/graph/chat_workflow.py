@@ -114,6 +114,12 @@ class ChatWorkflow:
             config={"tags": ["user_response"]},
         )
 
+        # Log metadata for debugging if generation issues occur
+        if response.response_metadata:
+             logger.debug(f"LLM Response Metadata: {response.response_metadata}")
+             if "failed_generation" in response.response_metadata:
+                 logger.error(f"LLM Failed Generation: {response.response_metadata['failed_generation']}")
+
         return {"messages": [response]}
 
     def _build(self):

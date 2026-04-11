@@ -140,8 +140,21 @@ class AgentBotService:
                 async for chunk in self._process_event(event, streamed_ids):
                     yield chunk
         except Exception as e:
+            # Enhanced logging for Groq/LLM errors
+            error_msg = str(e)
+            
+            # If it's a validation or API error, try to extract more details
+            if hasattr(e, "response") and hasattr(e.response, "json"):
+                try:
+                    details = e.response.json()
+                    logger.error(f"LLM API Error Details: {json.dumps(details)}")
+                    if "error" in details and "message" in details["error"]:
+                        error_msg = details["error"]["message"]
+                except:
+                    pass
+            
             logger.error(f"Streaming Error: {e}", exc_info=True)
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            yield f"data: {json.dumps({'error': error_msg})}\n\n"
         finally:
             yield "data: [DONE]\n\n"
 
