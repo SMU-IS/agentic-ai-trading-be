@@ -30,7 +30,8 @@ class ChatWorkflow:
 
         # Thresholds for summarization
         MESSAGE_COUNT_THRESHOLD = 12
-        CHARACTER_LIMIT_THRESHOLD = 6000  # Rough proxy for tokens
+        CHARACTER_LIMIT_THRESHOLD = 4000 # Rough proxy for tokens
+
 
         total_chars = sum(
             len(m.content)

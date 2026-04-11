@@ -51,13 +51,22 @@ def _format_news_results(results: List[Dict[str, Any]]) -> str:
     if not results:
         return "No relevant news found for the request."
 
+    # Limit to top 5 most relevant news to stay within context
+    results = results[:5]
+
     formatted_news = []
     for d in results:
         meta = d.get("metadata", {})
         headline = meta.get("headline") or d.get("headline", "News Update")
+        
+        # Truncate content for each article
         content = (
             d.get("text_content") or meta.get("text_content") or "No content available"
         )
+        MAX_CONTENT_LENGTH = 800
+        if len(content) > MAX_CONTENT_LENGTH:
+            content = content[:MAX_CONTENT_LENGTH] + "... [Truncated for brevity]"
+
         source = meta.get("source_domain") or "Unknown source"
         timestamp = meta.get("timestamp") or "N/A"
 

@@ -239,6 +239,38 @@ async def test_get_general_news_no_results():
 
 
 @pytest.mark.asyncio
+async def test_get_general_news_truncation():
+    """Test that get_general_news limits results to 5 and truncates content."""
+    # 10 mock results with long content
+    mock_response = [
+        {
+            "metadata": {
+                "headline": f"News {i}",
+                "text_content": "X" * 1500,
+                "source_domain": "source",
+                "timestamp": "2024",
+            }
+        } for i in range(10)
+    ]
+
+    mock_resp = MagicMock(spec=httpx.Response)
+    mock_resp.status_code = 200
+    mock_resp.json = MagicMock(return_value=mock_response)
+    mock_resp.raise_for_status = MagicMock()
+
+    with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
+        mock_post.return_value = mock_resp
+
+        result = await get_general_news.ainvoke({"query": "market"})
+
+        # Check only 5 articles are in the context string
+        assert result["context"].count("Headline:") == 5
+        # Check content is truncated
+        assert "[Truncated for brevity]" in result["context"]
+        assert len(result["results"]) == 10 # Raw results should still have all 10
+
+
+@pytest.mark.asyncio
 async def test_get_general_news_http_error():
     mock_resp = MagicMock(spec=httpx.Response)
     mock_resp.status_code = 500

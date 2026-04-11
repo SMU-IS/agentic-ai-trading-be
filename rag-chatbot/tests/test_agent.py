@@ -83,16 +83,15 @@ async def test_summarize_conversation_trigger(agent_graph, mock_llm):
 async def test_summarize_conversation_trigger_by_length(agent_graph, mock_llm):
     mock_llm.ainvoke = AsyncMock(return_value=AIMessage(content="New Summary"))
 
-    # Create 10 messages but one is very large (total > 6000 chars)
+    # Create 10 messages but one is very large (total > 4000 chars)
     # We need more than 6 total messages to see removal
     messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(9)]
-    messages.append(HumanMessage(content="X" * 7000, id="large"))
+    messages.append(HumanMessage(content="X" * 5000, id="large"))
 
     state: AgentState = {
         "messages": messages,
         "summary": "Old Summary",
     }
-
     result = await agent_graph._summarize_conversation(state)
 
     assert result["summary"] == "New Summary"
