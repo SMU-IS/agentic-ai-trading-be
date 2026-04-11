@@ -86,7 +86,7 @@ def _format_news_results(results: List[Dict[str, Any]]) -> str:
 @tool(args_schema=GeneralNews)
 async def get_general_news(
     query: str,
-    tickers: Optional[List[str]] = [],
+    tickers: Optional[List[str]] = None,
     is_general_market: bool = False,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
