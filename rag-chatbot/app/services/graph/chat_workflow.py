@@ -152,16 +152,25 @@ class ChatWorkflow:
         if summary and len(messages) > KEEP_COUNT:
             start_idx = len(messages) - KEEP_COUNT
             
-            # CRITICAL: An AIMessage with tool_calls must be followed by its ToolMessages.
-            # If our window starts with a ToolMessage, we MUST include the preceding AIMessage.
-            # Similarly, if it starts with an AIMessage that is part of a tool interaction, 
-            # we should try to start at a cleaner boundary (like a HumanMessage).
+            # 1. Ensure we don't start with a ToolMessage or a pending AI tool call
             while start_idx > 0 and (
                 messages[start_idx].type == "tool" or 
                 (messages[start_idx].type == "ai" and hasattr(messages[start_idx], "tool_calls") and messages[start_idx].tool_calls)
             ):
                 start_idx -= 1
             
+            # 2. Further ensure we include the most recent HumanMessage for context if it's nearby
+            # This helps the LLM understand the current "active" user request.
+            temp_idx = start_idx
+            found_human = False
+            # Look back up to 4 more messages for a HumanMessage
+            for i in range(temp_idx, max(-1, temp_idx - 4), -1):
+                if messages[i].type == "human":
+                    start_idx = i
+                    found_human = True
+                    break
+            
+            logger.info(f"Windowing: kept {len(messages) - start_idx} messages (Found Human: {found_human})")
             messages_to_send = messages[start_idx:]
         else:
             messages_to_send = messages

@@ -113,35 +113,42 @@ async def test_call_model_windowing(mock_llm):
 @pytest.mark.asyncio
 async def test_call_model_windowing_safe_boundary(mock_llm):
     """
-    Test that _call_model expands the window to avoid starting with a ToolMessage.
+    Test that _call_model expands the window to avoid starting with a ToolMessage
+    and looks back for the nearest HumanMessage.
     """
     from langchain_core.messages import ToolMessage
     workflow = ChatWorkflow(llm=mock_llm, tools=[], system_prompt="test")
     
-    # 0-13: Some messages
-    # 14: Human
-    # 15: AI (tool call)
-    # 16: Tool result
-    # 17: AI (response)
-    # 18: Human (new query)
-    # 19: AI (tool call)
-    # 20: Tool result
-    messages = [HumanMessage(content=f"msg {i}", id=f"id_{i}") for i in range(15)]
-    messages.append(AIMessage(content="", tool_calls=[{"name": "t", "args": {}, "id": "t1"}], id="ai_tool"))
-    messages.append(ToolMessage(content="result", tool_call_id="t1", id="tool_res"))
-    messages.append(AIMessage(content="Final", id="ai_final"))
-    messages.append(HumanMessage(content="Next", id="human_next"))
-    messages.append(AIMessage(content="", tool_calls=[{"name": "t2", "args": {}, "id": "t2"}], id="ai_tool2"))
-    messages.append(ToolMessage(content="result2", tool_call_id="t2", id="tool_res2"))
+    # 0: Human
+    # 1: AI
+    # 2: Human (target)
+    # 3: AI (tool call)
+    # 4: Tool result
+    # 5: AI (response)
+    # 6: Human (irrelevant)
+    # 7: AI (tool call)
+    # 8: Tool result
+    messages = [
+        HumanMessage(content="H1", id="h1"),
+        AIMessage(content="A1", id="a1"),
+        HumanMessage(content="H2", id="h2"),
+        AIMessage(content="", tool_calls=[{"name": "t", "args": {}, "id": "t1"}], id="ai_t1"),
+        ToolMessage(content="r1", tool_call_id="t1", id="tool_r1"),
+        AIMessage(content="A2", id="a2"),
+        HumanMessage(content="H3", id="h3"),
+        AIMessage(content="", tool_calls=[{"name": "t2", "args": {}, "id": "t2"}], id="ai_t2"),
+        ToolMessage(content="r2", tool_call_id="t2", id="tool_r2"),
+    ]
     
-    # Total messages: 15 + 6 = 21
-    # messages[-6] would be id="ai_tool" (index 15)
-    # But if it were index 16 (ToolMessage), it should expand.
+    # len = 9. KEEP_COUNT = 6. 
+    # start_idx = 9 - 6 = 3 (ai_t1)
+    # ai_t1 has tool_calls -> while loop moves to idx 2 (h2)
+    # for loop starts at temp_idx=2. idx 2 is Human -> start_idx = 2.
     
     state = AgentState(
         messages=messages,
         summary="Context Summary",
-        last_summarized_id="id_10"
+        last_summarized_id="a1"
     )
     
     config = {"configurable": {"thread_id": "test"}, "metadata": {"user_id": "user123"}}
@@ -151,8 +158,6 @@ async def test_call_model_windowing_safe_boundary(mock_llm):
     mock_bound = mock_llm.bind_tools.return_value
     sent_messages = mock_bound.ainvoke.call_args[0][0]
     
-    # The last 6 messages are: ai_tool, tool_res, ai_final, human_next, ai_tool2, tool_res2
-    # This window is actually "safe" because it starts with an AIMessage (though with tool_calls)
-    # Our logic: starts with AI with tool_calls -> expand back.
-    # So it should expand to messages[14] (Human "Next")
-    assert sent_messages[1].content == "msg 14"
+    # Should start with H2 (idx 2)
+    assert sent_messages[1].content == "H2"
+    assert len(sent_messages) == 8 # 1 System + 7 windowed (h2 to tool_r2)

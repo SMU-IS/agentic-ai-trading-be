@@ -135,6 +135,7 @@ class AgentBotService:
 
             # Specific handling for Function Calling failures
             elif "failed to call a function" in technical_error.lower():
+                logger.error(f"CRITICAL FUNCTION CALL ERROR: {technical_error}")
                 user_friendly_error = "I encountered a technical issue while trying to access my tools. Please try rephrasing your request."
 
             # If it's a validation or API error, try to extract more details for logging
