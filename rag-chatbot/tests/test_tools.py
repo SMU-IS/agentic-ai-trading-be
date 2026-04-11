@@ -129,8 +129,9 @@ async def test_get_trade_history_details_failure():
         result = await get_trade_history_details.ainvoke(
             {"order_id": "order123"}, config=config
         )
-        assert "is not a valid Order ID" in result
-        assert "To self-correct" in result
+        # Result is now an OrderDetailsResponse object
+        assert "is not a valid Order ID" in result.reasoning
+        assert "To self-correct" in result.reasoning
 
 
 @pytest.mark.asyncio
@@ -188,8 +189,9 @@ async def test_get_trade_history_list_failure():
         result = await get_trade_history_list.ainvoke(
             {"after": "2024-01-01", "until": "2024-01-02"}, config=config
         )
-        assert "Error: Unable to retrieve trade history from 2024-01-01 to 2024-01-02" in result
-        assert "API Error" in result
+        # Result is now a TradeHistoryListResponse object
+        assert "Error: Unable to retrieve trade history from 2024-01-01 to 2024-01-02" in result.message
+        assert "API Error" in result.message
 
 
 @pytest.mark.asyncio
