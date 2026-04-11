@@ -63,6 +63,8 @@ jobs:
         if: inputs.image-name == 'qdrant-retrieval'
         run: |
           echo "🧪 Running Integration Tests for Qdrant Retrieval..."
+          # Install qdrant-retrieval dependencies first
+          uv sync --frozen
           # Write each service's combined secret as its .env so pydantic-settings
           # picks up real credentials. .env.test then overrides stream names on top.
           echo "${{ secrets.QDRANT_RETRIEVAL_SECRETS }}" > .env
@@ -71,6 +73,12 @@ jobs:
           echo "${{ secrets.EVENT_IDENTIFICATION_SECRETS }}" > ../event-identification-service/.env
           echo "${{ secrets.SENTIMENT_ANALYSIS_SECRETS }}" > ../sentiment-analysis-service/.env
           echo "${{ secrets.NOTIFICATION_ALERT_SECRETS }}" > ../notification-alert/.env
+          # Install each service's dependencies into the shared venv so subprocesses can import them
+          uv pip install -r ../preprocessing-service/requirements.txt
+          uv pip install -r ../ticker-identification-service/requirements.txt
+          uv pip install -r ../event-identification-service/requirements.txt
+          uv pip install -r ../sentiment-analysis-service/requirements.txt
+          uv pip install -r ../notification-alert/requirements.txt
           ENV_FILE=.env.test uv run pytest app/tests/test_pipeline_integration.py -v -s -m integration
       - name: Upload Coverage Report
         if: failure()
