@@ -48,6 +48,18 @@ class TestRedisStreamStorage:
         assert self.fake_r.xlen("custom_stream") == 1
         assert self.fake_r.xlen("test_stream") == 0
 
+    def test_boundary_save_batch_single_item(self):
+        """[BOUNDARY] Batch of one item behaves identically to save()."""
+        self.storage.save_batch([{"id": "reddit:single"}])
+        entries = self.fake_r.xrange("test_stream")
+        assert len(entries) == 1
+        assert json.loads(entries[0][1]["data"])["id"] == "reddit:single"
+
+    def test_boundary_large_batch(self):
+        """[BOUNDARY] Large batch (1000 items) all written atomically via pipeline."""
+        self.storage.save_batch([{"id": f"reddit:{i}"} for i in range(1000)])
+        assert len(self.fake_r.xrange("test_stream", count=1001)) == 1000
+
     # CONTEXT PATH -------------------------------------------------------------
 
     def test_context_non_ascii_content_preserved(self):
@@ -56,9 +68,23 @@ class TestRedisStreamStorage:
         entries = self.fake_r.xrange("test_stream")
         assert json.loads(entries[0][1]["data"])["content"] == "日本語テスト"
 
-    def test_context_save_batch_single_item(self):
-        """[CONTEXT] Batch of one item behaves identically to save()."""
-        self.storage.save_batch([{"id": "reddit:single"}])
+    def test_context_nested_dict_preserved(self):
+        """[CONTEXT] Nested dict structure is preserved through serialisation."""
+        item = {"id": "reddit:nested", "content": {"title": "Hello", "body": "World"}}
+        self.storage.save(item)
         entries = self.fake_r.xrange("test_stream")
-        assert len(entries) == 1
-        assert json.loads(entries[0][1]["data"])["id"] == "reddit:single"
+        saved = json.loads(entries[0][1]["data"])
+        assert saved["content"]["title"] == "Hello"
+        assert saved["content"]["body"] == "World"
+
+    def test_context_multiple_saves_accumulate(self):
+        """[CONTEXT] Multiple save() calls each append a new entry."""
+        for i in range(3):
+            self.storage.save({"id": f"reddit:{i}"})
+        assert len(self.fake_r.xrange("test_stream")) == 3
+
+    def test_context_save_and_save_batch_use_same_stream(self):
+        """[CONTEXT] save() and save_batch() both write to the same stream key."""
+        self.storage.save({"id": "reddit:a"})
+        self.storage.save_batch([{"id": "reddit:b"}, {"id": "reddit:c"}])
+        assert len(self.fake_r.xrange("test_stream")) == 3
