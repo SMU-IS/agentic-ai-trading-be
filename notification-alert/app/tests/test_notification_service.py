@@ -1,86 +1,129 @@
-import json
 import asyncio
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 
 def _run(coro):
     return asyncio.run(coro)
 
 
-def _make_ws(fail_on_send=False):
-    ws = MagicMock()
-    ws.send_text = AsyncMock(side_effect=Exception("disconnected") if fail_on_send else None)
-    ws.accept = AsyncMock()
-    ws.receive_text = AsyncMock()
-    return ws
+def _make_test_client():
+    from app.services.notification_service import router
+    app = FastAPI()
+    app.include_router(router)
+    return TestClient(app)
 
 
 class TestNotifyUsers:
 
-    @pytest.fixture(autouse=True)
-    def _clear_connections(self):
-        from app.services.notification_service import connections
-        connections.clear()
-        yield
-        connections.clear()
-
     # HAPPY PATH ---------------------------------------------------------------
 
-    def test_happy_single_connection_delivered(self):
-        """[HAPPY] Message delivered to one client; returns True."""
-        from app.services.notification_service import notify_users, connections
-        ws = _make_ws()
-        connections.append(ws)
-        result = _run(notify_users({"type": "NEWS_RECEIVED", "id": "1"}))
+    def test_happy_news_received_calls_broadcast(self):
+        """[HAPPY] NEWS_RECEIVED routes to ws_manager.broadcast with the full payload."""
+        from app.services.notification_service import notify_users
+        payload = {"type": "NEWS_RECEIVED", "id": "1"}
+        with patch("app.services.notification_service.ws_manager") as mock_wm:
+            mock_wm.broadcast = AsyncMock(return_value=True)
+            result = _run(notify_users(payload))
         assert result is True
-        ws.send_text.assert_awaited_once_with(
-            json.dumps({"type": "NEWS_RECEIVED", "id": "1"})
-        )
+        mock_wm.broadcast.assert_awaited_once_with(payload)
 
-    def test_happy_multiple_connections_all_receive(self):
-        """[HAPPY] All connected clients receive the same payload."""
-        from app.services.notification_service import notify_users, connections
-        ws1, ws2, ws3 = _make_ws(), _make_ws(), _make_ws()
-        connections.extend([ws1, ws2, ws3])
-        assert _run(notify_users({"type": "PING"})) is True
-        for ws in [ws1, ws2, ws3]:
-            ws.send_text.assert_awaited_once()
+    def test_happy_signal_generated_calls_broadcast(self):
+        """[HAPPY] SIGNAL_GENERATED routes to ws_manager.broadcast."""
+        from app.services.notification_service import notify_users
+        with patch("app.services.notification_service.ws_manager") as mock_wm:
+            mock_wm.broadcast = AsyncMock(return_value=True)
+            result = _run(notify_users({"type": "SIGNAL_GENERATED", "signal_id": "s1"}))
+        assert result is True
+        mock_wm.broadcast.assert_awaited_once()
 
-    def test_happy_payload_serialised_as_json(self):
-        """[HAPPY] Non-ASCII payload survives JSON serialisation round-trip."""
-        from app.services.notification_service import notify_users, connections
-        ws = _make_ws()
-        connections.append(ws)
-        payload = {"type": "NEWS_RECEIVED", "headline": "日本語"}
-        _run(notify_users(payload))
-        assert json.loads(ws.send_text.call_args[0][0]) == payload
+    def test_happy_trade_placed_sends_to_user(self):
+        """[HAPPY] TRADE_PLACED routes to ws_manager.send_to_user with the given user_id."""
+        from app.services.notification_service import notify_users
+        payload = {"type": "TRADE_PLACED", "order": {}}
+        with patch("app.services.notification_service.ws_manager") as mock_wm:
+            mock_wm.send_to_user = AsyncMock(return_value=True)
+            result = _run(notify_users(payload, user_id="user1"))
+        assert result is True
+        mock_wm.send_to_user.assert_awaited_once_with("user1", payload)
 
     # BOUNDARY PATH ------------------------------------------------------------
 
-    def test_boundary_no_connections_returns_false(self):
-        """[BOUNDARY] Empty connections list → returns False immediately."""
+    def test_boundary_trade_placed_unknown_user_returns_false(self):
+        """[BOUNDARY] TRADE_PLACED for an unconnected user_id returns False."""
         from app.services.notification_service import notify_users
-        assert _run(notify_users({"type": "TEST"})) is False
+        with patch("app.services.notification_service.ws_manager") as mock_wm:
+            mock_wm.send_to_user = AsyncMock(return_value=False)
+            result = _run(notify_users({"type": "TRADE_PLACED"}, user_id="nobody"))
+        assert result is False
 
     # SAD PATH -----------------------------------------------------------------
 
-    def test_sad_failed_connection_removed_good_one_kept(self):
-        """[SAD] Dead WebSocket is pruned; healthy client stays in connections."""
-        from app.services.notification_service import notify_users, connections
-        good = _make_ws()
-        bad = _make_ws(fail_on_send=True)
-        connections.extend([good, bad])
-        result = _run(notify_users({"type": "TEST"}))
+    def test_sad_broadcast_dead_connections_returns_true(self):
+        """[SAD] broadcast returns True even after pruning dead connections (ws_manager contract)."""
+        from app.services.notification_service import notify_users
+        with patch("app.services.notification_service.ws_manager") as mock_wm:
+            mock_wm.broadcast = AsyncMock(return_value=True)
+            result = _run(notify_users({"type": "NEWS_RECEIVED"}))
         assert result is True
-        assert bad not in connections
-        assert good in connections
 
-    def test_sad_all_connections_failed_returns_false(self):
-        """[SAD] All sends raise → returns False; connections emptied."""
-        from app.services.notification_service import notify_users, connections
-        connections.extend([_make_ws(fail_on_send=True), _make_ws(fail_on_send=True)])
-        result = _run(notify_users({"type": "TEST"}))
-        assert result is False
-        assert len(connections) == 0
 
+class TestGetCurrentUser:
+
+    def test_happy_header_present_returns_user_id(self):
+        """[HAPPY] x-user-id header present → 200 with user_id in response."""
+        client = _make_test_client()
+        resp = client.get("/user", headers={"x-user-id": "alice"})
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["status"] == "success"
+        assert data["user_id"] == "alice"
+
+    def test_sad_header_missing_returns_422(self):
+        """[SAD] Missing x-user-id header → FastAPI returns 422 Unprocessable Entity."""
+        client = _make_test_client()
+        resp = client.get("/user")
+        assert resp.status_code == 422
+
+
+class TestWebSocketEndpoint:
+
+    def test_happy_websocket_connects_and_disconnects(self):
+        """[HAPPY] WebSocket with valid user_id connects and disconnects cleanly."""
+        client = _make_test_client()
+        with patch("app.services.notification_service.ws_manager") as mock_wm:
+            mock_wm.connect = AsyncMock()
+            mock_wm.disconnect = MagicMock()
+            with client.websocket_connect("/ws/notifications?user_id=user42"):
+                pass
+        mock_wm.connect.assert_awaited_once()
+        mock_wm.disconnect.assert_called_once()
+
+    def test_sad_websocket_empty_user_id_skips_connect(self):
+        """[SAD] Empty user_id → server closes with 4001 without calling ws_manager.connect."""
+        client = _make_test_client()
+        with patch("app.services.notification_service.ws_manager") as mock_wm:
+            mock_wm.connect = AsyncMock()
+            try:
+                with client.websocket_connect("/ws/notifications?user_id="):
+                    pass
+            except Exception:
+                pass
+        mock_wm.connect.assert_not_awaited()
+
+    def test_sad_websocket_cancelled_error_disconnects_user(self):
+        """[SAD] asyncio.CancelledError during receive_text calls disconnect and re-raises."""
+        from app.services.notification_service import websocket_endpoint
+        mock_ws = AsyncMock()
+        mock_ws.accept = AsyncMock()
+        mock_ws.receive_text = AsyncMock(side_effect=asyncio.CancelledError())
+
+        with patch("app.services.notification_service.ws_manager") as mock_wm:
+            mock_wm.connect = AsyncMock()
+            mock_wm.disconnect = MagicMock()
+            with pytest.raises(asyncio.CancelledError):
+                _run(websocket_endpoint(mock_ws, "user99"))
+
+        mock_wm.disconnect.assert_called_once()
