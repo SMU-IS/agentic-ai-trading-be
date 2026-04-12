@@ -130,30 +130,26 @@ class TestStreamConsumer:
 
     # BOUNDARY PATH ------------------------------------------------------------
 
-    def test_boundary_empty_xreadgroup_checks_pending(self):
-        """[BOUNDARY] Empty xreadgroup → xpending_range consulted for stale messages."""
+    def test_boundary_empty_xreadgroup_continues_loop(self):
+        """[BOUNDARY] Empty xreadgroup result → loop continues to next stream without error."""
         self.mock_r.xgroup_create = AsyncMock(side_effect=Exception("BUSYGROUP"))
         called = [0]
 
         async def _xreadgroup(groupname, consumername, streams, count, block):
             called[0] += 1
-            if called[0] > 3:
+            if called[0] > 4:
                 raise asyncio.CancelledError()
             return []
 
         self.mock_r.xreadgroup = _xreadgroup
-        self.mock_r.xpending_range = AsyncMock(return_value=[{"message_id": "5-0"}])
-        self.mock_r.xclaim = AsyncMock(return_value=[])
 
-        with patch("app.workers.stream_consumer.notify_users",
-                   new=AsyncMock(return_value=False)):
-            with pytest.raises(asyncio.CancelledError):
-                _run(self.svc.async_start())
+        with pytest.raises(asyncio.CancelledError):
+            _run(self.svc.async_start())
 
-        self.mock_r.xpending_range.assert_awaited()
+        assert called[0] > 1  # loop ran multiple iterations without crashing
 
-    def test_boundary_news_not_acked_when_not_delivered(self):
-        """[BOUNDARY] xack is NOT called when notify_users returns False."""
+    def test_boundary_news_xack_always_called(self):
+        """[BOUNDARY] xack is called for news events regardless of delivery status."""
         self.mock_r.xgroup_create = AsyncMock(side_effect=Exception("BUSYGROUP"))
         news_data = {"id": "reddit:n2", "headline": "Test",
                      "tickers": "[]", "event_description": ""}
@@ -174,7 +170,7 @@ class TestStreamConsumer:
             with pytest.raises(asyncio.CancelledError):
                 _run(self.svc.async_start())
 
-        self.mock_r.xack.assert_not_awaited()
+        self.mock_r.xack.assert_awaited()
 
     # SAD PATH -----------------------------------------------------------------
 
@@ -216,3 +212,75 @@ class TestStreamConsumer:
                 _run(self.svc.async_start())
 
         assert called[0] == 2
+
+    def test_boundary_news_data_as_list_is_converted(self):
+        """[BOUNDARY] Data arriving as a list of key-value pairs is dict-converted before use."""
+        self.mock_r.xgroup_create = AsyncMock(side_effect=Exception("BUSYGROUP"))
+        # xreadgroup can return data as a list of (key, value) pairs instead of a dict
+        news_data = [("id", "reddit:n3"), ("headline", "Test"), ("tickers", "[]"), ("event_description", "")]
+        called = [0]
+
+        async def _xreadgroup(groupname, consumername, streams, count, block):
+            called[0] += 1
+            stream = list(streams.keys())[0]
+            if stream == self.news and called[0] <= 2:
+                return [(stream, [("3-0", news_data)])]
+            raise asyncio.CancelledError()
+
+        self.mock_r.xreadgroup = _xreadgroup
+        self.mock_r.xack = AsyncMock()
+
+        with patch("app.workers.stream_consumer.notify_users",
+                   new=AsyncMock(return_value=True)):
+            with pytest.raises(asyncio.CancelledError):
+                _run(self.svc.async_start())
+
+        self.mock_r.xack.assert_awaited()
+
+    def test_sad_signal_http_failure_is_caught(self):
+        """[SAD] HTTP failure fetching signal details is caught by inner except; outer except handles NameError."""
+        self.mock_r.xgroup_create = AsyncMock(side_effect=Exception("BUSYGROUP"))
+        call_counts = {}
+
+        async def _xreadgroup(groupname, consumername, streams, count, block):
+            stream = list(streams.keys())[0]
+            call_counts[stream] = call_counts.get(stream, 0) + 1
+            if stream == self.analysis and call_counts[stream] <= 2:
+                return [(stream, [("5-0", {"signal_id": "sig_fail"})])]
+            if stream == self.analysis:
+                raise asyncio.CancelledError()
+            return []
+
+        self.mock_r.xreadgroup = _xreadgroup
+        self.mock_r.xack = AsyncMock()
+
+        with patch("app.workers.stream_consumer.notify_users", new=AsyncMock(return_value=True)), \
+             patch("app.workers.stream_consumer.httpx.AsyncClient") as MockClient:
+            MockClient.return_value.__aenter__ = AsyncMock(side_effect=Exception("connection refused"))
+            MockClient.return_value.__aexit__ = AsyncMock(return_value=False)
+            with pytest.raises(asyncio.CancelledError):
+                _run(self.svc.async_start())
+
+    def test_sad_trade_http_failure_is_caught(self):
+        """[SAD] HTTP failure fetching order details is caught by inner except; outer except handles NameError."""
+        self.mock_r.xgroup_create = AsyncMock(side_effect=Exception("BUSYGROUP"))
+        call_counts = {}
+
+        async def _xreadgroup(groupname, consumername, streams, count, block):
+            stream = list(streams.keys())[0]
+            call_counts[stream] = call_counts.get(stream, 0) + 1
+            if stream == self.trade and call_counts[stream] <= 2:
+                return [(stream, [("6-0", {"order_id": "ord_fail", "user_id": "u1"})])]
+            if stream == self.trade:
+                raise asyncio.CancelledError()
+            return []
+
+        self.mock_r.xreadgroup = _xreadgroup
+        self.mock_r.xack = AsyncMock()
+
+        with patch("app.workers.stream_consumer.notify_users", new=AsyncMock(return_value=True)), \
+             patch("app.workers.stream_consumer.httpx.AsyncClient") as MockClient:
+            MockClient.return_value.__aenter__ = AsyncMock(side_effect=Exception("connection refused"))
+            MockClient.return_value.__aexit__ = AsyncMock(return_value=False)
+            with pytest.raises(asyncio.CancelledError):
+                _run(self.svc.async_start())

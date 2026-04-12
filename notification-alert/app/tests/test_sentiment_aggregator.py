@@ -75,7 +75,7 @@ class TestSentimentAggregator:
 
         hset_call = self.mock_r.hset.call_args
         assert "reddit:xyz" in hset_call[0][0]
-        assert hset_call[0][1] == "vectorised_timestamp"
+        assert hset_call[0][1] == "aggregator_timestamp"
 
     # BOUNDARY PATH ------------------------------------------------------------
 
@@ -104,6 +104,82 @@ class TestSentimentAggregator:
         self.mock_r.xgroup_create = AsyncMock(side_effect=Exception("WRONGTYPE"))
         with pytest.raises(Exception, match="WRONGTYPE"):
             _run(self.svc.create_group())
+
+    def test_happy_source_set_when_subreddit_present(self):
+        """[HAPPY] subreddit in metadata → source field is prefixed with 'reddit:'."""
+        ticker_meta = {"AAPL": {"event_type": "NEWS", "sentiment_score": 0.5,
+                                "event_description": "", "sentiment_reasoning": ""}}
+        data = {
+            "ticker_metadata": json.dumps(ticker_meta),
+            "id": '"reddit:sub1"',
+            "metadata": json.dumps({"subreddit": "investing"}),
+        }
+        self.mock_r.xgroup_create = AsyncMock(side_effect=Exception("BUSYGROUP"))
+        self.mock_r.xreadgroup = AsyncMock(side_effect=[
+            [("sentiment_stream", [("1700000000000-0", data)])],
+            asyncio.CancelledError(),
+        ])
+        self.mock_r.hset = AsyncMock()
+        self.mock_r.xadd = AsyncMock()
+        self.mock_r.xack = AsyncMock()
+
+        with pytest.raises(asyncio.CancelledError):
+            _run(self.svc.async_start())
+
+        added = self.mock_r.xadd.call_args[0][1]
+        assert added["source"] == "reddit:investing"
+
+    def test_boundary_xclaim_results_are_processed(self):
+        """[BOUNDARY] When xclaim returns claimed messages, they are fully processed."""
+        ticker_meta = {"GOOG": {"event_type": "NEWS", "sentiment_score": 0.7,
+                                "event_description": "", "sentiment_reasoning": ""}}
+        claimed_data = [("1700000000001-0", {"ticker_metadata": json.dumps(ticker_meta),
+                                              "id": '"reddit:claim1"'})]
+
+        call_num = [0]
+
+        async def _xreadgroup(*args, **kwargs):
+            call_num[0] += 1
+            if call_num[0] == 1:
+                return []
+            raise asyncio.CancelledError()
+
+        self.mock_r.xgroup_create = AsyncMock(side_effect=Exception("BUSYGROUP"))
+        self.mock_r.xreadgroup = _xreadgroup
+        self.mock_r.xpending_range = AsyncMock(
+            return_value=[{"message_id": "1700000000001-0"}]
+        )
+        self.mock_r.xclaim = AsyncMock(return_value=claimed_data)
+        self.mock_r.hset = AsyncMock()
+        self.mock_r.xadd = AsyncMock()
+        self.mock_r.xack = AsyncMock()
+
+        with pytest.raises(asyncio.CancelledError):
+            _run(self.svc.async_start())
+
+        self.mock_r.xadd.assert_awaited()
+        self.mock_r.xack.assert_awaited()
+
+    def test_boundary_xclaim_empty_result_continues_loop(self):
+        """[BOUNDARY] xclaim returning [] leaves messages empty; loop continues without processing."""
+        call_num = [0]
+
+        async def _xreadgroup(*args, **kwargs):
+            call_num[0] += 1
+            if call_num[0] == 1:
+                return []
+            raise asyncio.CancelledError()
+
+        self.mock_r.xgroup_create = AsyncMock(side_effect=Exception("BUSYGROUP"))
+        self.mock_r.xreadgroup = _xreadgroup
+        self.mock_r.xpending_range = AsyncMock(return_value=[{"message_id": "1-0"}])
+        self.mock_r.xclaim = AsyncMock(return_value=[])  # empty → else: messages = []
+        self.mock_r.xadd = AsyncMock()
+
+        with pytest.raises(asyncio.CancelledError):
+            _run(self.svc.async_start())
+
+        self.mock_r.xadd.assert_not_awaited()
 
     def test_sad_malformed_ticker_metadata_does_not_crash(self):
         """[SAD] Bad JSON in ticker_metadata is caught; loop continues."""
