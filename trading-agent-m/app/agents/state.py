@@ -7,6 +7,7 @@ from enum import Enum
 class RiskProfile(str, Enum):
     CONSERVATIVE = "conservative"
     AGGRESSIVE   = "aggressive"
+    CUSTOM      = "custom"
 
 class Signal(BaseModel):
     signal_id: str
@@ -403,9 +404,11 @@ class AgentState(TypedDict):
     conservative_adj_order_details: RiskAdjResult
     should_execute: NotRequired[bool]
 
-    order_list:     NotRequired[list[RiskAdjResult]]
+    standard_order_list: NotRequired[list[RiskAdjResult]]  # set by risk_adjust
+    profile_order_list:  NotRequired[list[RiskAdjResult]]  # set by profile_reasoning
+    order_list:          NotRequired[list[RiskAdjResult]]  # set by merge_orders (combined)
     # Save to db
-    execution_results:  NotRequired[list[dict]]
+    execution_results:   NotRequired[list[dict]]
     all_conflict_resolutions: NotRequired[list[dict]]
 
 

@@ -94,6 +94,11 @@ async def node_risk_adjust_trade(state: AgentState) -> AgentState:
     Fetches all users per profile, evaluates risk concurrently,
     and stores results keyed by profile in state.
     """
+    # If reasoning returned HOLD, skip evaluation — merge_orders handles the rest
+    if not state.get("has_trade_opportunity", False):
+        print("   [🛡️ Risk Layer] Skipping — reasoning returned HOLD")
+        return {"standard_order_list": [], "all_conflict_resolutions": []}
+
     order_details: TradingDecision = state.get("order_details")
     signal_id:     str             = state.get("signal_id", "")
     market_data:   MarketData      = state.get("market_data")
@@ -136,10 +141,10 @@ async def node_risk_adjust_trade(state: AgentState) -> AgentState:
 
     print(f"   [🛡️ Risk Layer] should_execute={should_execute}")
 
-    state["should_execute"] = should_execute
-    state["order_list"] = order_list
-    state["all_conflict_resolutions"] = [x["conflict_resolution"] for x in order_list]
-    return state
+    return {
+        "standard_order_list":      order_list,
+        "all_conflict_resolutions": [x["conflict_resolution"] for x in order_list],
+    }
 
 async def fetch_accounts_by_profile(profile: RiskProfile) -> List[dict]:
     """
@@ -204,7 +209,7 @@ async def resolve_conflicting_position(
                     "symbol": symbol,
                     "intended_side": side.lower(),
                     "intended_qty": qty,
-                    "auto_resolve": True,
+                    "auto_resolve": False, # just check for conflicts, don't auto-resolve here
                 },
                 headers={"x-user-id": user_id}
             )

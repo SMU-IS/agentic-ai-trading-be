@@ -190,6 +190,7 @@ class SignalResponse(BaseModel):
 class RiskProfile(str, Enum):
     aggressive = "aggressive"
     conservative = "conservative"
+    custom = "custom"
 
 class UpdateRiskProfileRequest(BaseModel):
     risk_profile: RiskProfile
@@ -199,3 +200,4 @@ class UpdateAgentSettingsRequest(BaseModel):
     reddit_enabled:      Optional[bool]        = None
     tradingview_enabled: Optional[bool]        = None
     reddit_forums:       Optional[List[str]]   = None
+    custom_prompt:       Optional[str]         = None

@@ -221,13 +221,15 @@ class MongoDBClient:
         if not doc:
             raise RuntimeError(f"No active account found for user_id={user_id}")
         settings = doc.get("agent_setting") or {}
-        return {
+        result = {
             "user_id":              user_id,
             "risk_profile":         doc.get("risk_profile"),
             "reddit_enabled":       settings.get("reddit_enabled", False),
             "tradingview_enabled":  settings.get("tradingview_enabled", False),
             "reddit_forums":        settings.get("reddit_forums", []),
+            "custom_prompt":        settings.get("custom_prompt", None),
         }
+        return result
 
     # For trading-agent to run trades
     def get_all_trading_accounts(self) -> list[dict]:
