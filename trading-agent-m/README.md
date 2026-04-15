@@ -145,3 +145,4 @@ Developed by **Mvidia (Team 2)**, IS484 Project Experience in collaboration with
 <a href="https://www.linkedin.com/in/zi-you-foo"><img src="https://github.com/user-attachments/assets/506dbced-5709-4477-978a-c0fb12ce7aec" width="80" title="Foo Zi You"></a>
 
 deploy - update langsmith
+deploy - update env
