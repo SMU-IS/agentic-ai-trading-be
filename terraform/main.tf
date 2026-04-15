@@ -213,6 +213,7 @@ resource "helm_release" "kong" {
 
   values = [
     <<-EOT
+    replicaCount: 2
     ingressController:
       enabled: true
       installCRDs: false
