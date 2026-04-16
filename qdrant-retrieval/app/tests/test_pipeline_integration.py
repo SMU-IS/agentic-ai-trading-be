@@ -65,7 +65,6 @@ from pathlib import Path
 
 import pytest
 import pytest_asyncio
-import redis
 import redis.asyncio as aioredis
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointIdsList
@@ -91,14 +90,14 @@ NOTIF_NOTIFICATION_STREAM = "test:news_notification_stream"
 NEWS_STREAM = "test:raw_news_stream"
 
 POLL_INTERVAL_S  = 3
-MAX_WAIT_S       = 120
+MAX_WAIT_S       = 60
 SERVICE_BOOT_S   = 60   # max time to wait for all services to be alive
 
 
 # ── Safety guard ──────────────────────────────────────────────────────────────
 @pytest.fixture(scope="session", autouse=True)
 def _require_env_test():
-    assert os.environ.get("ENV_FILE", "").strip() == ".env.test", \
+    assert os.environ.get("ENV_FILE") == ".env.test", \
         "Integration test requires ENV_FILE=.env.test to avoid writing to production streams"
 
 
@@ -145,29 +144,6 @@ def pipeline_services():
         )
         processes.append((name, proc))
         print(f"🚀 Started {name} (pid {proc.pid})")
-
-    # Flush leftover test streams from previous runs to prevent stale messages
-    # from being processed before the test post is injected
-    _r = redis.Redis(
-        host=_TEST_ENV["REDIS_HOST"],
-        port=int(_TEST_ENV["REDIS_PORT"]),
-        password=_TEST_ENV["REDIS_PASSWORD"],
-        decode_responses=True,
-    )
-    test_streams = [
-        "test:raw_news_stream",
-        "test:preproc_redis_stream",
-        "test:ticker_redis_stream",
-        "test:event_redis_stream",
-        "test:sentiment_redis_stream",
-        "test:aggregator_redis_stream",
-        "test:news_aggregator_stream",
-        "test:news_notification_stream",
-    ]
-    for stream in test_streams:
-        _r.delete(stream)
-    _r.close()
-    print("🧹 Flushed leftover test streams")
 
     # Give services time to boot, then check none crashed
     time.sleep(SERVICE_BOOT_S)
@@ -428,4 +404,3 @@ async def test_full_pipeline(pipeline_services, r: aioredis.Redis):
         print(f"⚠️ Qdrant cleanup failed (manual deletion may be needed): {e}")
 
     print("✅ Cleanup done — dedup keys expire in 60s")
- 
