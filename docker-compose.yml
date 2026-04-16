@@ -1,0 +1,38 @@
+include:
+  - ./event-identification-service/docker-compose.yml
+  - ./info-agent-service/docker-compose.yml
+  - ./metrics-tracker/docker-compose.yml
+  - ./news-aggregator-service/docker-compose.yml
+  - ./news-scraper-tradingview/docker-compose.yml
+  - ./news-scraper/docker-compose.yml
+  - ./notification-alert/docker-compose.yml
+  - ./preprocessing-service/docker-compose.yml
+  - ./qdrant-retrieval/docker-compose.yml
+  - ./rag-chatbot/docker-compose.yml
+  - ./sentiment-analysis-service/docker-compose.yml
+  - ./ticker-identification-service/docker-compose.yml
+  - ./trading-agent-m/docker-compose.yml
+  - ./trading-service/docker-compose.yml
+  - ./user-info/docker-compose.yml
+
+services:
+  kong:
+    image: kong:3.4
+    volumes:
+      - ./kong.yml:/usr/local/kong/declarative/kong.yml
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+    ports:
+      - "8000:8000"
+      - "8443:8443"
+      - "8001:8001"
+      - "8444:8444"
+
+  redis:
+    image: redis:alpine
