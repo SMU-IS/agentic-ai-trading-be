@@ -150,6 +150,25 @@ class TestRedditStreamService:
         self.service.run(["stocks"], stop_event)
         self.storage.save.assert_not_called()
 
+    @patch("time.sleep", return_value=None)
+    def test_boundary_run_skips_post_with_preproc_dedup_key(self, _sleep):
+        """[BOUNDARY] Post with preproc_dedup key but no post_timestamps key is skipped."""
+        stop_event = threading.Event()
+        post = _make_post(post_id="preproc_seen")
+        self.redis.set("preproc_dedup:preproc_seen", "1")
+
+        def _gen(*args, **kwargs):
+            yield post
+            stop_event.set()
+            return iter([])
+
+        subreddit_mock = MagicMock()
+        subreddit_mock.stream.submissions.side_effect = _gen
+        self.reddit.subreddit.return_value = subreddit_mock
+
+        self.service.run(["stocks"], stop_event)
+        self.storage.save.assert_not_called()
+
     # SAD PATH -----------------------------------------------------------------
 
     @patch("time.sleep", return_value=None)

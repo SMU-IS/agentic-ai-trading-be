@@ -38,7 +38,7 @@ async def test_save_new_message_success(storage, mock_redis):
 
     assert msg_id == "1234567890-0"
     mock_redis.set.assert_called_once_with(
-        "preproc_dedup:post_001", "1", nx=True, ex=60 * 60 * 24 * 5
+        "preproc_dedup:post_001", "1", nx=True, ex=60 * 60 * 24 * 4
     )
     mock_redis.xadd.assert_called_once()
 
@@ -81,7 +81,7 @@ async def test_save_missing_id_proceeds_with_none_key(storage, mock_redis):
     # Code does NOT return None — it continues with post_id=None
     assert msg_id == "1234567890-0"
     mock_redis.set.assert_called_once_with(
-        "preproc_dedup:None", "1", nx=True, ex=60 * 60 * 24 * 5
+        "preproc_dedup:None", "1", nx=True, ex=60 * 60 * 24 * 4
     )
 
 

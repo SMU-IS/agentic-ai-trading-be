@@ -145,6 +145,18 @@ class TestRedditBatchService:
         self.service.run(["test"], days=5, batch_size=50)
         self.storage.save_batch.assert_not_called()
 
+    @patch("time.sleep", return_value=None)
+    def test_boundary_preproc_dedup_key_skipped(self, _sleep):
+        """[BOUNDARY] Post with preproc_dedup key but no post_timestamps key is skipped."""
+        post = _make_post(post_id="preproc_seen")
+        self.redis.set("preproc_dedup:preproc_seen", "1")
+        subreddit_mock = MagicMock()
+        subreddit_mock.new.return_value = [post]
+        self.reddit.subreddit.return_value = subreddit_mock
+
+        self.service.run(["test"], days=5, batch_size=50)
+        self.storage.save_batch.assert_not_called()
+
     # SAD PATH -----------------------------------------------------------------
 
     @patch("time.sleep", return_value=None)
