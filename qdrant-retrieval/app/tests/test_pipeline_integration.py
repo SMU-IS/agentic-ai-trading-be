@@ -404,3 +404,4 @@ async def test_full_pipeline(pipeline_services, r: aioredis.Redis):
         print(f"⚠️ Qdrant cleanup failed (manual deletion may be needed): {e}")
 
     print("✅ Cleanup done — dedup keys expire in 60s")
+ 
