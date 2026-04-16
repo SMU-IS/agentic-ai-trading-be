@@ -6,6 +6,7 @@ Run from metrics-tracker/:
     pytest
 """
 
+import json
 import pytest
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -336,3 +337,90 @@ def test_parse_dt_naive_gets_utc():
     from datetime import timezone
     dt = _parse_dt("2026-01-01T10:00:00")
     assert dt.tzinfo == timezone.utc
+
+
+# ─── Service window borderline tests ─────────────────────────────────────────
+# Service window: [now - 1h, now - 2min]
+# Posts scraped outside this range must NOT appear in service counts.
+
+def _get_service_counts(mock_redis):
+    """Extract the services snapshot written to Redis."""
+    pipe = mock_redis.pipeline.return_value
+    services_json = pipe.set.call_args_list[1][0][1]
+    return json.loads(services_json)["service_avg_latency"]
+
+
+@pytest.mark.asyncio
+async def test_service_window_excludes_post_within_lag():
+    """Post scraped 1 min ago → within 2-min lag → NOT counted in service metrics."""
+    now = datetime.now(timezone.utc)
+    data = {
+        "post_timestamps:reddit:recent": {
+            "scraped_timestamp": (now - timedelta(minutes=1)).isoformat(),
+            "posted_timestamp":  (now - timedelta(minutes=2)).isoformat(),
+        }
+    }
+    mock_redis = _make_redis_mock(data)
+    with patch("app.services.pipeline_metrics.redis_client", mock_redis):
+        from app.services.pipeline_metrics import compute_pipeline_metrics
+        await compute_pipeline_metrics()
+
+    svc = _get_service_counts(mock_redis)
+    assert svc["scraper:reddit"]["processed"] == 0
+
+
+@pytest.mark.asyncio
+async def test_service_window_includes_post_just_outside_lag():
+    """Post scraped 3 mins ago → outside 2-min lag → counted in service metrics."""
+    now = datetime.now(timezone.utc)
+    data = {
+        "post_timestamps:reddit:just_outside_lag": {
+            "scraped_timestamp": (now - timedelta(minutes=3)).isoformat(),
+            "posted_timestamp":  (now - timedelta(minutes=4)).isoformat(),
+        }
+    }
+    mock_redis = _make_redis_mock(data)
+    with patch("app.services.pipeline_metrics.redis_client", mock_redis):
+        from app.services.pipeline_metrics import compute_pipeline_metrics
+        await compute_pipeline_metrics()
+
+    svc = _get_service_counts(mock_redis)
+    assert svc["scraper:reddit"]["processed"] == 1
+
+
+@pytest.mark.asyncio
+async def test_service_window_includes_post_near_cutoff():
+    """Post scraped 59 mins ago → inside 1h window → counted in service metrics."""
+    now = datetime.now(timezone.utc)
+    data = {
+        "post_timestamps:reddit:near_cutoff": {
+            "scraped_timestamp": (now - timedelta(minutes=59)).isoformat(),
+            "posted_timestamp":  (now - timedelta(minutes=60)).isoformat(),
+        }
+    }
+    mock_redis = _make_redis_mock(data)
+    with patch("app.services.pipeline_metrics.redis_client", mock_redis):
+        from app.services.pipeline_metrics import compute_pipeline_metrics
+        await compute_pipeline_metrics()
+
+    svc = _get_service_counts(mock_redis)
+    assert svc["scraper:reddit"]["processed"] == 1
+
+
+@pytest.mark.asyncio
+async def test_service_window_excludes_post_beyond_cutoff():
+    """Post scraped 61 mins ago → outside 1h window → NOT counted in service metrics."""
+    now = datetime.now(timezone.utc)
+    data = {
+        "post_timestamps:reddit:beyond_cutoff": {
+            "scraped_timestamp": (now - timedelta(minutes=61)).isoformat(),
+            "posted_timestamp":  (now - timedelta(minutes=62)).isoformat(),
+        }
+    }
+    mock_redis = _make_redis_mock(data)
+    with patch("app.services.pipeline_metrics.redis_client", mock_redis):
+        from app.services.pipeline_metrics import compute_pipeline_metrics
+        await compute_pipeline_metrics()
+
+    svc = _get_service_counts(mock_redis)
+    assert svc["scraper:reddit"]["processed"] == 0
