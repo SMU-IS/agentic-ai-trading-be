@@ -25,6 +25,7 @@ service:
   targetPort: 5012
 
 startupProbe:
+  timeoutSeconds: 5
   httpGet:
     path: /
     port: 5012
@@ -32,12 +33,14 @@ startupProbe:
   periodSeconds: 10
 
 livenessProbe:
+  timeoutSeconds: 5
   httpGet:
     path: /
     port: 5012
   initialDelaySeconds: 60
 
 readinessProbe:
+  timeoutSeconds: 5
   httpGet:
     path: /
     port: 5012

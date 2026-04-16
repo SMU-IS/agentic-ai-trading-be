@@ -35,11 +35,13 @@ service:
   targetPort: 5005
 
 livenessProbe:
+  timeoutSeconds: 5
   httpGet:
     path: /
     port: 5005
   initialDelaySeconds: 60
 readinessProbe:
+  timeoutSeconds: 5
   httpGet:
     path: /
     port: 5005
