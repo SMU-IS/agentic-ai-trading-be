@@ -174,6 +174,17 @@ class TestTradingViewMindsStreamIngestion:
         self.ingestion.run()
         assert self.r.xlen("raw_news_stream") == 0
 
+    @patch("app.services.tradingview_minds_stream_ingestion.time.sleep")
+    def test_boundary_layer3_preproc_dedup(self, mock_sleep):
+        """[BOUNDARY] Item with preproc_dedup key but no other dedup key is skipped."""
+        self.r.set("preproc_dedup:m001", "1")
+        self.ingestion.scraper.get_minds.return_value = {
+            "status": "success", "data": [_make_mind(uid="m001")]
+        }
+        mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
+        self.ingestion.run()
+        assert self.r.xlen("raw_news_stream") == 0
+
     # HWM (high-water mark) ---------------------------------------------------
 
     @patch("app.services.tradingview_minds_stream_ingestion.time.sleep")
@@ -286,6 +297,17 @@ class TestTradingViewIdeasStreamIngestion:
     def test_boundary_skips_idea_with_empty_dedup_key(self, mock_sleep):
         """[BOUNDARY] Idea with all-default fields ('unknown::') is skipped."""
         self.ingestion.scraper.scrape.return_value = [{}]  # empty dict → unknown::
+        mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
+        self.ingestion.run()
+        assert self.r.xlen("raw_news_stream") == 0
+
+    @patch("app.services.tradingview_ideas_stream_ingestion.time.sleep")
+    def test_boundary_layer3_preproc_dedup(self, mock_sleep):
+        """[BOUNDARY] Idea with preproc_dedup key but no other dedup key is skipped."""
+        idea = _make_idea(author="u1", timestamp=_RECENT_EPOCH, title="Setup")
+        dedup_key = f"u1:{_RECENT_EPOCH}:Setup"
+        self.r.set(f"preproc_dedup:{dedup_key}", "1")
+        self.ingestion.scraper.scrape.return_value = [idea]
         mock_sleep.side_effect = lambda n: setattr(self.ingestion, "_running", False)
         self.ingestion.run()
         assert self.r.xlen("raw_news_stream") == 0

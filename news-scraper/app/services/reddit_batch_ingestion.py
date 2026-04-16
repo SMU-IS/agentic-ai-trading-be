@@ -115,8 +115,9 @@ class RedditBatchService:
                     return
                 
                 post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
+                dedup_key = f"preproc_dedup:{post.id}"
 
-                if self.redis.exists(post_key):
+                if self.redis.exists(post_key) or self.redis.exists(dedup_key):                
                     logger.info(f"Skipping existing post {post.id}")
                     continue
 

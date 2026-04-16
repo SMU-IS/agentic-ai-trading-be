@@ -56,7 +56,7 @@ async def test_save_sets_correct_dedup_key():
     call_args = r.set.call_args
     assert call_args[0][0] == "qdrant_dedup:reddit:abc123"
     assert call_args[1]["nx"] is True
-    assert call_args[1]["ex"] == 60 * 60 * 24 * 5
+    assert call_args[1]["ex"] == 60 * 60 * 24 * 4
 
 
 @pytest.mark.asyncio
