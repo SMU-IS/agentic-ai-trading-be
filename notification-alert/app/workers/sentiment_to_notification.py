@@ -21,13 +21,12 @@ class SentimentBridge:
     async def async_start(self):
         print("🔄 Sentiment stream → notification stream")
 
-        # last_id = "0"
+        last_id = "$"
 
         while True:
             try:
                 messages = await self.r.xread(
-                    # streams={self.sentiment_stream: last_id},
-                    streams={self.sentiment_stream: "$"},
+                    streams={self.sentiment_stream: last_id},
                     block=5000,
                 )
             except Exception as e:
@@ -37,6 +36,7 @@ class SentimentBridge:
 
             for _, events in messages:
                 for event_id, data in events:
+                    last_id = event_id
                     ticker_meta_raw = data.get("ticker_metadata")
 
                     ticker_meta = json.loads(ticker_meta_raw.strip('"'))
