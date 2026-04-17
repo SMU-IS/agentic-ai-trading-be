@@ -94,7 +94,7 @@ class YahooClient:
     ) -> Dict[str, Any]:
         """
         Fetch latest price, quote, and key metrics from Yahoo Finance.
-        
+
         Returns:
             - lastPrice (fast_info - most recent)
             - currentPrice (info dict)
@@ -103,46 +103,68 @@ class YahooClient:
             - volume, marketCap, peRatio
             - 50DayAverage, 200DayAverage
         """
+        def _float(v, default=0.0) -> float:
+            try:
+                return round(float(v), 2) if v is not None and v == v else default  # v == v catches NaN
+            except (TypeError, ValueError):
+                return default
+
+        def _int(v, default=0) -> int:
+            try:
+                f = float(v)
+                return int(f) if f == f else default  # f == f catches NaN
+            except (TypeError, ValueError):
+                return default
+
         ticker = yf.Ticker(symbol)
-        
+
         # Fast info (lightweight, latest)
         fast = ticker.fast_info or {}
-        
+
         # Full info (comprehensive)
         info = ticker.info or {}
-        
+
         # Latest history bar (fallback)
         hist = ticker.history(period="1d")
         latest_bar = hist.iloc[-1].to_dict() if not hist.empty else {}
-        
+
+        if hist.empty and not info.get('currentPrice'):
+            raise ValueError(f"No data found for symbol: {symbol}")
+
+        prev_close = fast.get('previousClose')
+        last_price = fast.get('lastPrice')
+        day_change = 0.0
+        if prev_close and prev_close != 0 and last_price is not None:
+            try:
+                day_change = round((float(last_price) - float(prev_close)) / float(prev_close) * 100, 2)
+            except (TypeError, ValueError, ZeroDivisionError):
+                day_change = 0.0
+
         return {
             "symbol": symbol,
             "timestamp": time.time(),
             "price": {
-                "last_price": round(float(fast.get('lastPrice', 0)), 2),
-                "current_price": round(float(info.get('currentPrice', 0)), 2),
-                "previous_close": round(float(fast.get('previousClose', 0)), 2),
+                "last_price": _float(last_price),
+                "current_price": _float(info.get('currentPrice')),
+                "previous_close": _float(prev_close),
             },
             "intraday": {
-                "open": round(float(latest_bar.get('Open', 0)), 2),
-                "high": round(float(latest_bar.get('High', 0)), 2),
-                "low": round(float(latest_bar.get('Low', 0)), 2),
-                "volume": int(latest_bar.get('Volume', 0)),
+                "open": _float(latest_bar.get('Open')),
+                "high": _float(latest_bar.get('High')),
+                "low": _float(latest_bar.get('Low')),
+                "volume": _int(latest_bar.get('Volume')),
             },
             "averages": {
-                "sma_50": round(float(info.get('fiftyDayAverage', 0)), 2),
-                "sma_200": round(float(info.get('twoHundredDayAverage', 0)), 2),
+                "sma_50": _float(info.get('fiftyDayAverage')),
+                "sma_200": _float(info.get('twoHundredDayAverage')),
             },
             "fundamentals": {
-                "market_cap": float(info.get('marketCap', 0)),
-                "pe_ratio": round(float(info.get('trailingPE', 0)), 2),
-                "forward_pe": round(float(info.get('forwardPE', 0)), 2),
+                "market_cap": _float(info.get('marketCap')),
+                "pe_ratio": _float(info.get('trailingPE')),
+                "forward_pe": _float(info.get('forwardPE')),
             },
             "change": {
-                "day_change_pct": round(
-                    (fast.get('lastPrice', 0) - fast.get('previousClose', 0)) 
-                    / fast.get('previousClose', 0) * 100, 2
-                ),
+                "day_change_pct": day_change,
             }
         }
 
