@@ -122,7 +122,10 @@ class YahooClient:
         fast = ticker.fast_info or {}
 
         # Full info (comprehensive)
-        info = ticker.info or {}
+        try:
+            info = ticker.info or {}
+        except Exception:
+            info = {}
 
         # Latest history bar (fallback)
         hist = ticker.history(period="1d")
