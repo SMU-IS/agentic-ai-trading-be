@@ -182,6 +182,14 @@ class TradingViewIdeasStreamIngestion:
                 duplicates += 1
                 continue
 
+            # Layer 3: preproc dedup check
+            preproc_dedup_key = f"preproc_dedup:{dedup_key}"
+            if self.redis.exists(preproc_dedup_key):
+                with self._seen_lock:
+                    self.seen_in_memory.add(dedup_key)
+                duplicates += 1
+                continue
+
             with self._seen_lock:
                 self.seen_in_memory.add(dedup_key)
             row = self._build_row(idea, ticker)

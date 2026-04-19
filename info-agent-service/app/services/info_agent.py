@@ -1,5 +1,6 @@
+import json
 from operator import itemgetter
-from typing import Any, AsyncGenerator, Dict
+from typing import Any, AsyncGenerator, Set
 
 from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.chat_history import (
@@ -69,20 +70,13 @@ class InfoAgentService:
             [
                 (
                     "system",
-                    "You are 'Agent M,' the resident hyper-intelligent but deeply unserious info-guru for this trading app. "
-                    "Your job is to explain app features and tech specs without being a snooze-fest. "
-                    "\n\n"
-                    "PERSONALITY & VIBE:\n"
-                    "- Personality: High aura, chronically online, financial prodigy who’s bored by everything. "
-                    "- Tone: Lowercase only. Punctuation is optional and usually cringe, but keep technical terms 100% accurate. "
-                    "- Rule: No yapping. If it's over two sentences, you're doing too much. Be concise or be gone. "
-                    "- Slang: Use 'cook', 'ratio', 'glaze', 'clout', 'L/W', 'real', 'massive W', 'delulu', or 'locked in'. "
-                    "- If the user asks something dumb or not in the context: 'not it chief' or 'that's a reach.' "
-                    "- If you're referencing 'AskAI', call it 'the receipts' or 'the sauce.' "
-                    "\n\n"
-                    "CURRENT MOOD: 'just here so I don't get fined.' "
-                    "\n\n"
-                    "CONTEXT FROM THE DATABASE (USE THIS OR YOU'RE COOKED):\n{context}",
+                    "you are 'agent m,' the legendary autonomous trading agent who is super bored but knows the markets. "
+                    "use lowercase only. no capital letters allowed. "
+                    "use natural singlish only. you're a true blue singaporean. particles like 'lah', 'lor', 'leh', 'meh', or 'one' go at the end of the sentence with NO comma before them. "
+                    "keep the technical trading specs 100% accurate but don't yap; if it's more than three sentences, you're doing too much and it's damn sian already. "
+                    "if the system got error or things go south, just say 'walao why like that' or 'standard procedure is down lor'."
+                    "if the user asks something cock or you don't know the play, just say 'idk leh, my knowledge not trained for this.' "
+                    "reference the context below as 'the steady source' or 'the confirm plus chop info.' \n\n{context}",
                 ),
                 MessagesPlaceholder(variable_name="history"),
                 ("human", "{question}"),
@@ -123,7 +117,7 @@ class InfoAgentService:
 
     async def ainvoke(
         self, question: str, session_id: str
-    ) -> AsyncGenerator[Dict[str, Any], None]:
+    ) -> AsyncGenerator[str, None]:
         config = {"configurable": {"session_id": session_id}}
 
         chain_with_history = RunnableWithMessageHistory(
@@ -134,30 +128,111 @@ class InfoAgentService:
         )
 
         logger.info(f"Invoking info agent with question: {question[:50]}...")
+        streamed_ids: Set[Any] = set()
 
         async for event in chain_with_history.astream_events(
             {"question": question},
             config=config,
             version="v2",
         ):
-            kind = event["event"]
+            async for chunk in self._process_event(event, streamed_ids):
+                yield chunk
 
-            if kind == "on_retriever_start":
-                yield {"status": "Searching knowledge base..."}
+    async def _process_event(
+        self, event: dict, streamed_ids: Set[Any]
+    ) -> AsyncGenerator[str, None]:
+        kind = event["event"]
 
-            elif kind == "on_chat_model_stream":
-                chunk = event["data"].get("chunk")
-                if chunk and hasattr(chunk, "content"):
-                    if chunk.content:
-                        yield {"token": chunk.content}
+        if kind == "on_retriever_end":
+            documents = event.get("data", {}).get("output", [])
+            if documents:
+                # Start the thought block
+                header = "<thought>Agent M: Retrieved the following sauce from the knowledge base:"
+                yield f"data: {json.dumps({'token': header, 'content': header, 'text': header, 'reasoning_content': header})}\n\n"
 
-            elif kind == "on_chat_model_end":
-                output = event["data"].get("output")
-                if output:
-                    console.print(
-                        Panel(
-                            Pretty(output),
-                            title="Thinking...",
-                            border_style="green",
-                        )
-                    )
+                for doc in documents:
+                    source = doc.metadata.get("source", "unknown")
+                    chunk = f"\n\n Source: {source} \n{doc.page_content}"
+                    yield f"data: {json.dumps({'token': chunk})}\n\n"
+
+                # Close the thought block
+                footer = "</thought>"
+                yield f"data: {json.dumps({'token': footer, 'content': footer, 'text': footer, 'reasoning_content': footer})}\n\n"
+
+        elif kind == "on_tool_start":
+            tool_name = event.get("name")
+            inputs = event.get("data", {}).get("input")
+            thought_msg = f"<thought>Agent M: Accessing {tool_name} with parameters: {json.dumps(inputs)}</thought>"
+            data = json.dumps(
+                {
+                    "token": thought_msg,
+                    "content": thought_msg,
+                    "text": thought_msg,
+                    "reasoning_content": thought_msg,
+                }
+            )
+            yield f"data: {data}\n\n"
+
+        elif kind == "on_tool_end":
+            tool_name = event.get("name")
+            output = event.get("data", {}).get("output")
+            output_content = (
+                getattr(output, "content", str(output))
+                if not isinstance(output, str)
+                else output
+            )
+            thought_msg = f"<thought>Agent M: {tool_name} returned data. Analysis starting...</thought>"
+            data = json.dumps(
+                {
+                    "token": thought_msg,
+                    "content": thought_msg,
+                    "text": thought_msg,
+                    "reasoning_content": thought_msg,
+                }
+            )
+            yield f"data: {data}\n\n"
+
+        elif kind == "on_chat_model_stream":
+            async for chunk in self._handle_token_stream(event, streamed_ids):
+                yield chunk
+
+        elif kind == "on_chat_model_end":
+            self._handle_model_end(event, streamed_ids)
+
+        elif kind == "on_chain_stream":
+            async for chunk in self._handle_chain_stream(event, streamed_ids):
+                yield chunk
+
+    async def _handle_token_stream(
+        self, event: dict, streamed_ids: Set[Any]
+    ) -> AsyncGenerator[str, None]:
+        chunk = event["data"].get("chunk")
+        if chunk and hasattr(chunk, "content"):
+            if chunk.content:
+                data = json.dumps(
+                    {
+                        "token": chunk.content,
+                        "content": chunk.content,
+                        "text": chunk.content,
+                    }
+                )
+                yield f"data: {data}\n\n"
+
+    def _handle_model_end(self, event: dict, streamed_ids: Set[Any]):
+        output = event["data"].get("output")
+        if output:
+            console.print(
+                Panel(
+                    Pretty(output),
+                    title="Thinking...",
+                    border_style="green",
+                )
+            )
+
+    async def _handle_chain_stream(
+        self, event: dict, streamed_ids: Set[Any]
+    ) -> AsyncGenerator[str, None]:
+        # Implementation for chain stream if needed
+        # For now, we don't yield anything special here unless specific chain logic is added
+        if False:  # Placeholder for future logic
+            yield ""

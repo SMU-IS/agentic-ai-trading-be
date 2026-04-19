@@ -6,7 +6,7 @@
 # ///
 
 from diagrams import Cluster, Diagram, Edge
-from diagrams.aws.compute import EC2, EKS, AutoScaling, EC2ContainerRegistry
+from diagrams.aws.compute import EC2, AutoScaling, EC2ContainerRegistry
 from diagrams.aws.database import RDS
 from diagrams.aws.management import (
     AmazonManagedGrafana,
@@ -34,9 +34,9 @@ graph_attr = {
     "fontsize": "32",
     "bgcolor": BG_COLOR,
     "splines": "ortho",
-    "pad": "2.0",
-    "nodesep": "1.2",
-    "ranksep": "1.8",
+    "pad": "1.0",
+    "nodesep": "0.6",
+    "ranksep": "1.0",
     "fontname": "Helvetica",
     "rankdir": "LR",
 }
@@ -79,7 +79,6 @@ with Diagram(
 
         with Cluster("Scalable EKS Cluster", graph_attr=cluster_attr):
             kong = Kong("Kong Ingress\n(HA Configuration)")
-
             with Cluster("Auto-Scaling Node Fleet"):
                 karpenter = AutoScaling("Karpenter\n(Elastic Scaling)")
                 app_nodes = EC2("Scalable App Pods\n(HPA / On-Demand)")
@@ -87,98 +86,85 @@ with Diagram(
         with Cluster("Private Subnets", graph_attr=cluster_attr):
             rds = RDS("RDS PostgreSQL\n(Multi-AZ Master)")
 
-    # --- Replica VPC ---
+    # --- Replica VPC (EXACT COPY) ---
     with Cluster("Replica VPC (us-west-2 / DR)", graph_attr=cluster_attr):
-        with Cluster("Public Subnets (Standby)"):
-            nlb_dr = ELB("NLB\n(Standby)")
-            kong_dr = Kong("Kong Ingress\n(Warm Standby)")
-            eks_dr = EKS("EKS Cluster\n(Warm Standby)")
+        igw_dr = InternetGateway("Internet Gateway (DR)")
 
-        with Cluster("Private Subnets (Data Sync)"):
+        with Cluster("Public Subnets (DR)", graph_attr=cluster_attr):
+            nlb_dr = ELB("NLB\n(Internet-Facing DR)")
+
+        with Cluster("Scalable EKS Cluster (DR)", graph_attr=cluster_attr):
+            kong_dr = Kong("Kong Ingress\n(Warm Standby)")
+            with Cluster("Auto-Scaling Node Fleet (DR)"):
+                karpenter_dr = AutoScaling("Karpenter\n(Elastic Scaling DR)")
+                app_nodes_dr = EC2("Scalable App Pods\n(Warm Standby)")
+
+        with Cluster("Private Subnets (DR)", graph_attr=cluster_attr):
             rds_dr = RDS("RDS Read Replica\n(DR Instance)")
 
-    # --- Managed Storage (outside VPC) ---
+    # --- Managed Storage ---
     with Cluster("Managed Storage Services", graph_attr=cluster_attr):
         s3_primary = S3("S3 Storage\n(Primary us-east-1)")
         s3_replica = S3("S3 Storage\n(Replica us-west-2)")
 
     # --- Observability ---
     with Cluster("Observability & Monitoring", graph_attr=cluster_attr):
-        prometheus = AmazonManagedPrometheus(
-            "Amazon Managed Service\nfor Prometheus (AMP)"
-        )
-        cloudwatch = Cloudwatch("CloudWatch\n(Logs & Alarms)")
-        grafana = AmazonManagedGrafana("Amazon Managed\nGrafana (AMG)")
+        prometheus = AmazonManagedPrometheus("AMP")
+        cloudwatch = Cloudwatch("CloudWatch")
+        grafana = AmazonManagedGrafana("AMG")
 
     # --- Edges ---
 
-    # 1. Global Entry & Security
+    # 1. Global
     (
         dns
         >> Edge(color=COLOR_PRIMARY, label=" agentic-m.com / api.agentic-m.com")
         >> waf
         >> cloudfront
     )
+    cloudfront >> Edge(color=COLOR_PRIMARY) >> amplify
 
-    # 2. Frontend Delivery
-    cloudfront >> Edge(color=COLOR_PRIMARY, label=" Static Content") >> amplify
-
-    # 3. Primary API Path
-    cloudfront >> Edge(color=COLOR_PRIMARY, label=" API Requests") >> igw >> nlb
-    nlb >> Edge(color=COLOR_PRIMARY) >> kong
-    kong >> Edge(color=COLOR_ACCENT, label=" ClusterIP / Policy") >> app_nodes
-
-    # 4. Internal & Mesh Communication
-    (
-        app_nodes
-        >> Edge(color=COLOR_ACCENT, style="dashed", label=" Service-to-Service")
-        >> app_nodes
-    )
-    app_nodes >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Secure TCP") >> rds
-    (
-        app_nodes
-        >> Edge(color=COLOR_SECONDARY, style="dotted", label=" Private Endpoint")
-        >> s3_primary
-    )
-
-    # 5. Replication & DR
-    (
-        rds
-        >> Edge(color=COLOR_ACCENT, style="dashed", label=" Cross-Region Replication")
-        >> rds_dr
-    )
-    (
-        s3_primary
-        >> Edge(color=COLOR_SECONDARY, style="dotted", label=" S3 CRR (Global)")
-        >> s3_replica
-    )
-
-    # 6. Failover Path
+    # 2. Primary Path
     (
         cloudfront
-        >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Failover (Origin Group)")
-        >> nlb_dr
-    )
-    nlb_dr >> Edge(color=COLOR_SECONDARY, style="dashed") >> kong_dr >> eks_dr
-
-    # 7. Cluster Management
-    karpenter >> Edge(color=COLOR_ACCENT, style="dashed") >> app_nodes
-    (
-        ecr
-        >> Edge(color=COLOR_SECONDARY, style="dotted", label=" Pull (Provisioning)")
+        >> Edge(color=COLOR_PRIMARY, label=" API")
+        >> igw
+        >> nlb
+        >> kong
         >> app_nodes
     )
+    app_nodes >> Edge(color=COLOR_SECONDARY, style="dashed") >> rds
+    app_nodes >> Edge(color=COLOR_SECONDARY, style="dotted") >> s3_primary
 
-    # 8. Observability
+    # 3. Failover Path (Constraint keeps DR VPC from jumping around)
     (
-        app_nodes
-        >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Metrics (Remote Write)")
-        >> prometheus
+        cloudfront
+        >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Failover")
+        >> igw_dr
+        >> nlb_dr
+        >> kong_dr
+        >> app_nodes_dr
     )
+
+    # 4. Replication
+    rds >> Edge(color=COLOR_ACCENT, style="dashed") >> rds_dr
+    s3_primary >> Edge(color=COLOR_SECONDARY, style="dotted") >> s3_replica
+
+    # 5. Cluster Management (The FIX: constraint="false")
+    karpenter >> Edge(color=COLOR_ACCENT, style="dashed") >> app_nodes
     (
-        app_nodes
-        >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Logs (FluentBit)")
-        >> cloudwatch
+        karpenter_dr
+        >> Edge(color=COLOR_ACCENT, style="dashed", constraint="false")
+        >> app_nodes_dr
     )
-    prometheus >> Edge(color=COLOR_PRIMARY) >> grafana
-    cloudwatch >> Edge(color=COLOR_PRIMARY) >> grafana
+
+    ecr >> Edge(color=COLOR_SECONDARY, style="dotted", label=" Pull") >> app_nodes
+    (
+        ecr
+        >> Edge(color=COLOR_SECONDARY, style="dotted", constraint="false")
+        >> app_nodes_dr
+    )
+
+    # 6. Observability
+    app_nodes >> Edge(color=COLOR_SECONDARY, style="dashed") >> [prometheus, cloudwatch]
+    [prometheus, cloudwatch] >> grafana

@@ -15,5 +15,5 @@ services:
       - QDRANT_COLLECTION_NAME=${QDRANT_COLLECTION_NAME}
       - TEXT_EMBEDDING_MODEL=${TEXT_EMBEDDING_MODEL}
       - NOMIC_API_KEY=${NOMIC_API_KEY}
-    command: uvicorn app.main:app --host 0.0.0.0 --port 5015
+    command: uv run uvicorn app.main:app --host 0.0.0.0 --port 5015
     restart: unless-stopped

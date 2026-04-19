@@ -50,8 +50,9 @@ class RedditStreamService:
                     continue
                 
                 post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
+                dedup_key = f"preproc_dedup:{post.id}"
 
-                if self.redis.exists(post_key):
+                if self.redis.exists(post_key) or self.redis.exists(dedup_key):
                     logger.info(f"Skipping existing post {post.id}")
                     continue                
                 # if self.redis.get("stream_version") != stream_version:
@@ -100,7 +101,8 @@ class RedditStreamService:
             sg_now = datetime.now(ZoneInfo("Asia/Singapore")).isoformat()
 
             post_key = f"{POST_TIMESTAMP}:reddit:{post.id}"
-            if not self.redis.exists(post_key):
+            dedup_key = f"preproc_dedup:{post.id}"
+            if not self.redis.exists(post_key) and not self.redis.exists(dedup_key):
                 self.redis.hset(
                     post_key,
                     mapping={

@@ -57,6 +57,7 @@ def _make_ticker_service(result=None, new_alias_count=0, new_type_count=0):
 async def test_process_message_success(mock_redis, mock_ticker_stream, mock_finalize):
     """Happy path: decodes → not duplicate → ticker found → saves → finalizes."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
     mock_ticker_stream.save = AsyncMock()
@@ -105,6 +106,7 @@ async def test_process_message_duplicate_skipped(mock_redis, mock_finalize):
 async def test_process_message_ticker_service_returns_none(mock_redis, mock_finalize):
     """ticker_service.process_post returns None → increments removed counter, finalizes."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
 
@@ -121,6 +123,7 @@ async def test_process_message_ticker_service_returns_none(mock_redis, mock_fina
 async def test_process_message_no_ticker_metadata_removed(mock_redis, mock_finalize):
     """ticker_metadata is empty → post removed, finalized without saving."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
 
@@ -140,6 +143,7 @@ async def test_process_message_no_ticker_metadata_removed(mock_redis, mock_final
 async def test_process_message_timestamps_written(mock_redis, mock_ticker_stream, _mock_finalize):
     """Both start and end timestamps written to Redis for a successful post."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
     mock_ticker_stream.save = AsyncMock()
@@ -162,6 +166,7 @@ async def test_process_message_timestamps_written(mock_redis, mock_ticker_stream
 async def test_process_message_cancelled_error_reraises(mock_redis, mock_ticker_stream, _mock_finalize):
     """CancelledError from ticker_stream.save → re-raised (not swallowed)."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
     mock_ticker_stream.save = AsyncMock(side_effect=asyncio.CancelledError)

@@ -25,6 +25,7 @@ service:
   targetPort: 5004
 
 startupProbe:
+  timeoutSeconds: 5
   httpGet:
     path: /
     port: 5004
@@ -32,6 +33,7 @@ startupProbe:
   periodSeconds: 10
 
 livenessProbe:
+  timeoutSeconds: 5
   httpGet:
     path: /
     port: 5004
@@ -39,6 +41,7 @@ livenessProbe:
   periodSeconds: 20
 
 readinessProbe:
+  timeoutSeconds: 5
   httpGet:
     path: /
     port: 5004

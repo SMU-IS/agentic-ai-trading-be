@@ -3,6 +3,15 @@
 ## Multi-Agent AI Orchestration
 Agent M utilizes a decoupled microservices architecture. The "Brain" is powered by **LangGraph** and **LangChain**, orchestrating multiple specialized agents. The execution layer is hosted within a **Scalable EKS Cluster** across multiple Availability Zones to ensure high availability and low-latency trade execution.
 
+## The Signal-to-Execution Flow
+Agent M operates as a coordinated pipeline of microservices:
+1.  **Ingestion:** Specialized scrapers (Yahoo, TradingView, Reddit) pull unstructured text.
+2.  **Aggregation:** The News Aggregator deduplicates and batches these signals.
+3.  **Analysis:** Sentiment Analysis (FinBERT) and Ticker/Event Identification extract the "what" and "how" of the move.
+4.  **Retrieval:** Qdrant Vector DB provides historical context and news validation (RAG).
+5.  **Reasoning:** Trading Agent M (LangGraph) synthesizes all data into a trade thesis.
+6.  **Execution:** The Trading Service places bracket orders via Alpaca after risk validation.
+
 ## Microservices Breakdown
 | Service | Tech Stack | Responsibility |
 | :--- | :--- | :--- |

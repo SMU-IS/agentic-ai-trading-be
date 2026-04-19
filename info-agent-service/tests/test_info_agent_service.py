@@ -1,3 +1,4 @@
+import json
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -50,7 +51,12 @@ async def test_ainvoke_success():
         mock_instance = MockHistory.return_value
 
         async def mock_astream_events(*args, **kwargs):
-            yield {"event": "on_retriever_start"}
+            # Test retriever end to verify documents formatting
+            mock_doc = MagicMock()
+            mock_doc.metadata = {"source": "test.md"}
+            mock_doc.page_content = "retrieved content"
+            yield {"event": "on_retriever_end", "data": {"output": [mock_doc]}}
+
             yield {
                 "event": "on_chat_model_stream",
                 "data": {"chunk": MagicMock(content="hello")},
@@ -64,6 +70,19 @@ async def test_ainvoke_success():
         async for event in service.ainvoke("hi", "session_1"):
             events.append(event)
 
-        assert len(events) == 2
-        assert events[0] == {"status": "Searching knowledge base..."}
-        assert events[1] == {"token": "hello"}
+        assert len(events) == 4
+
+        # 1. Thought block header
+        h = "<thought>Agent M: Retrieved the following sauce from the knowledge base:"
+        assert events[0] == f"data: {json.dumps({'token': h, 'content': h, 'text': h, 'reasoning_content': h})}\n\n"
+
+        # 2. Document chunk
+        c = "\n\n Source: test.md \nretrieved content"
+        assert events[1] == f"data: {json.dumps({'token': c})}\n\n"
+
+        # 3. Thought block footer
+        f = "</thought>"
+        assert events[2] == f"data: {json.dumps({'token': f, 'content': f, 'text': f, 'reasoning_content': f})}\n\n"
+
+        # 4. Final LLM token
+        assert events[3] == f"data: {json.dumps({'token': 'hello', 'content': 'hello', 'text': 'hello'})}\n\n"

@@ -30,6 +30,7 @@ startupProbe:
     port: 5001
   failureThreshold: 30
   periodSeconds: 10
+  timeoutSeconds: 5
 
 livenessProbe:
   httpGet:
@@ -37,6 +38,7 @@ livenessProbe:
     port: 5001
   initialDelaySeconds: 10
   periodSeconds: 20
+  timeoutSeconds: 5
 
 readinessProbe:
   httpGet:
@@ -44,6 +46,7 @@ readinessProbe:
     port: 5001
   initialDelaySeconds: 5
   periodSeconds: 10
+  timeoutSeconds: 5
 
 podAnnotations:
   # prometheus.io/scrape: "true"

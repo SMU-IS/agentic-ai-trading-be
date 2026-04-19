@@ -44,7 +44,7 @@ class ScraperController:
 
         # self._threads = [stream_thread, batch_thread, watcher_thread]
 
-        self._threads = [stream_thread]
+        self._threads = [stream_thread, batch_thread]
         for t in self._threads:
             t.start()
 

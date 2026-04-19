@@ -143,3 +143,6 @@ Developed by **Mvidia (Team 2)**, IS484 Project Experience in collaboration with
 <a href="https://www.linkedin.com/in/shawn-ng-yh/"><img src="https://github.com/user-attachments/assets/6bd4f3a7-6784-402a-b891-03d91e15d705" width="80" title="Shawn Ng"></a>&nbsp;
 <a href="https://www.linkedin.com/in/jiayenbeh/"><img src="https://github.com/user-attachments/assets/23ca9394-c7ed-4cdc-a1fc-5c67a37df9ee" width="80" title="Beh Jia Yen"></a>&nbsp;
 <a href="https://www.linkedin.com/in/zi-you-foo"><img src="https://github.com/user-attachments/assets/506dbced-5709-4477-978a-c0fb12ce7aec" width="80" title="Foo Zi You"></a>
+
+deploy - update langsmith
+deploy - update env

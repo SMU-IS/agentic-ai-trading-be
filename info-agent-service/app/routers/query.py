@@ -27,7 +27,7 @@ async def chat(
                 session_id=request.session_id,
             ):
                 if chunk:
-                    yield f"data: {json.dumps(chunk)}\n\n"
+                    yield chunk
         except Exception as e:
             yield f"data: {json.dumps({'error': str(e)})}\n\n"
         finally:

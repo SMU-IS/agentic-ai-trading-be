@@ -97,12 +97,18 @@ resource "aws_iam_instance_profile" "bastion_profile" {
 }
 
 # Small Bastion Instance (using AL2023 ARM64 to match other infrastructure)
+# Configured as a Spot instance for cost optimization in non-critical developer environments
 resource "aws_instance" "bastion" {
   ami                    = data.aws_ami.al2023.id
   instance_type          = "t4g.nano"
   subnet_id              = var.subnet_ids[0]
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.bastion_profile.name
+
+  # Spot market options
+  instance_market_options {
+    market_type = "spot"
+  }
 
   # No key_name needed with EICE/SSM
 

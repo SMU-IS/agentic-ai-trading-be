@@ -68,6 +68,7 @@ async def test_process_message_success(
 ):
     """Happy path: decodes → not duplicate → preprocesses → saves → finalizes."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
     mock_preprocessor.preprocess_post.return_value = {"id": "p1"}
@@ -107,6 +108,7 @@ async def test_process_message_preprocess_returns_none(
 ):
     """Preprocessor returns None → increments removed counter, finalizes without saving."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
     mock_preprocessor.preprocess_post.return_value = None
@@ -148,6 +150,7 @@ async def test_process_message_timestamps_written(
 ):
     """Both start and end timestamps are written to Redis for a successful post."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
     mock_preprocessor.preprocess_post.return_value = {"id": "p1"}
@@ -393,6 +396,7 @@ async def test_process_message_cancelled_error_reraises(
 ):
     """CancelledError from preproc_stream.save → re-raised (not swallowed)."""
     mock_redis.exists = AsyncMock(return_value=False)
+    mock_redis.hget = AsyncMock(return_value=None)
     mock_redis.hset = AsyncMock()
     mock_redis.incr = AsyncMock()
     mock_preprocessor.preprocess_post.return_value = {"id": "p1"}

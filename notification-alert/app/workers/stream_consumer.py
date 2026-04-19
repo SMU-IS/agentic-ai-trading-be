@@ -4,8 +4,6 @@ from redis.asyncio import Redis
 from app.core.config import env_config
 from app.services.notification_service import notify_users
 from app.core.logger import logger
-import jwt
-import time
 
 class StreamConsumer:
     def __init__(self):

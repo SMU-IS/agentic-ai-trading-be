@@ -12,9 +12,10 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
 # Mock get_vector_strategy before the worker module is imported (it runs VectorisationService() at module level)
+# Patch in vectorisation's namespace (not registry) so both this file and test_vectorisation_service.py
+# share the same module object — avoiding stale-reference issues from re-imports.
 sys.modules.pop("app.services.qdrant_vectorisation_worker", None)
-sys.modules.pop("app.services.vectorisation", None)
-with patch("app.providers.vector.registry.get_vector_strategy") as _mock_strategy:
+with patch("app.services.vectorisation.get_vector_strategy") as _mock_strategy:
     _mock_strategy.return_value = MagicMock()
     from app.services.qdrant_vectorisation_worker import decode_message
 

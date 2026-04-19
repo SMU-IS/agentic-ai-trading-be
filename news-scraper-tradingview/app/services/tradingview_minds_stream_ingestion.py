@@ -205,6 +205,13 @@ class TradingViewMindsStreamIngestion:
                             cycle_duplicates += 1
                             continue
 
+                        # Layer 3: preproc dedup check
+                        preproc_dedup_key = f"preproc_dedup:{dedup_key}"
+                        if self.redis.exists(preproc_dedup_key):
+                            self.seen_in_memory.add(dedup_key)
+                            cycle_duplicates += 1
+                            continue
+
                         self.seen_in_memory.add(dedup_key)
                         row = self._build_row(mind, ticker)
                         publish_to_stream(self.redis, self.STREAM_NAME, row)

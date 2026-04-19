@@ -49,6 +49,7 @@ async def compute_pipeline_metrics():
     now = datetime.now(ZoneInfo("Asia/Singapore"))
     pipeline_cutoff = now - timedelta(hours=PIPELINE_WINDOW_HOURS)
     service_cutoff  = now - timedelta(hours=SERVICE_WINDOW_HOURS)
+    service_lag     = now - timedelta(minutes=2)
 
     counts        = defaultdict(int)
     e2e_latencies = []
@@ -115,44 +116,46 @@ async def compute_pipeline_metrics():
                     if order_time >= service_cutoff:
                         svc_counts["order"] += 1
                         
-                # ── Per-service metrics (1h window on each end timestamp) ──
+                # ── Per-service metrics (1h window anchored on scraped_timestamp) ──
+                # All pipeline stage counts use scraped_timestamp as the anchor
+                # so all numbers are consistent: "of posts scraped in the last 1h, how many reached each stage"
 
                 # Scrapers — count by source, latency = scraped_timestamp - posted_timestamp
-                if scraped and scraped >= service_cutoff:
+                if scraped and service_cutoff <= scraped <= service_lag:
                     svc_counts[f"scraper:{source}"] += 1
                     posted = parsed.get("posted_timestamp")
                     if posted and scraped >= posted:
                         svc_latencies[f"scraper:{source}"].append(abs((scraped - posted).total_seconds()))
 
-                # Pipeline services
-                stages = [
-                    ("preproc",       "preproc_timestamp_start",   "preproc_timestamp"),
-                    ("ticker",        "ticker_timestamp_start",     "ticker_timestamp"),
-                    ("event",         "event_timestamp_start",      "event_timestamp"),
-                    ("sentiment",     "sentiment_timestamp_start",  "sentiment_timestamp"),
-                    ("vectorisation", "qdrant_timestamp_start",     "qdrant_timestamp"),
-                ]
-                for svc, start_key, end_key in stages:
-                    end = parsed.get(end_key)
-                    if end and end >= service_cutoff:
-                        svc_counts[svc] += 1
-                        start = parsed.get(start_key)
-                        if start and end >= start:
-                            svc_latencies[svc].append(abs((end - start).total_seconds()))
+                    # Pipeline services — only count if the post was scraped in the 1h window
+                    stages = [
+                        ("preproc",       "preproc_timestamp_start",   "preproc_timestamp"),
+                        ("ticker",        "ticker_timestamp_start",     "ticker_timestamp"),
+                        ("event",         "event_timestamp_start",      "event_timestamp"),
+                        ("sentiment",     "sentiment_timestamp_start",  "sentiment_timestamp"),
+                        ("vectorisation", "qdrant_timestamp_start",     "qdrant_timestamp"),
+                    ]
+                    for svc, start_key, end_key in stages:
+                        end = parsed.get(end_key)
+                        if end and end >= scraped:
+                            svc_counts[svc] += 1
+                            start = parsed.get(start_key)
+                            if start and end >= start:
+                                svc_latencies[svc].append(abs((end - start).total_seconds()))
 
-                # gap_latencies: prev_end → curr_end
-                gap_stages = [
-                    ("to_preproc",       "scraped_timestamp",   "preproc_timestamp"),
-                    ("to_ticker",        "preproc_timestamp",   "ticker_timestamp"),
-                    ("to_event",         "ticker_timestamp",    "event_timestamp"),
-                    ("to_sentiment",     "event_timestamp",     "sentiment_timestamp"),
-                    ("to_vectorisation", "sentiment_timestamp", "qdrant_timestamp"),
-                ]
-                for label, prev_key, curr_key in gap_stages:
-                    prev = parsed.get(prev_key)
-                    curr = parsed.get(curr_key)
-                    if prev and curr and curr >= prev and curr >= service_cutoff:
-                        gap_latencies[label].append(abs((curr - prev).total_seconds()))
+                    # gap_latencies: prev_end → curr_end
+                    gap_stages = [
+                        ("to_preproc",       "scraped_timestamp",   "preproc_timestamp"),
+                        ("to_ticker",        "preproc_timestamp",   "ticker_timestamp"),
+                        ("to_event",         "ticker_timestamp",    "event_timestamp"),
+                        ("to_sentiment",     "event_timestamp",     "sentiment_timestamp"),
+                        ("to_vectorisation", "sentiment_timestamp", "qdrant_timestamp"),
+                    ]
+                    for label, prev_key, curr_key in gap_stages:
+                        prev = parsed.get(prev_key)
+                        curr = parsed.get(curr_key)
+                        if prev and curr and curr >= prev:
+                            gap_latencies[label].append(abs((curr - prev).total_seconds()))
 
                 aggregator_end = parsed.get("aggregator_timestamp")
 
@@ -246,7 +249,7 @@ async def run_aggregator():
             await compute_pipeline_metrics()
         except Exception as e:
             print(f"[pipeline_metrics] aggregator error: {e}")
-        await asyncio.sleep(900)  # every 15 mins
+        await asyncio.sleep(300)  # every 5 mins
 
 
 if __name__ == "__main__":

@@ -1,116 +1,154 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 
-from app.services.ai_agent.chat_workflow import ChatWorkflow
-from app.services.ai_agent.state import AgentState
-from app.services.ai_agent.nodes import extract_order_id_node, format_response_node
-from app.schemas.router_decision import RouterDecision
+import pytest
+from langchain_core.messages import AIMessage, HumanMessage
+
+from app.services.graph.chat_workflow import ChatWorkflow
+from app.services.graph.state import AgentState
 
 
 @pytest.fixture
-def agent_graph():
+def mock_llm():
     llm = MagicMock()
-    return ChatWorkflow(llm=llm, tools=[], system_prompt="Test Prompt")
+    # Mock bind_tools to return a specific mock for bound tools
+    mock_bound = MagicMock()
+    llm.bind_tools.return_value = mock_bound
+    return llm
 
 
-def test_extract_order_id_regex():
-    # Test different order ID formats
-    queries = [
-        ("Please check order ID ABC123", "ABC123"),
-        ("What is the status of symbol XYZ789?", "XYZ789"),
-        ("id: 123456", "123456"),
-        ("transaction 999", "999"),
-        ("General question without id", None),
-    ]
-
-    for query, expected_id in queries:
-        state: AgentState = {
-            "messages": [HumanMessage(content=query)],
-            "sender": "user",
-            "order_id": None,
-            "query": "",
-            "variables": {},
-            "metadata": {},
-        }
-        result = extract_order_id_node(state)
-        assert result["order_id"] == expected_id
-        assert result["query"] == query
+@pytest.fixture
+def agent_graph(mock_llm):
+    return ChatWorkflow(llm=mock_llm, tools=[], system_prompt="Test Prompt")
 
 
 @pytest.mark.asyncio
-async def test_route_logic(agent_graph):
-    # Route to trade_history if requested
-    mock_decision = RouterDecision(next_node="trade_history", reasoning="User wants status", confidence=0.9)
-    agent_graph.llm.with_structured_output.return_value.ainvoke = AsyncMock(
-        return_value=mock_decision
-    )
+async def test_call_model(agent_graph, mock_llm):
+    # Setup mock response for the BOUND llm
+    mock_bound = mock_llm.bind_tools.return_value
+    mock_bound.ainvoke = AsyncMock(return_value=AIMessage(content="Hello!", response_metadata={}))
 
+    # Create 10 messages
+    messages = [HumanMessage(content=f"msg {i}") for i in range(10)]
     state: AgentState = {
-        "messages": [HumanMessage(content="What is my order status?")],
-        "sender": "user",
-        "order_id": "123",
-        "query": "",
-        "variables": {},
-        "metadata": {},
+        "messages": messages,
+        "summary": "Previous summary",
     }
-    assert await agent_graph._route(state) == "trade_history"
 
-    # Route to general_news
-    mock_decision_news = RouterDecision(next_node="general_news", reasoning="User wants news", confidence=0.9)
-    agent_graph.llm.with_structured_output.return_value.ainvoke = AsyncMock(
-        return_value=mock_decision_news
-    )
+    config = {"metadata": {"user_id": "test-user"}}
 
-    state_news: AgentState = {
-        "messages": [HumanMessage(content="Any news on AAPL?")],
-        "sender": "user",
-        "order_id": None,
-        "query": "",
-        "variables": {},
-        "metadata": {},
-    }
-    assert await agent_graph._route(state_news) == "general_news"
+    result = await agent_graph._call_model(state, config)
+
+    assert len(result["messages"]) == 1
+    assert result["messages"][0].content == "Hello!"
+
+    # Verify BOUND LLM was called with windowed messages (last 10)
+    args, _ = mock_bound.ainvoke.call_args
+    sent_msgs = args[0]
+    # 1 SystemMessage + 10 windowed messages = 11
+    assert len(sent_msgs) == 11
+    assert sent_msgs[1].content == "msg 0"
+    assert sent_msgs[-1].content == "msg 9"
+    
+    system_msg = sent_msgs[0]
+    assert "Test Prompt" in system_msg.content
+    assert "### CURRENT SESSION INFO" in system_msg.content
+    assert "- Today's Date:" in system_msg.content
+    assert "- User ID: test-user" in system_msg.content
+    assert "Previous summary" in system_msg.content
+    assert "STRICT RULE" in system_msg.content
 
 
 @pytest.mark.asyncio
-async def test_format_response_json():
-    # Test JSON formatting for ticker info
-    content = '{"ticker": "AAPL", "action": "BUY", "entry_price": 150, "reasoning": "Bullish"}'
+async def test_summarize_conversation_no_trigger(agent_graph):
     state: AgentState = {
-        "messages": [SystemMessage(content=content)],
-        "sender": "agent",
-        "order_id": "ORD123",
-        "query": "",
-        "variables": {},
-        "metadata": {},
+        "messages": [HumanMessage(content="Hi")] * 5,
+        "summary": "",
     }
-
-    llm = MagicMock()
-    llm.ainvoke = AsyncMock(return_value=AIMessage(content="Order ID: ORD123, Ticker: AAPL, Action: BUY, Bullish"))
-
-    result = await format_response_node(state, llm)
-    formatted_content = result["messages"][0].content
-    assert "Order ID: ORD123" in formatted_content
-    assert "Ticker: AAPL" in formatted_content
-    assert "Action: BUY" in formatted_content
+    result = await agent_graph._summarize_conversation(state)
+    assert result["summary"] == ""
+    assert "messages" not in result
 
 
 @pytest.mark.asyncio
-async def test_format_response_context():
-    # Test "context" key extraction
-    content = '{"context": "This is the relevant information."}'
+async def test_summarize_conversation_trigger(agent_graph, mock_llm):
+    mock_llm.ainvoke = AsyncMock(return_value=AIMessage(content="New Summary"))
+
+    # Create 20 messages to trigger summarization
+    messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(20)]
     state: AgentState = {
-        "messages": [SystemMessage(content=content)],
-        "sender": "agent",
-        "order_id": None,
-        "query": "",
-        "variables": {},
-        "metadata": {},
+        "messages": messages,
+        "summary": "Old Summary",
+        "last_summarized_id": None
     }
 
-    llm = MagicMock()
-    llm.ainvoke = AsyncMock(return_value=AIMessage(content="This is the relevant information."))
+    result = await agent_graph._summarize_conversation(state)
 
-    result = await format_response_node(state, llm)
-    assert result["messages"][0].content == "This is the relevant information."
+    assert result["summary"] == "New Summary"
+    # Incremental summarization doesn't delete messages anymore
+    assert "messages" not in result
+    # It should have summarized up to index 13 (20 - 6 - 1 = 13)
+    assert result["last_summarized_id"] == "13"
+
+
+@pytest.mark.asyncio
+async def test_summarize_conversation_trigger_by_length(agent_graph, mock_llm):
+    mock_llm.ainvoke = AsyncMock(return_value=AIMessage(content="New Summary"))
+
+    # Create 10 messages but one is very large (total > 4000 chars)
+    messages = [HumanMessage(content=f"msg {i}", id=str(i)) for i in range(9)]
+    messages.append(HumanMessage(content="X" * 5000, id="large"))
+
+    state: AgentState = {
+        "messages": messages,
+        "summary": "Old Summary",
+        "last_summarized_id": None
+    }
+    result = await agent_graph._summarize_conversation(state)
+
+    assert result["summary"] == "New Summary"
+    assert "messages" not in result
+    # It should have summarized up to index 3 (10 - 6 - 1 = 3)
+    assert result["last_summarized_id"] == "3"
+
+
+@pytest.mark.asyncio
+async def test_call_model_no_tool_on_summary(agent_graph, mock_llm):
+    """
+    Verify that the AI can answer from context (summary) without calling tools.
+    """
+    mock_bound = mock_llm.bind_tools.return_value
+    # Mock a direct textual response (no tool calls)
+    mock_bound.ainvoke = AsyncMock(return_value=AIMessage(content="Here is your TLDR: The trade was a buy.", response_metadata={}))
+
+    state: AgentState = {
+        "messages": [HumanMessage(content="tldr?")],
+        "summary": "The trade for MBAI was a buy at $1.67 due to a merger catalyst.",
+    }
+
+    config = {"metadata": {"user_id": "test-user"}}
+
+    result = await agent_graph._call_model(state, config)
+
+    assert result["messages"][0].content == "Here is your TLDR: The trade was a buy."
+    
+    # Verify no tool calls were attempted in this textual response
+    assert not hasattr(result["messages"][0], "tool_calls") or not result["messages"][0].tool_calls
+
+
+def test_workflow_structure(agent_graph):
+    # Verify nodes exist in the graph
+    nodes = agent_graph.graph.get_graph().nodes
+    assert "agent" in nodes
+    assert "tools" in nodes
+    assert "summarize" in nodes
+    
+    # Verify edges (simplified check of graph structure)
+    edges = agent_graph.graph.get_graph().edges
+    # Convert edges to a list of (source, target) tuples for easier checking
+    edge_pairs = [(e.source, e.target) for e in edges]
+    
+    # Check for direct tools -> agent edge
+    assert ("tools", "agent") in edge_pairs
+    # Check for start -> summarize -> agent path
+    assert ("__start__", "summarize") in edge_pairs
+    assert ("summarize", "agent") in edge_pairs

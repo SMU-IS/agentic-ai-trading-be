@@ -2,11 +2,11 @@ replicaCount: 2
 
 resources:
   requests:
-    cpu: "50m"
-    memory: "64Mi"
+    cpu: "250m"
+    memory: "1Gi"
   limits:
-    cpu: "100m"
-    memory: "128Mi"
+    cpu: "500m"
+    memory: "2Gi"
 
 autoscaling:
   enabled: true
@@ -25,6 +25,7 @@ service:
   targetPort: 5012
 
 startupProbe:
+  timeoutSeconds: 5
   httpGet:
     path: /
     port: 5012
@@ -32,12 +33,14 @@ startupProbe:
   periodSeconds: 10
 
 livenessProbe:
+  timeoutSeconds: 5
   httpGet:
     path: /
     port: 5012
   initialDelaySeconds: 60
 
 readinessProbe:
+  timeoutSeconds: 5
   httpGet:
     path: /
     port: 5012

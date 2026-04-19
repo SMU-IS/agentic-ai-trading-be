@@ -3,11 +3,14 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ENV_PATH = os.path.join(BASE_DIR, ".env")
+_env_file = os.environ.get("ENV_FILE", ".env")
+_base_env = os.path.join(BASE_DIR, ".env")
+_override_env = os.path.join(BASE_DIR, _env_file)
+_env_files = (_base_env,) if _env_file == ".env" else (_base_env, _override_env)
 
 class EnvConfig(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=ENV_PATH,
+        env_file=_env_files,
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -20,8 +23,9 @@ class EnvConfig(BaseSettings):
     redis_aggregator_stream: str = Field(..., validation_alias="REDIS_AGGREGATOR_STREAM")
     redis_trade_stream: str = Field(..., validation_alias="REDIS_TRADE_STREAM")
     redis_password: str = Field(..., validation_alias="REDIS_PASSWORD")
-    base_api: str = Field(..., validation_alias="BASE_API")
-    jwt_token: str = Field(..., validation_alias="JWT_TOKEN")
+    base_api: str = Field(default="", validation_alias="BASE_API")
+    jwt_token: str = Field(default="", validation_alias="JWT_TOKEN")
+    post_timestamp_key: str = Field(default="post_timestamps", validation_alias="POST_TIMESTAMP_KEY")
 
 env_config = EnvConfig()
-config = env_config 
+config = env_config

@@ -19,3 +19,6 @@ class OrderSummary(BaseModel):
 
 class TradeHistoryListResponse(BaseModel):
     orders: list[OrderSummary]
+    total_count: int
+    truncated: bool = False
+    message: str | None = None

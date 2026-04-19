@@ -38,7 +38,7 @@ class SentimentAggregator:
     async def async_start(self):
         print("🔄 Sentiment stream → aggregator stream")
         await self.create_group()
-        POST_TIMESTAMP = "post_timestamps"
+        POST_TIMESTAMP = env_config.post_timestamp_key
 
         while True:
             messages = await self.r.xreadgroup(
@@ -133,3 +133,9 @@ class SentimentAggregator:
 
                         print(f"❌ Error on {event_id}: {e}")
                         traceback.print_exc()
+
+
+if __name__ == "__main__":
+    import asyncio
+    worker = SentimentAggregator()
+    asyncio.run(worker.async_start())

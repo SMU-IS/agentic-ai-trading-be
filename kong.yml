@@ -1,0 +1,103 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: rag-chatbot
+    url: http://rag-chatbot-service:5001
+    routes:
+      - name: rag-chatbot-route
+        paths: ["/api/v1/rag"]
+  - name: preprocessing-service
+    url: http://preprocessing-api:5002
+    routes:
+      - name: preprocessing-service-route
+        paths: ["/api/v1/preprocessing"]
+  - name: news-scraper
+    url: http://news-scraper-service:5003
+    routes:
+      - name: news-scraper-route
+        paths: ["/api/v1/news-scraper"]
+  - name: notification-alert
+    url: http://notification-service:5004
+    routes:
+      - name: notification-alert-route
+        paths: ["/api/v1/notification"]
+  - name: user-info
+    url: http://user-info-service:5005
+    routes:
+      - name: user-info-auth-route
+        paths: ["/api/v1/auth"]
+      - name: user-info-route
+        paths: ["/api/v1/user"]
+  - name: trading-agent-m
+    url: http://trading-agent-m-service:5006
+    routes:
+      - name: trading-agent-m-route
+        paths: ["/api/v1/agent-m"]
+  - name: trading-service
+    url: http://broker-service:5007
+    routes:
+      - name: trading-service-route
+        paths: ["/api/v1/trading"]
+  - name: news-aggregator-service
+    url: http://news-aggregator:5008
+    routes:
+      - name: news-aggregator-service-route
+        paths: ["/api/v1/news-aggregator"]
+  - name: qdrant-retrieval
+    url: http://qdrant-retrieval:5009
+    routes:
+      - name: qdrant-retrieval-route
+        paths: ["/api/v1/qdrant"]
+  - name: ticker-identification-service
+    url: http://ticker-identification-api:5010
+    routes:
+      - name: ticker-identification-service-route
+        paths: ["/api/v1/ticker-identification"]
+  - name: event-identification-service
+    url: http://event-identification-api:5011
+    routes:
+      - name: event-identification-service-route
+        paths: ["/api/v1/event-identification"]
+  - name: sentiment-analysis-service
+    url: http://sentiment-analysis-api:5012
+    routes:
+      - name: sentiment-analysis-service-route
+        paths: ["/api/v1/sentiment-analysis"]
+  - name: news-scraper-tradingview
+    url: http://news-scraper-tradingview:5013
+    routes:
+      - name: news-scraper-tradingview-route
+        paths: ["/api/v1/news-scraper-tradingview"]
+  - name: metrics-tracker
+    url: http://metrics-tracker:5014
+    routes:
+      - name: metrics-tracker-route
+        paths: ["/api/v1/metrics"]
+  - name: info-agent-service
+    url: http://info-agent-service:5015
+    routes:
+      - name: info-agent-service-route
+        paths: ["/api/v1/info-agent"]
+
+plugins:
+  - name: cors
+    config:
+      origins: ["*"]
+      methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+      headers:
+        [
+          "Accept",
+          "Accept-Version",
+          "Content-Length",
+          "Content-MD5",
+          "Content-Type",
+          "Date",
+          "Authorization",
+          "X-Requested-With",
+          "X-Auth-Token",
+        ]
+      exposed_headers: ["X-Auth-Token"]
+      credentials: true
+      max_age: 3600
+      preflight_continue: false

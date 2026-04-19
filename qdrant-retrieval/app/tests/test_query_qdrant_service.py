@@ -41,6 +41,8 @@ async def test_retrieve_all_news_success(mock_qdrant_strategy):
         collection_name="news_analysis_compiled",
         limit=10,
         offset=None,
+        order_by=None,
+        scroll_filter=None,
         with_payload=True,
         with_vectors=False
     )
@@ -61,7 +63,7 @@ async def test_retrieve_all_news_error(mock_qdrant_strategy):
     service = QueryQdrantService()
     service.vector_store.client.scroll.side_effect = Exception("Qdrant error")
     
-    with pytest.raises(RuntimeError, match="Failed to scroll documents: Qdrant error"):
+    with pytest.raises(RuntimeError, match="Failed to scroll news documents: Qdrant error"):
         await service.retrieve_all_news()
 
 @pytest.mark.asyncio
