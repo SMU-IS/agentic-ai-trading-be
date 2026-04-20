@@ -2,11 +2,11 @@ replicaCount: 1
 
 resources:
   requests:
-    cpu: "50m"
-    memory: "256Mi"
+    cpu: 10m
+    memory: 192Mi
   limits:
-    cpu: "500m"
-    memory: "512Mi"
+    cpu: 200m
+    memory: 256Mi
 
 autoscaling:
   enabled: true
@@ -49,6 +49,13 @@ readinessProbe:
 worker:
   enabled: true
   replicaCount: 1
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
   autoscaling:
     enabled: true
     minReplicas: 1
