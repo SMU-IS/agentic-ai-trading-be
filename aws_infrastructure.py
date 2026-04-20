@@ -1,13 +1,12 @@
 # /// script
-# requires-python = ">=3.9"
 # dependencies = [
 #   "diagrams",
 # ]
 # ///
 
 from diagrams import Cluster, Diagram, Edge
-from diagrams.aws.compute import EC2, AutoScaling, EC2ContainerRegistry
-from diagrams.aws.database import RDS
+from diagrams.aws.compute import ECR, EKS, AutoScaling, EC2Instance, EC2Instances
+from diagrams.aws.database import RDSPostgresqlInstance
 from diagrams.aws.management import (
     AmazonManagedGrafana,
     AmazonManagedPrometheus,
@@ -15,156 +14,139 @@ from diagrams.aws.management import (
 )
 from diagrams.aws.mobile import Amplify
 from diagrams.aws.network import (
-    ELB,
     CloudFront,
+    ElbNetworkLoadBalancer,
     InternetGateway,
     Route53,
 )
-from diagrams.aws.security import WAF
+from diagrams.aws.security import WAF, SecretsManager
 from diagrams.aws.storage import S3
-from diagrams.onprem.network import Kong
+from diagrams.onprem.ci import GithubActions
+from diagrams.onprem.vcs import Github
 
-# Professional Minimalist Palette
-COLOR_PRIMARY = "#2d3436"
-COLOR_SECONDARY = "#636e72"
-COLOR_ACCENT = "#0984E3"
-BG_COLOR = "#ffffff"
+OUT = "aws_infrastructure"
 
 graph_attr = {
-    "fontsize": "32",
-    "bgcolor": BG_COLOR,
-    "splines": "ortho",
-    "pad": "1.0",
-    "nodesep": "0.6",
-    "ranksep": "1.0",
-    "fontname": "Helvetica",
     "rankdir": "LR",
+    "fontsize": "20",
+    "fontname": "Helvetica Neue",
+    "pad": "3.5",
+    "nodesep": "0.8",
+    "ranksep": "2.2",
+    "bgcolor": "white",
+    "splines": "ortho",
+    "label": "Agent M  —  High-Availability Multi-Region Architecture (us-east-1 Primary)\n\n────── Primary flow          - - - - - - - - -  Failover / Admin / Replication\n\n",
+    "labelloc": "b",
+    "labeljust": "l",
+    "fontcolor": "#333333",
+    "dpi": "96",
+    "compound": "true",
 }
 
-node_attr = {
-    "fontname": "Helvetica",
-    "fontsize": "11",
-}
-
-cluster_attr = {
-    "fontname": "Helvetica-Bold",
-    "fontsize": "16",
-    "style": "dashed",
-    "color": COLOR_SECONDARY,
-}
+node_attr = {"fontsize": "13", "fontname": "Helvetica Neue"}
+cluster_attr = {"margin": "20", "fontsize": "14", "fontname": "Helvetica Neue Bold"}
 
 with Diagram(
-    "Agent M AWS Infrastructure",
+    "",
     show=False,
-    filename="aws_infrastructure",
-    direction="LR",
+    filename=OUT,
+    outformat=["png", "dot"],
     graph_attr=graph_attr,
     node_attr=node_attr,
 ):
-    # DNS & Global Layer
-    dns = Route53("Route 53\n(Global Traffic Mgr)")
+    # ── CI/CD ─────────────────────────────────────────────────────────────────
+    with Cluster("CI/CD Pipeline"):
+        github_repo = Github("GitHub Repo")
+        gh_actions = GithubActions("GitHub Actions")
+        ecr = ECR("Amazon ECR")
+        github_repo >> gh_actions
 
+    # ── Global Edge ───────────────────────────────────────────────────────────
     with Cluster("Global Edge Services"):
-        waf = WAF("AWS WAF\n(Edge Security)")
-        cloudfront = CloudFront("CloudFront\n(API Acceleration)")
-        amplify = Amplify("AWS Amplify\n(Frontend Hosting)")
-        ecr = EC2ContainerRegistry("ECR\n(Image Registry)")
+        r53 = Route53("Route 53\nagentic-m.com")
+        waf = WAF("AWS WAF")
+        cf = CloudFront("CloudFront")
+        amplify = Amplify("AWS Amplify")
+        r53 >> waf >> cf
+        r53 >> amplify
 
-    # --- Primary VPC ---
-    with Cluster("Primary VPC (us-east-1)", graph_attr=cluster_attr):
-        igw = InternetGateway("Internet Gateway")
+    with Cluster("Security"):
+        secrets = SecretsManager("Secrets Manager")
 
-        with Cluster("Public Subnets", graph_attr=cluster_attr):
-            nlb = ELB("NLB\n(Internet-Facing)")
+    # ── Primary VPC ───────────────────────────────────────────────────────────
+    with Cluster("Primary VPC — us-east-1"):
+        with Cluster(" "):
+            igw_p = InternetGateway("Internet Gateway")
+            nlb_p = ElbNetworkLoadBalancer("NLB")
+            kong_p = EKS("Kong Ingress")
+            karpenter = AutoScaling("Karpenter")
+            app_pods = EC2Instances("App Pods (HPA)")
+            igw_p >> nlb_p >> kong_p >> karpenter >> app_pods
 
-        with Cluster("Scalable EKS Cluster", graph_attr=cluster_attr):
-            kong = Kong("Kong Ingress\n(HA Configuration)")
-            with Cluster("Auto-Scaling Node Fleet"):
-                karpenter = AutoScaling("Karpenter\n(Elastic Scaling)")
-                app_nodes = EC2("Scalable App Pods\n(HPA / On-Demand)")
+        with Cluster("  "):
+            bastion_p = EC2Instance("Bastion Host")
+            rds_p = RDSPostgresqlInstance("RDS PostgreSQL\nMulti-AZ")
+            bastion_p >> Edge(style="dashed") >> rds_p
 
-        with Cluster("Private Subnets", graph_attr=cluster_attr):
-            rds = RDS("RDS PostgreSQL\n(Multi-AZ Master)")
+    # ── DR VPC ────────────────────────────────────────────────────────────────
+    with Cluster("Replica VPC — us-west-2 (DR)"):
+        with Cluster("   "):
+            igw_dr = InternetGateway("Internet Gateway")
+            nlb_dr = ElbNetworkLoadBalancer("NLB (DR)")
+            kong_dr = EKS("Kong Ingress\nWarm Standby")
+            app_dr = EC2Instances("App Pods (DR)")
+            igw_dr >> nlb_dr >> kong_dr >> app_dr
 
-    # --- Replica VPC (EXACT COPY) ---
-    with Cluster("Replica VPC (us-west-2 / DR)", graph_attr=cluster_attr):
-        igw_dr = InternetGateway("Internet Gateway (DR)")
+        with Cluster("    "):
+            bastion_dr = EC2Instance("Bastion Host (DR)")
+            rds_dr = RDSPostgresqlInstance("RDS Read\nReplica (DR)")
+            bastion_dr >> Edge(style="dashed") >> rds_dr
 
-        with Cluster("Public Subnets (DR)", graph_attr=cluster_attr):
-            nlb_dr = ELB("NLB\n(Internet-Facing DR)")
+    # ── Storage ───────────────────────────────────────────────────────────────
+    with Cluster("Managed Storage"):
+        s3_p = S3("S3 Primary\nus-east-1")
+        s3_dr = S3("S3 Replica\nus-west-2")
+        s3_p >> Edge(label="  Cross-Region Replication  ") >> s3_dr
 
-        with Cluster("Scalable EKS Cluster (DR)", graph_attr=cluster_attr):
-            kong_dr = Kong("Kong Ingress\n(Warm Standby)")
-            with Cluster("Auto-Scaling Node Fleet (DR)"):
-                karpenter_dr = AutoScaling("Karpenter\n(Elastic Scaling DR)")
-                app_nodes_dr = EC2("Scalable App Pods\n(Warm Standby)")
+    # ── Observability ─────────────────────────────────────────────────────────
+    with Cluster("Observability"):
+        amp = AmazonManagedPrometheus("AMP")
+        cw = Cloudwatch("CloudWatch")
+        grafana = AmazonManagedGrafana("Managed Grafana")
+        [amp, cw] >> grafana
 
-        with Cluster("Private Subnets (DR)", graph_attr=cluster_attr):
-            rds_dr = RDS("RDS Read Replica\n(DR Instance)")
+    # ── Spine ─────────────────────────────────────────────────────────────────
+    inv = Edge(style="invis")
+    ecr >> inv >> cf
+    cf >> inv >> igw_p
+    igw_p >> inv >> igw_dr
+    app_pods >> inv >> s3_p
+    s3_p >> inv >> amp
+    cf >> inv >> secrets
 
-    # --- Managed Storage ---
-    with Cluster("Managed Storage Services", graph_attr=cluster_attr):
-        s3_primary = S3("S3 Storage\n(Primary us-east-1)")
-        s3_replica = S3("S3 Storage\n(Replica us-west-2)")
+    # ── CI/CD flows ───────────────────────────────────────────────────────────
+    gh_actions >> ecr >> kong_p
+    gh_actions >> amplify
 
-    # --- Observability ---
-    with Cluster("Observability & Monitoring", graph_attr=cluster_attr):
-        prometheus = AmazonManagedPrometheus("AMP")
-        cloudwatch = Cloudwatch("CloudWatch")
-        grafana = AmazonManagedGrafana("AMG")
+    # ── Edge → VPCs ───────────────────────────────────────────────────────────
+    cf >> Edge(label="\n\n\nPrimary Traffic\n\n\n") >> igw_p
+    cf >> Edge(style="dashed") >> igw_dr
 
-    # --- Edges ---
+    # ── Secrets → Kong ────────────────────────────────────────────────────────
+    secrets >> kong_p
+    secrets >> Edge(style="dashed") >> kong_dr
 
-    # 1. Global
-    (
-        dns
-        >> Edge(color=COLOR_PRIMARY, label=" agentic-m.com / api.agentic-m.com")
-        >> waf
-        >> cloudfront
-    )
-    cloudfront >> Edge(color=COLOR_PRIMARY) >> amplify
+    # ── RDS replication ───────────────────────────────────────────────────────
+    rds_p >> Edge(style="dashed", label="  Replication  ") >> rds_dr
 
-    # 2. Primary Path
-    (
-        cloudfront
-        >> Edge(color=COLOR_PRIMARY, label=" API")
-        >> igw
-        >> nlb
-        >> kong
-        >> app_nodes
-    )
-    app_nodes >> Edge(color=COLOR_SECONDARY, style="dashed") >> rds
-    app_nodes >> Edge(color=COLOR_SECONDARY, style="dotted") >> s3_primary
+    # ── App Pods → Storage ────────────────────────────────────────────────────
+    app_pods >> s3_p
+    app_dr >> Edge(style="dashed") >> s3_dr
 
-    # 3. Failover Path (Constraint keeps DR VPC from jumping around)
-    (
-        cloudfront
-        >> Edge(color=COLOR_SECONDARY, style="dashed", label=" Failover")
-        >> igw_dr
-        >> nlb_dr
-        >> kong_dr
-        >> app_nodes_dr
-    )
+    # ── App Pods → Observability ──────────────────────────────────────────────
+    app_pods >> amp
+    app_pods >> cw
+    app_dr >> Edge(style="dashed") >> amp
+    app_dr >> Edge(style="dashed") >> cw
 
-    # 4. Replication
-    rds >> Edge(color=COLOR_ACCENT, style="dashed") >> rds_dr
-    s3_primary >> Edge(color=COLOR_SECONDARY, style="dotted") >> s3_replica
-
-    # 5. Cluster Management (The FIX: constraint="false")
-    karpenter >> Edge(color=COLOR_ACCENT, style="dashed") >> app_nodes
-    (
-        karpenter_dr
-        >> Edge(color=COLOR_ACCENT, style="dashed", constraint="false")
-        >> app_nodes_dr
-    )
-
-    ecr >> Edge(color=COLOR_SECONDARY, style="dotted", label=" Pull") >> app_nodes
-    (
-        ecr
-        >> Edge(color=COLOR_SECONDARY, style="dotted", constraint="false")
-        >> app_nodes_dr
-    )
-
-    # 6. Observability
-    app_nodes >> Edge(color=COLOR_SECONDARY, style="dashed") >> [prometheus, cloudwatch]
-    [prometheus, cloudwatch] >> grafana
+print(f"Diagram saved to {OUT}.png")
