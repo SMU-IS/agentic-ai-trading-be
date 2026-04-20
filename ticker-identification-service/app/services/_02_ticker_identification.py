@@ -35,7 +35,7 @@ class TickerIdentificationService:
         cleaned_tickers: dict,
         alias_to_canonical: dict,
         groq_api_key: str = env_config.groq_api_key,
-        spacy_model: str = "en_core_web_lg",
+        spacy_model: str = "en_core_web_sm",
         model_name: str = env_config.groq_model_name,
 
     ):

@@ -1,16 +1,16 @@
-replicaCount: 2
+replicaCount: 1
 
 resources:
   requests:
     cpu: "50m"
-    memory: "64Mi"
+    memory: "192Mi"
   limits:
-    cpu: "200m"
-    memory: "128Mi"
+    cpu: "500m"
+    memory: "256Mi"
 
 autoscaling:
   enabled: true
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 4
   targetCPUUtilizationPercentage: 70
 

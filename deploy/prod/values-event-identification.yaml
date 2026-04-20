@@ -1,16 +1,16 @@
-replicaCount: 2
+replicaCount: 1
 
 resources:
   requests:
     cpu: "50m"
-    memory: "128Mi"
+    memory: "192Mi"
   limits:
-    cpu: "200m"
+    cpu: "500m"
     memory: "256Mi"
 
 autoscaling:
   enabled: true
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 5
   targetCPUUtilizationPercentage: 70
 
@@ -48,10 +48,10 @@ readinessProbe:
 
 worker:
   enabled: true
-  replicaCount: 2
+  replicaCount: 1
   autoscaling:
     enabled: true
-    minReplicas: 2
+    minReplicas: 1
     maxReplicas: 5
     targetCPUUtilizationPercentage: 70
   command: ["python", "-m", "app.services.event_identification_worker"]
