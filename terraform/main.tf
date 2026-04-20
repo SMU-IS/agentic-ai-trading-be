@@ -365,7 +365,7 @@ resource "kubectl_manifest" "karpenter_node_pool" {
       }
       disruption = {
         consolidationPolicy = "WhenEmptyOrUnderutilized"
-        consolidateAfter    = "1m"
+        consolidateAfter    = "30s"
       }
     }
   })
