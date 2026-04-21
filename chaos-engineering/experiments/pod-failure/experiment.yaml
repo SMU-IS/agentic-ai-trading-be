@@ -1,0 +1,79 @@
+# 1. Service Account for Chaos Experiment
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pod-delete-sa
+  namespace: default
+  labels:
+    name: pod-delete-sa
+    app.kubernetes.io/part-of: litmus
+---
+# 2. RBAC Permissions for Chaos Experiment
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-delete-sa
+  namespace: default
+  labels:
+    name: pod-delete-sa
+    app.kubernetes.io/part-of: litmus
+rules:
+  - apiGroups: ["", "apps", "batch", "litmuschaos.io"]
+    resources: ["pods", "deployments", "replicasets", "statefulsets", "jobs", "chaosengines", "chaosexperiments", "chaosresults"]
+    verbs: ["create", "list", "get", "patch", "update", "delete", "deletecollection"]
+  - apiGroups: [""]
+    resources: ["pods/log", "events"]
+    # Added 'create' and 'patch' to ensure the experiment can log events to the cluster
+    verbs: ["get", "list", "watch", "create", "patch"]
+---
+# 3. Role Binding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-delete-sa
+  namespace: default
+  labels:
+    name: pod-delete-sa
+    app.kubernetes.io/part-of: litmus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: pod-delete-sa
+subjects:
+  - kind: ServiceAccount
+    name: pod-delete-sa
+    namespace: default
+---
+# 4. Chaos Engine: The "Director" of the experiment
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: trading-service-chaos
+  namespace: default
+spec:
+  engineState: "active"
+  chaosServiceAccount: pod-delete-sa
+  # Automatically clean up helper pods to keep infrastructure lean
+  jobCleanUpPolicy: "delete"
+  annotationCheck: "false"
+  # Target App Info: Surgical targeting of the Trading Service
+  appinfo:
+    appns: 'default'
+    applabel: 'app.kubernetes.io/instance=trading-service'
+    appkind: 'deployment'
+  experiments:
+    - name: pod-delete
+      spec:
+        components:
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: '30'
+            - name: CHAOS_INTERVAL
+              value: '10'
+            # Targeted 50% because we have 2 replicas. 
+            # This kills 1 pod, testing High Availability (HA).
+            - name: PODS_AFFECTED_PERC
+              value: '50'
+            # Set to true to simulate a hard "Power Failure" (SIGKILL)
+            - name: FORCE
+              value: 'true'

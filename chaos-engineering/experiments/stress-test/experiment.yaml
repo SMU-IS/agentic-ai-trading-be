@@ -1,0 +1,30 @@
+# 1. Chaos Engine for Scaling/Load Validation
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: trading-service-stress
+  namespace: default
+spec:
+  # It can be active/stop
+  engineState: "active"
+  # Reuse the existing service account with necessary RBAC
+  chaosServiceAccount: pod-delete-sa
+  jobCleanUpPolicy: "delete"
+  appinfo:
+    appns: 'default'
+    applabel: 'app.kubernetes.io/instance=trading-service'
+    appkind: 'deployment'
+  experiments:
+    - name: pod-cpu-hog
+      spec:
+        components:
+          env:
+            # Duration: 5 minutes (provides time for HPA and Karpenter to trigger)
+            - name: TOTAL_CHAOS_DURATION
+              value: '300'
+            # Consume 1000m (1 core) per targeted pod
+            - name: CPU_CORES
+              value: '1'
+            # Percentage of pods to affect (50% will target one of your two replicas)
+            - name: PODS_AFFECTED_PERC
+              value: '50'
