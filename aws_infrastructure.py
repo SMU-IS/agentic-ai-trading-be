@@ -1,10 +1,8 @@
 # /// script
 # dependencies = ["diagrams"]
 # ///
-import os
 import re
 import subprocess
-import sys
 
 from diagrams import Cluster, Diagram, Edge
 from diagrams.aws.compute import ECR, EKS, AutoScaling, EC2Instance, EC2Instances
@@ -32,12 +30,17 @@ graph_attr = {
     "rankdir": "LR",
     "fontsize": "20",
     "fontname": "Helvetica Neue",
-    "pad": "3.5",
-    "nodesep": "0.8",
-    "ranksep": "2.2",
+    "pad": "2.5",
+    "nodesep": "0.6",
+    "ranksep": "1.8",
     "bgcolor": "white",
     "splines": "ortho",
-    "label": "Agent M  —  High-Availability Multi-Region Architecture (us-east-1 Primary)\n\n────── Primary flow          - - - - - - - - -  Failover / Admin / Replication\n\n",
+    "label": (
+        "Agent M  —  High-Availability Multi-AZ Architecture (us-east-1)\n\n"
+        "──────  Solid: Active Path / Synchronous Request Flow\n"
+        "- - - - -  Dashed: Standby Path / Asynchronous Replication & Failover\n"
+        "· · · · ·  Dotted: Management Plane / Governance & Security Access\n\n"
+    ),
     "labelloc": "b",
     "labeljust": "l",
     "fontcolor": "#333333",
@@ -47,7 +50,6 @@ graph_attr = {
 
 node_attr = {"fontsize": "13", "fontname": "Helvetica Neue"}
 
-# ── Step 1: Generate DOT + PNG ────────────────────────────────────────────────
 with Diagram(
     "",
     show=False,
@@ -73,35 +75,33 @@ with Diagram(
     with Cluster("Security"):
         secrets = SecretsManager("Secrets Manager")
 
-    with Cluster("Primary VPC — us-east-1"):
-        with Cluster(" "):
-            igw_p = InternetGateway("Internet Gateway")
-            nlb_p = ElbNetworkLoadBalancer("NLB")
-            kong_p = EKS("Kong Ingress")
-            karpenter = AutoScaling("Karpenter")
-            app_pods = EC2Instances("App Pods (HPA)")
-            igw_p >> nlb_p >> kong_p >> karpenter >> app_pods
-        with Cluster("  "):
-            bastion_p = EC2Instance("Bastion Host")
-            rds_p = RDSPostgresqlInstance("RDS PostgreSQL\nMulti-AZ")
-            bastion_p >> Edge(style="dashed") >> rds_p
+    with Cluster("VPC — us-east-1"):
+        # Positioned outside and ON TOP of the subnets
+        igw = InternetGateway("Internet Gateway")
 
-    with Cluster("Replica VPC — us-west-2 (DR)"):
-        with Cluster("   "):
-            igw_dr = InternetGateway("Internet Gateway")
-            nlb_dr = ElbNetworkLoadBalancer("NLB (DR)")
-            kong_dr = EKS("Kong Ingress\nWarm Standby")
-            app_dr = EC2Instances("App Pods (DR)")
-            igw_dr >> nlb_dr >> kong_dr >> app_dr
-        with Cluster("    "):
-            bastion_dr = EC2Instance("Bastion Host (DR)")
-            rds_dr = RDSPostgresqlInstance("RDS Read\nReplica (DR)")
-            bastion_dr >> Edge(style="dashed") >> rds_dr
+        with Cluster("Public Subnets (Multi-AZ)"):
+            nlb = ElbNetworkLoadBalancer("NLB")
+            bastion = EC2Instance("Bastion Host")
+
+        # Removed the horizontal anchor to allow vertical positioning in LR layout
+
+        with Cluster("Scalable EKS Cluster (Multi-AZ)"):
+            kong = EKS("Kong Ingress")
+            karpenter = AutoScaling("Karpenter\nAuto-Scaling")
+            app_pods = EC2Instances("App Pods (HPA)")
+            kong >> karpenter >> app_pods
+
+        with Cluster("Private Subnets (Multi-AZ)"):
+            rds_primary = RDSPostgresqlInstance("RDS PostgreSQL\nPrimary (AZ-a)")
+            rds_standby = RDSPostgresqlInstance("RDS PostgreSQL\nStandby (AZ-b)")
+            (
+                rds_primary
+                >> Edge(style="dashed", label="  Sync Replication  ")
+                >> rds_standby
+            )
 
     with Cluster("Managed Storage"):
-        s3_p = S3("S3 Primary\nus-east-1")
-        s3_dr = S3("S3 Replica\nus-west-2")
-        s3_p >> Edge(label="  Cross-Region Replication  ") >> s3_dr
+        s3 = S3("S3\nus-east-1")
 
     with Cluster("Observability"):
         amp = AmazonManagedPrometheus("AMP")
@@ -109,29 +109,30 @@ with Diagram(
         grafana = AmazonManagedGrafana("Managed Grafana")
         [amp, cw] >> grafana
 
+    # Alignment Spine
     inv = Edge(style="invis")
     ecr >> inv >> cf
-    cf >> inv >> igw_p
-    igw_p >> inv >> igw_dr
-    app_pods >> inv >> s3_p
-    s3_p >> inv >> amp
+    cf >> inv >> igw
+    app_pods >> inv >> s3
+    s3 >> inv >> amp
     cf >> inv >> secrets
 
-    gh_actions >> ecr >> kong_p
+    gh_actions >> ecr >> kong
     gh_actions >> amplify
-    cf >> Edge(label="\n\n\nPrimary Traffic\n\n\n") >> igw_p
-    cf >> Edge(style="dashed") >> igw_dr
-    secrets >> kong_p
-    secrets >> Edge(style="dashed") >> kong_dr
-    rds_p >> Edge(style="dashed", label="  Replication  ") >> rds_dr
-    app_pods >> s3_p
-    app_dr >> Edge(style="dashed") >> s3_dr
+
+    # Logical Ingress Flow (CloudFront -> NLB Origin)
+    cf >> nlb
+    nlb >> kong
+
+    # Governance & Management
+    bastion >> Edge(style="dotted") >> rds_primary
+    secrets >> Edge(style="dotted") >> kong
+
+    # App Logic
+    app_pods >> Edge(style="dashed") >> s3
     app_pods >> amp
     app_pods >> cw
-    app_dr >> Edge(style="dashed") >> amp
-    app_dr >> Edge(style="dashed") >> cw
 
-# ── Step 2: Patch DOT — cluster labels to top ─────────────────────────────────
 with open(f"{OUT}.dot") as f:
     dot = f.read()
 
@@ -147,7 +148,7 @@ def patch_clusters(dot):
         if re.match(r'\s*subgraph (?:cluster_|"cluster_)', line):
             in_cluster = True
         if in_cluster and re.match(r"\s*graph \[", line):
-            lines += [line, "\t\t\tlabelloc=t,", "\t\t\tmargin=30,"]
+            lines += [line, "\t\t\tlabelloc=t,", "\t\t\tmargin=40,"]
             in_cluster = False
             continue
         lines.append(line)
@@ -155,14 +156,16 @@ def patch_clusters(dot):
 
 
 dot = patch_clusters(dot)
-
 with open("/tmp/patched.dot", "w") as f:
     f.write(dot)
 
-# ── Step 3: Render final PNG ──────────────────────────────────────────────────
 r = subprocess.run(
     ["dot", "-Tpng", "-Gdpi=96", "/tmp/patched.dot", "-o", f"{OUT}.png"],
     capture_output=True,
     text=True,
 )
-print(r.stderr[:200] if r.returncode != 0 else f"Diagram saved to {OUT}.png")
+
+if r.returncode != 0:
+    print(f"Error rendering diagram: {r.stderr[:200]}")
+else:
+    print(f"Architecture diagram successfully generated: {OUT}.png")

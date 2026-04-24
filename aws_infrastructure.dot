@@ -1,26 +1,29 @@
 digraph {
-	graph [bb="0,0,3322.9,1342",
+	graph [bb="0,0,2609,978",
 		bgcolor=white,
 		compound=true,
 		dpi=96,
 		fontcolor="#333333",
 		fontname="Helvetica Neue",
 		fontsize=20,
-		label="Agent M  —  High-Availability Multi-Region Architecture (us-east-1 Primary)
+		label="Agent M  —  High-Availability Multi-AZ Architecture (us-east-1)
 
-────── Primary flow          - - - - \
-- - - - -  Failover / Admin / Replication
+──────  Solid: Active Path / Synchronous Request \
+Flow
+- - - - -  Dashed: Standby Path / Asynchronous Replication & Failover
+· · · · ·  Dotted: Management Plane / Governance & \
+Security Access
 
 ",
 		labeljust=l,
 		labelloc=b,
-		lheight=1.33,
-		lp="342.88,52",
-		lwidth=9.30,
-		nodesep=0.8,
-		pad=3.5,
+		lheight=2.00,
+		lp="312.12,76",
+		lwidth=8.45,
+		nodesep=0.6,
+		pad=2.5,
 		rankdir=LR,
-		ranksep=2.2,
+		ranksep=1.8,
 		splines=ortho
 	];
 	node [fixedsize=true,
@@ -37,549 +40,403 @@ digraph {
 	];
 	edge [color="#7B8894"];
 	subgraph "cluster_CI/CD Pipeline" {
-		graph [bb="8,1161,644.4,1334",
+		graph [bb="8,797,588.4,970",
 			bgcolor="#E5F5FD",
 			fontname="Sans-Serif",
 			fontsize=12,
 			label="CI/CD Pipeline",
 			labeljust=l,
 			lheight=0.18,
-			lp="56.125,1171.4",
+			lp="56.125,807.38",
 			lwidth=1.11,
 			pencolor="#AEB6BE",
 			rankdir=LR,
 			shape=box,
 			style=rounded
 		];
-		"8235a0ff9fab4ce6ae4742c104142ff3"	[height=1.9,
+		dab068e3a6194447b3d5e0b4e52fa4d0	[height=1.9,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/onprem/vcs/\
 github.png",
 			label="GitHub Repo",
-			pos="66.4,1258",
+			pos="66.4,894",
 			shape=none];
-		"6414b09b8dba4e88bcb7e90ef23ef8db"	[height=1.9,
+		ac5f0c2ee2b64987bcf12ecbd0e0dbff	[height=1.9,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/onprem/ci/\
 github-actions.png",
 			label="GitHub Actions",
-			pos="326.2,1258",
+			pos="298.2,894",
 			shape=none];
-		"8235a0ff9fab4ce6ae4742c104142ff3" -> "6414b09b8dba4e88bcb7e90ef23ef8db"	[dir=forward,
+		dab068e3a6194447b3d5e0b4e52fa4d0 -> ac5f0c2ee2b64987bcf12ecbd0e0dbff	[dir=forward,
 			fontcolor="#2D3436",
 			fontname="Sans-Serif",
 			fontsize=13,
-			pos="e,275.82,1258 116.49,1258 116.49,1258 264.31,1258 264.31,1258"];
-		b71a7905876d43fca0770ffb285da850	[height=1.9,
+			pos="e,248,894 116.7,894 116.7,894 236.49,894 236.49,894"];
+		b7e9561ffdf1400d86aea740f4d6bdf3	[height=1.9,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/compute/\
 ec2-container-registry.png",
 			label="Amazon ECR",
-			pos="586,1258",
+			pos="530,894",
 			shape=none];
-		"6414b09b8dba4e88bcb7e90ef23ef8db" -> b71a7905876d43fca0770ffb285da850	[dir=forward,
+		ac5f0c2ee2b64987bcf12ecbd0e0dbff -> b7e9561ffdf1400d86aea740f4d6bdf3	[dir=forward,
 			fontcolor="#2D3436",
 			fontname="Sans-Serif",
 			fontsize=13,
-			pos="e,535.62,1258 376.29,1258 376.29,1258 524.11,1258 524.11,1258"];
+			pos="e,479.8,894 348.5,894 348.5,894 468.29,894 468.29,894"];
 	}
 	subgraph "cluster_Global Edge Services" {
-		graph [bb="267.8,771,904.2,1139",
+		graph [bb="239.8,436,820.2,789",
 			bgcolor="#E5F5FD",
 			fontname="Sans-Serif",
 			fontsize=12,
 			label="Global Edge Services",
 			labeljust=l,
 			lheight=0.18,
-			lp="333.93,781.38",
+			lp="305.93,446.38",
 			lwidth=1.61,
 			pencolor="#AEB6BE",
 			rankdir=LR,
 			shape=box,
 			style=rounded
 		];
-		"2e73f728f50e4efab51cb64fa2dc3891"	[height=2.3,
+		d12b68747a064e4283b50998985555ea	[height=2.3,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/network/\
 route-53.png",
 			label="Route 53
 agentic-m.com",
-			pos="326.2,990",
+			pos="298.2,647",
 			shape=none];
-		"986edba6a6814c81af7e8105f3258356"	[height=1.9,
+		"5cfdde0e9bd542198723df60377f0545"	[height=1.9,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/security/\
 waf.png",
 			label="AWS WAF",
-			pos="586,868",
+			pos="530,533",
 			shape=none];
-		"2e73f728f50e4efab51cb64fa2dc3891" -> "986edba6a6814c81af7e8105f3258356"	[dir=forward,
+		d12b68747a064e4283b50998985555ea -> "5cfdde0e9bd542198723df60377f0545"	[dir=forward,
 			fontcolor="#2D3436",
 			fontname="Sans-Serif",
 			fontsize=13,
-			pos="e,535.62,921.8 376.29,921.8 376.29,921.8 524.11,921.8 524.11,921.8"];
-		"77f42f6db2174137bc69a89562d87a09"	[height=1.9,
+			pos="e,479.8,582.8 348.5,582.8 348.5,582.8 468.29,582.8 468.29,582.8"];
+		ceed089a99bb41a2a7be300d664ed3aa	[height=1.9,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/mobile/\
 amplify.png",
 			label="AWS Amplify",
-			pos="586,1063",
+			pos="530,713",
 			shape=none];
-		"2e73f728f50e4efab51cb64fa2dc3891" -> "77f42f6db2174137bc69a89562d87a09"	[dir=forward,
+		d12b68747a064e4283b50998985555ea -> ceed089a99bb41a2a7be300d664ed3aa	[dir=forward,
 			fontcolor="#2D3436",
 			fontname="Sans-Serif",
 			fontsize=13,
-			pos="e,535.62,1033.7 376.29,1033.7 376.29,1033.7 524.11,1033.7 524.11,1033.7"];
-		"055685b505f746afbf809fef90255bfc"	[height=1.9,
+			pos="e,479.8,687.2 348.5,687.2 348.5,687.2 468.29,687.2 468.29,687.2"];
+		"5f35fc81057f47348f1282cebeee48ce"	[height=1.9,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/network/\
 cloudfront.png",
 			label=CloudFront,
-			pos="845.8,889",
+			pos="761.8,533",
 			shape=none];
-		"986edba6a6814c81af7e8105f3258356" -> "055685b505f746afbf809fef90255bfc"	[dir=forward,
+		"5cfdde0e9bd542198723df60377f0545" -> "5f35fc81057f47348f1282cebeee48ce"	[dir=forward,
 			fontcolor="#2D3436",
 			fontname="Sans-Serif",
 			fontsize=13,
-			pos="e,795.42,878.5 636.09,878.5 636.09,878.5 783.91,878.5 783.91,878.5"];
+			pos="e,711.6,533 580.3,533 580.3,533 700.09,533 700.09,533"];
 	}
 	subgraph cluster_Security {
-		graph [bb="1391.5,571,1508.3,744",
+		graph [bb="952.55,160,1069.4,333",
 			bgcolor="#E5F5FD",
 			fontname="Sans-Serif",
 			fontsize=12,
 			label=Security,
 			labeljust=l,
 			lheight=0.18,
-			lp="1421.3,581.38",
+			lp="982.3,170.38",
 			lwidth=0.60,
 			pencolor="#AEB6BE",
 			rankdir=LR,
 			shape=box,
 			style=rounded
 		];
-		bd10a2ddf18e4c94ac933d1e4b480bfd	[height=1.9,
+		b1dee898ec864ef68f66397e92de0f59	[height=1.9,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/security/\
 secrets-manager.png",
 			label="Secrets Manager",
-			pos="1449.9,668",
+			pos="1011,257",
 			shape=none];
 	}
-	subgraph "cluster_Primary VPC — us-east-1" {
-		graph [bb="1123.7,752,2376.5,1186",
+	subgraph "cluster_VPC — us-east-1" {
+		graph [bb="927.2,341,1913.6,903",
 			bgcolor="#E5F5FD",
 			fontname="Sans-Serif",
 			fontsize=12,
-			label="Primary VPC — us-east-1",
+			label="VPC — us-east-1",
 			labeljust=l,
 			lheight=0.18,
-			lp="1200.3,762.38",
-			lwidth=1.91,
+			lp="981.7,351.38",
+			lwidth=1.29,
 			pencolor="#AEB6BE",
 			rankdir=LR,
 			shape=box,
 			style=rounded
 		];
-		subgraph "cluster_ " {
-			graph [bb="1131.7,1005,2368.5,1178",
+		subgraph "cluster_Public Subnets (Multi-AZ)" {
+			graph [bb="935.2,370,1087.7,723",
 				bgcolor="#EBF3E7",
 				fontname="Sans-Serif",
 				fontsize=12,
-				label=" ",
+				label="Public Subnets (Multi-AZ)",
 				labeljust=l,
 				lheight=0.18,
-				lp="1141.2,1015.4",
-				lwidth=0.04,
+				lp="1011.5,380.38",
+				lwidth=1.90,
 				pencolor="#AEB6BE",
 				rankdir=LR,
 				shape=box,
 				style=rounded
 			];
-			"35c1326bbbd34afca3381322e9e171f9"	[height=1.9,
-				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/network/\
-internet-gateway.png",
-				label="Internet Gateway",
-				pos="1190.1,1102",
-				shape=none];
-			"2aeb235a8b5c4cac86a96eee3b90dcb6"	[height=1.9,
+			b0dc9065afe742a6b84ce50b6e1bd93f	[height=1.9,
 				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/network/\
 elb-network-load-balancer.png",
 				label=NLB,
-				pos="1449.9,1102",
+				pos="1011,467",
 				shape=none];
-			"35c1326bbbd34afca3381322e9e171f9" -> "2aeb235a8b5c4cac86a96eee3b90dcb6"	[dir=forward,
-				fontcolor="#2D3436",
-				fontname="Sans-Serif",
-				fontsize=13,
-				pos="e,1399.5,1124.8 1240.2,1124.8 1240.2,1124.8 1388,1124.8 1388,1124.8"];
-			"7a8e54b38da64540a91bf6f7761b57a9"	[height=1.9,
-				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/compute/\
-elastic-kubernetes-service.png",
-				label="Kong Ingress",
-				pos="1790.5,1102",
-				shape=none];
-			"2aeb235a8b5c4cac86a96eee3b90dcb6" -> "7a8e54b38da64540a91bf6f7761b57a9"	[dir=forward,
-				fontcolor="#2D3436",
-				fontname="Sans-Serif",
-				fontsize=13,
-				pos="e,1740.3,1102 1500.1,1102 1500.1,1102 1728.8,1102 1728.8,1102"];
-			"5309ad16f85d40e8b7460471da8225b3"	[height=1.9,
-				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/compute/\
-application-auto-scaling.png",
-				label=Karpenter,
-				pos="2050.3,1102",
-				shape=none];
-			"7a8e54b38da64540a91bf6f7761b57a9" -> "5309ad16f85d40e8b7460471da8225b3"	[dir=forward,
-				fontcolor="#2D3436",
-				fontname="Sans-Serif",
-				fontsize=13,
-				pos="e,1999.9,1102 1840.5,1102 1840.5,1102 1988.4,1102 1988.4,1102"];
-			ad7b4e7c56e54059b3b2ba9a79ecb9e0	[height=1.9,
-				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/compute/\
-ec2-instances.png",
-				label="App Pods (HPA)",
-				pos="2310.1,1102",
-				shape=none];
-			"5309ad16f85d40e8b7460471da8225b3" -> ad7b4e7c56e54059b3b2ba9a79ecb9e0	[dir=forward,
-				fontcolor="#2D3436",
-				fontname="Sans-Serif",
-				fontsize=13,
-				pos="e,2259.7,1102 2100.3,1102 2100.3,1102 2248.2,1102 2248.2,1102"];
-		}
-		subgraph "cluster_  " {
-			graph [bb="1131.7,781,1508.3,984",
-				bgcolor="#EBF3E7",
-				fontname="Sans-Serif",
-				fontsize=12,
-				label="  ",
-				labeljust=l,
-				lheight=0.18,
-				lp="1142.7,791.38",
-				lwidth=0.08,
-				pencolor="#AEB6BE",
-				rankdir=LR,
-				shape=box,
-				style=rounded
-			];
-			"0cd1dd79fc6f4cb2966faed6e23f8433"	[height=1.9,
+			a84f6c1d15dd488996d659504a6f2738	[height=1.9,
 				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/compute/\
 ec2-instance.png",
 				label="Bastion Host",
-				pos="1190.1,893",
+				pos="1011,647",
 				shape=none];
-			"55004954b86145e6b57a3fddc34f2c96"	[height=2.3,
+		}
+		subgraph "cluster_Scalable EKS Cluster (Multi-AZ)" {
+			graph [bb="1210.7,370,1905.6,573",
+				bgcolor="#EBF3E7",
+				fontname="Sans-Serif",
+				fontsize=12,
+				label="Scalable EKS Cluster (Multi-AZ)",
+				labeljust=l,
+				lheight=0.18,
+				lp="1304.6,380.38",
+				lwidth=2.39,
+				pencolor="#AEB6BE",
+				rankdir=LR,
+				shape=box,
+				style=rounded
+			];
+			fdeee14e35884f3eb7c557bb29e5f1c5	[height=1.9,
+				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/compute/\
+elastic-kubernetes-service.png",
+				label="Kong Ingress",
+				pos="1269.1,474",
+				shape=none];
+			afda32446a544e039739594bced0922b	[height=2.3,
+				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/compute/\
+application-auto-scaling.png",
+				label="Karpenter
+Auto-Scaling",
+				pos="1615.4,482",
+				shape=none];
+			fdeee14e35884f3eb7c557bb29e5f1c5 -> afda32446a544e039739594bced0922b	[dir=forward,
+				fontcolor="#2D3436",
+				fontname="Sans-Serif",
+				fontsize=13,
+				pos="e,1565.3,474 1319.5,474 1319.5,474 1553.8,474 1553.8,474"];
+			"1e2eaa2fd71746f6b54ffdb84acc5c81"	[height=1.9,
+				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/compute/\
+ec2-instances.png",
+				label="App Pods (HPA)",
+				pos="1847.2,482",
+				shape=none];
+			afda32446a544e039739594bced0922b -> "1e2eaa2fd71746f6b54ffdb84acc5c81"	[dir=forward,
+				fontcolor="#2D3436",
+				fontname="Sans-Serif",
+				fontsize=13,
+				pos="e,1797,482 1665.7,482 1665.7,482 1785.5,482 1785.5,482"];
+		}
+		subgraph "cluster_Private Subnets (Multi-AZ)" {
+			graph [bb="1210.7,581,1673.8,784",
+				bgcolor="#EBF3E7",
+				fontname="Sans-Serif",
+				fontsize=12,
+				label="Private Subnets (Multi-AZ)",
+				labeljust=l,
+				lheight=0.18,
+				lp="1288.8,591.38",
+				lwidth=1.95,
+				pencolor="#AEB6BE",
+				rankdir=LR,
+				shape=box,
+				style=rounded
+			];
+			"64ed1b1f888348dd84a8903dba202fb7"	[height=2.3,
 				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/database/\
 rds-postgresql-instance.png",
 				label="RDS PostgreSQL
-Multi-AZ",
-				pos="1449.9,893",
+Primary (AZ-a)",
+				pos="1269.1,693",
 				shape=none];
-			"0cd1dd79fc6f4cb2966faed6e23f8433" -> "55004954b86145e6b57a3fddc34f2c96"	[dir=forward,
-				fontcolor="#2D3436",
-				fontname="Sans-Serif",
-				fontsize=13,
-				pos="e,1399.5,893 1240.2,893 1240.2,893 1388,893 1388,893",
-				style=dashed];
-		}
-	}
-	subgraph "cluster_Replica VPC — us-west-2 (DR)" {
-		graph [bb="1383.5,112,2376.5,563",
-			bgcolor="#E5F5FD",
-			fontname="Sans-Serif",
-			fontsize=12,
-			label="Replica VPC — us-west-2 (DR)",
-			labeljust=l,
-			lheight=0.18,
-			lp="1475.5,122.38",
-			lwidth=2.33,
-			pencolor="#AEB6BE",
-			rankdir=LR,
-			shape=box,
-			style=rounded
-		];
-		subgraph "cluster_   " {
-			graph [bb="1391.5,141,2368.5,344",
-				bgcolor="#EBF3E7",
-				fontname="Sans-Serif",
-				fontsize=12,
-				label="   ",
-				labeljust=l,
-				lheight=0.18,
-				lp="1404,151.38",
-				lwidth=0.12,
-				pencolor="#AEB6BE",
-				rankdir=LR,
-				shape=box,
-				style=rounded
-			];
-			"300f3206b7b647b1a044485d577357a9"	[height=1.9,
-				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/network/\
-internet-gateway.png",
-				label="Internet Gateway",
-				pos="1449.9,268",
-				shape=none];
-			"10747546686a468eb6698d87000ed9a8"	[height=1.9,
-				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/network/\
-elb-network-load-balancer.png",
-				label="NLB (DR)",
-				pos="1790.5,254",
-				shape=none];
-			"300f3206b7b647b1a044485d577357a9" -> "10747546686a468eb6698d87000ed9a8"	[dir=forward,
-				fontcolor="#2D3436",
-				fontname="Sans-Serif",
-				fontsize=13,
-				pos="e,1740.3,261 1500.1,261 1500.1,261 1728.8,261 1728.8,261"];
-			b72bcbf8e38646e6926ea9c1593a3625	[height=2.3,
-				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/compute/\
-elastic-kubernetes-service.png",
-				label="Kong Ingress
-Warm Standby",
-				pos="2050.3,253",
-				shape=none];
-			"10747546686a468eb6698d87000ed9a8" -> b72bcbf8e38646e6926ea9c1593a3625	[dir=forward,
-				fontcolor="#2D3436",
-				fontname="Sans-Serif",
-				fontsize=13,
-				pos="e,1999.9,254 1840.5,254 1840.5,254 1988.4,254 1988.4,254"];
-			ecce070bbb984d50b48df896366f73ad	[height=1.9,
-				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/compute/\
-ec2-instances.png",
-				label="App Pods (DR)",
-				pos="2310.1,268",
-				shape=none];
-			b72bcbf8e38646e6926ea9c1593a3625 -> ecce070bbb984d50b48df896366f73ad	[dir=forward,
-				fontcolor="#2D3436",
-				fontname="Sans-Serif",
-				fontsize=13,
-				pos="e,2259.7,267.7 2100.3,267.7 2100.3,267.7 2248.2,267.7 2248.2,267.7"];
-		}
-		subgraph "cluster_    " {
-			graph [bb="1391.5,352,1848.9,555",
-				bgcolor="#EBF3E7",
-				fontname="Sans-Serif",
-				fontsize=12,
-				label="    ",
-				labeljust=l,
-				lheight=0.18,
-				lp="1405.5,362.38",
-				lwidth=0.17,
-				pencolor="#AEB6BE",
-				rankdir=LR,
-				shape=box,
-				style=rounded
-			];
-			"1f93406a9c5a404c9430d80a0b0afa96"	[height=1.9,
-				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/compute/\
-ec2-instance.png",
-				label="Bastion Host (DR)",
-				pos="1449.9,464",
-				shape=none];
-			d82a7238bd874d1994001ffe17aba8f8	[height=2.3,
+			"2c7ba18ff5b448f4be318e9ed0fbea1a"	[height=2.3,
 				image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/database/\
 rds-postgresql-instance.png",
-				label="RDS Read
-Replica (DR)",
-				pos="1790.5,464",
+				label="RDS PostgreSQL
+Standby (AZ-b)",
+				pos="1615.4,693",
 				shape=none];
-			"1f93406a9c5a404c9430d80a0b0afa96" -> d82a7238bd874d1994001ffe17aba8f8	[dir=forward,
+			"64ed1b1f888348dd84a8903dba202fb7" -> "2c7ba18ff5b448f4be318e9ed0fbea1a"	[dir=forward,
 				fontcolor="#2D3436",
 				fontname="Sans-Serif",
 				fontsize=13,
-				pos="e,1740.3,464 1500.1,464 1500.1,464 1728.8,464 1728.8,464",
+				label="  Sync Replication  ",
+				lp="1442.3,699.75",
+				pos="e,1565.3,693 1319.5,693 1319.5,693 1553.8,693 1553.8,693",
 				style=dashed];
 		}
+		a149ef81cdaf41869d497dc8797007f8	[height=1.9,
+			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/network/\
+internet-gateway.png",
+			label="Internet Gateway",
+			pos="1011,827",
+			shape=none];
+		b0dc9065afe742a6b84ce50b6e1bd93f -> fdeee14e35884f3eb7c557bb29e5f1c5	[dir=forward,
+			fontcolor="#2D3436",
+			fontname="Sans-Serif",
+			fontsize=13,
+			pos="e,1218.8,470.5 1061.3,470.5 1061.3,470.5 1207.3,470.5 1207.3,470.5"];
+		a84f6c1d15dd488996d659504a6f2738 -> "64ed1b1f888348dd84a8903dba202fb7"	[dir=forward,
+			fontcolor="#2D3436",
+			fontname="Sans-Serif",
+			fontsize=13,
+			pos="e,1218.8,662.8 1061.3,662.8 1061.3,662.8 1207.3,662.8 1207.3,662.8",
+			style=dotted];
 	}
 	subgraph "cluster_Managed Storage" {
-		graph [bb="2511.5,990,3055.1,1193",
+		graph [bb="2020.6,411,2137.4,614",
 			bgcolor="#E5F5FD",
 			fontname="Sans-Serif",
 			fontsize=12,
 			label="Managed Storage",
 			labeljust=l,
 			lheight=0.18,
-			lp="2567.1,1000.4",
+			lp="2076.2,421.38",
 			lwidth=1.32,
 			pencolor="#AEB6BE",
 			rankdir=LR,
 			shape=box,
 			style=rounded
 		];
-		"9685d8aa282b49678c9776e26e6907dd"	[height=2.3,
+		"432e4f6bd1804471ac425b6b2a9751b9"	[height=2.3,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/storage/\
 simple-storage-service-s3.png",
-			label="S3 Primary
+			label="S3
 us-east-1",
-			pos="2569.9,1102",
+			pos="2079,523",
 			shape=none];
-		ad61ea9d020f4121a338269d5c44a322	[height=2.3,
-			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/storage/\
-simple-storage-service-s3.png",
-			label="S3 Replica
-us-west-2",
-			pos="2996.7,1102",
-			shape=none];
-		"9685d8aa282b49678c9776e26e6907dd" -> ad61ea9d020f4121a338269d5c44a322	[dir=forward,
-			fontcolor="#2D3436",
-			fontname="Sans-Serif",
-			fontsize=13,
-			label="  Cross-Region Replication  ",
-			lp="2783.3,1108.8",
-			pos="e,2946.3,1102 2620.1,1102 2620.1,1102 2934.8,1102 2934.8,1102"];
 	}
 	subgraph cluster_Observability {
-		graph [bb="2938.3,587,3314.9,955",
+		graph [bb="2252.4,191,2601,544",
 			bgcolor="#E5F5FD",
 			fontname="Sans-Serif",
 			fontsize=12,
 			label=Observability,
 			labeljust=l,
 			lheight=0.18,
-			lp="2981.1,597.38",
+			lp="2295.3,201.38",
 			lwidth=0.97,
 			pencolor="#AEB6BE",
 			rankdir=LR,
 			shape=box,
 			style=rounded
 		];
-		"95dc66c6e5d84a1f8bdead87ca3006e3"	[height=1.9,
+		fabcbacf7c8947bc8f46627813a9acf5	[height=1.9,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/management/\
 amazon-managed-prometheus.png",
 			label=AMP,
-			pos="2996.7,879",
+			pos="2310.8,468",
 			shape=none];
-		ae986cc8844f4c73b59411aef43a211a	[height=1.9,
+		"98e9389805d947038955801abc0d8ad5"	[height=1.9,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/management/\
 amazon-managed-grafana.png",
 			label="Managed Grafana",
-			pos="3256.5,781",
+			pos="2542.6,377",
 			shape=none];
-		"95dc66c6e5d84a1f8bdead87ca3006e3" -> ae986cc8844f4c73b59411aef43a211a	[dir=forward,
+		fabcbacf7c8947bc8f46627813a9acf5 -> "98e9389805d947038955801abc0d8ad5"	[dir=forward,
 			fontcolor="#2D3436",
 			fontname="Sans-Serif",
 			fontsize=13,
-			pos="e,3206.1,830 3046.7,830 3046.7,830 3194.6,830 3194.6,830"];
-		"5f123d7953c34aba91f802b86b25ddfd"	[height=1.9,
+			pos="e,2492.4,422.5 2361.1,422.5 2361.1,422.5 2480.9,422.5 2480.9,422.5"];
+		d295174b0efe4df5a66227b8c74cd78b	[height=1.9,
 			image="/Users/joshuadavid/.cache/uv/environments-v2/aws-infrastructure-0a1be923e300c614/lib/python3.13/site-packages/resources/aws/management/\
 cloudwatch.png",
 			label=CloudWatch,
-			pos="2996.7,684",
+			pos="2310.8,288",
 			shape=none];
-		"5f123d7953c34aba91f802b86b25ddfd" -> ae986cc8844f4c73b59411aef43a211a	[dir=forward,
+		d295174b0efe4df5a66227b8c74cd78b -> "98e9389805d947038955801abc0d8ad5"	[dir=forward,
 			fontcolor="#2D3436",
 			fontname="Sans-Serif",
 			fontsize=13,
-			pos="e,3206.1,732.5 3046.7,732.5 3046.7,732.5 3194.6,732.5 3194.6,732.5"];
+			pos="e,2492.4,332.5 2361.1,332.5 2361.1,332.5 2480.9,332.5 2480.9,332.5"];
 	}
-	"6414b09b8dba4e88bcb7e90ef23ef8db" -> "77f42f6db2174137bc69a89562d87a09"	[dir=forward,
+	ac5f0c2ee2b64987bcf12ecbd0e0dbff -> ceed089a99bb41a2a7be300d664ed3aa	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		pos="e,535.84,1102.1 325.85,1189.6 325.85,1147.7 325.85,1102.1 325.85,1102.1 325.85,1102.1 524.33,1102.1 524.33,1102.1"];
-	b71a7905876d43fca0770ffb285da850 -> "055685b505f746afbf809fef90255bfc"	[dir=forward,
+		pos="e,479.66,755.6 298,825.61 298,790.74 298,755.6 298,755.6 298,755.6 468.15,755.6 468.15,755.6"];
+	b7e9561ffdf1400d86aea740f4d6bdf3 -> "5f35fc81057f47348f1282cebeee48ce"	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		pos="e,820.85,957.4 636.38,1235.2 705.39,1235.2 820.85,1235.2 820.85,1235.2 820.85,1235.2 820.85,968.91 820.85,968.91",
+		pos="e,745,601.15 580.14,848.87 643.67,848.87 745,848.87 745,848.87 745,848.87 745,612.66 745,612.66",
 		style=invis];
-	b71a7905876d43fca0770ffb285da850 -> "7a8e54b38da64540a91bf6f7761b57a9"	[dir=forward,
+	b7e9561ffdf1400d86aea740f4d6bdf3 -> fdeee14e35884f3eb7c557bb29e5f1c5	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		pos="e,1790.9,1170.4 636.24,1280.8 864.26,1280.8 1790.9,1280.8 1790.9,1280.8 1790.9,1280.8 1790.9,1181.9 1790.9,1181.9"];
-	"055685b505f746afbf809fef90255bfc" -> bd10a2ddf18e4c94ac933d1e4b480bfd	[dir=forward,
+		pos="e,1219,538.9 580.25,872.13 678.38,872.13 886,872.13 886,872.13 886,872.13 886,538.9 886,538.9 886,538.9 1207.5,538.9 1207.5,538.9"];
+	"5f35fc81057f47348f1282cebeee48ce" -> b1dee898ec864ef68f66397e92de0f59	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		pos="e,1399.6,668 862.85,820.89 862.85,755.95 862.85,668 862.85,668 862.85,668 1388.1,668 1388.1,668",
+		pos="e,960.57,257 762,464.78 762,383.04 762,257 762,257 762,257 949.06,257 949.06,257",
 		style=invis];
-	"055685b505f746afbf809fef90255bfc" -> "35c1326bbbd34afca3381322e9e171f9"	[dir=forward,
+	"5f35fc81057f47348f1282cebeee48ce" -> a149ef81cdaf41869d497dc8797007f8	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		pos="e,1139.9,1066.2 870.85,957.26 870.85,1007.2 870.85,1066.2 870.85,1066.2 870.85,1066.2 1128.4,1066.2 1128.4,1066.2",
+		pos="e,960.62,770 779,601.23 779,671.25 779,770 779,770 779,770 949.11,770 949.11,770",
 		style=invis];
-	"055685b505f746afbf809fef90255bfc" -> "35c1326bbbd34afca3381322e9e171f9"	[dir=forward,
+	"5f35fc81057f47348f1282cebeee48ce" -> b0dc9065afe742a6b84ce50b6e1bd93f	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		label="
-
-
-Primary Traffic
-
-
-",
-		lp="1018,988.25",
-		pos="e,1140,1098.8 845.85,957.12 845.85,1018.4 845.85,1098.8 845.85,1098.8 845.85,1098.8 1128.5,1098.8 1128.5,1098.8"];
-	"055685b505f746afbf809fef90255bfc" -> "300f3206b7b647b1a044485d577357a9"	[dir=forward,
+		pos="e,960.91,500 811.92,500 811.92,500 949.4,500 949.4,500"];
+	b1dee898ec864ef68f66397e92de0f59 -> fdeee14e35884f3eb7c557bb29e5f1c5	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		pos="e,1399.6,245.2 828.85,820.71 828.85,655.02 828.85,245.2 828.85,245.2 828.85,245.2 1388.1,245.2 1388.1,245.2",
-		style=dashed];
-	bd10a2ddf18e4c94ac933d1e4b480bfd -> "7a8e54b38da64540a91bf6f7761b57a9"	[dir=forward,
+		pos="e,1269,405.78 1061.3,272.5 1136.4,272.5 1269,272.5 1269,272.5 1269,272.5 1269,394.27 1269,394.27",
+		style=dotted];
+	"1e2eaa2fd71746f6b54ffdb84acc5c81" -> "432e4f6bd1804471ac425b6b2a9751b9"	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		pos="e,1773.9,1033.6 1500.2,696.13 1591.2,696.13 1773.9,696.13 1773.9,696.13 1773.9,696.13 1773.9,1022.1 1773.9,1022.1"];
-	bd10a2ddf18e4c94ac933d1e4b480bfd -> b72bcbf8e38646e6926ea9c1593a3625	[dir=forward,
-		fontcolor="#2D3436",
-		fontname="Sans-Serif",
-		fontsize=13,
-		pos="e,2049.9,335.69 1500.3,607.6 1644.7,607.6 2049.9,607.6 2049.9,607.6 2049.9,607.6 2049.9,347.2 2049.9,347.2",
-		style=dashed];
-	"35c1326bbbd34afca3381322e9e171f9" -> "300f3206b7b647b1a044485d577357a9"	[dir=forward,
-		fontcolor="#2D3436",
-		fontname="Sans-Serif",
-		fontsize=13,
-		pos="e,1399.6,290.8 1240.3,1079.2 1276.8,1079.2 1319.9,1079.2 1319.9,1079.2 1319.9,1079.2 1319.9,290.8 1319.9,290.8 1319.9,290.8 1388.1,\
-290.8 1388.1,290.8",
+		pos="e,2028.8,513.67 1897.5,513.67 1897.5,513.67 2017.3,513.67 2017.3,513.67",
 		style=invis];
-	ad7b4e7c56e54059b3b2ba9a79ecb9e0 -> "9685d8aa282b49678c9776e26e6907dd"	[dir=forward,
+	"1e2eaa2fd71746f6b54ffdb84acc5c81" -> "432e4f6bd1804471ac425b6b2a9751b9"	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		pos="e,2519.5,1079.2 2360.1,1079.2 2360.1,1079.2 2508,1079.2 2508,1079.2",
-		style=invis];
-	ad7b4e7c56e54059b3b2ba9a79ecb9e0 -> "9685d8aa282b49678c9776e26e6907dd"	[dir=forward,
-		fontcolor="#2D3436",
-		fontname="Sans-Serif",
-		fontsize=13,
-		pos="e,2519.5,1124.8 2360.1,1124.8 2360.1,1124.8 2508,1124.8 2508,1124.8"];
-	ad7b4e7c56e54059b3b2ba9a79ecb9e0 -> "95dc66c6e5d84a1f8bdead87ca3006e3"	[dir=forward,
-		fontcolor="#2D3436",
-		fontname="Sans-Serif",
-		fontsize=13,
-		pos="e,2946.5,865.32 2343.9,1033.9 2343.9,963.94 2343.9,865.32 2343.9,865.32 2343.9,865.32 2935,865.32 2935,865.32"];
-	ad7b4e7c56e54059b3b2ba9a79ecb9e0 -> "5f123d7953c34aba91f802b86b25ddfd"	[dir=forward,
-		fontcolor="#2D3436",
-		fontname="Sans-Serif",
-		fontsize=13,
-		pos="e,2946.4,744.4 2309.9,1033.9 2309.9,930.14 2309.9,744.4 2309.9,744.4 2309.9,744.4 2934.9,744.4 2934.9,744.4"];
-	"55004954b86145e6b57a3fddc34f2c96" -> d82a7238bd874d1994001ffe17aba8f8	[dir=forward,
-		fontcolor="#2D3436",
-		fontname="Sans-Serif",
-		fontsize=13,
-		label="  Replication  ",
-		lp="1620.2,878.75",
-		pos="e,1806.9,546.65 1500.3,892.68 1598.7,892.68 1806.9,892.68 1806.9,892.68 1806.9,892.68 1806.9,558.17 1806.9,558.17",
+		pos="e,2028.8,476.93 1897.5,476.93 1897.5,476.93 2017.3,476.93 2017.3,476.93",
 		style=dashed];
-	ecce070bbb984d50b48df896366f73ad -> ad61ea9d020f4121a338269d5c44a322	[dir=forward,
+	"1e2eaa2fd71746f6b54ffdb84acc5c81" -> fabcbacf7c8947bc8f46627813a9acf5	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		pos="e,2996.9,1019.5 2276.9,336.09 2276.9,510.84 2276.9,961.6 2276.9,961.6 2276.9,961.6 2996.9,961.6 2996.9,961.6 2996.9,961.6 2996.9,\
-1008 2996.9,1008",
-		style=dashed];
-	ecce070bbb984d50b48df896366f73ad -> "95dc66c6e5d84a1f8bdead87ca3006e3"	[dir=forward,
+		pos="e,2260.6,426.9 1897.3,426.9 1897.3,426.9 2249.1,426.9 2249.1,426.9"];
+	"1e2eaa2fd71746f6b54ffdb84acc5c81" -> d295174b0efe4df5a66227b8c74cd78b	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		pos="e,2946.3,837.96 2292.9,336.18 2292.9,487.47 2292.9,837.96 2292.9,837.96 2292.9,837.96 2934.8,837.96 2934.8,837.96",
-		style=dashed];
-	ecce070bbb984d50b48df896366f73ad -> "5f123d7953c34aba91f802b86b25ddfd"	[dir=forward,
+		pos="e,2260.7,340.9 1847,413.93 1847,377.85 1847,340.9 1847,340.9 1847,340.9 2249.2,340.9 2249.2,340.9"];
+	"432e4f6bd1804471ac425b6b2a9751b9" -> fabcbacf7c8947bc8f46627813a9acf5	[dir=forward,
 		fontcolor="#2D3436",
 		fontname="Sans-Serif",
 		fontsize=13,
-		pos="e,2946.3,655.87 2326.9,336.01 2326.9,447.24 2326.9,655.87 2326.9,655.87 2326.9,655.87 2934.8,655.87 2934.8,655.87",
-		style=dashed];
-	"9685d8aa282b49678c9776e26e6907dd" -> "95dc66c6e5d84a1f8bdead87ca3006e3"	[dir=forward,
-		fontcolor="#2D3436",
-		fontname="Sans-Serif",
-		fontsize=13,
-		pos="e,2946.4,920.04 2569.9,1019.3 2569.9,971.21 2569.9,920.04 2569.9,920.04 2569.9,920.04 2934.9,920.04 2934.9,920.04",
+		pos="e,2260.6,488.3 2129.3,488.3 2129.3,488.3 2249.1,488.3 2249.1,488.3",
 		style=invis];
 }
