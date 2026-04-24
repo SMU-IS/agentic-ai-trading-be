@@ -20,6 +20,7 @@ Verify that the `trading-service` maintains 100% availability during a pod failu
 *   **View Verdict**: `kubectl describe chaosresult trading-service-chaos-pod-delete -n default`
 
 ## Key Presentation Points
-*   **MTTR**: ~9 seconds for infrastructure recovery.
+*   **Verified RTO**: ~8 seconds for full infrastructure recovery (from creation to Ready status).
 *   **Zero-Downtime**: 100% service availability via 2-replica HA.
-*   **Anti-Affinity**: Proved that replicas are distributed across different nodes.
+*   **Multi-AZ Resilience**: Replicas are strictly distributed across different Availability Zones (us-east-1a/b) via Hard Anti-Affinity.
+*   **Optimized Probes**: Readiness probes tuned to 2s intervals to minimize recovery latency.

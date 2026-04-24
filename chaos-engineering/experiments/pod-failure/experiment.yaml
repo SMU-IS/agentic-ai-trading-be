@@ -66,6 +66,8 @@ spec:
       spec:
         components:
           env:
+            - name: TARGET_DEPLOYMENT
+              value: 'trading-service-infra'
             - name: TOTAL_CHAOS_DURATION
               value: '30'
             - name: CHAOS_INTERVAL

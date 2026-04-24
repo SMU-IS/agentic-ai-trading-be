@@ -28,14 +28,16 @@ livenessProbe:
   httpGet:
     path: /
     port: 5007
-  initialDelaySeconds: 60
+  initialDelaySeconds: 10
   timeoutSeconds: 5
+  periodSeconds: 10
 readinessProbe:
   httpGet:
     path: /
     port: 5007
-  initialDelaySeconds: 30
+  initialDelaySeconds: 5
   timeoutSeconds: 5
+  periodSeconds: 5
 
 podAnnotations:
   # prometheus.io/scrape: "true"
