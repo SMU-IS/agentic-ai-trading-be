@@ -19,12 +19,14 @@ spec:
       spec:
         components:
           env:
+            - name: TARGET_DEPLOYMENT
+              value: 'trading-service-infra'
             # Duration: 5 minutes (provides time for HPA and Karpenter to trigger)
             - name: TOTAL_CHAOS_DURATION
               value: '300'
-            # Consume 1000m (1 core) per targeted pod
+            # Consume 1 full core per targeted pod to force HPA trigger
             - name: CPU_CORES
               value: '1'
-            # Percentage of pods to affect (50% will target one of your two replicas)
+            # Target 1 of your 2 initial replicas
             - name: PODS_AFFECTED_PERC
               value: '50'

@@ -82,17 +82,19 @@ spec:
         {{- toYaml .Values.affinity | nindent 8 }}
         {{- else if gt (int .Values.replicaCount) 1 }}
         podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchLabels:
-                {{- include "infra.selectorLabels" . | nindent 16 }}
-            topologyKey: "topology.kubernetes.io/zone"
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "infra.selectorLabels" . | nindent 18 }}
+              topologyKey: "topology.kubernetes.io/zone"
         {{- end }}
       {{- if gt (int .Values.replicaCount) 1 }}
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: "topology.kubernetes.io/zone"
-          whenUnsatisfiable: DoNotSchedule
+          whenUnsatisfiable: ScheduleAnyway
           labelSelector:
             matchLabels:
               {{- include "infra.selectorLabels" . | nindent 14 }}
