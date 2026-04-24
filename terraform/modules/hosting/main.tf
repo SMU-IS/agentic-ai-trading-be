@@ -126,7 +126,7 @@ resource "aws_amplify_branch" "main" {
 
 resource "aws_cloudfront_distribution" "kong_api" {
   origin {
-    domain_name = "k8s-default-kongkong-f56d41ad22-b89d49cb73c55092.elb.us-east-1.amazonaws.com"
+    domain_name = var.kong_lb_dns
     origin_id   = "Kong-Origin"
     custom_origin_config {
       http_port              = 80

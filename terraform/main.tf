@@ -67,6 +67,7 @@ module "hosting" {
   }
 
   cluster_name            = var.cluster_name
+  kong_lb_dns             = try(data.kubernetes_service.kong_proxy.status[0].load_balancer[0].ingress[0].hostname, "placeholder.elb.amazonaws.com")
   amplify_repository      = var.amplify_repository
   amplify_access_token    = var.amplify_access_token
   environment             = var.environment

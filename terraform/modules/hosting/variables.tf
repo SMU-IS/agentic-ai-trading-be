@@ -1,3 +1,8 @@
+variable "kong_lb_dns" {
+  description = "The DNS name of the Kong NLB"
+  type        = string
+}
+
 variable "cluster_name" {
   description = "Name of the cluster (used for resource naming)"
   type        = string
