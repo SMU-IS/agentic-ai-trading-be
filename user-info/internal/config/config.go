@@ -70,7 +70,7 @@ func InitDB(cfg *DBConfig) *gorm.DB {
 		log.Fatalf("Failed to create pgcrypto extension: %v", err)
 	}
 
-	err = db.AutoMigrate(&domain.User{})
+	err = db.AutoMigrate(&domain.User{}, &domain.WaitlistEntry{})
 	if err != nil {
 		log.Fatalf("DB Migration failed: %v", err)
 	}

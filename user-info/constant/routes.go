@@ -7,4 +7,7 @@ const (
 	Provider         = "/:provider"
 	ProviderCallBack = "/:provider/callback"
 	Profile          = "/profile"
+
+	WaitlistRequest = "/request"
+	WaitlistVerify  = "/verify"
 )

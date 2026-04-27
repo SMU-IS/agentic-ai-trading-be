@@ -43,8 +43,9 @@ func main() {
 	defer redisDb.Close()
 
 	userSvc := initUserUseCase(db, redisDb)
+	waitlistSvc := initWaitlistUseCase(db, redisDb)
 
-	router := setupRouter(userSvc)
+	router := setupRouter(userSvc, waitlistSvc)
 	server.RunServer(router)
 }
 
@@ -62,7 +63,12 @@ func initUserUseCase(db *gorm.DB, redisDb *redis.Client) domain.UserUseCase {
 	return service.NewUserUseCase(userRepo, redisDb, redisTtl, jwtSecret)
 }
 
-func setupRouter(userSvc domain.UserUseCase) *gin.Engine {
+func initWaitlistUseCase(db *gorm.DB, redisDb *redis.Client) domain.WaitlistUseCase {
+	waitlistRepo := repository.NewWaitlistRepository(db)
+	return service.NewWaitlistUseCase(waitlistRepo, redisDb)
+}
+
+func setupRouter(userSvc domain.UserUseCase, waitlistSvc domain.WaitlistUseCase) *gin.Engine {
 	router := gin.Default()
 	router.SetTrustedProxies(nil)
 
@@ -70,6 +76,7 @@ func setupRouter(userSvc domain.UserUseCase) *gin.Engine {
 	handler.SetUpAPIDocs(router)
 	handler.NewUserHandler(router, userSvc)
 	handler.UserProfile(router, userSvc)
+	handler.NewWaitlistHandler(router, waitlistSvc)
 
 	return router
 }

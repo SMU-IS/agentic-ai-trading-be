@@ -29,6 +29,8 @@ services:
         paths: ["/api/v1/auth"]
       - name: user-info-route
         paths: ["/api/v1/user"]
+      - name: user-info-waitlist-route
+        paths: ["/api/v1/waitlist"]
   - name: trading-agent-m
     url: http://trading-agent-m-service:5006
     routes:

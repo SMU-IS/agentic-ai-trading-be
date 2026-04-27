@@ -1,5 +1,6 @@
 package constant
 
 const (
-	UserProfileCacheKey = "user:profile:%s"
+	UserProfileCacheKey  = "user:profile:%s"
+	WaitlistOTPCacheKey  = "waitlist:otp:%s"
 )
