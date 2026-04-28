@@ -53,7 +53,7 @@ ingress:
     paths:
       - path: /api/v1/trading/healthcheck
         pathType: Exact
-      - path: /api/v1/trading/waitlist
+      - path: /api/v1/trading/waitlist/register
         pathType: Exact
   protected:
     enabled: true
