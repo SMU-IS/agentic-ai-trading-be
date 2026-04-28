@@ -9,9 +9,19 @@ class MongoDBClient:
         self.client = pymongo.MongoClient(uri, uuidRepresentation="standard")
         self.db = self.client[db_name]
         self.orders = self.db.orders
-        self.signals = self.db.signals 
+        self.signals = self.db.signals
         self.accounts = self.db.accounts
+        self.waitlist = self.db.waitlist
         
+    def add_to_waitlist(self, email: str) -> Dict[str, Any]:
+        """Add an email to the waitlist. Returns error if already registered."""
+        import datetime
+        existing = self.waitlist.find_one({"email": email})
+        if existing:
+            return {"success": False, "message": "Email already on waitlist"}
+        result = self.waitlist.insert_one({"email": email, "created_at": datetime.datetime.utcnow()})
+        return {"success": bool(result.inserted_id), "message": "Added to waitlist"}
+
     def store_orders_bulk(self, orders: List[Dict[str, Any]]) -> Dict[str, int]:
         """Store multiple orders (synchronous)"""
         if not orders:
