@@ -12,7 +12,7 @@ class WaitlistRequest(BaseModel):
     email: EmailStr
 
 
-@router.post("")
+@router.post("/")
 def join_waitlist(
     body: WaitlistRequest, client: MongoDBClient = Depends(lambda: mongo_client)
 ):
