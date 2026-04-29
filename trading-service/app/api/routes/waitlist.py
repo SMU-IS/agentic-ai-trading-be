@@ -19,9 +19,7 @@ def join_waitlist(
     try:
         result = client.add_to_waitlist(body.email)
         if not result["success"]:
-            raise HTTPException(status_code=409, detail=result["message"])
+            raise HTTPException(status_code=200, detail=result["message"])
         return result
-    except HTTPException:
-        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
