@@ -18,6 +18,10 @@
   <a href="https://agentic-m.com"><strong>🚀 Check out the Live App</strong></a>
 </p>
 
+<p align="center">
+  <a href="https://canva.link/61hfuwko1suv83l"><strong>🏆 Dell Technologies Academy (Cloud Native Experience Award) Champion</strong></a>
+</p>
+
 ---
 
 ## 📖 Overview
