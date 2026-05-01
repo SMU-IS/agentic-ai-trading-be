@@ -79,3 +79,9 @@ variable "show_cloudwatch_metrics" {
   type        = bool
   default     = false
 }
+
+variable "enable_waf" {
+  description = "Toggle to enable or disable the WAF (saves $10+/mo when false)"
+  type        = bool
+  default     = false
+}

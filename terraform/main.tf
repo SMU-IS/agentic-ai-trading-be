@@ -81,6 +81,7 @@ module "hosting" {
   show_banner             = var.show_banner
   banner_message          = var.banner_message
   show_cloudwatch_metrics = var.show_cloudwatch_metrics
+  enable_waf              = var.enable_waf
 }
 
 # =============================================================================
@@ -214,7 +215,7 @@ resource "helm_release" "kong" {
 
   values = [
     <<-EOT
-    replicaCount: 2
+    replicaCount: 1
     ingressController:
       enabled: true
       installCRDs: false
@@ -420,3 +421,29 @@ resource "kubectl_manifest" "karpenter_node_pool" {
 #     EOT
 #   ]
 # }
+
+# =============================================================================
+# Terraform State S3 Lifecycle
+# =============================================================================
+resource "aws_s3_bucket_versioning" "state_versioning" {
+  bucket = var.terraform_state_bucket
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "state_lifecycle" {
+  bucket     = var.terraform_state_bucket
+  depends_on = [aws_s3_bucket_versioning.state_versioning]
+
+  rule {
+    id     = "cleanup-old-versions"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+  }
+}

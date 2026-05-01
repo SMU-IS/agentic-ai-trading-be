@@ -4,6 +4,7 @@
 # =============================================================================
 
 resource "aws_wafv2_web_acl" "api_waf" {
+  count    = var.enable_waf ? 1 : 0
   provider = aws.us_east_1
   name     = "${var.cluster_name}-api-waf"
   scope    = "CLOUDFRONT"
@@ -150,6 +151,7 @@ resource "aws_wafv2_web_acl" "api_waf" {
 # =============================================================================
 
 resource "aws_s3_bucket" "waf_logs" {
+  count    = var.enable_waf ? 1 : 0
   provider = aws.us_east_1
   bucket   = "aws-waf-logs-${var.cluster_name}-${var.environment}"
 
@@ -163,8 +165,9 @@ resource "aws_s3_bucket" "waf_logs" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "waf_logs_lifecycle" {
+  count    = var.enable_waf ? 1 : 0
   provider = aws.us_east_1
-  bucket   = aws_s3_bucket.waf_logs.id
+  bucket   = try(aws_s3_bucket.waf_logs[0].id, "")
 
   rule {
     id     = "expire-logs"
@@ -179,21 +182,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "waf_logs_lifecycle" {
 }
 
 resource "aws_wafv2_web_acl_logging_configuration" "api_waf_logging" {
+  count                   = var.enable_waf ? 1 : 0
   provider                = aws.us_east_1
-  log_destination_configs = [aws_s3_bucket.waf_logs.arn]
-  resource_arn            = aws_wafv2_web_acl.api_waf.arn
+  log_destination_configs = [try(aws_s3_bucket.waf_logs[0].arn, "")]
+  resource_arn            = try(aws_wafv2_web_acl.api_waf[0].arn, "")
+}
 
-  # Optional: Filter logs to only save blocked requests to save S3 costs
-  # logging_filter {
-  #   default_behavior = "KEEP"
-  #   filter {
-  #     behavior = "KEEP"
-  #     condition {
-  #       action_condition {
-  #         action = "BLOCK"
-  #       }
-  #     }
-  #     requirement = "MEETS_ANY"
-  #   }
-  # }
+
+resource "time_sleep" "wait_for_waf_disassociation" {
+  count            = var.enable_waf ? 1 : 0
+  depends_on       = [aws_wafv2_web_acl.api_waf]
+  destroy_duration = "120s"
 }

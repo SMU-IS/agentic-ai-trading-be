@@ -42,6 +42,19 @@ resource "aws_s3_bucket_lifecycle_configuration" "new_buckets_lifecycle" {
       storage_class = "INTELLIGENT_TIERING"
     }
   }
+
+  rule {
+    id     = "expire-logs"
+    status = "Enabled"
+
+    filter {
+      prefix = "logs/"
+    }
+
+    expiration {
+      days = 90
+    }
+  }
 }
 
 # =============================================================================
@@ -73,6 +86,19 @@ resource "aws_s3_bucket_lifecycle_configuration" "existing_buckets_lifecycle" {
     transition {
       days          = 30
       storage_class = "INTELLIGENT_TIERING"
+    }
+  }
+
+  rule {
+    id     = "expire-logs"
+    status = "Enabled"
+
+    filter {
+      prefix = "logs/"
+    }
+
+    expiration {
+      days = 90
     }
   }
 }

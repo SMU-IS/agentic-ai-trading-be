@@ -105,11 +105,6 @@ resource "aws_instance" "bastion" {
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.bastion_profile.name
 
-  # Spot market options
-  instance_market_options {
-    market_type = "spot"
-  }
-
   # No key_name needed with EICE/SSM
 
   # Ensure the instance has the EC2 Instance Connect software (installed by default on AL2023)

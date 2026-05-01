@@ -16,6 +16,12 @@ variable "environment" {
   default     = "dev"
 }
 
+variable "enable_waf" {
+  description = "Toggle to enable or disable the WAF (saves $10+/mo when false)"
+  type        = bool
+  default     = false
+}
+
 variable "vpc_cidr" {
   description = "CIDR block for the VPC"
   type        = string

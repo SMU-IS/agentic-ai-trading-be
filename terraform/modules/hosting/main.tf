@@ -125,6 +125,8 @@ resource "aws_amplify_branch" "main" {
 }
 
 resource "aws_cloudfront_distribution" "kong_api" {
+  depends_on = [time_sleep.wait_for_waf_disassociation]
+
   origin {
     domain_name = var.kong_lb_dns
     origin_id   = "Kong-Origin"
@@ -140,7 +142,7 @@ resource "aws_cloudfront_distribution" "kong_api" {
   comment         = "CloudFront for Kong API ${var.environment}"
   price_class     = "PriceClass_100"
   aliases         = ["api.agentic-m.com"]
-  web_acl_id      = aws_wafv2_web_acl.api_waf.arn
+  web_acl_id      = var.enable_waf ? try(aws_wafv2_web_acl.api_waf[0].arn, null) : null
 
   default_cache_behavior {
     allowed_methods          = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
