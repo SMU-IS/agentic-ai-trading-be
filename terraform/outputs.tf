@@ -80,9 +80,9 @@ output "lb_controller_irsa_role_arn" {
 # -----------------------------------------------------------------------------
 # Bastion Host
 # -----------------------------------------------------------------------------
-output "bastion_instance_id" {
-  description = "ID of the bastion host"
-  value       = module.compute.bastion_instance_id
+output "bastion_asg_name" {
+  description = "Name of the bastion Auto Scaling Group"
+  value       = module.compute.bastion_asg_name
 }
 
 output "bastion_security_group_id" {

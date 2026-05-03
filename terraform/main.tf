@@ -299,7 +299,6 @@ resource "helm_release" "karpenter" {
   ]
 }
 
-# Karpenter EC2NodeClass
 resource "kubectl_manifest" "karpenter_node_class" {
   yaml_body = yamlencode({
     apiVersion = "karpenter.k8s.aws/v1"
@@ -337,7 +336,6 @@ resource "kubectl_manifest" "karpenter_node_class" {
   depends_on = [helm_release.karpenter]
 }
 
-# Karpenter NodePool - defines which instances to launch
 resource "kubectl_manifest" "karpenter_node_pool" {
   yaml_body = yamlencode({
     apiVersion = "karpenter.sh/v1"
@@ -356,8 +354,8 @@ resource "kubectl_manifest" "karpenter_node_pool" {
           requirements = [
             { key = "karpenter.sh/capacity-type", operator = "In", values = ["spot"] },
             { key = "kubernetes.io/arch", operator = "In", values = ["arm64"] },
-            { key = "karpenter.k8s.aws/instance-family", operator = "In", values = ["t4g", "c7g", "m7g", "r7g"] },
-            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["small", "medium", "large", "xlarge", "2xlarge"] }
+            { key = "karpenter.k8s.aws/instance-family", operator = "In", values = ["t4g", "c6g", "c7g", "m7g", "r7g"] },
+            { key = "karpenter.k8s.aws/instance-size", operator = "In", values = ["small", "medium", "large"] }
           ]
         }
       }

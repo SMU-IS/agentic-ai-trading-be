@@ -53,9 +53,9 @@ output "bastion_security_group_id" {
   value       = aws_security_group.bastion_sg.id
 }
 
-output "bastion_instance_id" {
-  description = "ID of the bastion host"
-  value       = aws_instance.bastion.id
+output "bastion_asg_name" {
+  description = "Name of the bastion Auto Scaling Group"
+  value       = aws_autoscaling_group.bastion.name
 }
 
 output "oidc_provider_arn" {

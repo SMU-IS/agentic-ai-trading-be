@@ -96,21 +96,71 @@ resource "aws_iam_instance_profile" "bastion_profile" {
   }
 }
 
-# Small Bastion Instance (using AL2023 ARM64 to match other infrastructure)
-# Configured as a Spot instance for cost optimization in non-critical developer environments
-resource "aws_instance" "bastion" {
-  ami                    = data.aws_ami.al2023.id
-  instance_type          = "t4g.nano"
-  subnet_id              = var.subnet_ids[0]
+# Launch Template for Bastion
+resource "aws_launch_template" "bastion" {
+  name_prefix   = "${var.cluster_name}-bastion-"
+  image_id      = data.aws_ami.al2023.id
+  instance_type = "t4g.nano" # Default, overridden by ASG mixed instances policy
+
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
-  iam_instance_profile   = aws_iam_instance_profile.bastion_profile.name
 
-  # No key_name needed with EICE/SSM
+  iam_instance_profile {
+    name = aws_iam_instance_profile.bastion_profile.name
+  }
 
-  # Ensure the instance has the EC2 Instance Connect software (installed by default on AL2023)
+  monitoring {
+    enabled = false
+  }
 
-  tags = {
-    Name        = "${var.cluster_name}-bastion"
-    Environment = var.environment
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name        = "${var.cluster_name}-bastion"
+      Environment = var.environment
+    }
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Auto Scaling Group for Bastion (1 instance, Mixed Instance Policy for Spot)
+resource "aws_autoscaling_group" "bastion" {
+  name                = "${var.cluster_name}-bastion-asg"
+  vpc_zone_identifier = var.subnet_ids
+  desired_capacity    = 1
+  max_size            = 1
+  min_size            = 1
+
+  mixed_instances_policy {
+    instances_distribution {
+      on_demand_base_capacity                  = 0
+      on_demand_percentage_above_base_capacity = 0 # 100% Spot
+      spot_allocation_strategy                 = "price-capacity-optimized"
+    }
+
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.bastion.id
+        version            = "$Latest"
+      }
+
+      override { instance_type = "t4g.nano" }
+      override { instance_type = "t4g.micro" }
+      override { instance_type = "t4g.small" }
+    }
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "${var.cluster_name}-bastion"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "Environment"
+    value               = var.environment
+    propagate_at_launch = true
   }
 }
