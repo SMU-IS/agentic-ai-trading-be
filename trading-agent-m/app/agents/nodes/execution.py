@@ -121,12 +121,16 @@ async def node_execute_trade(state: AgentState) -> AgentState:
     def _enrich(raw: dict, order_item: RiskAdjResult) -> dict:
         assessment: RiskAssessment = order_item.get("risk_evaluation")
         metrics:    RiskMetrics    = assessment.metrics if assessment else None
+        adj: TradingDecision       = order_item.get("adjusted_order_details")
+        # Use the order's own decision for confidence/thesis (custom profile has its own LLM call)
+        confidence = adj.confidence if adj else (order_details_base.confidence if order_details_base else None)
+        reasonings = adj.thesis     if adj else (order_details_base.thesis     if order_details_base else None)
         return {
             **raw,
             "profile":    order_item.get("profile").value,
             "user_id":    order_item.get("user_id"),
-            "confidence": order_details_base.confidence if order_details_base else None,
-            "reasonings": order_details_base.thesis     if order_details_base else None,
+            "confidence": confidence,
+            "reasonings": reasonings,
             "signal_id":  signal_id,
             "risk_evaluation": {
                 "risk_per_share":   metrics.risk_per_share   if metrics else None,

@@ -190,6 +190,7 @@ class SignalResponse(BaseModel):
 class RiskProfile(str, Enum):
     aggressive = "aggressive"
     conservative = "conservative"
+    custom = "custom"
 
 class UpdateRiskProfileRequest(BaseModel):
     risk_profile: RiskProfile

@@ -4,6 +4,8 @@ from .reasoning import node_decide_trade
 from .market_data import node_fetch_market_data
 from .risk_adjust import node_risk_adjust_trade
 from .trade_logging import node_trade_logging
+from .profile_reasoning import node_profile_reasoning
+from .merge_orders import node_merge_orders
 
 __all__ = [
     "node_decide_trade",
@@ -12,4 +14,6 @@ __all__ = [
     "node_risk_adjust_trade",
     "node_trade_logging",
     "node_fetch_signal_data",
+    "node_profile_reasoning",
+    "node_merge_orders",
 ]

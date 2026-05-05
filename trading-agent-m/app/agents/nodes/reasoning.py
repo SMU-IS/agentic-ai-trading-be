@@ -291,10 +291,12 @@ Do not inherit the signal's entry or exit levels. Derive your own from current p
     print("-" * 60)
     print()
 
-    state["has_trade_opportunity"] = decision.action in [TradeAction.BUY, TradeAction.SELL]
-    print(f"   [✅ Trade Opportunity] {'Yes' if state['has_trade_opportunity'] else 'No'}")
-    state["order_details"] = decision
-    return state
+    has_trade = decision.action in [TradeAction.BUY, TradeAction.SELL]
+    print(f"   [✅ Trade Opportunity] {'Yes' if has_trade else 'No'}")
+    return {
+        "has_trade_opportunity": has_trade,
+        "order_details": decision,
+    }
 
 
 # Helper function to parse LLM JSON responses robustly
