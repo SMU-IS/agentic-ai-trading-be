@@ -257,7 +257,6 @@ class MongoDBClient:
                 "min_risk_score":   risk.get("min_risk_score"),
             },
         }
-        return result
 
     # For trading-agent to run trades
     def get_all_trading_accounts(self) -> list[dict]:
