@@ -213,11 +213,18 @@ class MongoDBClient:
             raise RuntimeError(f"No active account found for user_id={user_id}")
 
         fields = {}
-        if "risk_profile" in updates and updates["risk_profile"] is not None:
-            fields["risk_profile"] = updates.pop("risk_profile")
-        for k, v in updates.items():
+        if updates.get("risk_profile") is not None:
+            fields["risk_profile"] = updates["risk_profile"]
+
+        agent_keys = {"reddit_enabled", "tradingview_enabled", "reddit_forums", "custom_prompt"}
+        for k in agent_keys:
+            if updates.get(k) is not None:
+                fields[f"agent_setting.{k}"] = updates[k]
+
+        risk = updates.get("risk_settings") or {}
+        for k, v in risk.items():
             if v is not None:
-                fields[f"agent_setting.{k}"] = v
+                fields[f"risk_settings.{k}"] = v
 
         if fields:
             self.accounts.update_one({"user_id": user_id}, {"$set": fields})
@@ -226,17 +233,29 @@ class MongoDBClient:
     def get_agent_settings(self, user_id: str) -> Dict[str, Any]:
         doc = self.accounts.find_one(
             {"user_id": user_id, "is_active": True},
-            {"risk_profile": 1, "agent_setting": 1}
+            {"risk_profile": 1, "agent_setting": 1, "risk_settings": 1},
         )
         if not doc:
             raise RuntimeError(f"No active account found for user_id={user_id}")
-        settings = doc.get("agent_setting") or {}
+        agent   = doc.get("agent_setting") or {}
+        risk    = doc.get("risk_settings") or {}
         return {
-            "user_id":              user_id,
-            "risk_profile":         doc.get("risk_profile"),
-            "reddit_enabled":       settings.get("reddit_enabled", False),
-            "tradingview_enabled":  settings.get("tradingview_enabled", False),
-            "reddit_forums":        settings.get("reddit_forums", []),
+            "user_id":             user_id,
+            "risk_profile":        doc.get("risk_profile"),
+            "reddit_enabled":      agent.get("reddit_enabled", False),
+            "tradingview_enabled": agent.get("tradingview_enabled", False),
+            "reddit_forums":       agent.get("reddit_forums", []),
+            "custom_prompt":       agent.get("custom_prompt"),
+            "risk_settings": {
+                "penny_block":      risk.get("penny_block"),
+                "min_confidence":   risk.get("min_confidence"),
+                "min_rr":           risk.get("min_rr"),
+                "max_sl_pct":       risk.get("max_sl_pct"),
+                "max_tp_pct":       risk.get("max_tp_pct"),
+                "max_risk_pct":     risk.get("max_risk_pct"),
+                "max_position_pct": risk.get("max_position_pct"),
+                "min_risk_score":   risk.get("min_risk_score"),
+            },
         }
 
     # For trading-agent to run trades
