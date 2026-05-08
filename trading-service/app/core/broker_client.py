@@ -88,6 +88,25 @@ class AlpacaBrokerClient:
             secret_key=api_secret,
         )
 
+    # --------- Asset lookup ---------
+
+    def get_asset(self, symbol: str) -> Dict[str, Any]:
+        """Return asset metadata and tradability info from Alpaca."""
+        try:
+            asset = self.client.get_asset(symbol.upper())
+        except Exception as e:
+            raise RuntimeError(f"Asset not found on Alpaca: {symbol}") from e
+        return {
+            "symbol":       asset.symbol,
+            "tradable":     asset.tradable,
+            "fractionable": asset.fractionable,
+            "shortable":    asset.shortable,
+            "easy_to_borrow": asset.easy_to_borrow,
+            "status":       asset.status.value if hasattr(asset.status, "value") else str(asset.status),
+            "asset_class":  asset.asset_class.value if hasattr(asset.asset_class, "value") else str(asset.asset_class),
+            "exchange":     asset.exchange.value if hasattr(asset.exchange, "value") else str(asset.exchange),
+        }
+
     # --------- Market clock ---------
 
     def get_clock(self) -> Dict[str, Any]:

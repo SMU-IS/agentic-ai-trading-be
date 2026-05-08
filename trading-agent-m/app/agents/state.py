@@ -7,6 +7,7 @@ from enum import Enum
 class RiskProfile(str, Enum):
     CONSERVATIVE = "conservative"
     AGGRESSIVE   = "aggressive"
+    CUSTOM      = "custom"
 
 class Signal(BaseModel):
     signal_id: str
@@ -242,15 +243,16 @@ LIVE QUOTE FROM BROKER ({trade.symbol}, {trade.timestamp}):
 
 @dataclass
 class MarketData:
-    alpaca: AlpacaData
     yahoo: YahooTechnicalData
     timestamp: float  # Unix time from asyncio.get_event_loop().time()
-    
+    alpaca: Optional[AlpacaData] = None
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'MarketData':
         """Create from raw state dict"""
+        alpaca_raw = data.get('alpaca')
         return cls(
-            alpaca=AlpacaData.from_dict(data['alpaca']),
+            alpaca=AlpacaData.from_dict(alpaca_raw) if alpaca_raw else None,
             yahoo=YahooTechnicalData.from_dict(data['yahoo']),
             timestamp=data['timestamp']
         )
@@ -397,15 +399,21 @@ class AgentState(TypedDict):
     # Output from reasoning
     order_details: TradingDecision
     has_trade_opportunity: NotRequired[bool]
-    
+
+    # Output from node_profile_reasoning_v2
+    # Each entry: {profile, decision, user_ids, bypass_risk_adjust, buying_power?}
+    profile_decisions: NotRequired[list[dict]]
+
     # Output from risk adjustment
     aggressive_adj_order_details: RiskAdjResult
     conservative_adj_order_details: RiskAdjResult
     should_execute: NotRequired[bool]
 
-    order_list:     NotRequired[list[RiskAdjResult]]
+    standard_order_list: NotRequired[list[RiskAdjResult]]  # set by risk_adjust
+    profile_order_list:  NotRequired[list[RiskAdjResult]]  # set by profile_reasoning
+    order_list:          NotRequired[list[RiskAdjResult]]  # set by merge_orders (combined)
     # Save to db
-    execution_results:  NotRequired[list[dict]]
+    execution_results:   NotRequired[list[dict]]
     all_conflict_resolutions: NotRequired[list[dict]]
 
 

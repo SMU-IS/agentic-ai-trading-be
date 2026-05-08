@@ -5,7 +5,7 @@ from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Path, Header
 from app.core.trading_db_client import MongoDBClient
 from app.core.services import services
-from app.api.schemas import DeepAnalysis, UpdateRiskProfileRequest, RiskProfile, UpdateAgentSettingsRequest
+from app.api.schemas import DeepAnalysis, UpdateRiskProfileRequest, RiskProfile, UpdateAgentSettingsRequest, CreateTradingAccountRequest
 from bson import ObjectId
 
 router = APIRouter()
@@ -117,6 +117,19 @@ async def update_trading_account_risk_profile(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/trading-accounts", response_model=Dict[str, Any], status_code=201)
+async def create_trading_account(
+    req: CreateTradingAccountRequest,
+    client: MongoDBClient = Depends(lambda: mongo_client)
+) -> Dict[str, Any]:
+    try:
+        return client.create_trading_account(req.model_dump())
+    except RuntimeError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @router.get("/trading-accounts", response_model=list[dict])
 async def get_all_trading_accounts(

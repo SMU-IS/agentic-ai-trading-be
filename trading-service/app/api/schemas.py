@@ -190,12 +190,43 @@ class SignalResponse(BaseModel):
 class RiskProfile(str, Enum):
     aggressive = "aggressive"
     conservative = "conservative"
+    custom = "custom"
+
+class LLMModel(str, Enum):
+    perplexity = "perplexity"
+    claude     = "claude"
+    openai     = "openai"
 
 class UpdateRiskProfileRequest(BaseModel):
     risk_profile: RiskProfile
 
+
+class CreateTradingAccountRequest(BaseModel):
+    user_id:            str
+    alpaca_api_key:     str
+    alpaca_api_secret:  str
+    alpaca_is_paper:    bool                  = True
+    risk_profile:       RiskProfile           = RiskProfile.aggressive
+    alias_name:         str                   = "My Account"
+    reddit_forums:      Optional[List[str]]   = None
+    llm_model:          LLMModel              = LLMModel.perplexity
+
+class RiskSettingsRequest(BaseModel):
+    penny_block:       Optional[bool]  = None
+    min_confidence:    Optional[float] = Field(None, ge=0.0, le=1.0)
+    min_rr:            Optional[float] = Field(None, ge=0.5, le=10.0)
+    max_sl_pct:        Optional[float] = Field(None, ge=0.01, le=0.50)
+    max_tp_pct:        Optional[float] = Field(None, ge=0.01, le=1.00)
+    max_risk_pct:      Optional[float] = Field(None, ge=0.001, le=0.20)
+    max_position_pct:  Optional[float] = Field(None, ge=0.001, le=0.50)
+    min_risk_score:    Optional[float] = Field(None, ge=0.0, le=1.0)
+
+
 class UpdateAgentSettingsRequest(BaseModel):
-    risk_profile:        Optional[RiskProfile] = None
-    reddit_enabled:      Optional[bool]        = None
-    tradingview_enabled: Optional[bool]        = None
-    reddit_forums:       Optional[List[str]]   = None
+    risk_profile:        Optional[RiskProfile]      = None
+    reddit_enabled:      Optional[bool]             = None
+    tradingview_enabled: Optional[bool]             = None
+    reddit_forums:       Optional[List[str]]        = None
+    custom_prompt:       Optional[str]              = None
+    llm_model:           Optional[LLMModel]         = None
+    risk_settings:       Optional[RiskSettingsRequest] = None
