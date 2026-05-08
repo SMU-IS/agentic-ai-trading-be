@@ -195,6 +195,16 @@ class RiskProfile(str, Enum):
 class UpdateRiskProfileRequest(BaseModel):
     risk_profile: RiskProfile
 
+
+class CreateTradingAccountRequest(BaseModel):
+    user_id:            str
+    alpaca_api_key:     str
+    alpaca_api_secret:  str
+    alpaca_is_paper:    bool                  = True
+    risk_profile:       RiskProfile           = RiskProfile.aggressive
+    alias_name:         str                   = "My Account"
+    reddit_forums:      Optional[List[str]]   = None
+
 class RiskSettingsRequest(BaseModel):
     penny_block:       Optional[bool]  = None
     min_confidence:    Optional[float] = Field(None, ge=0.0, le=1.0)
