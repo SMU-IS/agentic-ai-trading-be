@@ -228,6 +228,7 @@ class MongoDBClient:
                 "tradingview_enabled": True,
                 "reddit_forums":       data.get("reddit_forums") or default_forums,
                 "custom_prompt":       None,
+                "llm_model":           data.get("llm_model", "perplexity"),
             },
             "risk_settings": {
                 "penny_block":      False,
@@ -252,7 +253,7 @@ class MongoDBClient:
         if updates.get("risk_profile") is not None:
             fields["risk_profile"] = updates["risk_profile"]
 
-        agent_keys = {"reddit_enabled", "tradingview_enabled", "reddit_forums", "custom_prompt"}
+        agent_keys = {"reddit_enabled", "tradingview_enabled", "reddit_forums", "custom_prompt", "llm_model"}
         for k in agent_keys:
             if updates.get(k) is not None:
                 fields[f"agent_setting.{k}"] = updates[k]
@@ -282,6 +283,7 @@ class MongoDBClient:
             "tradingview_enabled": agent.get("tradingview_enabled", False),
             "reddit_forums":       agent.get("reddit_forums", []),
             "custom_prompt":       agent.get("custom_prompt"),
+            "llm_model":           agent.get("llm_model", "perplexity"),
             "risk_settings": {
                 "penny_block":      risk.get("penny_block"),
                 "min_confidence":   risk.get("min_confidence"),

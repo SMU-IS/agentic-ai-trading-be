@@ -11,6 +11,7 @@ from langchain_perplexity import (
 from app.core.config import env_config
 from app.services.redis_service import RedisService  # Your RedisService class
 from app.services.trading_workflow import TradingWorkflow
+from app.agents.nodes.market_data import AssetNotTradableError
 
 SERVICE_POLL_INTERVAL = 10  # seconds
 
@@ -37,6 +38,8 @@ async def lifespan(app: FastAPI):
 
     async def _is_market_open() -> bool:
         """Check Alpaca /clock — handles holidays and early closes automatically."""
+        # Debug override: force market open
+        return True
         try:
             async with httpx.AsyncClient(timeout=5.0) as client:
                 resp = await client.get(f"{env_config.trading_service_url}/clock")
@@ -79,6 +82,9 @@ async def lifespan(app: FastAPI):
             try:
                 print(f"🚀 Processing signal: {signal.signal_id}")
                 await workflow.run(signal)
+                await redis_service.ack_signal(msg_id)
+            except AssetNotTradableError as e:
+                print(f"⏭️  Skipping signal {signal.signal_id}: {e}")
                 await redis_service.ack_signal(msg_id)
             except Exception as e:
                 print(f"❌ Workflow error for {signal.signal_id}: {e} — message stays in PEL for retry")

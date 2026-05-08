@@ -1,66 +1,66 @@
 import asyncio
-from typing import Any, Dict
 import httpx
-from app.agents.state import AgentState, SignalData, AlpacaData, Quote, Trade, MarketData, YahooTechnicalData
+from app.agents.state import AgentState, SignalData, MarketData, YahooTechnicalData
 from app.core.config import env_config
 
 TRADING_SERVICE_URL = env_config.trading_service_url
 
-ALPACA_BASE_URL = TRADING_SERVICE_URL
 YAHOO_BASE_URL = f"{TRADING_SERVICE_URL}/yahoo"
+
+
+class AssetNotTradableError(Exception):
+    """Raised when a ticker is not available or not tradable on Alpaca."""
+
+
+async def check_alpaca_asset(ticker: str) -> None:
+    """
+    Verify the ticker exists and is tradable on Alpaca.
+    Raises AssetNotTradableError if not found or not tradable.
+    """
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        try:
+            resp = await client.get(
+                f"{TRADING_SERVICE_URL}/assets/{ticker}",
+                headers={"X-User-Id": "agent-A"},
+            )
+        except Exception as e:
+            raise AssetNotTradableError(f"Asset check failed for {ticker}: {e}") from e
+
+    if resp.status_code == 404:
+        raise AssetNotTradableError(f"{ticker} not found on Alpaca")
+    if resp.status_code != 200:
+        raise AssetNotTradableError(f"Asset check error for {ticker} (status {resp.status_code})")
+
+    data = resp.json()
+    if not data.get("tradable"):
+        status = data.get("status", "unknown")
+        raise AssetNotTradableError(f"{ticker} is not tradable on Alpaca (status={status})")
+
+    print(f"   [✅ Alpaca Asset] {ticker} — tradable={data['tradable']} | class={data.get('asset_class')} | exchange={data.get('exchange')}")
 
 
 async def node_fetch_market_data(state: AgentState) -> AgentState:
     """
-    Fetches real-time market data for the ticker:
-    - Latest quote/trade from Alpaca brokerage API
-    - Recent historical bars from Yahoo API
+    Fetches real-time market data for the ticker from Yahoo Finance.
+    Verifies the ticker is tradable on Alpaca first — raises AssetNotTradableError if not.
     """
     signal_data: SignalData = state["signal_data"]
     ticker = signal_data.ticker
 
     print(f"   [📊 Market Data] Fetching data for {ticker}...")
 
-    # Parallel API calls
-    alpaca_task = fetch_alpaca_data(ticker)
-    yahoo_task = fetch_yahoo_technical(ticker)
+    await check_alpaca_asset(ticker)
 
-    alpaca_data, yahoo_data = await asyncio.gather(alpaca_task, yahoo_task)
+    yahoo_data = await fetch_yahoo_technical(ticker)
     market_data = MarketData(
-        alpaca=alpaca_data,
         yahoo=yahoo_data,
         timestamp=asyncio.get_event_loop().time(),
     )
     state["market_data"] = market_data
     print(market_data.to_prompt())
-    print("   [✅ Market Data Fetched] Alpaca and Yahoo data added to state.")
-    
+    print("   [✅ Market Data Fetched] Yahoo data added to state.")
+
     return state
-
-
-async def fetch_alpaca_data(ticker: str) -> Dict[str, Any]:
-    """Alpaca latest quote + trade."""
-    async with httpx.AsyncClient(timeout=5.0) as client:
-        try:
-            # Latest quote
-            quote_resp = await client.get(f"{ALPACA_BASE_URL}/latest_quote/{ticker}")
-            quote_data = quote_resp.json() if quote_resp.status_code == 200 else {}
-
-            # Latest trade
-            trade_resp = await client.get(f"{ALPACA_BASE_URL}/latest_trade/{ticker}")
-            trade_data = trade_resp.json() if trade_resp.status_code == 200 else {}
-            return AlpacaData(
-                latest_quote=Quote(**quote_data) if quote_data else None,
-                latest_trade=Trade(**trade_data) if trade_data else None,
-                spread=(
-                    quote_data.get("ask_price") - quote_data.get("bid_price")
-                    if quote_data.get("ask_price") and quote_data.get("bid_price")
-                    else 0.0
-                ),
-            )
-        except Exception as e:
-            print(f"   [❌ Alpaca API] {e}")
-            raise
 
 
 async def fetch_yahoo_technical(ticker: str) -> YahooTechnicalData:

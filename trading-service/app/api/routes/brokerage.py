@@ -574,6 +574,22 @@ def trading_blocked(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ---------- Asset lookup ----------
+
+@router.get("/assets/{symbol}")
+def check_asset(
+    symbol: str,
+    broker: AlpacaBrokerClient = Depends(get_broker),
+) -> Dict[str, Any]:
+    """Check if a ticker exists and is tradable on Alpaca."""
+    try:
+        return broker.get_asset(symbol)
+    except RuntimeError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # ---------- Latest Trades ----------
 # --------------------------------
 # Get market data for latest trades per symbol

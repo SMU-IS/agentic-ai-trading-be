@@ -30,6 +30,14 @@ class EnvConfig(BaseSettings):
     perplexity_model: str = os.getenv("PERPLEXITY_MODEL", "sonar")
     perplexity_temperature: float = os.getenv("PERPLEXITY_TEMPERATURE", 0.2)
 
+    # Anthropic (Claude)
+    anthropic_api_key: str = os.getenv("ANTHROPIC_API_KEY", "")
+    anthropic_model: str = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+
+    # OpenAI
+    openai_api_key: str = os.getenv("OPENAI_API_KEY", "")
+    openai_model: str = os.getenv("OPENAI_MODEL", "gpt-4o")
+
     trading_service_url: str = os.getenv(
         "TRADING_SERVICE_URL", "http://localhost:8000/api/v1/trading"
     )

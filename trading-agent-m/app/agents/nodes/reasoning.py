@@ -37,7 +37,6 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
     if state.get("market_data"):
         md = state["market_data"]
         y  = md.yahoo
-        a  = md.alpaca
 
         def _f(v, fmt=""):
             if v is None: return "N/A"
@@ -45,10 +44,9 @@ async def node_decide_trade(llm, state: AgentState) -> AgentState:
             except: return str(v)
 
         rsi_label = "OVERSOLD" if y.rsi and y.rsi < 30 else "OVERBOUGHT" if y.rsi and y.rsi > 75 else "NEUTRAL"
-        spread_pct = (a.spread / a.latest_trade.price * 100) if a.latest_trade.price else 0.0
 
         market_summary = f"""PRICE ACTION SUMMARY:
-- Current Price: ${_f(a.latest_trade.price, '.3f')} (live broker quote)
+- Current Price: ${_f(y.current_price, '.3f')}
 - Candle: {y.candle_type.upper()} (body {_f(y.body_size, '.1f')}%, {_f(y.body_pct, '.0%')} of range)
 - Range: ${_f(y.low, '.3f')} - ${_f(y.high, '.3f')} | ATR14: ${_f(y.atr14, '.3f')}
 - 3D Range: ${_f(y.low_3d, '.3f')} - ${_f(y.high_3d, '.3f')}
@@ -62,11 +60,7 @@ TECHNICAL INDICATORS:
 
 MARKET STRUCTURE:
 - Support: ${_f(y.support, '.3f')} | Resistance: ${_f(y.resistance, '.3f')}
-- Data Period: {y.period_summary}
-
-LIVE BROKER QUOTE ({a.latest_trade.symbol}, {a.latest_trade.timestamp}):
-- Bid: ${_f(a.latest_quote.bid_price, '.2f')} x {a.latest_quote.bid_size} | Ask: ${_f(a.latest_quote.ask_price, '.2f')} x {a.latest_quote.ask_size}
-- Spread: ${_f(a.spread, '.3f')} ({spread_pct:.2f}%)"""
+- Data Period: {y.period_summary}"""
     else:
         market_summary = "No market data available."
 
@@ -150,7 +144,7 @@ LIVE BROKER QUOTE ({a.latest_trade.symbol}, {a.latest_trade.timestamp}):
 All fields below are present. Do not state that any field is unavailable or missing.
 
 Field reference:
-- Current Price: live broker quote (use this as current_stock_price)
+- Current Price: latest Yahoo price (use this as current_stock_price)
 - Candle: yesterday's OHLCV candle type, body%, body-to-range ratio
 - Range: yesterday's Low - High, ATR14 (14-day average true range in dollars)
 - RSI: momentum oscillator 0-100. OVERBOUGHT label = above 75. OVERSOLD label = below 30.
@@ -159,7 +153,6 @@ Field reference:
 - BB Lower / Upper / Position%: Bollinger Bands. Position 0% = at lower band, 100% = at upper band
 - Support / Resistance: structural levels from 30-day price history — use as SL/TP anchors
 - 3D Range: highest high and lowest low over last 3 days
-- Bid / Ask / Spread: live broker quote — confirms current tradeable price
 
 {market_summary}
 

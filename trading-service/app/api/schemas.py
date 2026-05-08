@@ -192,6 +192,11 @@ class RiskProfile(str, Enum):
     conservative = "conservative"
     custom = "custom"
 
+class LLMModel(str, Enum):
+    perplexity = "perplexity"
+    claude     = "claude"
+    openai     = "openai"
+
 class UpdateRiskProfileRequest(BaseModel):
     risk_profile: RiskProfile
 
@@ -204,6 +209,7 @@ class CreateTradingAccountRequest(BaseModel):
     risk_profile:       RiskProfile           = RiskProfile.aggressive
     alias_name:         str                   = "My Account"
     reddit_forums:      Optional[List[str]]   = None
+    llm_model:          LLMModel              = LLMModel.perplexity
 
 class RiskSettingsRequest(BaseModel):
     penny_block:       Optional[bool]  = None
@@ -222,4 +228,5 @@ class UpdateAgentSettingsRequest(BaseModel):
     tradingview_enabled: Optional[bool]             = None
     reddit_forums:       Optional[List[str]]        = None
     custom_prompt:       Optional[str]              = None
+    llm_model:           Optional[LLMModel]         = None
     risk_settings:       Optional[RiskSettingsRequest] = None

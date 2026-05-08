@@ -4,13 +4,12 @@ from functools import partial
 from langgraph.graph import END, START, StateGraph
 
 from app.agents.nodes import (
-    node_decide_trade,
     node_execute_trade,
     node_fetch_market_data,
-    node_risk_adjust_trade,
+    node_risk_adjust_v2,
     node_trade_logging,
     node_fetch_signal_data,
-    node_profile_reasoning,
+    node_profile_reasoning_v2,
 )
 from app.agents.state import AgentState
 
@@ -24,31 +23,25 @@ class TradingWorkflow:
     def _build_graph(self):
         graph = StateGraph(AgentState)
 
-        reasoning_with_llm         = partial(node_decide_trade, self.llm)
-        profile_reasoning_with_llm = partial(node_profile_reasoning, self.llm)
+        profile_reasoning_with_llm    = partial(node_profile_reasoning_v2, self.llm)
         node_trade_logging_with_redis = partial(node_trade_logging, self.redis_service)
 
         # 1. Nodes
-        graph.add_node("lookup_context",      node_fetch_signal_data)
-        graph.add_node("fetch_market_data",   node_fetch_market_data)
-        graph.add_node("reasoning",           reasoning_with_llm)
-        graph.add_node("profile_reasoning",   profile_reasoning_with_llm)
-        graph.add_node("risk_adjust",         node_risk_adjust_trade)
-        graph.add_node("execute",             node_execute_trade)
-        graph.add_node("trade_logging",       node_trade_logging_with_redis)
+        graph.add_node("lookup_context",       node_fetch_signal_data)
+        graph.add_node("fetch_market_data",    node_fetch_market_data)
+        graph.add_node("profile_reasoning_v2", profile_reasoning_with_llm)
+        graph.add_node("risk_adjust",          node_risk_adjust_v2)
+        graph.add_node("execute",              node_execute_trade)
+        graph.add_node("trade_logging",        node_trade_logging_with_redis)
 
         # 2. Edges
-        graph.add_edge(START, "lookup_context")
-        graph.add_edge("lookup_context", "fetch_market_data")
+        graph.add_edge(START,                  "lookup_context")
+        graph.add_edge("lookup_context",       "fetch_market_data")
+        graph.add_edge("fetch_market_data",    "profile_reasoning_v2")
+        graph.add_edge("profile_reasoning_v2", "risk_adjust")
 
-        # Sequential: reasoning → risk_adjust → profile_reasoning (merges + decides)
-        graph.add_edge("fetch_market_data", "reasoning")
-        graph.add_edge("reasoning",         "risk_adjust")
-        graph.add_edge("risk_adjust",       "profile_reasoning")
-
-        # profile_reasoning merges standard_order_list + custom results into order_list
         graph.add_conditional_edges(
-            "profile_reasoning",
+            "risk_adjust",
             self.edge_should_execute,
             {True: "execute", False: "trade_logging"},
         )
@@ -57,11 +50,11 @@ class TradingWorkflow:
         graph.add_edge("trade_logging", END)
         return graph.compile()
 
-    # ###### Edge Logic ######
     def edge_should_execute(self, state: AgentState):
+        # debug override: skip
+        # return False
         return state.get("should_execute", False)
 
-    # ###### Public Runner ######
     async def run(self, input_data: dict):
         result = await self.graph.ainvoke(input_data)
         return result
