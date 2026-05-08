@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
     async def _is_market_open() -> bool:
         """Check Alpaca /clock — handles holidays and early closes automatically."""
         # Debug override: force market open
-        return True
+        # return True
         try:
             async with httpx.AsyncClient(timeout=5.0) as client:
                 resp = await client.get(f"{env_config.trading_service_url}/clock")
