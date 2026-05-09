@@ -192,8 +192,9 @@ class WorkflowManager:
         analysis.source = article.source
         state["deep_analysis"] = analysis
         
-        # post signal on telegram
-        post_signal_to_telegram(analysis)
+        # post signal on telegram (BUY/SHORT only, skip NO_TRADE)
+        if analysis.trade_signal in ("BUY", "SHORT"):
+            post_signal_to_telegram(analysis)
 
         # Post the analysis
         response = post_deepanalysis(analysis)
